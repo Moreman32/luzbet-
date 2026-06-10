@@ -224,6 +224,25 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .vg-score-row{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:3px}
 .h{color:var(--green)}.m{color:var(--red)}
 
+
+/* РЕЗУЛЬТАТЫ В КУПОНЕ */
+.team-btn.result-hit{background:rgba(0,176,80,.12);border-color:rgba(0,176,80,.5);color:var(--green)}
+.team-btn.result-miss{background:rgba(232,0,42,.08);border-color:rgba(232,0,42,.3);color:#ff6b6b;opacity:.7}
+.team-btn.result-hit .team-check::after{content:' ✓';color:var(--green)}
+.score-match-block.score-exact{background:rgba(0,176,80,.07);border:1px solid rgba(0,176,80,.25);border-radius:6px;padding:6px 8px}
+.score-match-block.score-outcome{background:rgba(79,195,247,.06);border:1px solid rgba(79,195,247,.2);border-radius:6px;padding:6px 8px}
+.score-match-block.score-miss{background:rgba(232,0,42,.05);border:1px solid rgba(232,0,42,.15);border-radius:6px;padding:6px 8px}
+.score-result-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:6px;display:inline-block}
+.badge-exact{background:var(--green);color:#000}
+.badge-outcome{background:var(--blue);color:#000}
+.badge-miss{background:var(--red);color:#fff}
+.badge-pending{background:var(--border);color:var(--muted)}
+/* LUCKY BUTTON */
+.lucky-btn{background:linear-gradient(135deg,#7b2ff7,#e040fb);color:#fff;border:none;border-radius:var(--r);font-family:var(--os);font-size:15px;font-weight:700;padding:0 24px;height:var(--touch);cursor:pointer;width:100%;letter-spacing:.5px;transition:all .2s;margin-bottom:12px;position:relative;overflow:hidden}
+.lucky-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);pointer-events:none}
+.lucky-btn:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(123,47,247,.4)}
+.lucky-btn:active{transform:scale(.98)}
+
 /* LEADERBOARD */
 .lb-note{background:rgba(255,230,0,.06);border:1px solid rgba(255,230,0,.15);border-radius:var(--r);padding:12px 16px;font-size:12px;color:var(--yellow);margin-bottom:16px;line-height:1.6}
 .lb-list{display:flex;flex-direction:column;gap:8px}
@@ -1603,7 +1622,15 @@ function showPage(id){
   if(id==='achievements')renderAchievements();
   if(id==='rules')unlockAch('page_rules');
   if(id==='playoff')loadPlayoffPage();
-  if(id==='predict' && S.code && Object.keys(currentPredictionData).length>0) restorePredictionToForm(currentPredictionData);
+  if(id==='predict' && S.code && Object.keys(currentPredictionData).length>0){
+    if(!window._lastResults){
+      api({action:'getLeaderboard'}).then(r=>{
+        if(r.ok){window._lastResults=r.results;restorePredictionToForm(currentPredictionData);}
+      }).catch(()=>{});
+    } else {
+      restorePredictionToForm(currentPredictionData);
+    }
+  }
   if(id==='casino'){saveCoins();renderCrashHistory();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
@@ -1641,6 +1668,10 @@ async function doLogin(){
       loadAchFromSheets(S.code);
       if(r.hasVoted){
         const p=await api({action:'getPrediction',code:S.code});
+        // Сначала грузим results чтобы подсветка работала сразу
+        const lbData = await api({action:'getLeaderboard'}).catch(()=>null);
+        if(lbData && lbData.ok) window._lastResults = lbData.results;
+
         if(p.ok && p.prediction){
           currentPredictionData=p.prediction;
           showForm(currentPredictionData);
@@ -1687,7 +1718,9 @@ function showForm(pred=null){
   document.getElementById('user-bar-predict').style.display='block';
   document.getElementById('ub-name-p').textContent='👋 '+S.name;
   const now=new Date();
-  let html=`<div class="legend"><span class="leg-item">⚽ Выход <span class="leg-badge">+1</span></span><span class="leg-item">🎯 Исход <span class="leg-badge">+1</span></span><span class="leg-item">💥 Счёт <span class="leg-badge red">+2</span></span></div><div class="groups-grid">`;
+  let html=`<div class="legend"><span class="leg-item">⚽ Выход <span class="leg-badge">+1</span></span><span class="leg-item">🎯 Исход <span class="leg-badge">+1</span></span><span class="leg-item">💥 Счёт <span class="leg-badge red">+2</span></span></div>
+  <button class="lucky-btn" onclick="fillLucky()">🎲 НА УДАЧУ — заполнить всё случайно и сохранить</button>
+  <div class="groups-grid">`;
   Object.entries(GROUPS).forEach(([g,d],gi)=>{
     const dl=new Date(d.deadline),locked=now>=dl,soon=(dl-now)/86400000<=1&&!locked;
     // Format deadline in MSK
@@ -1703,7 +1736,7 @@ function showForm(pred=null){
       html+=`<button class="team-btn" id="${sid}" ${onclk} ${locked?'disabled style="opacity:.55;cursor:not-allowed"':''}><span class="team-flag">${t.f}</span><span class="team-name">${t.n}</span><span class="team-odds">${t.o}</span><span class="team-check">✓</span></button>`;
     });
     html+=`<div class="score-section"><div class="score-label">⚡ Прогноз счёта матчей (${d.matches.length} матчей)</div>`;
-    d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;const ml=isMatchLocked(m);html+=`<div class="score-match-block"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}${ml?' 🔒':''}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/></div></div>`;});
+    d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;const ml=isMatchLocked(m);html+=`<div class="score-match-block" id="smb-${g}-${mi}"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}${ml?' 🔒':''}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/></div></div>`;});
     html+=`</div><div class="score-hint">Счёт необязателен. Но +2 за точный — не откажешься.</div><div class="gc-progress" id="counter-${g}">выбрано 0/2</div></div></div>`;
   });
   html+='</div>';
@@ -1719,26 +1752,76 @@ function showForm(pred=null){
 
 function restorePredictionToForm(pred){
   if(!pred)return;
+  const results = window._lastResults || {};
+
   for(const[g,d]of Object.entries(GROUPS)){
     const raw=pred['group'+g]||'';
     sel[g]=raw?raw.split('|').map(x=>x.trim()).filter(Boolean):[];
+
+    const actual=(results[g]&&results[g].teams)||[];
+    const actScores=(results[g]&&results[g].scores)||[];
+    const hasTeamRes=actual.length>0;
+
+    // Подсветка кнопок команд
     sel[g].forEach(name=>{
       const btn=document.getElementById(safeTeamId(g,name));
-      if(btn)btn.classList.add('sel');
+      if(!btn)return;
+      btn.classList.add('sel');
+      if(hasTeamRes){
+        const hit=actual.some(a=>a.toLowerCase()===name.toLowerCase());
+        btn.classList.toggle('result-hit', hit);
+        btn.classList.toggle('result-miss', !hit);
+      }
     });
+
+    // Восстанавливаем счёт + подсвечиваем блоки матчей
     d.matches.forEach((m,mi)=>{
-      const kh=`group${g}_m${mi}_h`,ka=`group${g}_m${mi}_a`;
-      const sh=`${g}_m${mi}_h`,sa=`${g}_m${mi}_a`;
-      if(pred[kh]!==undefined && pred[kh]!==null && pred[kh]!==''){
-        scores[sh]=pred[kh];
-        const input=document.getElementById('s-'+sh); if(input)input.value=pred[kh];
-      }
-      if(pred[ka]!==undefined && pred[ka]!==null && pred[ka]!==''){
-        scores[sa]=pred[ka];
-        const input=document.getElementById('s-'+sa); if(input)input.value=pred[ka];
+      const kh=`group${g}_m${mi}_h`, ka=`group${g}_m${mi}_a`;
+      const sh=`${g}_m${mi}_h`,      sa=`${g}_m${mi}_a`;
+      const ph=pred[kh], pa=pred[ka];
+
+      if(ph!==undefined&&ph!==null&&ph!==''){
+        scores[sh]=ph; scores[sa]=pa;
+        const ih=document.getElementById('s-'+sh); if(ih)ih.value=ph;
+        const ia=document.getElementById('s-'+sa); if(ia)ia.value=pa;
+
+        // Подсветка блока счёта если результат уже известен
+        const block=document.getElementById('smb-'+g+'-'+mi);
+        const as=actScores[mi];
+        if(block && as && as.h!==null && as.h!==undefined){
+          const phN=parseInt(ph), paN=parseInt(pa);
+          const exact = phN===as.h && paN===as.a;
+          const po = phN>paN?'h':phN<paN?'a':'d';
+          const ao = as.h>as.a?'h':as.h<as.a?'a':'d';
+          const outcomeOk = po===ao;
+
+          block.classList.remove('score-exact','score-outcome','score-miss');
+          if(exact)        block.classList.add('score-exact');
+          else if(outcomeOk) block.classList.add('score-outcome');
+          else               block.classList.add('score-miss');
+
+          // Бейдж результата
+          let badge=block.querySelector('.score-result-badge');
+          if(!badge){
+            badge=document.createElement('span');
+            badge.className='score-result-badge';
+            const lbl=block.querySelector('.score-match-teams');
+            if(lbl)lbl.appendChild(badge);
+          }
+          if(exact){
+            badge.textContent='+2 💥'; badge.className='score-result-badge badge-exact';
+          } else if(outcomeOk){
+            badge.textContent='+1 🎯'; badge.className='score-result-badge badge-outcome';
+          } else {
+            badge.textContent='✗ 0'; badge.className='score-result-badge badge-miss';
+          }
+        }
       }
     });
-    const n=sel[g].length,ctr=document.getElementById(`counter-${g}`),card=document.getElementById(`gc-${g}`);
+
+    const n=sel[g].length;
+    const ctr=document.getElementById(`counter-${g}`);
+    const card=document.getElementById(`gc-${g}`);
     if(ctr){ctr.textContent=n===2?'✅ готово':`выбрано ${n}/2`;ctr.className='gc-progress'+(n===2?' ok':'');}
     if(card)card.classList.toggle('done',n===2);
   }
@@ -1929,11 +2012,12 @@ async function showVoted(pred){
 // ══════════════════════════════════════════════
 async function loadLeaderboard(){
   document.getElementById('lb-content').innerHTML='<div class="loading-ctr"><div class="spinner"></div><br/><br/>Считаем чужие ошибки...</div>';
-  try{const r=await api({action:'getLeaderboard'});if(!r.ok)throw new Error();renderLB(r.leaderboard,r.results);}
+  try{const r=await api({action:'getLeaderboard'});if(!r.ok)throw new Error();window._lastResults=r.results;renderLB(r.leaderboard,r.results);}
   catch(e){document.getElementById('lb-content').innerHTML='<div class="alert alert-err show">Не удалось загрузить.</div>';}
 }
 
 function renderLB(lb,results){
+  window._lastResults=results; // сохраняем для подсветки в купоне
   const grpDone=Object.values(results).filter(v=>(v.teams && v.teams.length)>0).length;
   const funTitle=n=>FUN_TITLES[Math.abs(n.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%FUN_TITLES.length];
   const comment=(i,n)=>{const arr=i===0?LB_COMMENTS.first:i>=n-1?LB_COMMENTS.last:LB_COMMENTS.mid;return arr[Math.abs(i*7+n)%arr.length];};
@@ -3696,6 +3780,50 @@ async function restoreSession(){
     showPage('predict');
     toast('🔐 Сессия восстановлена. Повторно вводить код не нужно.','ok',2500);
   }catch(e){console.warn('restoreSession failed',e);}
+}
+
+
+// ══════════════════════════════════════════════
+//  НА УДАЧУ
+// ══════════════════════════════════════════════
+async function fillLucky(){
+  soundClick();
+  const now = new Date();
+  // Заполняем все незаблокированные группы случайно
+  for(const [g,d] of Object.entries(GROUPS)){
+    const locked = now >= new Date(d.deadline);
+    if(locked) continue;
+    // Случайно выбираем 2 команды
+    const shuffled = [...d.teams].sort(()=>Math.random()-.5);
+    sel[g] = [shuffled[0].n, shuffled[1].n];
+    // Подсвечиваем кнопки
+    d.teams.forEach((t,ti)=>{
+      const btn = document.getElementById(safeTeamId(g,t.n));
+      if(btn) btn.classList.toggle('sel', sel[g].includes(t.n));
+    });
+    // Случайный счёт для незаблокированных матчей
+    d.matches.forEach((m,mi)=>{
+      if(isMatchLocked(m)) return;
+      const h = Math.floor(Math.random()*4);
+      const a = Math.floor(Math.random()*4);
+      scores[`${g}_m${mi}_h`] = String(h);
+      scores[`${g}_m${mi}_a`] = String(a);
+      const ih = document.getElementById(`s-${g}_m${mi}_h`);
+      const ia = document.getElementById(`s-${g}_m${mi}_a`);
+      if(ih) ih.value = h;
+      if(ia) ia.value = a;
+    });
+    // Обновить счётчик группы
+    const ctr = document.getElementById(`counter-${g}`);
+    const card = document.getElementById(`gc-${g}`);
+    if(ctr){ctr.textContent='✅ готово';ctr.className='gc-progress ok';}
+    if(card) card.classList.add('done');
+  }
+  updateBar();
+  coinRain(50);
+  toast('🎲 Прогноз заполнен на удачу! Проверь и сохрани — или измени что не нравится.','win',4000);
+  // Скроллим к кнопке сохранения
+  setTimeout(()=>document.getElementById('save-bar').scrollIntoView({behavior:'smooth',block:'end'}),300);
 }
 
 // ══ INIT (must be last — all consts/functions must be defined first) ══

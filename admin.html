@@ -311,9 +311,12 @@ function buildForm(){
   html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:10px">';
   gs.forEach(g=>{
     const r=curR[g]||{};
-    html+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px">';
-    html+='<b style="color:#ffe600;font-size:15px">Группа '+g+'</b>';
-    html+='<span class="muted">'+GROUPS[g].teams.map(t=>t.n).join(' · ')+'</span></div>';
+    html+='<div class="card">';
+    // Header row with group label + delete button
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    html+='<div><b style="color:#ffe600;font-size:15px">Группа '+g+'</b> <span class="muted">'+GROUPS[g].teams.map(t=>t.n).join(' · ')+'</span></div>';
+    html+='<button onclick="deleteResult(\'' + g + '\')" style="background:transparent;border:1px solid #ff4444;color:#ff4444;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;font-family:monospace">🗑 Удалить</button>';
+    html+='</div>';
     html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
     html+='<div><div class="gl">Вышла команда 1</div><input type="text" id="t1-'+g+'" value="'+(r.team1||'')+'" placeholder="Команда 1"/></div>';
     html+='<div><div class="gl">Вышла команда 2</div><input type="text" id="t2-'+g+'" value="'+(r.team2||'')+'" placeholder="Команда 2"/></div>';
@@ -327,7 +330,6 @@ function buildForm(){
       html+='oninput="this.classList.toggle(\'v\',this.value.trim()!=\'\')"/></div>';
     }
     html+='</div></div>';
-    html+='</div><button onclick="deleteResult(\'' + g + '\')" style="background:transparent;border:1px solid #ff4444;color:#ff4444;border-radius:4px;padding:6px 12px;cursor:pointer;font-family:monospace;font-size:12px;white-space:nowrap" title="Удалить результаты группы">🗑 Удалить</button></div>';
   });
   html+='</div>';
   document.getElementById('res-form').innerHTML=html;
