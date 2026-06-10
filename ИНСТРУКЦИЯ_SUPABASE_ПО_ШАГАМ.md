@@ -532,3 +532,80 @@ for each row execute function public.set_updated_at();
 1. сначала привести в порядок схему базы;
 2. потом закрыть прямой доступ из браузера;
 3. потом перевести запись на серверную сторону.
+
+## Отдельно: статистика казино
+
+Если хочешь видеть нормальную статистику казино по дням, одной таблицы `casino` недостаточно.
+
+`casino` хранит только текущее состояние:
+
+- сколько монет осталось;
+- сколько всего потрачено.
+
+Для статистики нужна отдельная история событий.
+
+### Таблица для истории казино
+
+Выполни в `SQL Editor`:
+
+```sql
+create table if not exists public.casino_events (
+  id bigint generated always as identity primary key,
+  code text not null references public.participants(code),
+  game text not null,
+  event_type text not null default 'round',
+  bet integer not null default 0,
+  payout integer not null default 0,
+  delta integer not null default 0,
+  meta jsonb not null default '{}'::jsonb,
+  created_at timestamp with time zone not null default now(),
+  check (bet >= 0),
+  check (payout >= 0)
+);
+
+create index if not exists casino_events_code_created_at_idx
+  on public.casino_events (code, created_at desc);
+
+create index if not exists casino_events_created_at_idx
+  on public.casino_events (created_at desc);
+```
+
+### Какие функции нужны для статистики казино
+
+Добавь ещё 2 Edge Function:
+
+- `log-casino-event`
+- `get-casino-stats`
+
+### Что делает `log-casino-event`
+
+Записывает каждое завершённое событие казино:
+
+- игра;
+- ставка;
+- возврат;
+- итог по балансу;
+- детали в `meta`.
+
+### Что делает `get-casino-stats`
+
+Считает статистику игрока по дням:
+
+- сколько игр;
+- сколько побед;
+- сколько поражений;
+- сколько поставлено;
+- сколько возвращено;
+- чистый итог;
+- `winrate`;
+- `RTP`.
+
+### Что уже сделано в коде сайта
+
+В текущем фронтенде уже подготовлено:
+
+- отправка игровых событий через `log-casino-event`;
+- загрузка статистики через `get-casino-stats`;
+- блок статистики в разделе казино.
+
+То есть после создания этих двух функций статистика начнёт отображаться на сайте.

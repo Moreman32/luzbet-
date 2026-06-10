@@ -174,6 +174,28 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .cgc-title{font-family:var(--os);font-size:18px;font-weight:700}
 .cgc-rtp{font-size:11px;color:var(--muted)}
 .cgc-body{padding:16px}
+.casino-stats-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.casino-stats-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.casino-stats-title{font-family:var(--os);font-size:15px;color:var(--yellow);letter-spacing:1px}
+.casino-stats-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.casino-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.casino-stat-card{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:12px}
+.casino-stat-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.casino-stat-value{font-family:var(--os);font-size:24px;color:var(--yellow);margin-top:6px;line-height:1}
+.casino-stat-value.good{color:var(--green)}
+.casino-stat-value.bad{color:#ff6b6b}
+.casino-stats-table{display:flex;flex-direction:column;gap:8px}
+.casino-stats-row{display:grid;grid-template-columns:96px repeat(6,minmax(0,1fr));gap:8px;align-items:center;background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px}
+.casino-stats-row.head{background:transparent;border:none;padding:0 2px 4px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-size:10px}
+.casino-stats-day{font-family:var(--os);font-size:12px;color:var(--white)}
+.casino-stats-cell{color:var(--muted);text-align:right}
+.casino-stats-cell strong{color:var(--white);font-family:var(--os);font-weight:700}
+@media(max-width:720px){
+  .casino-stats-row{grid-template-columns:1fr 1fr;gap:6px}
+  .casino-stats-row.head{display:none}
+  .casino-stats-day{grid-column:1/-1}
+  .casino-stats-cell{text-align:left}
+}
 
 /* SLOTS */
 .slot-machine{text-align:center}
@@ -717,6 +739,46 @@ try{
     <div id="tournament-panel" style="display:none;background:var(--card);border:1px solid rgba(155,89,182,.3);border-radius:var(--r);padding:16px;margin-bottom:16px">
       <div style="font-family:var(--os);font-size:15px;margin-bottom:12px;color:var(--purple)">🏆 Топ выигрышей за сессию</div>
       <div id="tournament-list"></div>
+    </div>
+
+    <div class="casino-stats-panel">
+      <div class="casino-stats-head">
+        <div>
+          <div class="casino-stats-title">📈 Статистика казино</div>
+          <div class="casino-stats-sub">Сегодня и по дням: сколько поставил, сколько вернул, что по winrate и RTP.</div>
+        </div>
+        <button class="btn btn-ghost" onclick="loadCasinoStats(true)" style="height:36px;font-size:12px">Обновить ↻</button>
+      </div>
+      <div class="casino-stats-grid" id="casino-stats-summary">
+        <div class="casino-stat-card"><div class="casino-stat-label">Игр сегодня</div><div class="casino-stat-value">—</div></div>
+        <div class="casino-stat-card"><div class="casino-stat-label">Побед</div><div class="casino-stat-value">—</div></div>
+        <div class="casino-stat-card"><div class="casino-stat-label">Поражений</div><div class="casino-stat-value">—</div></div>
+        <div class="casino-stat-card"><div class="casino-stat-label">Поставлено</div><div class="casino-stat-value">—</div></div>
+        <div class="casino-stat-card"><div class="casino-stat-label">Возврат</div><div class="casino-stat-value">—</div></div>
+        <div class="casino-stat-card"><div class="casino-stat-label">Итог</div><div class="casino-stat-value">—</div></div>
+        <div class="casino-stat-card"><div class="casino-stat-label">Winrate</div><div class="casino-stat-value">—</div></div>
+        <div class="casino-stat-card"><div class="casino-stat-label">RTP</div><div class="casino-stat-value">—</div></div>
+      </div>
+      <div id="casino-stats-days" class="casino-stats-table">
+        <div class="casino-stats-row head">
+          <div>День</div>
+          <div class="casino-stats-cell">Игр</div>
+          <div class="casino-stats-cell">Поб/Пор</div>
+          <div class="casino-stats-cell">Поставлено</div>
+          <div class="casino-stats-cell">Возврат</div>
+          <div class="casino-stats-cell">Итог</div>
+          <div class="casino-stats-cell">Win/RTP</div>
+        </div>
+        <div class="casino-stats-row">
+          <div class="casino-stats-day">Загрузка…</div>
+          <div class="casino-stats-cell"><strong>—</strong></div>
+          <div class="casino-stats-cell"><strong>—</strong></div>
+          <div class="casino-stats-cell"><strong>—</strong></div>
+          <div class="casino-stats-cell"><strong>—</strong></div>
+          <div class="casino-stats-cell"><strong>—</strong></div>
+          <div class="casino-stats-cell"><strong>—</strong></div>
+        </div>
+      </div>
     </div>
 
     <!-- LIVE CHAT -->
@@ -1293,6 +1355,25 @@ if (action === 'getAchAll') {
       return await sbFunction('save-playoff', params);
     }
 
+    if (action === 'logCasinoEvent') {
+      return await sbFunction('log-casino-event', {
+        code,
+        game: params.game || '',
+        event_type: params.event_type || 'round',
+        bet: parseInt(params.bet || 0),
+        payout: parseInt(params.payout || 0),
+        delta: parseInt(params.delta || 0),
+        meta: params.meta || {}
+      });
+    }
+
+    if (action === 'getCasinoStats') {
+      return await sbFunction('get-casino-stats', {
+        code,
+        days: parseInt(params.days || 7)
+      });
+    }
+
     return { ok: false, error: 'Неизвестное действие: ' + action };
   } catch (e) {
     console.error(e);
@@ -1473,6 +1554,148 @@ function renderCoinsUI(){
   if(coins>=2000)unlockAch('rich');
 }
 
+let casinoStatsReloadTimer = null;
+let casinoStatsLastLoadedCode = '';
+
+function emptyCasinoStats(){
+  return {
+    ok: true,
+    summary: {
+      games_count: 0,
+      wins_count: 0,
+      losses_count: 0,
+      pushes_count: 0,
+      bet_sum: 0,
+      payout_sum: 0,
+      net_sum: 0,
+      win_rate: 0,
+      rtp: 0,
+    },
+    days: [],
+  };
+}
+
+function formatPct(v){
+  const n = Number(v || 0);
+  if (!isFinite(n)) return '0%';
+  return `${n.toFixed(1)}%`;
+}
+
+function formatCoins(v){
+  return `${Math.round(Number(v || 0))} ЛК`;
+}
+
+function formatSignedCoins(v){
+  const n = Math.round(Number(v || 0));
+  return `${n > 0 ? '+' : ''}${n} ЛК`;
+}
+
+function statsDateLabel(dateKey){
+  if(!dateKey) return '—';
+  const parts = String(dateKey).split('-');
+  if(parts.length !== 3) return dateKey;
+  const d = new Date(`${parts[0]}-${parts[1]}-${parts[2]}T12:00:00+03:00`);
+  return d.toLocaleDateString('ru-RU', { day:'numeric', month:'short', timeZone:'Europe/Moscow' });
+}
+
+function renderCasinoStats(stats){
+  const data = stats && stats.ok ? stats : emptyCasinoStats();
+  const sum = data.summary || emptyCasinoStats().summary;
+  const summary = document.getElementById('casino-stats-summary');
+  const daysEl = document.getElementById('casino-stats-days');
+  if(!summary || !daysEl) return;
+
+  const cards = [
+    ['Игр сегодня', sum.games_count, ''],
+    ['Побед', sum.wins_count, 'good'],
+    ['Поражений', sum.losses_count, 'bad'],
+    ['Поставлено', formatCoins(sum.bet_sum), ''],
+    ['Возврат', formatCoins(sum.payout_sum), sum.payout_sum > sum.bet_sum ? 'good' : ''],
+    ['Итог', formatSignedCoins(sum.net_sum), sum.net_sum > 0 ? 'good' : (sum.net_sum < 0 ? 'bad' : '')],
+    ['Winrate', formatPct(sum.win_rate), sum.win_rate >= 50 ? 'good' : ''],
+    ['RTP', formatPct(sum.rtp), sum.rtp >= 100 ? 'good' : (sum.rtp < 60 ? 'bad' : '')],
+  ];
+
+  summary.innerHTML = cards.map(([label, value, cls]) => `
+    <div class="casino-stat-card">
+      <div class="casino-stat-label">${label}</div>
+      <div class="casino-stat-value ${cls}">${escapeHtml(value)}</div>
+    </div>
+  `).join('');
+
+  const rows = Array.isArray(data.days) ? data.days : [];
+  daysEl.innerHTML = `
+    <div class="casino-stats-row head">
+      <div>День</div>
+      <div class="casino-stats-cell">Игр</div>
+      <div class="casino-stats-cell">Поб/Пор</div>
+      <div class="casino-stats-cell">Поставлено</div>
+      <div class="casino-stats-cell">Возврат</div>
+      <div class="casino-stats-cell">Итог</div>
+      <div class="casino-stats-cell">Win/RTP</div>
+    </div>
+  ` + (rows.length ? rows.map(day => `
+    <div class="casino-stats-row">
+      <div class="casino-stats-day">${escapeHtml(statsDateLabel(day.day))}</div>
+      <div class="casino-stats-cell"><strong>${escapeHtml(day.games_count || 0)}</strong></div>
+      <div class="casino-stats-cell"><strong>${escapeHtml((day.wins_count || 0) + '/' + (day.losses_count || 0))}</strong></div>
+      <div class="casino-stats-cell"><strong>${escapeHtml(formatCoins(day.bet_sum || 0))}</strong></div>
+      <div class="casino-stats-cell"><strong>${escapeHtml(formatCoins(day.payout_sum || 0))}</strong></div>
+      <div class="casino-stats-cell"><strong style="color:${(day.net_sum || 0) > 0 ? 'var(--green)' : ((day.net_sum || 0) < 0 ? '#ff6b6b' : 'var(--white)')}">${escapeHtml(formatSignedCoins(day.net_sum || 0))}</strong></div>
+      <div class="casino-stats-cell"><strong>${escapeHtml(formatPct(day.win_rate || 0))} / ${escapeHtml(formatPct(day.rtp || 0))}</strong></div>
+    </div>
+  `).join('') : `
+    <div class="casino-stats-row">
+      <div class="casino-stats-day">Пока пусто</div>
+      <div class="casino-stats-cell"><strong>—</strong></div>
+      <div class="casino-stats-cell"><strong>—</strong></div>
+      <div class="casino-stats-cell"><strong>—</strong></div>
+      <div class="casino-stats-cell"><strong>—</strong></div>
+      <div class="casino-stats-cell"><strong>—</strong></div>
+      <div class="casino-stats-cell"><strong>—</strong></div>
+    </div>
+  `);
+}
+
+async function loadCasinoStats(force=false){
+  if(!S.code) { renderCasinoStats(emptyCasinoStats()); return; }
+  if(!force && casinoStatsLastLoadedCode === S.code && document.getElementById('page-casino').classList.contains('active') === false) return;
+  try{
+    const r = await api({ action:'getCasinoStats', code:S.code, days:7 });
+    if(r && r.ok){
+      casinoStatsLastLoadedCode = S.code;
+      renderCasinoStats(r);
+      return;
+    }
+  }catch(e){}
+  renderCasinoStats(emptyCasinoStats());
+}
+
+function scheduleCasinoStatsReload(){
+  if(casinoStatsReloadTimer) clearTimeout(casinoStatsReloadTimer);
+  casinoStatsReloadTimer = setTimeout(() => {
+    casinoStatsReloadTimer = null;
+    loadCasinoStats(true);
+  }, 700);
+}
+
+async function logCasinoEvent(evt){
+  if(!S.code) return;
+  try{
+    await api({
+      action:'logCasinoEvent',
+      code:S.code,
+      game: evt.game || '',
+      event_type: evt.event_type || 'round',
+      bet: evt.bet || 0,
+      payout: evt.payout || 0,
+      delta: evt.delta || 0,
+      meta: evt.meta || {},
+    });
+    scheduleCasinoStatsReload();
+  }catch(e){}
+}
+
 function renderAchievements(){
   const cats=[{id:'contest',label:'⚽ КОНКУРС ПРОГНОЗОВ'},{id:'casino',label:'🎰 КАЗИНО'},{id:'general',label:'🌟 ОБЩИЕ'}];
   const total=ALL_ACHIEVEMENTS.length,unlocked=unlockedAch.size;
@@ -1588,7 +1811,7 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();loadCasinoStats();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
@@ -1681,8 +1904,35 @@ function escapeAttr(v){
   return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function normalizePredictionData(pred){
+  const src = (pred && typeof pred === 'object') ? pred : {};
+  const base = (src.data && typeof src.data === 'object') ? { ...src.data, ...src } : { ...src };
+  const out = {};
+
+  Object.keys(base).forEach(k => {
+    const v = base[k];
+
+    if (/^group[A-L]$/.test(k)) {
+      if (Array.isArray(v)) out[k] = v.map(x => String(x || '').trim()).filter(Boolean).join('|');
+      else if (v == null) out[k] = '';
+      else out[k] = String(v).trim();
+      return;
+    }
+
+    if (/^group[A-L]_m\d+_[ha]$/.test(k)) {
+      if (v == null || v === '') out[k] = '';
+      else out[k] = String(v).trim();
+      return;
+    }
+
+    out[k] = v;
+  });
+
+  return out;
+}
+
 function showForm(pred=null){
-  currentPredictionData = pred || currentPredictionData || {};
+  currentPredictionData = normalizePredictionData(pred || currentPredictionData || {});
   sel = {}; scores = {};
   document.getElementById('user-bar-predict').style.display='block';
   document.getElementById('ub-name-p').textContent='👋 '+S.name;
@@ -1714,17 +1964,18 @@ function showForm(pred=null){
   // Show expert bot
   const eb=document.getElementById('expert-bot-wrap');if(eb)eb.style.display='block';
   initExpertBot();
-  if(pred) restorePredictionToForm(pred);
+  if(currentPredictionData && Object.keys(currentPredictionData).length) restorePredictionToForm(currentPredictionData);
   else updateBar();
 }
 
 
 function restorePredictionToForm(pred){
   if(!pred)return;
+  pred = normalizePredictionData(pred);
   const results = window._lastResults || {};
 
   for(const[g,d]of Object.entries(GROUPS)){
-    const raw=pred['group'+g]||'';
+    const raw=String(pred['group'+g]||'').trim();
     sel[g]=raw?raw.split('|').map(x=>x.trim()).filter(Boolean):[];
 
     const actual=(results[g]&&results[g].teams)||[];
@@ -1931,6 +2182,7 @@ function closeSaveSlot(){
 //  VOTED VIEW
 // ══════════════════════════════════════════════
 async function showVoted(pred){
+  pred = normalizePredictionData(pred);
   document.getElementById('user-bar-predict').style.display='block';
   document.getElementById('ub-name-p').textContent='👋 '+S.name;
   document.getElementById('save-bar').classList.remove('up');
@@ -2083,7 +2335,8 @@ function selectBet(val,el){slotBet=val;document.querySelectorAll('.bet-chip').fo
 
 function spinSlots(){
   if(coins<slotBet){toast('❌ Недостаточно ЛузКоинов. Это дно, приятель.','err');return;}
-  coins-=slotBet;spendCoins(slotBet);saveCoins();unlockAch('slots_first');
+  const bet = slotBet;
+  coins-=bet;spendCoins(bet);saveCoins();unlockAch('slots_first');
   const btn=document.getElementById('spin-btn');btn.disabled=true;
   [0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('spinning'));
   document.getElementById('slot-result-text').textContent='';
@@ -2094,9 +2347,9 @@ function spinSlots(){
     const rand=Math.random();
     let result,win=0;
     if(rand<0.02){// jackpot — 2% × ×10 = 20%
-      const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e];win=slotBet*10;unlockAch('slots_jackpot');[0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('winner'));
+      const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e];win=bet*10;unlockAch('slots_jackpot');[0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('winner'));
     } else if(rand<0.10){// two match — 8% × ×2 = 16%
-      const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)],e2=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e2];win=slotBet*2;
+      const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)],e2=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e2];win=bet*2;
     } else {// no match — 90%
       do{result=[0,1,2].map(()=>SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)]);}while(result[0]===result[1]||result[1]===result[2]||result[0]===result[2]);win=0;
     }
@@ -2104,6 +2357,7 @@ function spinSlots(){
     [0,1,2].forEach(i=>document.getElementById('r'+i).classList.toggle('winner',rand<0.03));
     if(win>0){coins+=win;saveCoins();document.getElementById('slot-result-text').textContent=`+${win} ЛК! 🎉`;toast(`🎰 Выиграл ${win} ЛузКоинов!`,'win');if(rand<0.03)soundJackpot();onWin(win,'🎰 Слоты');}
     else{document.getElementById('slot-result-text').textContent='Мимо. Как обычно.';onLose();}
+    logCasinoEvent({ game:'slots', bet, payout:win, delta:win-bet, meta:{ result, jackpot: rand<0.02, two_match: rand>=0.02 && rand<0.10 } });
     btn.disabled=false;
   },2000);
 }
@@ -2151,10 +2405,22 @@ function bjStand(){
 function bjEnd(result){
   const bet=bjState.bet;
   const res=document.getElementById('bj-result');
-  if(result==='win'){coins+=bet*2;saveCoins();res.textContent='🏆 Победа! +'+bet+' ЛК';res.className='bj-result win';toast('🃏 Победил дилера «Судьбу»! +'+bet+' ЛК','win');onWin(bet*2,'🃏 Блэкджек');}
-  else if(result==='push'){coins+=bet;saveCoins();res.textContent='🤝 Ничья. Возврат.';res.className='bj-result push';toast('🃏 Ничья. Хотя бы не потерял.','info');}
+  let payout = 0;
+  if(result==='win'){payout=bet*2;coins+=payout;saveCoins();res.textContent='🏆 Победа! +'+bet+' ЛК';res.className='bj-result win';toast('🃏 Победил дилера «Судьбу»! +'+bet+' ЛК','win');onWin(payout,'🃏 Блэкджек');}
+  else if(result==='push'){payout=bet;coins+=payout;saveCoins();res.textContent='🤝 Ничья. Возврат.';res.className='bj-result push';toast('🃏 Ничья. Хотя бы не потерял.','info');}
   else if(result==='bust'){res.textContent='💀 Перебор! Судьба довольна.';res.className='bj-result lose';toast('💀 Перебор. Судьба смеётся.','err');onLose();}
   else{res.textContent='😭 Судьба победила. Сюрприз.';res.className='bj-result lose';toast('😭 Проиграл Судьбе. Ожидаемо.','err');onLose();}
+  logCasinoEvent({
+    game:'blackjack',
+    bet,
+    payout,
+    delta:payout-bet,
+    meta:{
+      result,
+      player_score: bjState ? bjScore(bjState.player) : null,
+      dealer_score: bjState ? bjScore(bjState.dealer) : null,
+    }
+  });
   document.getElementById('bj-deal-btn').disabled=false;document.getElementById('bj-new-btn').style.display='block';
 }
 function bjNewGame(){document.getElementById('player-cards').innerHTML='';document.getElementById('dealer-cards').innerHTML='';document.getElementById('player-score').textContent='';document.getElementById('dealer-score').textContent='';document.getElementById('bj-result').textContent='';document.getElementById('bj-deal-btn').disabled=false;document.getElementById('bj-hit-btn').disabled=true;document.getElementById('bj-stand-btn').disabled=true;document.getElementById('bj-new-btn').style.display='none';bjState=null;}
@@ -2163,12 +2429,12 @@ function bjNewGame(){document.getElementById('player-cards').innerHTML='';docume
 //  CASINO — WHEEL
 // ══════════════════════════════════════════════
 const WHEEL_SEGMENTS=[
-  {label:'0 ЛК',color:'#e8002a',mult:0},{label:'10 ЛК',color:'#1a7a3f',mult:10},
+  {label:'5 ЛК',color:'#1a7a3f',mult:5},{label:'10 ЛК',color:'#2e8b57',mult:10},
   {label:'0 ЛК',color:'#c0392b',mult:0},{label:'25 ЛК',color:'#1a4a7a',mult:25},
-  {label:'0 ЛК',color:'#e8002a',mult:0},{label:'15 ЛК',color:'#555',mult:15},
-  {label:'0 ЛК',color:'#c0392b',mult:0},{label:'40 ЛК',color:'#9b59b6',mult:40},
-  {label:'0 ЛК',color:'#e8002a',mult:0},{label:'20 ЛК',color:'#c47000',mult:20},
-  {label:'0 ЛК',color:'#c0392b',mult:0},{label:'JACKPOT',color:'#ffe600',mult:500},
+  {label:'5 ЛК',color:'#4b6f44',mult:5},{label:'15 ЛК',color:'#555',mult:15},
+  {label:'0 ЛК',color:'#b03030',mult:0},{label:'40 ЛК',color:'#9b59b6',mult:40},
+  {label:'10 ЛК',color:'#c47000',mult:10},{label:'20 ЛК',color:'#cc8400',mult:20},
+  {label:'0 ЛК',color:'#8b1e1e',mult:0},{label:'JACKPOT',color:'#ffe600',mult:500},
 ];
 function drawWheel(angle=0){
   const canvas=document.getElementById('wheel');if(!canvas)return;
@@ -2190,7 +2456,8 @@ function drawWheel(angle=0){
 function spinWheel(){
   if(wheelSpinning)return;
   if(coins<30){toast('❌ Мало ЛузКоинов для спина.','err');return;}
-  coins-=30;spendCoins(30);saveCoins();unlockAch('wheel_first');
+  const bet = 30;
+  coins-=bet;spendCoins(bet);saveCoins();unlockAch('wheel_first');
   wheelSpinning=true;document.getElementById('wheel-btn').disabled=true;document.getElementById('wheel-result').textContent='';
   const totalRot=(Math.random()*4+5)*2*Math.PI,dur=4000;
   const start=performance.now(),startAngle=wheelAngle;
@@ -2211,6 +2478,7 @@ function spinWheel(){
       const seg=WHEEL_SEGMENTS[idx];
       if(seg.mult>0){coins+=seg.mult;saveCoins();document.getElementById('wheel-result').textContent=`🎉 +${seg.mult} ЛузКоинов!`;toast(`🎡 Колесо: +${seg.mult} ЛК!`,'win');onWin(seg.mult,'🎡 Колесо');}
       else{document.getElementById('wheel-result').textContent='😭 0 ЛК. Ожидаемо.';toast('🎡 0 ЛК. Колесо знает тебя.','err');unlockAch('wheel_zero');onLose();}
+      logCasinoEvent({ game:'wheel', bet, payout:seg.mult, delta:seg.mult-bet, meta:{ segment:seg.label, mult:seg.mult } });
     }
   }
   wheelRaf=requestAnimationFrame(frame);
@@ -2218,7 +2486,7 @@ function spinWheel(){
 
 function onWin(amount=0,game=''){winStreak++;if(winStreak>=3)unlockAch('win_streak3');if(winStreak>=5)unlockAch('win_streak5');soundWin();if(amount>=50)coinRain(amount);if(amount>0&&game)chatNotifyWin(game,amount);}
 function onLose(){winStreak=0;soundLose();}
-function resetCoins(){coins=100;saveCoins();toast('🙏 Получил 100 ЛК милостыни. Не трать сразу.','ok');showBankruptTip();}
+function resetCoins(){coins=100;saveCoins();toast('🙏 Получил 100 ЛК милостыни. Не трать сразу.','ok');showBankruptTip();logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:100, delta:100, meta:{ source:'bankrupt_reset' } });}
 
 // ══════════════════════════════════════════════
 //  VIP SYSTEM
@@ -2265,6 +2533,7 @@ function claimDaily(){
   LS.set('luzbet_daily',Date.now());
   coins+=200;saveCoins();toast('🎁 +200 ЛК ежедневный бонус!','win',4000);checkDaily();
   unlockAch('daily_bonus');
+  logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:200, delta:200, meta:{ source:'daily_bonus' } });
 }
 
 // ══════════════════════════════════════════════
@@ -2293,10 +2562,11 @@ let diceSelected=null,diceRolling=false;
 function diceGuess(n,el){
   if(diceRolling)return;
   if(coins<20){toast('❌ Нужно 20 ЛК','err');return;}
+  const bet = 20;
   document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected'));
   el.classList.add('selected');diceSelected=n;
   diceRolling=true;
-  coins-=20;spendCoins(20);saveCoins();
+  coins-=bet;spendCoins(bet);saveCoins();
   document.getElementById('dice-result').textContent='';
   document.getElementById('dice-sum').textContent='?';
   let t=0;
@@ -2313,13 +2583,14 @@ function diceGuess(n,el){
     const win=n===sum;
     // payout: harder numbers pay more
     const payouts={2:12,3:8,4:5,5:4,6:3,7:2,8:3,9:4,10:5,11:8,12:12}; // RTP≈44%
-    const payout=win?20*payouts[n]:0;
+    const payout=win?bet*payouts[n]:0;
     document.querySelectorAll('.dice-num-btn').forEach(b=>{
       if(parseInt(b.textContent)===sum)b.classList.add('hit');
       else if(b.classList.contains('selected'))b.classList.add('miss');
     });
     if(win){coins+=payout;spendCoins(0);saveCoins();document.getElementById('dice-result').textContent=`🎲 ТОЧНО! +${payout} ЛК (×${payouts[n]})`;toast(`🎲 Угадал! +${payout} ЛК`,'win');recordWin('🎲 Кости',payout);onWin(payout,'🎲 Кости');unlockAch('dice_win');}
     else{document.getElementById('dice-result').textContent=`Выпало ${sum}. Ты ставил на ${n}. Типичная история.`;toast('🎲 Мимо. Сумма была '+sum,'err');onLose();}
+    logCasinoEvent({ game:'dice', bet, payout, delta:payout-bet, meta:{ guess:n, d1, d2, sum, multiplier:payouts[n] || 0 } });
     setTimeout(()=>{document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected','hit','miss'));diceRolling=false;diceSelected=null;},1800);
   },1100);
 }
@@ -2363,21 +2634,23 @@ function crashStart(){
       toast('💥 Краш на '+crashState.crashAt+'×. RIP '+bet+' ЛК','err');onLose();
       soundCrash();addCrashHistory(crashState.crashAt);
       unlockAch('crash_first');
+      logCasinoEvent({ game:'crash', bet, payout:0, delta:-bet, meta:{ result:'crash', crash_at:crashState.crashAt } });
     }
   },120);
 }
 function crashCash(){
   if(!crashState.running)return;
   clearInterval(crashState.interval);crashState.running=false;
-  const win=Math.floor(crashState.bet*crashState.mult);
-  coins+=win;saveCoins();
+  const payout=Math.floor(crashState.bet*crashState.mult);
+  coins+=payout;saveCoins();
   document.getElementById('crash-cash-btn').disabled=true;
   document.getElementById('crash-start-btn').disabled=false;
-  document.getElementById('crash-result').textContent=`Забрал на ${crashState.mult}×! +${win} ЛК`;
-  toast(`🪃 Забрал ${win} ЛК на ${crashState.mult}×!`,'win');
-  recordWin('🪃 Краш',win);onWin();
+  document.getElementById('crash-result').textContent=`Забрал на ${crashState.mult}×! +${payout} ЛК`;
+  toast(`🪃 Забрал ${payout} ЛК на ${crashState.mult}×!`,'win');
+  recordWin('🪃 Краш',payout);onWin();
   unlockAch('crash_first');
   if(crashState.mult>=5)unlockAch('crash_5x');
+  logCasinoEvent({ game:'crash', bet:crashState.bet, payout, delta:payout-crashState.bet, meta:{ result:'cashout', multiplier:crashState.mult, crash_at:crashState.crashAt } });
 }
 
 // ══════════════════════════════════════════════
@@ -2429,14 +2702,22 @@ function hlGuess(dir){
   }
 }
 function hlCollect(){
-  coins+=hlPot;saveCoins();
+  const payout = hlPot;
+  const bet = 15;
+  coins+=payout;saveCoins();
   document.getElementById('hl-result').textContent=`💰 Забрал ${hlPot} ЛК! (серия: ${hlStreakCount})`;
-  toast(`🎴 Собрал ${hlPot} ЛК!`,'win');recordWin('🎴 Выше-Ниже',hlPot);onWin(hlPot,'🎴 Выше-Ниже');hlEnd(true);
+  toast(`🎴 Собрал ${hlPot} ЛК!`,'win');recordWin('🎴 Выше-Ниже',hlPot);onWin(hlPot,'🎴 Выше-Ниже');
+  logCasinoEvent({ game:'higher_lower', bet, payout, delta:payout-bet, meta:{ result:'collect', streak:hlStreakCount, pot:hlPot } });
+  hlEnd(true);
 }
 function hlEnd(won){
   document.getElementById('hl-higher').disabled=true;document.getElementById('hl-lower').disabled=true;
   document.getElementById('hl-deal').textContent='Старт 🃏';document.getElementById('hl-deal').onclick=hlDeal;
-  if(!won)onLose();hlCurrent=null;
+  if(!won){
+    onLose();
+    logCasinoEvent({ game:'higher_lower', bet:15, payout:0, delta:-15, meta:{ result:'lose', streak:hlStreakCount } });
+  }
+  hlCurrent=null;
 }
 
 // ══════════════════════════════════════════════
@@ -2454,7 +2735,8 @@ function selectHorse(idx,el){
 async function horseRace(){
   if(selectedHorse===null||horseRunning)return;
   if(coins<30){toast('❌ Нужно 30 ЛК','err');return;}
-  coins-=30;spendCoins(30);saveCoins();horseRunning=true;
+  const bet = 30;
+  coins-=bet;spendCoins(bet);saveCoins();horseRunning=true;
   document.getElementById('horse-start-btn').disabled=true;
   document.getElementById('horse-result').textContent='🏁 Скачки начались!';
   setHorseComment(HORSE_COMMENTS.start[Math.floor(Math.random()*HORSE_COMMENTS.start.length)]);
@@ -2502,7 +2784,7 @@ async function horseRace(){
 
       const win=winner===selectedHorse;
       // house edge: выплата = odds * 0.55 * ставка
-      const payout=win?Math.floor(30*HORSES[winner].odds*0.55):0;
+      const payout=win?Math.floor(bet*HORSES[winner].odds*0.55):0;
 
       setHorseComment(HORSE_COMMENTS.finish[0](winner,selectedHorse));
 
@@ -2515,6 +2797,18 @@ async function horseRace(){
         document.getElementById('horse-result').textContent=`${HORSES[winner].emoji} ${HORSES[winner].name} победил. Твоя финишировала где-то там.`;
         toast(`🐎 ${HORSES[winner].name} победил. Не твоя.`,'err');onLose();
       }
+      logCasinoEvent({
+        game:'horse',
+        bet,
+        payout,
+        delta:payout-bet,
+        meta:{
+          selected:selectedHorse,
+          winner,
+          selected_name: HORSES[selectedHorse] ? HORSES[selectedHorse].name : '',
+          winner_name: HORSES[winner] ? HORSES[winner].name : '',
+        }
+      });
       unlockAch('horse_first');
       selectedHorse=null;
       document.querySelectorAll('.horse-bet-btn').forEach(b=>b.classList.remove('selected'));
