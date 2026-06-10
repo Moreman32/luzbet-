@@ -170,7 +170,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 
 .casino-games{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px;margin-bottom:24px}
 .casino-game-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.cgc-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cgc-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap;overflow:hidden}
 .cgc-title{font-family:var(--os);font-size:18px;font-weight:700}
 .cgc-rtp{font-size:11px;color:var(--muted)}
 .cgc-body{padding:16px}
@@ -243,6 +243,20 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .lucky-btn:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(123,47,247,.4)}
 .lucky-btn:active{transform:scale(.98)}
 
+/* LB SUB TABS */
+.lb-sub-tab{font-family:var(--os);font-size:12px;letter-spacing:.5px;padding:10px 14px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;margin-bottom:-1px}
+.lb-sub-tab:hover{color:var(--white)}
+.lb-sub-tab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
+/* CASINO LB */
+.casino-lb-row{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px}
+.casino-lb-row.r1{border-left:4px solid gold}
+.casino-lb-row.r2{border-left:4px solid silver}
+.casino-lb-row.r3{border-left:4px solid #cd7f32}
+.clb-rank{font-family:var(--os);font-size:26px;text-align:center;color:var(--muted2)}
+.clb-name{font-family:var(--os);font-size:15px}
+.clb-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.clb-val{font-family:var(--os);font-size:28px;text-align:right;font-weight:700}
+.clb-label{font-size:10px;color:var(--muted);text-align:right;margin-top:2px}
 /* LEADERBOARD */
 .lb-note{background:rgba(255,230,0,.06);border:1px solid rgba(255,230,0,.15);border-radius:var(--r);padding:12px 16px;font-size:12px;color:var(--yellow);margin-bottom:16px;line-height:1.6}
 .lb-list{display:flex;flex-direction:column;gap:8px}
@@ -648,7 +662,13 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   <div id="page-leaderboard" class="page">
     <div style="font-family:var(--os);font-size:11px;letter-spacing:2px;color:var(--yellow);margin-bottom:4px">РЕЗУЛЬТАТЫ</div>
     <div style="font-family:var(--os);font-size:26px;margin-bottom:4px">Рейтинг страдальцев</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Нажми на участника для детализации.</p>
+    <!-- Табы рейтинга -->
+    <div style="display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0">
+      <button class="lb-sub-tab active" id="lbt-predictions" onclick="switchLbTab('predictions')">⚽ Прогнозы</button>
+      <button class="lb-sub-tab" id="lbt-casino-coins" onclick="switchLbTab('casino-coins')">🪙 Монеты</button>
+      <button class="lb-sub-tab" id="lbt-casino-spent" onclick="switchLbTab('casino-spent')">💸 Потрачено</button>
+      <button class="lb-sub-tab" id="lbt-achievements" onclick="switchLbTab('achievements')">🏅 Ачивки</button>
+    </div>
     <div id="lb-content"><div class="loading-ctr"><div class="spinner"></div><br/><br/>Считаем чужие ошибки...</div></div>
   </div>
 
@@ -791,7 +811,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 
       <!-- HIGHER LOWER -->
       <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title">🎴 Выше-Ниже</span><span class="cgc-rtp">15 ЛК • +50% за угадывание</span></div>
+        <div class="cgc-head"><span class="cgc-title" style="white-space:nowrap">🎴 Выше-Ниже</span><span class="cgc-rtp" style="white-space:nowrap">15 ЛК • +50%</span></div>
         <div class="cgc-body">
           <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:12px">
             <div id="hl-current" style="background:#fff;color:#111;border-radius:8px;padding:10px 16px;font-family:var(--os);font-size:28px;font-weight:700;min-width:56px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.5)">?</div>
@@ -2012,12 +2032,33 @@ async function showVoted(pred){
 // ══════════════════════════════════════════════
 async function loadLeaderboard(){
   document.getElementById('lb-content').innerHTML='<div class="loading-ctr"><div class="spinner"></div><br/><br/>Считаем чужие ошибки...</div>';
-  try{const r=await api({action:'getLeaderboard'});if(!r.ok)throw new Error();window._lastResults=r.results;renderLB(r.leaderboard,r.results);}
+  try{
+    // Грузим основной LB + казино + ачивки параллельно
+    const [r, casinoRows, achRows] = await Promise.all([
+      api({action:'getLeaderboard'}),
+      api({action:'getCasinoAll'}).catch(()=>({ok:false})),
+      api({action:'getAchAll'}).catch(()=>({ok:false})),
+    ]);
+    if(!r.ok)throw new Error();
+    window._lastResults=r.results;
+
+    // Кэшируем
+    _lbCache = {
+      lb: r.leaderboard,
+      results: r.results,
+      casinoRows: r.leaderboard.map(p=>({code:p.code,name:p.name,coins:p.coins||0,spent:p.spent||0})),
+      achRows: r.leaderboard.flatMap(p=>(p.achList||[]).map(a=>({code:p.code,achievement:a}))),
+    };
+
+    renderLB(r.leaderboard, r.results);
+  }
   catch(e){document.getElementById('lb-content').innerHTML='<div class="alert alert-err show">Не удалось загрузить.</div>';}
 }
 
 function renderLB(lb,results){
-  window._lastResults=results; // сохраняем для подсветки в купоне
+  window._lastResults=results;
+  // Обновляем кэш если данные новее
+  if(_lbCache && lb) _lbCache.lb=lb;
   const grpDone=Object.values(results).filter(v=>(v.teams && v.teams.length)>0).length;
   const funTitle=n=>FUN_TITLES[Math.abs(n.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%FUN_TITLES.length];
   const comment=(i,n)=>{const arr=i===0?LB_COMMENTS.first:i>=n-1?LB_COMMENTS.last:LB_COMMENTS.mid;return arr[Math.abs(i*7+n)%arr.length];};
@@ -2173,7 +2214,7 @@ const WHEEL_SEGMENTS=[
   {label:'0 ЛК',color:'#e8002a',mult:0},{label:'15 ЛК',color:'#555',mult:15},
   {label:'0 ЛК',color:'#c0392b',mult:0},{label:'40 ЛК',color:'#9b59b6',mult:40},
   {label:'0 ЛК',color:'#e8002a',mult:0},{label:'20 ЛК',color:'#c47000',mult:20},
-  {label:'0 ЛК',color:'#c0392b',mult:0},{label:'30 ЛК',color:'#2a6a2a',mult:30},
+  {label:'0 ЛК',color:'#c0392b',mult:0},{label:'JACKPOT',color:'#ffe600',mult:500},
 ];
 function drawWheel(angle=0){
   const canvas=document.getElementById('wheel');if(!canvas)return;
@@ -3864,6 +3905,138 @@ async function fillLucky(){
   toast('🎲 Прогноз заполнен на удачу! Проверь и сохрани — или измени что не нравится.','win',4000);
   // Скроллим к кнопке сохранения
   setTimeout(()=>document.getElementById('save-bar').scrollIntoView({behavior:'smooth',block:'end'}),300);
+}
+
+
+// ══════════════════════════════════════════════
+//  LEADERBOARD TABS
+// ══════════════════════════════════════════════
+let _lbCache = null; // кэш данных
+
+function switchLbTab(tab) {
+  document.querySelectorAll('.lb-sub-tab').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('lbt-' + tab);
+  if(el) el.classList.add('active');
+
+  if(!_lbCache) { loadLeaderboard(); return; }
+
+  const { lb, results, casinoRows, achRows } = _lbCache;
+  if(tab === 'predictions')   renderLB(lb, results);
+  if(tab === 'casino-coins')  renderCasinoLB(casinoRows, lb, 'coins');
+  if(tab === 'casino-spent')  renderCasinoLB(casinoRows, lb, 'spent');
+  if(tab === 'achievements')  renderAchLB(achRows, lb);
+}
+
+function renderCasinoLB(casinoRows, lb, mode) {
+  const content = document.getElementById('lb-content');
+  const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
+  const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
+
+  // Объединяем данные казино с именами из lb
+  const nameMap = {};
+  (lb||[]).forEach(p => { nameMap[String(p.code).toLowerCase()] = p.name; });
+
+  const sorted = [...(casinoRows||[])].sort((a,b) => {
+    const va = parseInt(mode==='coins'?a.coins:a.spent)||0;
+    const vb = parseInt(mode==='coins'?b.coins:b.spent)||0;
+    return vb - va;
+  });
+
+  if(!sorted.length) {
+    content.innerHTML = '<div class="alert alert-warn show">Никто ещё не играл в казино. Или данные не подгрузились.</div>';
+    return;
+  }
+
+  const label = mode==='coins' ? '🪙 ЛузКоины' : '💸 Потрачено ЛК';
+  const desc  = mode==='coins'
+    ? 'Текущий баланс ЛузКоинов. Богатство виртуальное, страдания настоящие.'
+    : 'Сколько ЛузКоинов ушло в казино. Лидер — самый преданный клиент.';
+
+  let html = `<p style="font-size:13px;color:var(--muted);margin-bottom:16px">${desc}</p>`;
+
+  sorted.forEach((row, i) => {
+    const val = parseInt(mode==='coins' ? row.coins : row.spent) || 0;
+    const name = row.name || nameMap[String(row.code).toLowerCase()] || row.code;
+    const vip = getVipLabelForSpent(parseInt(row.spent)||0);
+    html += `<div class="casino-lb-row ${rc(i)}">
+      <div class="clb-rank">${medal(i)}</div>
+      <div>
+        <div class="clb-name">${name}</div>
+        <div class="clb-sub">${vip} • потрачено: ${parseInt(row.spent)||0} ЛК</div>
+      </div>
+      <div>
+        <div class="clb-val" style="color:${mode==='coins'?'var(--yellow)':'var(--red)'}">
+          ${val.toLocaleString('ru-RU')}
+        </div>
+        <div class="clb-label">${mode==='coins'?'ЛузКоинов':'потрачено'}</div>
+      </div>
+    </div>`;
+  });
+
+  content.innerHTML = html;
+}
+
+function renderAchLB(achRows, lb) {
+  const content = document.getElementById('lb-content');
+  const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
+  const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
+
+  // Считаем ачивки по участникам
+  const achMap = {};
+  (achRows||[]).forEach(r => {
+    const k = String(r.code).toLowerCase();
+    if(!achMap[k]) achMap[k] = { code: r.code, achs: [] };
+    achMap[k].achs.push(r.achievement);
+  });
+
+  // Добавляем имена из lb
+  const nameMap = {};
+  (lb||[]).forEach(p => { nameMap[String(p.code).toLowerCase()] = p.name; });
+
+  const sorted = Object.values(achMap).sort((a,b) => b.achs.length - a.achs.length);
+
+  if(!sorted.length) {
+    content.innerHTML = '<div class="alert alert-warn show">Ачивок пока нет. Играй!</div>';
+    return;
+  }
+
+  let html = `<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Кто собрал больше всего достижений. Некоторые постыдны.</p>`;
+
+  sorted.forEach((row, i) => {
+    const name = nameMap[String(row.code).toLowerCase()] || row.code;
+    const total = ALL_ACHIEVEMENTS.length;
+    const pct = Math.round(row.achs.length / total * 100);
+    // Показываем иконки ачивок
+    const icons = row.achs.map(id => {
+      const a = ALL_ACHIEVEMENTS.find(x => x.id === id);
+      return a ? `<span title="${a.name}">${a.icon}</span>` : '';
+    }).join('');
+
+    html += `<div class="casino-lb-row ${rc(i)}">
+      <div class="clb-rank">${medal(i)}</div>
+      <div style="min-width:0">
+        <div class="clb-name">${name}</div>
+        <div class="clb-sub" style="flex-wrap:wrap">${icons}</div>
+      </div>
+      <div>
+        <div class="clb-val" style="color:var(--yellow)">${row.achs.length}</div>
+        <div class="clb-label">из ${total} (${pct}%)</div>
+      </div>
+    </div>`;
+  });
+
+  content.innerHTML = html;
+}
+
+function getVipLabelForSpent(spent) {
+  const levels = [
+    {thresh:15000,name:'💎 ЛЕГЕНДА'},
+    {thresh:5000, name:'🥇 ЗОЛОТО'},
+    {thresh:2000, name:'🥈 СЕРЕБРО'},
+    {thresh:500,  name:'🥉 БРОНЗА'},
+    {thresh:0,    name:'👤 НОВИЧОК'},
+  ];
+  return (levels.find(l => spent >= l.thresh) || levels[levels.length-1]).name;
 }
 
 // ══ INIT (must be last — all consts/functions must be defined first) ══
