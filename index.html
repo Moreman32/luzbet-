@@ -260,14 +260,14 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .lb-breakdown{font-size:10px;color:var(--muted2);margin-top:2px}
 .lb-detail{display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--card2)}
 .lb-row.open .lb-detail{display:block}
-.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
 .dc{background:var(--dark);border:1px solid var(--border);border-radius:6px;padding:10px}
-.dc-label{font-size:10px;color:var(--yellow);letter-spacing:1px;margin-bottom:6px;font-family:var(--os)}
+.dc-label{font-size:11px;color:var(--yellow);letter-spacing:1px;margin-bottom:8px;font-family:var(--os);font-weight:700}
 .dc-team{font-size:11px;color:var(--muted);margin-bottom:3px;display:flex;align-items:center;gap:4px}
 .dc-team.hit{color:var(--green)}.dc-team.miss{color:var(--red);text-decoration:line-through;opacity:.7}
 .dc-scores{margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
-.dc-score-row{font-size:10px;color:var(--muted2);display:flex;justify-content:space-between;margin-bottom:2px}
-.dc-pts{float:right;font-family:var(--os);font-size:16px;color:var(--white);margin-top:-22px}
+.dc-score-row{font-size:10px;color:var(--muted2);display:flex;justify-content:space-between;gap:4px;margin-bottom:3px}
+.dc-pts{font-family:var(--os);font-size:16px;color:var(--yellow);text-align:right;margin-top:6px;font-weight:700}
 
 /* RULES */
 .rules-block{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
@@ -2029,10 +2029,50 @@ function renderLB(lb,results){
     html+=`<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${p.name}</div><div class="lb-fun">${funTitle(p.name)}</div><div class="lb-comment">${comment(i,lb.length)}</div></div><div class="lb-right"><div class="lb-pts">${p.total}</div><div class="lb-pts-label">очков</div>${grpDone?`<div class="lb-breakdown">⚽${p.teamPts} 🎯${p.outPts} 💥${p.scPts}</div>`:''}</div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div class="detail-grid">`;
     for(const[g,d]of Object.entries(p.detail)){
       if(!d.predicted.length)continue;
+      // Считаем очки для этой группы
+      let grpPts=0;
       html+=`<div class="dc"><div class="dc-label">ГР.${g}</div>`;
-      d.predicted.forEach(t=>{const flag=safeFind((GROUPS[g] && GROUPS[g].teams)||[], x=>x.n===t).f||'';let cls='';if(d.actual.length)cls=d.actual.some(a=>a.toLowerCase()===t.toLowerCase())?' hit':' miss';html+=`<div class="dc-team${cls}">${flag} ${t}</div>`;});
-      if((d.predScores && d.predScores.length)){html+=`<div class="dc-scores">`;GROUPS[g].matches.forEach((m,mi)=>{const ps=d.predScores[mi];if(!ps)return;const as=d.actScores[mi];const ok=as&&(ps.h===as.h&&ps.a===as.a||(ps.h>ps.a?'h':ps.h<ps.a?'a':'d')===(as.h>as.a?'h':as.h<as.a?'a':'d'));html+=`<div class="dc-score-row"><span>${m.h.slice(0,4)}:${m.a.slice(0,4)}</span><span class="${ok?'h':'m'}">${ps.h}:${ps.a}</span></div>`;});html+=`</div>`;}
-      if(d.actual.length&&d.pts)html+=`<div class="dc-pts">+${d.pts}</div>`;
+      // Команды на выход
+      d.predicted.forEach(t=>{
+        const flag=safeFind((GROUPS[g] && GROUPS[g].teams)||[], x=>x.n===t).f||'';
+        let cls='';
+        if(d.actual.length){
+          const hit=d.actual.some(a=>a.toLowerCase()===t.toLowerCase());
+          cls=hit?' hit':' miss';
+          if(hit)grpPts++;
+        }
+        html+=`<div class="dc-team${cls}">${flag} ${t}</div>`;
+      });
+      // Счёт матчей
+      if(d.predScores && d.predScores.length){
+        html+=`<div class="dc-scores">`;
+        GROUPS[g].matches.forEach((m,mi)=>{
+          const ps=d.predScores[mi];
+          if(!ps)return;
+          const as=d.actScores[mi];
+          let ptsBadge='';
+          let rowCls='';
+          if(as && as.h!==null && as.h!==undefined){
+            const exact=ps.h===as.h&&ps.a===as.a;
+            const po=ps.h>ps.a?'h':ps.h<ps.a?'a':'d';
+            const ao=as.h>as.a?'h':as.h<as.a?'a':'d';
+            if(exact){grpPts+=2;ptsBadge='<span style="color:#00b050;font-weight:700">+2</span>';rowCls='h';}
+            else if(po===ao){grpPts++;ptsBadge='<span style="color:#4fc3f7;font-weight:700">+1</span>';rowCls='h';}
+            else{ptsBadge='<span style="color:var(--red)">✗</span>';rowCls='m';}
+          }
+          // Короткие названия команд
+          const hn=m.h.split(' ')[0].slice(0,6);
+          const an=m.a.split(' ')[0].slice(0,6);
+          html+=`<div class="dc-score-row">
+            <span style="color:var(--muted)">${hn}–${an}</span>
+            <span class="${rowCls}" style="font-family:var(--os)">${ps.h}:${ps.a}${as&&as.h!==null?` (${as.h}:${as.a})`:''}</span>
+            ${ptsBadge}
+          </div>`;
+        });
+        html+=`</div>`;
+      }
+      // Итого по группе
+      if(grpPts>0) html+=`<div class="dc-pts">+${grpPts} очк.</div>`;
       html+=`</div>`;
     }
     html+=`</div></div></div>`;
