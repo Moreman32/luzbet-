@@ -582,10 +582,220 @@ create index if not exists casino_events_created_at_idx
 Записывает каждое завершённое событие казино:
 
 - игра;
+- тип события `event_type`;
 - ставка;
 - возврат;
 - итог по балансу;
 - детали в `meta`.
+
+### Чек-лист для `log-casino-event`
+
+Функция должна:
+
+- принимать `code`, `game`, `event_type`, `bet`, `payout`, `delta`, `meta`;
+- проверять, что `code` передан и существует в `public.participants`;
+- приводить `bet`, `payout`, `delta` к числам;
+- если `event_type` не передан, ставить `round`;
+- если `meta` не передан, ставить пустой объект `{}`;
+- записывать строку в `public.casino_events`;
+- возвращать `{ ok: true }` без лишних данных.
+
+### Готовый код `log-casino-event`
+
+Создай Edge Function с именем:
+
+- `log-casino-event`
+
+И вставь в неё этот код:
+
+```ts
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json; charset=utf-8",
+};
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+
+const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+const ALLOWED_GAMES = new Set([
+  "slots",
+  "blackjack",
+  "wheel",
+  "system",
+  "dice",
+  "crash",
+  "higher_lower",
+  "horse",
+  "plinko",
+  "mines",
+  "tower",
+]);
+
+const ALLOWED_EVENT_TYPES = new Set(["round", "bonus"]);
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: corsHeaders,
+  });
+}
+
+function toInt(value: unknown, fallback = 0) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.trunc(n);
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") {
+    return json({ ok: false, error: "Method not allowed" }, 405);
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+
+    const code = String(body?.code || "").trim();
+    const game = String(body?.game || "").trim();
+    const eventTypeRaw = String(body?.event_type || "round").trim() || "round";
+    const event_type = ALLOWED_EVENT_TYPES.has(eventTypeRaw) ? eventTypeRaw : "round";
+    const bet = toInt(body?.bet, 0);
+    const payout = toInt(body?.payout, 0);
+    const delta = toInt(body?.delta, payout - bet);
+    const meta =
+      body?.meta && typeof body.meta === "object" && !Array.isArray(body.meta)
+        ? body.meta
+        : {};
+
+    if (!code) {
+      return json({ ok: false, error: "code is required" }, 400);
+    }
+
+    if (!game || !ALLOWED_GAMES.has(game)) {
+      return json({ ok: false, error: "invalid game" }, 400);
+    }
+
+    if (bet < 0 || payout < 0) {
+      return json({ ok: false, error: "bet and payout must be >= 0" }, 400);
+    }
+
+    const { data: participant, error: participantError } = await sb
+      .from("participants")
+      .select("code")
+      .eq("code", code)
+      .maybeSingle();
+
+    if (participantError) {
+      return json({ ok: false, error: participantError.message }, 500);
+    }
+
+    if (!participant) {
+      return json({ ok: false, error: "participant not found" }, 404);
+    }
+
+    const { error: insertError } = await sb.from("casino_events").insert({
+      code,
+      game,
+      event_type,
+      bet,
+      payout,
+      delta,
+      meta,
+    });
+
+    if (insertError) {
+      return json({ ok: false, error: insertError.message }, 500);
+    }
+
+    return json({ ok: true });
+  } catch (e) {
+    return json(
+      { ok: false, error: e instanceof Error ? e.message : "Unknown error" },
+      500,
+    );
+  }
+});
+```
+
+### Что проверить после деплоя `log-casino-event`
+
+1. Открой `Edge Functions -> log-casino-event -> Invoke`.
+2. Передай такой JSON:
+
+```json
+{
+  "code": "TEST123",
+  "game": "slots",
+  "event_type": "round",
+  "bet": 20,
+  "payout": 40,
+  "delta": 20,
+  "meta": {
+    "result": "7-7-7",
+    "jackpot": false
+  }
+}
+```
+
+3. Убедись, что ответ:
+
+```json
+{ "ok": true }
+```
+
+4. После этого открой таблицу `public.casino_events` и проверь, что строка появилась.
+
+### Какие `game` уже реально отправляет фронт
+
+Ниже точный список значений, которые сайт уже шлёт в `log-casino-event`:
+
+- `slots`
+- `blackjack`
+- `wheel`
+- `system`
+- `dice`
+- `crash`
+- `higher_lower`
+- `horse`
+- `plinko`
+- `mines`
+- `tower`
+
+### Какие `event_type` уже реально отправляет фронт
+
+- `round`
+  Используется для обычных игровых раундов.
+- `bonus`
+  Используется для системных начислений через `game: "system"`.
+
+### Что сейчас приходит в `meta`
+
+Формат `meta` может быть разным в зависимости от игры. Это нормально, его не нужно жёстко ограничивать схемой.
+
+Примеры:
+
+- `slots`: `result`, `jackpot`, `two_match`
+- `blackjack`: `result`, `player_score`, `dealer_score`
+- `wheel`: `segment`, `mult`
+- `system`: `source`
+- `dice`: `guess`, `d1`, `d2`, `sum`, `multiplier`
+- `crash`: `result`, `crash_at`, `multiplier`
+- `higher_lower`: `result`, `streak`, `pot`
+- `horse`: `selected`, `winner`, `selected_name`, `winner_name`
+- `plinko`: `multiplier`, `slot_index`
+- `mines`: `opened`, `mine_at`, `multiplier`
+- `tower`: `level`, `bomb_col`, `picked`, `multiplier`
 
 ### Что делает `get-casino-stats`
 
@@ -599,6 +809,31 @@ create index if not exists casino_events_created_at_idx
 - чистый итог;
 - `winrate`;
 - `RTP`.
+
+И дополнительно должен возвращать статистику по каждой игре отдельно:
+
+- `slots`
+- `blackjack`
+- `wheel`
+- `system`
+- `dice`
+- `crash`
+- `higher_lower`
+- `horse`
+- `plinko`
+- `mines`
+- `tower`
+
+Желательный формат ответа:
+
+```json
+{
+  "ok": true,
+  "summary": {},
+  "days": [],
+  "per_game": []
+}
+```
 
 ### Что уже сделано в коде сайта
 

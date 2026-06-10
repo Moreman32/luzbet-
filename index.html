@@ -190,6 +190,11 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .casino-stats-day{font-family:var(--os);font-size:12px;color:var(--white)}
 .casino-stats-cell{color:var(--muted);text-align:right}
 .casino-stats-cell strong{color:var(--white);font-family:var(--os);font-weight:700}
+.casino-stats-games{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.casino-game-stat{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:12px}
+.casino-game-stat-name{font-family:var(--os);font-size:13px;color:var(--white);margin-bottom:8px}
+.casino-game-stat-line{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);margin-bottom:4px}
+.casino-game-stat-line strong{color:var(--white);font-family:var(--os);font-weight:700}
 @media(max-width:720px){
   .casino-stats-row{grid-template-columns:1fr 1fr;gap:6px}
   .casino-stats-row.head{display:none}
@@ -413,6 +418,48 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .horse-bet-btn{background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--in);font-size:12px;padding:10px 8px;cursor:pointer;transition:all .15s;text-align:left}
 .horse-bet-btn:hover{border-color:var(--muted)}
 .horse-bet-btn.selected{background:rgba(255,230,0,.1);border-color:var(--yellow);color:var(--yellow)}
+
+/* CRASH */
+.crash-display{background:radial-gradient(circle at 18% 20%,rgba(0,176,80,.08),transparent 34%),linear-gradient(180deg,#141414,#0b0b0b);border:1px solid var(--border);border-radius:var(--r);height:110px;margin-bottom:12px;position:relative;overflow:hidden}
+.crash-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:32px 28px;opacity:.35}
+.crash-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.crash-trail{fill:none;stroke:rgba(255,255,255,.28);stroke-width:1.6;stroke-linecap:round;stroke-dasharray:2 8;opacity:.75}
+.crash-path{fill:none;stroke:var(--yellow);stroke-width:3;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(255,230,0,.3))}
+.crash-plane{position:absolute;left:4%;top:88%;font-size:22px;line-height:1;transform:translate(-50%,-50%) rotate(-16deg);transform-origin:center;transition:left .12s linear,top .12s linear,transform .12s linear,filter .12s linear;filter:drop-shadow(0 0 10px rgba(255,255,255,.18));z-index:2}
+.crash-plane.flying{animation:crashPlaneFloat .9s ease-in-out infinite alternate}
+.crash-plane.crashed{filter:grayscale(.2) saturate(1.35) drop-shadow(0 0 10px rgba(232,0,42,.4))}
+.crash-boom{position:absolute;left:4%;top:88%;font-size:22px;line-height:1;transform:translate(-50%,-50%) scale(.4);opacity:0;transition:opacity .18s ease,transform .18s ease;pointer-events:none;z-index:3}
+.crash-boom.show{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
+.crash-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:4;pointer-events:none}
+.crash-mult{font-family:var(--os);font-size:46px;font-weight:700;color:var(--green);transition:color .15s,text-shadow .15s;text-shadow:0 0 18px rgba(0,176,80,.16)}
+.crash-status{position:absolute;bottom:6px;right:10px;font-size:10px;color:var(--muted)}
+.crash-display.crashed{animation:crashShake .28s ease-in-out 2}
+@keyframes crashPlaneFloat{from{transform:translate(-50%,-50%) rotate(-18deg) translateY(1px)}to{transform:translate(-50%,-50%) rotate(-12deg) translateY(-1px)}}
+@keyframes crashShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-2px)}40%{transform:translateX(3px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+
+/* PLINKO */
+.plinko-board{position:relative;height:260px;background:linear-gradient(180deg,#151515,#0f0f0f);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.plinko-peg{position:absolute;width:10px;height:10px;border-radius:50%;background:#666;box-shadow:0 0 8px rgba(255,255,255,.08)}
+.plinko-chip{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--yellow);box-shadow:0 0 16px rgba(255,230,0,.45);left:50%;top:10px;transform:translateX(-50%);transition:transform .18s linear, top .18s linear}
+.plinko-slots{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:8px}
+.plinko-slot{background:var(--dark);border:1px solid var(--border);border-radius:6px;padding:6px 2px;text-align:center;font-family:var(--os);font-size:11px;color:var(--muted)}
+.plinko-slot.hit{border-color:var(--yellow);color:var(--yellow);background:rgba(255,230,0,.08)}
+
+/* MINES */
+.mines-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.mine-tile{aspect-ratio:1;background:var(--dark);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--os);font-size:18px;cursor:pointer;transition:all .15s}
+.mine-tile:hover{border-color:var(--muted)}
+.mine-tile.safe{background:rgba(0,176,80,.12);border-color:rgba(0,176,80,.35);color:var(--green)}
+.mine-tile.mine{background:rgba(232,0,42,.12);border-color:rgba(232,0,42,.35);color:#ff6b6b}
+
+/* TOWER */
+.tower-grid{display:grid;gap:8px;margin:12px 0}
+.tower-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tower-cell{background:var(--dark);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--os);font-size:16px;padding:12px 8px;cursor:pointer;transition:all .15s;min-height:44px}
+.tower-cell:hover{border-color:var(--muted)}
+.tower-cell.safe{background:rgba(0,176,80,.12);border-color:rgba(0,176,80,.35);color:var(--green)}
+.tower-cell.bomb{background:rgba(232,0,42,.12);border-color:rgba(232,0,42,.35);color:#ff6b6b}
+.tower-row.locked .tower-cell{opacity:.45;cursor:not-allowed}
 
 /* PLAYOFF */
 .playoff-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
@@ -779,6 +826,16 @@ try{
           <div class="casino-stats-cell"><strong>—</strong></div>
         </div>
       </div>
+      <div style="font-family:var(--os);font-size:13px;color:var(--yellow);letter-spacing:1px;margin:16px 0 10px">ПО ИГРАМ</div>
+      <div id="casino-stats-games" class="casino-stats-games">
+        <div class="casino-game-stat">
+          <div class="casino-game-stat-name">Загрузка…</div>
+          <div class="casino-game-stat-line"><span>Игр</span><strong>—</strong></div>
+          <div class="casino-game-stat-line"><span>Winrate</span><strong>—</strong></div>
+          <div class="casino-game-stat-line"><span>RTP</span><strong>—</strong></div>
+          <div class="casino-game-stat-line"><span>Итог</span><strong>—</strong></div>
+        </div>
+      </div>
     </div>
 
     <!-- LIVE CHAT -->
@@ -868,9 +925,18 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🪃 Краш</span><span class="cgc-rtp">Забери до краша!</span></div>
         <div class="cgc-body">
-          <div style="background:var(--dark);border:1px solid var(--border);border-radius:var(--r);height:110px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;position:relative;overflow:hidden" id="crash-display">
-            <div style="font-family:var(--os);font-size:46px;font-weight:700;color:var(--green);transition:color .15s" id="crash-mult">1.00×</div>
-            <div style="position:absolute;bottom:6px;right:10px;font-size:10px;color:var(--muted)" id="crash-status">Нажми «Старт»</div>
+          <div class="crash-display" id="crash-display">
+            <div class="crash-grid"></div>
+            <svg class="crash-svg" viewBox="0 0 320 110" preserveAspectRatio="none" aria-hidden="true">
+              <path class="crash-trail" id="crash-trail" d="M 12 96 L 12 96"></path>
+              <path class="crash-path" id="crash-path" d="M 12 96 L 12 96"></path>
+            </svg>
+            <div class="crash-plane" id="crash-plane">✈️</div>
+            <div class="crash-boom" id="crash-boom">💥</div>
+            <div class="crash-overlay">
+              <div class="crash-mult" id="crash-mult">1.00×</div>
+              <div class="crash-status" id="crash-status">Нажми «Старт»</div>
+            </div>
           </div>
           <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
             <span style="font-size:11px;color:var(--muted);white-space:nowrap">Ставка:</span>
@@ -929,6 +995,68 @@ try{
           </div>
           <button class="btn btn-yellow btn-full" id="horse-start-btn" onclick="horseRace()" disabled>СТАРТ ГОНКИ 🏁</button>
           <div id="horse-result" style="text-align:center;font-family:var(--os);font-size:16px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- PLINKO -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">🟡 Плинко</span><span class="cgc-rtp">Шарик и множители</span></div>
+        <div class="cgc-body">
+          <div class="plinko-board" id="plinko-board">
+            <div class="plinko-chip" id="plinko-chip"></div>
+          </div>
+          <div class="plinko-slots" id="plinko-slots"></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0">
+            <span style="font-size:11px;color:var(--muted)">Ставка:</span>
+            <div class="bet-chip active" id="plinko-bet-10" onclick="selectPlinkoBet(10,this)">10</div>
+            <div class="bet-chip" onclick="selectPlinkoBet(25,this)">25</div>
+            <div class="bet-chip" onclick="selectPlinkoBet(50,this)">50</div>
+            <div class="bet-chip" onclick="selectPlinkoBet(100,this)">100</div>
+          </div>
+          <button class="btn btn-yellow btn-full" id="plinko-btn" onclick="dropPlinko()">БРОСИТЬ ШАРИК 🟡</button>
+          <div id="plinko-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- MINES -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">💣 Минёр</span><span class="cgc-rtp">12 клеток • 2 мины</span></div>
+        <div class="cgc-body">
+          <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+            <div style="font-size:11px;color:var(--muted)">Ставка:
+              <select id="mines-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
+                <option value="10">10 ЛК</option><option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
+              </select>
+            </div>
+            <div style="font-size:11px;color:var(--muted)">Множитель: <span id="mines-mult" style="color:var(--yellow);font-family:var(--os)">1.00×</span></div>
+          </div>
+          <div class="mines-grid" id="mines-grid"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-yellow" id="mines-start-btn" onclick="startMines()">Старт ⛏️</button>
+            <button class="btn btn-green" id="mines-cash-btn" onclick="cashoutMines()" disabled>Забрать 💰</button>
+          </div>
+          <div id="mines-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- TOWER -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">🗼 Башня</span><span class="cgc-rtp">6 этажей • 1 ловушка</span></div>
+        <div class="cgc-body">
+          <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+            <div style="font-size:11px;color:var(--muted)">Ставка:
+              <select id="tower-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
+                <option value="10">10 ЛК</option><option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
+              </select>
+            </div>
+            <div style="font-size:11px;color:var(--muted)">Этаж: <span id="tower-level" style="color:var(--yellow);font-family:var(--os)">0 / 6</span></div>
+          </div>
+          <div class="tower-grid" id="tower-grid"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-yellow" id="tower-start-btn" onclick="startTower()">Старт 🗼</button>
+            <button class="btn btn-green" id="tower-cash-btn" onclick="cashoutTower()" disabled>Забрать 💰</button>
+          </div>
+          <div id="tower-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
         </div>
       </div>
 
@@ -1572,6 +1700,7 @@ function emptyCasinoStats(){
       rtp: 0,
     },
     days: [],
+    per_game: [],
   };
 }
 
@@ -1603,7 +1732,8 @@ function renderCasinoStats(stats){
   const sum = data.summary || emptyCasinoStats().summary;
   const summary = document.getElementById('casino-stats-summary');
   const daysEl = document.getElementById('casino-stats-days');
-  if(!summary || !daysEl) return;
+  const gamesEl = document.getElementById('casino-stats-games');
+  if(!summary || !daysEl || !gamesEl) return;
 
   const cards = [
     ['Игр сегодня', sum.games_count, ''],
@@ -1655,6 +1785,41 @@ function renderCasinoStats(stats){
       <div class="casino-stats-cell"><strong>—</strong></div>
     </div>
   `);
+
+  const gameNames = {
+    slots:'🎰 Слоты',
+    blackjack:'🃏 Блэкджек',
+    wheel:'🎡 Колесо',
+    dice:'🎲 Кости',
+    crash:'🪃 Краш',
+    higher_lower:'🎴 Выше-ниже',
+    horse:'🐎 Скачки',
+    plinko:'🟡 Плинко',
+    mines:'💣 Минёр',
+    tower:'🗼 Башня',
+    system:'⚙️ Система',
+  };
+  const perGame = Array.isArray(data.per_game) ? data.per_game : [];
+  gamesEl.innerHTML = perGame.length ? perGame.map(game => `
+    <div class="casino-game-stat">
+      <div class="casino-game-stat-name">${escapeHtml(gameNames[game.game] || game.game)}</div>
+      <div class="casino-game-stat-line"><span>Игр</span><strong>${escapeHtml(game.games_count || 0)}</strong></div>
+      <div class="casino-game-stat-line"><span>Поб/Пор</span><strong>${escapeHtml((game.wins_count || 0) + '/' + (game.losses_count || 0))}</strong></div>
+      <div class="casino-game-stat-line"><span>Поставлено</span><strong>${escapeHtml(formatCoins(game.bet_sum || 0))}</strong></div>
+      <div class="casino-game-stat-line"><span>Возврат</span><strong>${escapeHtml(formatCoins(game.payout_sum || 0))}</strong></div>
+      <div class="casino-game-stat-line"><span>Winrate</span><strong>${escapeHtml(formatPct(game.win_rate || 0))}</strong></div>
+      <div class="casino-game-stat-line"><span>RTP</span><strong>${escapeHtml(formatPct(game.rtp || 0))}</strong></div>
+      <div class="casino-game-stat-line"><span>Итог</span><strong style="color:${(game.net_sum || 0) > 0 ? 'var(--green)' : ((game.net_sum || 0) < 0 ? '#ff6b6b' : 'var(--white)')}">${escapeHtml(formatSignedCoins(game.net_sum || 0))}</strong></div>
+    </div>
+  `).join('') : `
+    <div class="casino-game-stat">
+      <div class="casino-game-stat-name">Пока пусто</div>
+      <div class="casino-game-stat-line"><span>Игр</span><strong>—</strong></div>
+      <div class="casino-game-stat-line"><span>Winrate</span><strong>—</strong></div>
+      <div class="casino-game-stat-line"><span>RTP</span><strong>—</strong></div>
+      <div class="casino-game-stat-line"><span>Итог</span><strong>—</strong></div>
+    </div>
+  `;
 }
 
 async function loadCasinoStats(force=false){
@@ -1811,7 +1976,7 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();loadCasinoStats();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();loadCasinoStats();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
@@ -2599,6 +2764,70 @@ function diceGuess(n,el){
 //  CRASH
 // ══════════════════════════════════════════════
 let crashState={running:false,mult:1,interval:null,crashAt:1};
+const CRASH_SCENE={width:320,height:110,startX:12,startY:96,endX:304,maxRise:76,maxMult:20};
+let crashPathPoints=[];
+function getCrashScenePoint(mult){
+  const safeMult=Math.max(1,Number(mult)||1);
+  const progress=Math.max(0,Math.min(1,Math.log(safeMult)/Math.log(CRASH_SCENE.maxMult)));
+  const x=CRASH_SCENE.startX+(CRASH_SCENE.endX-CRASH_SCENE.startX)*progress;
+  const y=CRASH_SCENE.startY-CRASH_SCENE.maxRise*Math.pow(progress,.86);
+  return {x,y,progress};
+}
+function crashPointsToPath(points){
+  if(!points.length)return `M ${CRASH_SCENE.startX} ${CRASH_SCENE.startY} L ${CRASH_SCENE.startX} ${CRASH_SCENE.startY}`;
+  if(points.length===1)return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)} L ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  let d=`M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  for(let i=1;i<points.length;i++){
+    const prev=points[i-1];
+    const cur=points[i];
+    const midX=((prev.x+cur.x)/2).toFixed(1);
+    const midY=((prev.y+cur.y)/2).toFixed(1);
+    d+=` Q ${prev.x.toFixed(1)} ${prev.y.toFixed(1)} ${midX} ${midY}`;
+  }
+  const last=points[points.length-1];
+  d+=` T ${last.x.toFixed(1)} ${last.y.toFixed(1)}`;
+  return d;
+}
+function renderCrashScene(mult, opts={}){
+  const point=getCrashScenePoint(mult);
+  const display=document.getElementById('crash-display');
+  const trail=document.getElementById('crash-trail');
+  const path=document.getElementById('crash-path');
+  const plane=document.getElementById('crash-plane');
+  const boom=document.getElementById('crash-boom');
+  if(!display || !trail || !path || !plane || !boom)return;
+  const prev=crashPathPoints[crashPathPoints.length-1];
+  if(!prev || Math.abs(prev.x-point.x)>4 || Math.abs(prev.y-point.y)>2){
+    crashPathPoints.push(point);
+  } else {
+    crashPathPoints[crashPathPoints.length-1]=point;
+  }
+  const visiblePoints=crashPathPoints.slice(-7);
+  trail.setAttribute('d', crashPointsToPath(visiblePoints));
+  path.setAttribute('d', crashPointsToPath(crashPathPoints));
+  plane.style.left=((point.x/CRASH_SCENE.width)*100)+'%';
+  plane.style.top=((point.y/CRASH_SCENE.height)*100)+'%';
+  plane.classList.toggle('flying', !opts.crashed);
+  plane.classList.toggle('crashed', !!opts.crashed);
+  plane.style.transform=`translate(-50%,-50%) rotate(${(-16 + point.progress * -18).toFixed(1)}deg)`;
+  boom.style.left=plane.style.left;
+  boom.style.top=plane.style.top;
+  boom.classList.toggle('show', !!opts.crashed);
+  display.classList.toggle('crashed', !!opts.crashed);
+}
+function resetCrashScene(){
+  const display=document.getElementById('crash-display');
+  const plane=document.getElementById('crash-plane');
+  const boom=document.getElementById('crash-boom');
+  crashPathPoints=[{x:CRASH_SCENE.startX,y:CRASH_SCENE.startY}];
+  if(display)display.classList.remove('crashed');
+  if(plane){
+    plane.classList.remove('crashed');
+    plane.classList.add('flying');
+  }
+  if(boom)boom.classList.remove('show');
+  renderCrashScene(1);
+}
 function crashStart(){
   const bet=parseInt(document.getElementById('crash-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛК','err');return;}
@@ -2619,15 +2848,18 @@ function crashStart(){
   document.getElementById('crash-status').textContent='Летим! 🚀';
   document.getElementById('crash-mult').style.color='var(--green)';
   const el=document.getElementById('crash-mult');
+  resetCrashScene();
   crashState.interval=setInterval(()=>{
     crashState.mult=+(crashState.mult*1.05).toFixed(2);
     el.textContent=crashState.mult+'×';
+    renderCrashScene(crashState.mult);
     if(crashState.mult>3)el.style.color='var(--yellow)';
     if(crashState.mult>7)el.style.color='var(--red)';
     if(crashState.mult>=crashState.crashAt){
       clearInterval(crashState.interval);crashState.running=false;
       el.textContent='💥 КРАШ '+crashState.crashAt+'×';el.style.color='var(--red)';
       document.getElementById('crash-status').textContent='';
+      renderCrashScene(crashState.crashAt,{crashed:true});
       document.getElementById('crash-cash-btn').disabled=true;
       document.getElementById('crash-start-btn').disabled=false;
       document.getElementById('crash-result').textContent=`Краш на ${crashState.crashAt}×. Потерял ${bet} ЛК.`;
@@ -2645,6 +2877,8 @@ function crashCash(){
   coins+=payout;saveCoins();
   document.getElementById('crash-cash-btn').disabled=true;
   document.getElementById('crash-start-btn').disabled=false;
+  document.getElementById('crash-status').textContent='Забрал вовремя';
+  renderCrashScene(crashState.mult);
   document.getElementById('crash-result').textContent=`Забрал на ${crashState.mult}×! +${payout} ЛК`;
   toast(`🪃 Забрал ${payout} ЛК на ${crashState.mult}×!`,'win');
   recordWin('🪃 Краш',payout);onWin();
@@ -2657,12 +2891,14 @@ function crashCash(){
 //  HIGHER LOWER
 // ══════════════════════════════════════════════
 let hlDeck=[],hlCurrent=null,hlBet=0,hlStreakCount=0,hlPot=0;
+let hlResolving=false;
 const HL_VALS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const HL_NUM={2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,J:11,Q:12,K:13,A:14};
 function hlMakeDeck(){const suits=['♠','♥','♦','♣'];const d=[];suits.forEach(s=>HL_VALS.forEach(v=>d.push({v,s,n:HL_NUM[v]})));return d.sort(()=>Math.random()-.5);}
 function hlCardLabel(c){const red=['♥','♦'].includes(c.s);return `<span style="color:${red?'var(--red)':'#111'}">${c.v}${c.s}</span>`;}
 function hlDeal(){
   if(coins<15){toast('❌ Нужно 15 ЛК','err');return;}
+  hlResolving=false;
   hlDeck=hlMakeDeck();hlStreakCount=0;hlPot=15;
   coins-=15;spendCoins(15);saveCoins();
   hlCurrent=hlDeck.pop();
@@ -2678,27 +2914,43 @@ function hlDeal(){
   unlockAch('hl_first');
 }
 function hlGuess(dir){
+  if(hlResolving)return;
   if(!hlCurrent||!hlDeck.length){toast('Нажми Старт','err');return;}
   const next=hlDeck.pop();
   document.getElementById('hl-next').innerHTML=hlCardLabel(next);
   document.getElementById('hl-deck-left').textContent=hlDeck.length;
+  document.getElementById('hl-higher').disabled=true;
+  document.getElementById('hl-lower').disabled=true;
+  hlResolving=true;
   const correct=(dir==='higher'&&next.n>hlCurrent.n)||(dir==='lower'&&next.n<hlCurrent.n);
   if(next.n===hlCurrent.n){// tie — lose
     document.getElementById('hl-result').textContent='Ничья — проигрыш. Судьба жестокая.';
-    toast('🎴 Ничья = проигрыш. Типично.','err');hlEnd(false);return;
+    toast('🎴 Ничья = проигрыш. Типично.','err');
+    setTimeout(()=>hlEnd(false),2000);
+    return;
   }
   if(correct){
     hlStreakCount++;hlPot=Math.floor(hlPot*1.5);
     document.getElementById('hl-streak').textContent=hlStreakCount;
     document.getElementById('hl-result').textContent=`✅ Верно! Горшок: ${hlPot} ЛК`;
     document.getElementById('hl-deal').textContent='Забрать ('+hlPot+' ЛК)';
-    hlCurrent=next;document.getElementById('hl-current').innerHTML=hlCardLabel(hlCurrent);
-    document.getElementById('hl-next').textContent='?';
     if(hlStreakCount>=5)unlockAch('hl_streak5');
-    if(!hlDeck.length)hlCollect();
+    setTimeout(()=>{
+      if(!hlCurrent && !hlResolving) return;
+      hlCurrent=next;
+      document.getElementById('hl-current').innerHTML=hlCardLabel(hlCurrent);
+      document.getElementById('hl-next').textContent='?';
+      hlResolving=false;
+      if(!hlDeck.length)hlCollect();
+      else{
+        document.getElementById('hl-higher').disabled=false;
+        document.getElementById('hl-lower').disabled=false;
+      }
+    },2000);
   } else {
     document.getElementById('hl-result').textContent=`❌ Выпало ${next.v}. Потерял всё.`;
-    toast('🎴 Промахнулся. Всё потеряно.','err');hlEnd(false);
+    toast('🎴 Промахнулся. Всё потеряно.','err');
+    setTimeout(()=>hlEnd(false),2000);
   }
 }
 function hlCollect(){
@@ -2711,6 +2963,7 @@ function hlCollect(){
   hlEnd(true);
 }
 function hlEnd(won){
+  hlResolving=false;
   document.getElementById('hl-higher').disabled=true;document.getElementById('hl-lower').disabled=true;
   document.getElementById('hl-deal').textContent='Старт 🃏';document.getElementById('hl-deal').onclick=hlDeal;
   if(!won){
@@ -2814,6 +3067,260 @@ async function horseRace(){
       document.querySelectorAll('.horse-bet-btn').forEach(b=>b.classList.remove('selected'));
     }
   }, 80);
+}
+
+// ══════════════════════════════════════════════
+//  PLINKO
+// ══════════════════════════════════════════════
+const PLINKO_MULTS=[0,0.5,0.8,1,1.2,1.5,2,3,5];
+const PLINKO_WEIGHTS=[14,14,12,12,12,10,8,5,2];
+let plinkoBet=10,plinkoRunning=false;
+
+function selectPlinkoBet(val,el){
+  plinkoBet=val;
+  if(el && el.parentElement){
+    el.parentElement.querySelectorAll('.bet-chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+  }
+}
+
+function weightedPick(values, weights){
+  const total = weights.reduce((a,b)=>a+b,0);
+  let r = Math.random() * total;
+  for(let i=0;i<values.length;i++){
+    r -= weights[i];
+    if(r <= 0) return values[i];
+  }
+  return values[values.length-1];
+}
+
+function renderPlinkoBoard(){
+  const board=document.getElementById('plinko-board');
+  const slots=document.getElementById('plinko-slots');
+  const chip=document.getElementById('plinko-chip');
+  if(!board || !slots || !chip) return;
+  if(!board.querySelector('.plinko-peg')){
+    const rows=7, startY=28, gapY=28, gapX=26;
+    for(let row=0;row<rows;row++){
+      const count=row+2;
+      const startX=120-((count-1)*gapX/2);
+      for(let col=0;col<count;col++){
+        const peg=document.createElement('div');
+        peg.className='plinko-peg';
+        peg.style.left=(startX + col*gapX)+'px';
+        peg.style.top=(startY + row*gapY)+'px';
+        board.appendChild(peg);
+      }
+    }
+  }
+  slots.innerHTML=PLINKO_MULTS.map((m,i)=>`<div class="plinko-slot" id="plinko-slot-${i}">${m===0?'0×':m+'×'}</div>`).join('');
+  chip.style.left='50%';
+  chip.style.top='10px';
+  chip.style.transform='translateX(-50%)';
+}
+
+function dropPlinko(){
+  if(plinkoRunning)return;
+  if(coins<plinkoBet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  const chip=document.getElementById('plinko-chip');
+  const resultEl=document.getElementById('plinko-result');
+  if(!chip || !resultEl) return;
+  const bet=plinkoBet;
+  coins-=bet;spendCoins(bet);saveCoins();
+  plinkoRunning=true;
+  document.getElementById('plinko-btn').disabled=true;
+  resultEl.textContent='Шарик пошёл искать приключения...';
+  document.querySelectorAll('.plinko-slot').forEach(s=>s.classList.remove('hit'));
+  const mult=weightedPick(PLINKO_MULTS, PLINKO_WEIGHTS);
+  const slotIndex=PLINKO_MULTS.indexOf(mult);
+  const path=[-18,12,-10,18,-8,10,0];
+  let step=0;
+  const iv=setInterval(()=>{
+    const x=path[step] ?? 0;
+    chip.style.transform=`translateX(calc(-50% + ${x}px))`;
+    chip.style.top=(12 + step*28)+'px';
+    step++;
+    if(step>=path.length){
+      clearInterval(iv);
+      setTimeout(()=>{
+        const finalX=((slotIndex-(PLINKO_MULTS.length-1)/2)*26);
+        chip.style.transform=`translateX(calc(-50% + ${finalX}px))`;
+        chip.style.top='214px';
+        const payout=Math.round(bet*mult);
+        const delta=payout-bet;
+        const slotEl=document.getElementById(`plinko-slot-${slotIndex}`);
+        if(slotEl) slotEl.classList.add('hit');
+        if(payout>0){
+          coins+=payout;saveCoins();
+          resultEl.textContent=`${mult}× → ${payout} ЛК`;
+          toast(`🟡 Плинко: ${mult}× и ${payout} ЛК`,'win');
+          onWin(payout,'🟡 Плинко');
+        }else{
+          resultEl.textContent='0×. Шарик выбрал тьму.';
+          toast('🟡 Плинко: шарик выбрал 0×','err');
+          onLose();
+        }
+        logCasinoEvent({ game:'plinko', bet, payout, delta, meta:{ multiplier:mult, slot_index:slotIndex } });
+        plinkoRunning=false;
+        document.getElementById('plinko-btn').disabled=false;
+      },220);
+    }
+  },180);
+}
+
+// ══════════════════════════════════════════════
+//  MINES
+// ══════════════════════════════════════════════
+let minesState={ running:false, bet:0, mines:new Set(), opened:new Set(), multiplier:1, mineCount:2 };
+const MINES_MULTS=[1.15,1.35,1.62,1.95,2.35,2.85,3.45,4.2,5.1,6.2];
+
+function renderMinesBoard(showAll=false){
+  const grid=document.getElementById('mines-grid');
+  if(!grid) return;
+  let html='';
+  for(let i=0;i<12;i++){
+    let cls='mine-tile', text='?';
+    if(minesState.opened.has(i)){ cls+=' safe'; text='💎'; }
+    else if(showAll && minesState.mines.has(i)){ cls+=' mine'; text='💣'; }
+    html+=`<button class="${cls}" ${minesState.running && !minesState.opened.has(i) ? `onclick="clickMine(${i})"` : 'disabled'}>${text}</button>`;
+  }
+  grid.innerHTML=html;
+}
+
+function startMines(){
+  const bet=parseInt(document.getElementById('mines-bet').value);
+  if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  const cells=[...Array(12).keys()].sort(()=>Math.random()-.5).slice(0,2);
+  minesState={ running:true, bet, mines:new Set(cells), opened:new Set(), multiplier:1, mineCount:2 };
+  coins-=bet;spendCoins(bet);saveCoins();
+  document.getElementById('mines-result').textContent='Ищи алмазы. Но не жадничай.';
+  document.getElementById('mines-mult').textContent='1.00×';
+  document.getElementById('mines-start-btn').disabled=true;
+  document.getElementById('mines-cash-btn').disabled=true;
+  renderMinesBoard(false);
+}
+
+function clickMine(idx){
+  if(!minesState.running || minesState.opened.has(idx)) return;
+  if(minesState.mines.has(idx)){
+    minesState.running=false;
+    document.getElementById('mines-result').textContent='💣 Мина. Всё сгорело.';
+    document.getElementById('mines-start-btn').disabled=false;
+    document.getElementById('mines-cash-btn').disabled=true;
+    renderMinesBoard(true);
+    onLose();
+    logCasinoEvent({ game:'mines', bet:minesState.bet, payout:0, delta:-minesState.bet, meta:{ opened:minesState.opened.size, mine_at:idx } });
+    return;
+  }
+  minesState.opened.add(idx);
+  const level=minesState.opened.size;
+  minesState.multiplier=MINES_MULTS[Math.min(level-1, MINES_MULTS.length-1)];
+  document.getElementById('mines-mult').textContent=`${minesState.multiplier.toFixed(2)}×`;
+  document.getElementById('mines-result').textContent=`✅ Безопасно. Открыто: ${level}`;
+  document.getElementById('mines-cash-btn').disabled=false;
+  renderMinesBoard(false);
+}
+
+function cashoutMines(){
+  if(!minesState.running || !minesState.opened.size) return;
+  const payout=Math.round(minesState.bet * minesState.multiplier);
+  coins+=payout;saveCoins();
+  minesState.running=false;
+  document.getElementById('mines-result').textContent=`💰 Забрал ${payout} ЛК на ${minesState.multiplier.toFixed(2)}×`;
+  document.getElementById('mines-start-btn').disabled=false;
+  document.getElementById('mines-cash-btn').disabled=true;
+  renderMinesBoard(true);
+  toast(`💣 Минёр: +${payout} ЛК`,'win');
+  onWin(payout,'💣 Минёр');
+  logCasinoEvent({ game:'mines', bet:minesState.bet, payout, delta:payout-minesState.bet, meta:{ opened:minesState.opened.size, multiplier:minesState.multiplier } });
+}
+
+// ══════════════════════════════════════════════
+//  TOWER
+// ══════════════════════════════════════════════
+let towerState={ running:false, bet:0, level:0, bombs:[], multipliers:[1.2,1.5,1.9,2.4,3.1,4.2] };
+
+function renderTower(){
+  const grid=document.getElementById('tower-grid');
+  const levelEl=document.getElementById('tower-level');
+  if(!grid || !levelEl) return;
+  levelEl.textContent=`${towerState.level} / 6`;
+  let html='';
+  for(let row=5;row>=0;row--){
+    const active=towerState.running && row===towerState.level;
+    html+=`<div class="tower-row ${active ? '' : 'locked'}">`;
+    for(let col=0;col<3;col++){
+      html+=`<button class="tower-cell" ${active ? `onclick="pickTower(${col})"` : 'disabled'}>${active ? '🎁' : '⬛'}</button>`;
+    }
+    html+='</div>';
+  }
+  grid.innerHTML=html;
+}
+
+function startTower(){
+  const bet=parseInt(document.getElementById('tower-bet').value);
+  if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  towerState.running=true;
+  towerState.bet=bet;
+  towerState.level=0;
+  towerState.bombs=Array.from({length:6},()=>Math.floor(Math.random()*3));
+  coins-=bet;spendCoins(bet);saveCoins();
+  document.getElementById('tower-result').textContent='Поднимайся выше. Но одна дверь на этаже ломает мечты.';
+  document.getElementById('tower-start-btn').disabled=true;
+  document.getElementById('tower-cash-btn').disabled=true;
+  renderTower();
+}
+
+function revealTowerRow(level, bombCol){
+  const rows=document.querySelectorAll('#tower-grid .tower-row');
+  const row=rows[5-level];
+  if(!row) return;
+  [...row.children].forEach((cell, col)=>{
+    cell.disabled=true;
+    cell.textContent = col===bombCol ? '💣' : '💎';
+    cell.classList.add(col===bombCol ? 'bomb' : 'safe');
+  });
+}
+
+function pickTower(col){
+  if(!towerState.running) return;
+  const level=towerState.level;
+  const bomb=towerState.bombs[level];
+  revealTowerRow(level, bomb);
+  if(col===bomb){
+    towerState.running=false;
+    document.getElementById('tower-result').textContent='💣 Ловушка. Башня тебя не приняла.';
+    document.getElementById('tower-start-btn').disabled=false;
+    document.getElementById('tower-cash-btn').disabled=true;
+    onLose();
+    logCasinoEvent({ game:'tower', bet:towerState.bet, payout:0, delta:-towerState.bet, meta:{ level, bomb_col:bomb, picked:col } });
+    setTimeout(renderTower,700);
+    return;
+  }
+  towerState.level++;
+  const mult=towerState.multipliers[towerState.level-1];
+  document.getElementById('tower-result').textContent=`✅ Этаж ${towerState.level}. Сейчас ${mult.toFixed(2)}×`;
+  document.getElementById('tower-cash-btn').disabled=false;
+  if(towerState.level>=6){
+    cashoutTower();
+    return;
+  }
+  setTimeout(renderTower,700);
+}
+
+function cashoutTower(){
+  if(!towerState.running || towerState.level===0) return;
+  const mult=towerState.multipliers[towerState.level-1];
+  const payout=Math.round(towerState.bet * mult);
+  coins+=payout;saveCoins();
+  towerState.running=false;
+  document.getElementById('tower-result').textContent=`💰 Забрал ${payout} ЛК на ${mult.toFixed(2)}×`;
+  document.getElementById('tower-start-btn').disabled=false;
+  document.getElementById('tower-cash-btn').disabled=true;
+  renderTower();
+  toast(`🗼 Башня: +${payout} ЛК`,'win');
+  onWin(payout,'🗼 Башня');
+  logCasinoEvent({ game:'tower', bet:towerState.bet, payout, delta:payout-towerState.bet, meta:{ level:towerState.level, multiplier:mult } });
 }
 
 // ══════════════════════════════════════════════
@@ -4325,12 +4832,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal=document.getElementById('warning-modal');
     if(modal) modal.classList.add('hidden');
   }
+  renderPlinkoBoard();
+  renderMinesBoard(false);
+  renderTower();
   saveCoins();
   updateVip();
   checkDaily();
   setInterval(checkDaily, 60000);
   initQuote();
   renderCrashHistory();
+  resetCrashScene();
   updateNavAfterLogin();
   updateCountdown();
   restoreSession();
