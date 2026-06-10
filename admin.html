@@ -34,6 +34,18 @@ tr:hover td{background:#1a1a1a}
 </style>
 </head>
 <body>
+<div id="login-screen" style="position:fixed;inset:0;background:#0f0f0f;z-index:9999;display:flex;align-items:center;justify-content:center">
+  <div style="background:#1a1a1a;border:1px solid #333;border-top:3px solid #ffe600;border-radius:8px;padding:32px 28px;max-width:340px;width:100%;text-align:center">
+    <div style="font-size:32px;margin-bottom:12px">⚙️</div>
+    <div style="font-family:monospace;font-size:20px;color:#ffe600;margin-bottom:6px">ЛУЗБЕТ АДМИН</div>
+    <div style="font-size:12px;color:#555;margin-bottom:24px">Только для организатора</div>
+    <input type="password" id="admin-pass" placeholder="Пароль" style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:4px;color:#fff;padding:10px 14px;font-size:16px;font-family:monospace;margin-bottom:12px;text-align:center;letter-spacing:4px"
+      onkeydown="if(event.key==='Enter')checkAdminPass()"/>
+    <button onclick="checkAdminPass()" style="width:100%;background:#ffe600;color:#000;border:none;border-radius:4px;padding:12px;font-size:14px;font-family:monospace;font-weight:bold;cursor:pointer">ВОЙТИ →</button>
+    <div id="admin-pass-err" style="color:#ff4444;font-size:12px;margin-top:10px;display:none">Неверный пароль. Попробуй ещё раз.</div>
+  </div>
+</div>
+
 <h1>⚙️ ЛузБет — Админ</h1>
 <div class="tabs">
   <button class="tab on" onclick="go('res')">📊 Результаты</button>
@@ -71,6 +83,28 @@ tr:hover td{background:#1a1a1a}
 </div>
 
 <script>
+
+const ADMIN_PASS = "123654More";
+function checkAdminPass(){
+  const v = document.getElementById('admin-pass').value;
+  if(v === ADMIN_PASS){
+    document.getElementById('login-screen').style.display='none';
+    sessionStorage.setItem('admin_ok','1');
+  } else {
+    const err = document.getElementById('admin-pass-err');
+    err.style.display='block';
+    document.getElementById('admin-pass').value='';
+    document.getElementById('admin-pass').focus();
+  }
+}
+// Auto-check if already authed this session
+if(sessionStorage.getItem('admin_ok')==='1'){
+  document.addEventListener('DOMContentLoaded',()=>{
+    const s=document.getElementById('login-screen');
+    if(s)s.style.display='none';
+  });
+}
+
 const SB_URL="https://kdsowktuirtkxnmtyoaz.supabase.co";
 const SB_KEY="sb_publishable_zjMkZslnb71eXQ_q6FQIAQ_eGyoW82B";
 const REST=SB_URL+"/rest/v1";
@@ -277,7 +311,7 @@ function buildForm(){
   html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:10px">';
   gs.forEach(g=>{
     const r=curR[g]||{};
-    html+='<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+    html+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px">';
     html+='<b style="color:#ffe600;font-size:15px">Группа '+g+'</b>';
     html+='<span class="muted">'+GROUPS[g].teams.map(t=>t.n).join(' · ')+'</span></div>';
     html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
@@ -293,9 +327,23 @@ function buildForm(){
       html+='oninput="this.classList.toggle(\'v\',this.value.trim()!=\'\')"/></div>';
     }
     html+='</div></div>';
+    html+='</div><button onclick="deleteResult(\'' + g + '\')" style="background:transparent;border:1px solid #ff4444;color:#ff4444;border-radius:4px;padding:6px 12px;cursor:pointer;font-family:monospace;font-size:12px;white-space:nowrap" title="Удалить результаты группы">🗑 Удалить</button></div>';
   });
   html+='</div>';
   document.getElementById('res-form').innerHTML=html;
+}
+
+
+async function deleteResult(g){
+  if(!confirm('Удалить результаты группы ' + g + '? Это сбросит счёт и подсветку для всех участников.')) return;
+  try{
+    await sb('/results?group_code=eq.'+encodeURIComponent(g),{method:'DELETE'});
+    delete curR[g];
+    log('✅ Результаты группы '+g+' удалены','ok');
+    buildForm();
+  }catch(e){
+    log('❌ Ошибка удаления: '+e.message,'err');
+  }
 }
 
 async function loadRes(){
