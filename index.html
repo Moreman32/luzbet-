@@ -1389,8 +1389,14 @@ async function api(params) {
       return { ok: true, rows: rows || [] };
     }
 
-    if (action === 'getAchAll') {
-      const rows = await sbFetch('/achievements?select=code,achievement');
+if (action === 'getAchAll') {
+  // В achievements нет поля name — имена подтягиваем отдельно из participants.
+  const rows = await sbFetch('/achievements?select=code,achievement');
+  return { ok: true, rows: rows || [] };
+}
+
+    if (action === 'getParticipantsAll') {
+      const rows = await sbFetch('/participants?select=code,name');
       return { ok: true, rows: rows || [] };
     }
 
@@ -2157,11 +2163,12 @@ async function loadLeaderboard(){
     await flushCasinoSync();
     await flushAchSync();
 
-    // Грузим основной LB + казино + ачивки параллельно
-    const [r, casinoRows, achRows] = await Promise.all([
+    // Грузим основной LB + казино + ачивки + участников параллельно
+    const [r, casinoRows, achRows, participantRows] = await Promise.all([
       api({action:'getLeaderboard'}),
       api({action:'getCasinoAll'}).catch(()=>({ok:false, rows:[]})),
       api({action:'getAchAll'}).catch(()=>({ok:false, rows:[]})),
+      api({action:'getParticipantsAll'}).catch(()=>({ok:false, rows:[]})),
     ]);
     if(!r.ok)throw new Error();
     window._lastResults=r.results;
@@ -2177,6 +2184,9 @@ async function loadLeaderboard(){
       achRows: (achRows.ok && Array.isArray(achRows.rows))
         ? achRows.rows
         : r.leaderboard.flatMap(p=>(p.achList||[]).map(a=>({code:p.code,achievement:a}))),
+      participantRows: (participantRows.ok && Array.isArray(participantRows.rows))
+        ? participantRows.rows
+        : [],
     };
 
     renderLB(r.leaderboard, r.results);
@@ -4064,21 +4074,29 @@ function switchLbTab(tab) {
 
   if(!_lbCache) { loadLeaderboard(); return; }
 
-  const { lb, results, casinoRows, achRows } = _lbCache;
+  const { lb, results, casinoRows, achRows, participantRows } = _lbCache;
   if(tab === 'predictions')   renderLB(lb, results);
-  if(tab === 'casino-coins')  renderCasinoLB(casinoRows, lb, 'coins');
-  if(tab === 'casino-spent')  renderCasinoLB(casinoRows, lb, 'spent');
-  if(tab === 'achievements')  renderAchLB(achRows, lb);
+  if(tab === 'casino-coins')  renderCasinoLB(casinoRows, lb, 'coins', participantRows);
+  if(tab === 'casino-spent')  renderCasinoLB(casinoRows, lb, 'spent', participantRows);
+  if(tab === 'achievements')  renderAchLB(achRows, lb, participantRows);
 }
 
-function renderCasinoLB(casinoRows, lb, mode) {
+function renderCasinoLB(casinoRows, lb, mode, participantRows=[]) {
   const content = document.getElementById('lb-content');
   const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
   const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
 
-  // Объединяем данные казино с именами из lb
+  // Имена берём из participants, потом из футбольного рейтинга, потом из casino.name.
   const nameMap = {};
-  (lb||[]).forEach(p => { nameMap[String(p.code).toLowerCase()] = p.name; });
+  (participantRows||[]).forEach(p => {
+    if(p && p.code) nameMap[String(p.code).toLowerCase()] = p.name;
+  });
+  (lb||[]).forEach(p => {
+    if(p && p.code) nameMap[String(p.code).toLowerCase()] = p.name;
+  });
+  (casinoRows||[]).forEach(r => {
+    if(r && r.code && r.name) nameMap[String(r.code).toLowerCase()] = r.name;
+  });
 
   const sorted = [...(casinoRows||[])].sort((a,b) => {
     const va = parseInt(mode==='coins'?a.coins:a.spent)||0;
@@ -4120,7 +4138,7 @@ function renderCasinoLB(casinoRows, lb, mode) {
   content.innerHTML = html;
 }
 
-function renderAchLB(achRows, lb) {
+function renderAchLB(achRows, lb, participantRows=[]) {
   const content = document.getElementById('lb-content');
   const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
   const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
@@ -4134,9 +4152,15 @@ function renderAchLB(achRows, lb) {
     if(!achMap[k].achs.includes(r.achievement)) achMap[k].achs.push(r.achievement);
   });
 
-  // Добавляем имена из lb
+  // Имена берём из participants, потом из футбольного рейтинга.
+  // Так игроки без прогноза, но с ачивками, тоже показываются именами.
   const nameMap = {};
-  (lb||[]).forEach(p => { nameMap[String(p.code).toLowerCase()] = p.name; });
+  (participantRows||[]).forEach(p => {
+    if(p && p.code) nameMap[String(p.code).toLowerCase()] = p.name;
+  });
+  (lb||[]).forEach(p => {
+    if(p && p.code) nameMap[String(p.code).toLowerCase()] = p.name;
+  });
 
   const sorted = Object.values(achMap).sort((a,b) => b.achs.length - a.achs.length);
 
