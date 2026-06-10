@@ -1389,10 +1389,10 @@ async function api(params) {
       return { ok: true, rows: rows || [] };
     }
 
-    if (action === 'getAchAll') {
-      const rows = await sbFetch('/achievements?select=code,achievement');
-      return { ok: true, rows: rows || [] };
-    }
+if (action === 'getAchAll') {
+  const rows = await sbFetch('/achievements?select=code,achievement,name');
+  return { ok: true, rows: rows || [] };
+}
 
     if (action === 'getCasino') {
       const rows = await sbFetch(`/casino?${codeIlikeFilter(code)}&select=coins,spent,last_daily&limit=1`);
