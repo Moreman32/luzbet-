@@ -1134,8 +1134,19 @@ function normalizeResultRow(row) {
   return { teams, scores };
 }
 
+function codeParam(code) {
+  return encodeURIComponent(String(code || '').trim());
+}
+
+function codeIlikeFilter(code) {
+  // В Google Sheets код проверялся без учёта регистра.
+  // В Supabase eq регистрозависимый, поэтому используем ilike для такого же поведения.
+  return `code=ilike.${codeParam(code)}`;
+}
+
 async function getParticipant(code) {
-  const rows = await sbFetch(`/participants?code=eq.${encodeURIComponent(code)}&select=code,name&limit=1`);
+  if (!String(code || '').trim()) return null;
+  const rows = await sbFetch(`/participants?${codeIlikeFilter(code)}&select=code,name&limit=1`);
   return rows && rows[0] ? rows[0] : null;
 }
 
@@ -1148,31 +1159,32 @@ async function api(params) {
       const participant = await getParticipant(code);
       if (!participant) return { ok: false, error: 'Код не найден' };
 
-      const pred = await sbFetch(`/predictions?code=eq.${encodeURIComponent(code)}&select=id&limit=1`);
-      return { ok: true, name: participant.name, hasVoted: !!(pred && pred.length) };
+      const pred = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=id&limit=1`);
+      return { ok: true, code: participant.code, name: participant.name, hasVoted: !!(pred && pred.length) };
     }
 
     if (action === 'savePrediction') {
       const participant = await getParticipant(code);
       if (!participant) return { ok: false, error: 'Код не найден' };
 
-      const exists = await sbFetch(`/predictions?code=eq.${encodeURIComponent(code)}&select=id&limit=1`);
+      const exists = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=id&limit=1`);
       if (exists && exists.length) return { ok: false, error: 'Прогноз уже сохранён. Изменить нельзя.' };
 
       const data = stripAction(params);
+      data.code = participant.code;
       data.name = participant.name;
       data.timestamp = new Date().toISOString();
 
       await sbFetch('/predictions', {
         method: 'POST',
         headers: { Prefer: 'return=minimal' },
-        body: JSON.stringify({ code, name: participant.name, data })
+        body: JSON.stringify({ code: participant.code, name: participant.name, data })
       });
       return { ok: true };
     }
 
     if (action === 'getPrediction') {
-      const rows = await sbFetch(`/predictions?code=eq.${encodeURIComponent(code)}&select=code,name,data&limit=1`);
+      const rows = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=code,name,data&limit=1`);
       if (!rows || !rows.length) return { ok: false, error: 'Прогноз не найден' };
       return { ok: true, prediction: { code: rows[0].code, name: rows[0].name, ...(rows[0].data || {}) } };
     }
@@ -1196,19 +1208,20 @@ async function api(params) {
     }
 
     if (action === 'getCasino') {
-      const rows = await sbFetch(`/casino?code=eq.${encodeURIComponent(code)}&select=coins,spent,last_daily&limit=1`);
+      const rows = await sbFetch(`/casino?${codeIlikeFilter(code)}&select=coins,spent,last_daily&limit=1`);
       if (!rows || !rows.length) return { ok: true, coins: 1000, spent: 0, last_daily: '' };
       return { ok: true, ...rows[0] };
     }
 
     if (action === 'saveCasino') {
       const participant = await getParticipant(code);
+      const canonicalCode = participant ? participant.code : code;
       const name = participant ? participant.name : (S.name || '');
       await sbFetch('/casino?on_conflict=code', {
         method: 'POST',
         headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
         body: JSON.stringify({
-          code,
+          code: canonicalCode,
           name,
           coins: parseInt(params.coins || 0),
           spent: parseInt(params.spent || 0),
@@ -1219,25 +1232,27 @@ async function api(params) {
     }
 
     if (action === 'getAchievements') {
-      const rows = await sbFetch(`/achievements?code=eq.${encodeURIComponent(code)}&select=achievement`);
+      const rows = await sbFetch(`/achievements?${codeIlikeFilter(code)}&select=achievement`);
       return { ok: true, achievements: (rows || []).map(r => r.achievement) };
     }
 
     if (action === 'syncAch') {
+      const participant = await getParticipant(code);
+      const canonicalCode = participant ? participant.code : code;
       const ids = JSON.parse(params.ids || '[]');
-      await sbFetch(`/achievements?code=eq.${encodeURIComponent(code)}`, { method: 'DELETE' });
+      await sbFetch(`/achievements?${codeIlikeFilter(code)}`, { method: 'DELETE' });
       if (ids.length) {
         await sbFetch('/achievements', {
           method: 'POST',
           headers: { Prefer: 'return=minimal' },
-          body: JSON.stringify(ids.map(id => ({ code, achievement: id })))
+          body: JSON.stringify(ids.map(id => ({ code: canonicalCode, achievement: id })))
         });
       }
       return { ok: true };
     }
 
     if (action === 'getPlayoff') {
-      const rows = await sbFetch(`/playoff?code=eq.${encodeURIComponent(code)}&select=code,name,data&limit=1`);
+      const rows = await sbFetch(`/playoff?${codeIlikeFilter(code)}&select=code,name,data&limit=1`);
       if (!rows || !rows.length) return { ok: true, prediction: null };
       return { ok: true, prediction: { code: rows[0].code, name: rows[0].name, ...(rows[0].data || {}) } };
     }
@@ -1246,17 +1261,19 @@ async function api(params) {
       const participant = await getParticipant(code);
       if (!participant) return { ok: false, error: 'Код не найден' };
 
-      const exists = await sbFetch(`/playoff?code=eq.${encodeURIComponent(code)}&select=id&limit=1`);
+      const exists = await sbFetch(`/playoff?${codeIlikeFilter(code)}&select=id&limit=1`);
       if (exists && exists.length) return { ok: false, error: 'Плей-офф прогноз уже сохранён.' };
 
       const data = stripAction(params);
+      data.code = participant.code;
+      data.code = participant.code;
       data.name = participant.name;
       data.timestamp = new Date().toISOString();
 
       await sbFetch('/playoff', {
         method: 'POST',
         headers: { Prefer: 'return=minimal' },
-        body: JSON.stringify({ code, name: participant.name, data })
+        body: JSON.stringify({ code: participant.code, name: participant.name, data })
       });
       return { ok: true };
     }
@@ -1506,17 +1523,17 @@ async function doLogin(){
     const r=await api({action:'checkCode',code});
     if(!r.ok){setAlert('login-alert','err','❌ '+r.error);toast('Неверный код. Это не ты. Или ты, но не тот.','err');}
     else{
-      S={code,name:r.name,voted:r.hasVoted};
+      S={code:(r.code||code),name:r.name,voted:r.hasVoted};
       if(elapsed<3)unlockAch('fast_login');
       toast('👋 Привет, '+r.name+'! Готов проиграть?','ok');updateNavAfterLogin();setTimeout(()=>announcePlayer(r.name),500);
       // Load casino & achievements from Sheets
       loadCasinoFromSheets(code);
       loadAchFromSheets(code);
-      if(r.hasVoted){const p=await api({action:'getPrediction',code});showVoted(p.prediction);}
+      if(r.hasVoted){const p=await api({action:'getPrediction',code:S.code});showVoted(p.prediction);}
       else showForm();
       showPage('predict');
     }
-  }catch(e){setAlert('login-alert','err','❌ Сервер упал. Хорошее начало.');}
+  }catch(e){console.error(e);setAlert('login-alert','err','❌ Сервер упал: '+(e.message||e));}
   btn.disabled=false;btn.textContent='ВОЙТИ →';
 }
 document.getElementById('code-input').addEventListener('focus',()=>loginStartTime=Date.now());
