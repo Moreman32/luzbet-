@@ -1208,17 +1208,33 @@ async function api(params) {
       const participant = await getParticipant(code);
       if (!participant) return { ok: false, error: 'Код не найден' };
 
-      const data = stripAction(params);
-      data.code = participant.code;
-      data.name = participant.name;
-      data.timestamp = data.timestamp || new Date().toISOString();
-      data.updated_at = new Date().toISOString();
+      // Пакуем все поля прогноза в jsonb-объект data (без action, code, name)
+      const data = {};
+      Object.keys(params).forEach(k => {
+        if (k !== 'action' && k !== 'code' && k !== 'name') {
+          data[k] = params[k];
+        }
+      });
 
-      // Теперь прогноз можно менять. Supabase обновит существующую строку по code.
-      await sbFetch('/predictions?on_conflict=code', {
+      const canonicalCode = participant.code;
+      const now = new Date().toISOString();
+
+      // Пробуем upsert — сначала удаляем старый, потом вставляем
+      // (надёжнее чем on_conflict без уникального индекса)
+      try {
+        // DELETE старый прогноз если есть
+        await sbFetch('/predictions?' + codeIlikeFilter(canonicalCode), { method: 'DELETE' });
+      } catch(e) { /* ok if not exists */ }
+
+      await sbFetch('/predictions', {
         method: 'POST',
-        headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify({ code: participant.code, name: participant.name, data, updated_at: new Date().toISOString() })
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({
+          code: canonicalCode,
+          name: participant.name,
+          data: data,
+          updated_at: now
+        })
       });
       return { ok: true };
     }
@@ -1226,7 +1242,10 @@ async function api(params) {
     if (action === 'getPrediction') {
       const rows = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=code,name,data&limit=1`);
       if (!rows || !rows.length) return { ok: false, error: 'Прогноз не найден' };
-      return { ok: true, prediction: { code: rows[0].code, name: rows[0].name, ...(rows[0].data || {}) } };
+      const row = rows[0];
+      // data — jsonb объект с плоскими полями groupA, groupB_m0_h и т.д.
+      const prediction = { code: row.code, name: row.name, ...(row.data || {}) };
+      return { ok: true, prediction };
     }
 
     if (action === 'getLeaderboard') {
