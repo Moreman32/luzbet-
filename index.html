@@ -1389,10 +1389,10 @@ async function api(params) {
       return { ok: true, rows: rows || [] };
     }
 
-if (action === 'getAchAll') {
-  const rows = await sbFetch('/achievements?select=code,achievement,name');
-  return { ok: true, rows: rows || [] };
-}
+    if (action === 'getAchAll') {
+      const rows = await sbFetch('/achievements?select=code,achievement');
+      return { ok: true, rows: rows || [] };
+    }
 
     if (action === 'getCasino') {
       const rows = await sbFetch(`/casino?${codeIlikeFilter(code)}&select=coins,spent,last_daily&limit=1`);
@@ -4076,14 +4076,9 @@ function renderCasinoLB(casinoRows, lb, mode) {
   const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
   const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
 
-// Добавляем имена из lb и из самих achRows
-const nameMap = {};
-(lb||[]).forEach(p => {
-  nameMap[String(p.code).toLowerCase()] = p.name;
-});
-(achRows||[]).forEach(r => {
-  if (r.name) nameMap[String(r.code).toLowerCase()] = r.name;
-});
+  // Объединяем данные казино с именами из lb
+  const nameMap = {};
+  (lb||[]).forEach(p => { nameMap[String(p.code).toLowerCase()] = p.name; });
 
   const sorted = [...(casinoRows||[])].sort((a,b) => {
     const va = parseInt(mode==='coins'?a.coins:a.spent)||0;
