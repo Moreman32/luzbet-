@@ -1130,8 +1130,24 @@ function stripAction(params) {
 
 function normalizeResultRow(row) {
   const d = row.data || {};
-  const teams = Array.isArray(d.teams) ? d.teams : [d.team1, d.team2].filter(Boolean);
-  const scores = Array.isArray(d.scores) ? d.scores : [];
+  // Формат 1: {teams:[...], scores:[...]}
+  if (Array.isArray(d.teams)) {
+    return { teams: d.teams, scores: Array.isArray(d.scores) ? d.scores : [] };
+  }
+  // Формат 2: {team1:'...', team2:'...', m1:'2-1', m2:'0-0', ...}
+  const teams = [d.team1, d.team2].filter(Boolean);
+  const scores = [];
+  for (let i = 1; i <= 6; i++) {
+    const raw = String(d['m'+i] || '').trim();
+    if (!raw) { scores.push({h:null,a:null}); continue; }
+    const sep = raw.includes('-') ? '-' : raw.includes(':') ? ':' : null;
+    if (sep) {
+      const [h,a] = raw.split(sep).map(Number);
+      scores.push(isNaN(h)||isNaN(a) ? {h:null,a:null} : {h,a});
+    } else {
+      scores.push({h:null,a:null});
+    }
+  }
   return { teams, scores };
 }
 
@@ -1214,19 +1230,66 @@ async function api(params) {
     }
 
     if (action === 'getLeaderboard') {
-      const [predRows, resultRows] = await Promise.all([
+      const [predRows, resultRows, casinoRows, achRows, poResultRows] = await Promise.all([
         sbFetch('/predictions?select=code,name,data'),
-        sbFetch('/results?select=group_code,data')
+        sbFetch('/results?select=group_code,data'),
+        sbFetch('/casino?select=code,coins,spent'),
+        sbFetch('/achievements?select=code,achievement'),
+        sbFetch('/playoff_results?select=data&limit=1'),
       ]);
 
+      // Results по группам
       const results = {};
       (resultRows || []).forEach(row => {
         results[row.group_code] = normalizeResultRow(row);
       });
 
-      const leaderboard = (predRows || [])
-        .map(row => scorePreds(row.name, { code: row.code, name: row.name, ...(row.data || {}) }, results))
-        .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'ru'));
+      // playoff_results
+      const poRes = (poResultRows && poResultRows[0] && poResultRows[0].data) || null;
+      if (poRes) results._playoff = poRes;
+
+      // Casino map
+      const casinoMap = {};
+      (casinoRows || []).forEach(r => { casinoMap[String(r.code).toLowerCase()] = r; });
+
+      // Achievements map
+      const achMap = {};
+      (achRows || []).forEach(r => {
+        const k = String(r.code).toLowerCase();
+        if (!achMap[k]) achMap[k] = [];
+        achMap[k].push(r.achievement);
+      });
+
+      const leaderboard = (predRows || []).map(row => {
+        const scored = scorePreds(row.name, { code: row.code, name: row.name, ...(row.data || {}) }, results);
+        const ck = String(row.code).toLowerCase();
+        const cas = casinoMap[ck] || {};
+        const achs = achMap[ck] || [];
+
+        // Playoff scoring
+        let playoffPts = 0;
+        if (poRes) {
+          const po = row.data || {};
+          if (po.winner   && poRes.winner   && po.winner === poRes.winner)     playoffPts += 5;
+          if (po.finalist && poRes.finalist && po.finalist === poRes.finalist) playoffPts += 3;
+          if (po.third    && poRes.third    && po.third === poRes.third)       playoffPts += 3;
+          const predSemi = (po.semi || '').split('|').filter(Boolean);
+          const actSemi  = Array.isArray(poRes.semi) ? poRes.semi : (poRes.semi||'').split('|').filter(Boolean);
+          predSemi.forEach(t => { if(actSemi.includes(t)) playoffPts += 2; });
+          const fH = parseInt(po.finalH), fA = parseInt(po.finalA);
+          if (!isNaN(fH) && poRes.finalH !== null && fH === parseInt(poRes.finalH) && fA === parseInt(poRes.finalA)) playoffPts += 5;
+          const tH = parseInt(po.thirdH), tA = parseInt(po.thirdA);
+          if (!isNaN(tH) && poRes.thirdH !== null && tH === parseInt(poRes.thirdH) && tA === parseInt(poRes.thirdA)) playoffPts += 3;
+        }
+
+        scored.playoffPts = playoffPts;
+        scored.total += playoffPts;
+        scored.coins = parseInt(cas.coins) || 0;
+        scored.spent = parseInt(cas.spent) || 0;
+        scored.achCount = achs.length;
+        scored.achList = achs;
+        return scored;
+      }).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'ru'));
 
       return { ok: true, leaderboard, results };
     }
@@ -1234,7 +1297,10 @@ async function api(params) {
     if (action === 'getCasino') {
       const rows = await sbFetch(`/casino?${codeIlikeFilter(code)}&select=coins,spent,last_daily&limit=1`);
       if (!rows || !rows.length) return { ok: true, coins: 1000, spent: 0, last_daily: '' };
-      return { ok: true, ...rows[0] };
+      const r = rows[0];
+      // last_daily в Supabase хранится как timestamp — конвертируем в ms для сайта
+      const lastDaily = r.last_daily ? String(new Date(r.last_daily).getTime()) : '';
+      return { ok: true, coins: r.coins || 1000, spent: r.spent || 0, last_daily: lastDaily };
     }
 
     if (action === 'saveCasino') {
@@ -1249,7 +1315,7 @@ async function api(params) {
           name,
           coins: parseInt(params.coins || 0),
           spent: parseInt(params.spent || 0),
-          last_daily: params.last_daily || null
+          last_daily: params.last_daily ? new Date(parseInt(params.last_daily)).toISOString() : null
         })
       });
       return { ok: true };
