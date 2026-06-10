@@ -1147,17 +1147,30 @@ function codeIlikeFilter(code) {
 }
 
 async function getParticipant(code) {
-  if (!String(code || '').trim()) return null;
+  const rawCode = String(code || '').trim();
+  if (!rawCode) return null;
 
-  // 1) Сначала точное совпадение, как в таблице participants.
-  let rows = await sbFetch(`/participants?${codeEqFilter(code)}&select=code,name&limit=1`);
+  // Главный способ: RPC-функция в Supabase. Она не зависит от регистра кода
+  // и меньше ломается из-за RLS/грантов на таблицу participants.
+  try {
+    const rows = await sbFetch('/rpc/check_luzbet_code', {
+      method: 'POST',
+      body: JSON.stringify({ p_code: rawCode })
+    });
+    if (rows && rows[0]) return rows[0];
+  } catch (e) {
+    console.warn('RPC check_luzbet_code failed, fallback to table query:', e);
+  }
+
+  // Fallback 1: точное совпадение.
+  let rows = await sbFetch(`/participants?${codeEqFilter(rawCode)}&select=code,name&limit=1`);
   if (rows && rows[0]) return rows[0];
 
-  // 2) Затем fallback без учёта регистра.
-  rows = await sbFetch(`/participants?${codeIlikeFilter(code)}&select=code,name&limit=1`);
+  // Fallback 2: без учёта регистра.
+  rows = await sbFetch(`/participants?${codeIlikeFilter(rawCode)}&select=code,name&limit=1`);
   if (rows && rows[0]) return rows[0];
 
-  console.warn('Participant not found in Supabase:', code);
+  console.warn('Participant not found in Supabase:', rawCode);
   return null;
 }
 
