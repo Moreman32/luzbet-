@@ -1130,14 +1130,10 @@ const LS={
   set(k,v){try{localStorage.setItem(k,String(v));}catch(e){}},
   remove(k){try{localStorage.removeItem(k);}catch(e){}},
 };
-document.addEventListener('DOMContentLoaded',()=>{
-  if(LS.get('luzbet_rules_accepted','') === '1'){
-    const modal = document.getElementById('warning-modal');
-    if(modal) modal.classList.add('hidden');
-  }
-});
+// Старый общий ключ ачивок больше не используем: он путал разных игроков в одном браузере.
+LS.remove('luzbet_ach');
 let coins=parseInt(LS.get('luzbet_coins','1000'));
-let unlockedAch=new Set(JSON.parse(LS.get('luzbet_ach','[]')));
+let unlockedAch=new Set();
 let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRaf=null;
 let loginStartTime=0;
 let tabsVisited=new Set();
@@ -1367,6 +1363,16 @@ async function api(params) {
       return { ok: true, leaderboard, results };
     }
 
+    if (action === 'getCasinoAll') {
+      const rows = await sbFetch('/casino?select=code,name,coins,spent');
+      return { ok: true, rows: rows || [] };
+    }
+
+    if (action === 'getAchAll') {
+      const rows = await sbFetch('/achievements?select=code,achievement');
+      return { ok: true, rows: rows || [] };
+    }
+
     if (action === 'getCasino') {
       const rows = await sbFetch(`/casino?${codeIlikeFilter(code)}&select=coins,spent,last_daily&limit=1`);
       if (!rows || !rows.length) return { ok: true, coins: 1000, spent: 0, last_daily: '' };
@@ -1471,7 +1477,7 @@ let casinoDirty = false;
 function scheduleCasinoSync() {
   casinoDirty = true;
   if (casinoSyncTimer) clearTimeout(casinoSyncTimer);
-  casinoSyncTimer = setTimeout(flushCasinoSync, 30000); // 30 сек
+  casinoSyncTimer = setTimeout(flushCasinoSync, 5000); // 5 сек
 }
 
 async function flushCasinoSync() {
@@ -1532,7 +1538,6 @@ document.addEventListener('visibilitychange', () => {
 function unlockAch(id){
   if(unlockedAch.has(id))return;
   unlockedAch.add(id);
-  LS.set('luzbet_ach',JSON.stringify([...unlockedAch]));
   scheduleAchSync(); // sync to Supabase
   const a=ALL_ACHIEVEMENTS.find(x=>x.id===id);
   if(a){
@@ -1674,18 +1679,9 @@ function showPage(id){
 // ══════════════════════════════════════════════
 //  MODAL
 // ══════════════════════════════════════════════
-function acceptWarning(){
-  LS.set('luzbet_rules_accepted','1');
-  document.getElementById('warning-modal').classList.add('hidden');
-}
-
-function closeWarning(){
-  acceptWarning();
-  toast('Добро пожаловать. Удачи. Хотя зачем. 🎰','info');
-}
-
+function closeWarning(){document.getElementById('warning-modal').classList.add('hidden');toast('Добро пожаловать. Удачи. Хотя зачем. 🎰','info');}
 function closeWarningMeme(){
-  acceptWarning();
+  document.getElementById('warning-modal').classList.add('hidden');
   unlockAch('sam_reshu');
   toast('САМ РЕШУ 😤 Добро пожаловать в ЛузБет!','win',3000);
 }
@@ -2057,21 +2053,31 @@ async function showVoted(pred){
 async function loadLeaderboard(){
   document.getElementById('lb-content').innerHTML='<div class="loading-ctr"><div class="spinner"></div><br/><br/>Считаем чужие ошибки...</div>';
   try{
+    // Перед рейтингом принудительно сохраняем свежие данные текущего игрока.
+    // Иначе после игры в казино рейтинг мог не видеть изменения до отложенной синхронизации.
+    await flushCasinoSync();
+    await flushAchSync();
+
     // Грузим основной LB + казино + ачивки параллельно
     const [r, casinoRows, achRows] = await Promise.all([
       api({action:'getLeaderboard'}),
-      api({action:'getCasinoAll'}).catch(()=>({ok:false})),
-      api({action:'getAchAll'}).catch(()=>({ok:false})),
+      api({action:'getCasinoAll'}).catch(()=>({ok:false, rows:[]})),
+      api({action:'getAchAll'}).catch(()=>({ok:false, rows:[]})),
     ]);
     if(!r.ok)throw new Error();
     window._lastResults=r.results;
 
-    // Кэшируем
+    // Кэшируем. Казино и ачивки берём из своих таблиц, а не только из списка тех,
+    // кто уже сохранил футбольный прогноз.
     _lbCache = {
       lb: r.leaderboard,
       results: r.results,
-      casinoRows: r.leaderboard.map(p=>({code:p.code,name:p.name,coins:p.coins||0,spent:p.spent||0})),
-      achRows: r.leaderboard.flatMap(p=>(p.achList||[]).map(a=>({code:p.code,achievement:a}))),
+      casinoRows: (casinoRows.ok && Array.isArray(casinoRows.rows))
+        ? casinoRows.rows
+        : r.leaderboard.map(p=>({code:p.code,name:p.name,coins:p.coins||0,spent:p.spent||0})),
+      achRows: (achRows.ok && Array.isArray(achRows.rows))
+        ? achRows.rows
+        : r.leaderboard.flatMap(p=>(p.achList||[]).map(a=>({code:p.code,achievement:a}))),
     };
 
     renderLB(r.leaderboard, r.results);
@@ -3326,11 +3332,10 @@ async function loadCasinoFromSheets(code) {
   try {
     const r = await api({ action: 'getCasino', code });
     if (r.ok) {
-      // Use Sheets value if higher (safeguard against local reset)
-      const sheetsCoins = parseInt(r.coins) || 1000;
-      const localCoins  = parseInt(LS.get('luzbet_coins','1000'));
-      coins = Math.max(sheetsCoins, localCoins);
-      totalSpent = Math.max(parseInt(r.spent)||0, parseInt(LS.get('luzbet_spent','0')));
+      // Данные казино привязаны к текущему коду игрока.
+      // Не смешиваем их с localStorage прошлого пользователя в этом же браузере.
+      coins = parseInt(r.coins) || 1000;
+      totalSpent = parseInt(r.spent) || 0;
       // daily bonus
       const sheetsDaily = r.last_daily || '';
       const localDaily  = LS.get('luzbet_daily','0');
@@ -3348,14 +3353,24 @@ async function loadCasinoFromSheets(code) {
 }
 
 async function loadAchFromSheets(code) {
+  // Ачивки должны быть строго по текущему игроку, а не из общего localStorage браузера.
+  unlockedAch = new Set();
+
   try {
     const r = await api({ action: 'getAchievements', code });
-    if (r.ok && r.achievements && r.achievements.length > 0) {
-      // Merge: union of local + sheets
-      r.achievements.forEach(id => unlockedAch.add(id));
-      LS.set('luzbet_ach', JSON.stringify([...unlockedAch]));
+
+    if (r.ok && Array.isArray(r.achievements)) {
+      r.achievements
+        .filter(id => ALL_ACHIEVEMENTS.some(a => a.id === id))
+        .forEach(id => unlockedAch.add(id));
     }
-  } catch(e) { /* use local */ }
+
+    renderAchievements();
+    updateProfilePage();
+  } catch(e) {
+    renderAchievements();
+    updateProfilePage();
+  }
 }
 
 
@@ -4047,8 +4062,8 @@ function renderAchLB(achRows, lb) {
         <div class="clb-sub" style="flex-wrap:wrap">${icons}</div>
       </div>
       <div>
-		<div class="clb-val" style="color:var(--yellow)">${row.achs.length}</div>
-		<div class="clb-label">получено</div>
+        <div class="clb-val" style="color:var(--yellow)">${row.achs.length}</div>
+        <div class="clb-label">получено</div>
       </div>
     </div>`;
   });
