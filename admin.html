@@ -84,30 +84,45 @@ tr:hover td{background:#1a1a1a}
 
 <script>
 
-const ADMIN_PASS = "123654More";
-function checkAdminPass(){
-  const v = document.getElementById('admin-pass').value;
-  if(v === ADMIN_PASS){
-    document.getElementById('login-screen').style.display='none';
-    sessionStorage.setItem('admin_ok','1');
-  } else {
-    const err = document.getElementById('admin-pass-err');
-    err.style.display='block';
-    document.getElementById('admin-pass').value='';
-    document.getElementById('admin-pass').focus();
+const ADMIN_PASS_KEY = 'luzbet_admin_pass';
+async function checkAdminPass(){
+  const v = document.getElementById('admin-pass').value.trim();
+  const err = document.getElementById('admin-pass-err');
+  err.style.display='none';
+  if(!v) return;
+  try{
+    const r = await fn('admin-auth', {}, { adminPass: v });
+    if(r && r.ok){
+      document.getElementById('login-screen').style.display='none';
+      sessionStorage.setItem('admin_ok','1');
+      sessionStorage.setItem(ADMIN_PASS_KEY, v);
+      loadRes();
+      return;
+    }
+  }catch(e){}
+  err.style.display='block';
+  document.getElementById('admin-pass').value='';
+  document.getElementById('admin-pass').focus();
+}
+document.addEventListener('DOMContentLoaded', async ()=>{
+  const savedPass = sessionStorage.getItem(ADMIN_PASS_KEY) || '';
+  if(sessionStorage.getItem('admin_ok')==='1' && savedPass){
+    try{
+      const r = await fn('admin-auth', {}, { adminPass: savedPass });
+      if(r && r.ok){
+        const s=document.getElementById('login-screen');
+        if(s)s.style.display='none';
+        return;
+      }
+    }catch(e){}
   }
-}
-// Auto-check if already authed this session
-if(sessionStorage.getItem('admin_ok')==='1'){
-  document.addEventListener('DOMContentLoaded',()=>{
-    const s=document.getElementById('login-screen');
-    if(s)s.style.display='none';
-  });
-}
+  sessionStorage.removeItem('admin_ok');
+  sessionStorage.removeItem(ADMIN_PASS_KEY);
+});
 
 const SB_URL="https://kdsowktuirtkxnmtyoaz.supabase.co";
 const SB_KEY="sb_publishable_zjMkZslnb71eXQ_q6FQIAQ_eGyoW82B";
-const REST=SB_URL+"/rest/v1";
+const FUNCTIONS=SB_URL+"/functions/v1";
 
 const GROUPS={
   A:{
@@ -279,12 +294,30 @@ function go(id){
   document.querySelector('.tab[onclick="go(\''+id+'\')"]').classList.add('on');
 }
 
-async function sb(path,opts={}){
-  const r=await fetch(REST+path,{...opts,headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',...(opts.headers||{})}});
-  if(r.status===204)return null;
-  const t=await r.text();
-  if(!r.ok)throw new Error(r.status+': '+t);
-  return t?JSON.parse(t):null;
+async function fn(name,payload={},opts={}){
+  const adminPass = opts.adminPass ?? sessionStorage.getItem(ADMIN_PASS_KEY) ?? '';
+  const r=await fetch(FUNCTIONS+'/'+name,{
+    method:'POST',
+    headers:{
+      apikey:SB_KEY,
+      Authorization:'Bearer '+SB_KEY,
+      'Content-Type':'application/json',
+      ...(adminPass ? {'x-admin-pass':adminPass} : {})
+    },
+    body:JSON.stringify(payload)
+  });
+  const t=await r.text().catch(()=> '');
+  const data=t?JSON.parse(t):null;
+  if(!r.ok){
+    if(r.status===401||r.status===403){
+      sessionStorage.removeItem('admin_ok');
+      sessionStorage.removeItem(ADMIN_PASS_KEY);
+      const s=document.getElementById('login-screen');
+      if(s)s.style.display='flex';
+    }
+    throw new Error((data&& (data.error||data.message)) || t || ('Function error '+r.status));
+  }
+  return data;
 }
 
 function esc(v){
@@ -348,7 +381,7 @@ function buildForm(){
 async function deleteResult(g){
   if(!confirm('Удалить результаты группы ' + g + '? Это сбросит счёт и подсветку для всех участников.')) return;
   try{
-    await sb('/results?group_code=eq.'+encodeURIComponent(g),{method:'DELETE'});
+    await fn('admin-results-delete',{group_code:g});
     delete curR[g];
     log('✅ Результаты группы '+g+' удалены','ok');
     buildForm();
@@ -360,7 +393,8 @@ async function deleteResult(g){
 async function loadRes(){
   log('Загружаю...','info');
   try{
-    const rows=await sb('/results?select=group_code,data,id&order=id.asc');
+    const res=await fn('admin-results-list');
+    const rows = (res && res.rows) || [];
     curR={};
     (rows||[]).forEach(r=>{curR[r.group_code]=r.data||{};});
     log('Загружено '+Object.keys(curR).length+' групп','ok');
@@ -384,11 +418,7 @@ async function saveAll(){
     }
     if(!hasAny){skipped++;continue;}
     try{
-      await sb('/results?on_conflict=group_code',{
-        method:'POST',
-        headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
-        body:JSON.stringify({group_code:g,data})
-      });
+      await fn('admin-results-save',{group_code:g,data});
       curR[g]=data;saved++;
       log('✅ Группа '+g+' сохранена','ok');
     }catch(e){errs++;log('❌ Группа '+g+': '+e.message,'err');}
@@ -402,10 +432,9 @@ async function loadChk(){
   const el=document.getElementById('chk-out');
   el.innerHTML='<p class="muted">Загружаю...</p>';
   try{
-    const[preds,resRows]=await Promise.all([
-      sb('/predictions?select=code,name,data,updated_at,id&order=updated_at.asc,id.asc'),
-      sb('/results?select=group_code,data,id&order=id.asc')
-    ]);
+    const dashboard = await fn('admin-dashboard-data');
+    const preds = (dashboard && dashboard.predictions) || [];
+    const resRows = (dashboard && dashboard.results) || [];
     const results={};
     (resRows||[]).forEach(r=>{results[r.group_code]=normRow(r);});
     const done=Object.keys(results).filter(g=>results[g].teams.length>0).length;
@@ -473,12 +502,11 @@ async function loadLB(){
   const el=document.getElementById('lb-out');
   el.innerHTML='<p class="muted">Загружаю...</p>';
   try{
-    const[preds,resRows,casRows,achRows]=await Promise.all([
-      sb('/predictions?select=code,name,data,updated_at,id&order=updated_at.asc,id.asc'),
-      sb('/results?select=group_code,data,id&order=id.asc'),
-      sb('/casino?select=code,coins'),
-      sb('/achievements?select=code,achievement'),
-    ]);
+    const dashboard = await fn('admin-dashboard-data');
+    const preds = (dashboard && dashboard.predictions) || [];
+    const resRows = (dashboard && dashboard.results) || [];
+    const casRows = (dashboard && dashboard.casino) || [];
+    const achRows = (dashboard && dashboard.achievements) || [];
     const results={};(resRows||[]).forEach(r=>{results[r.group_code]=normRow(r);});
     const casMap={};(casRows||[]).forEach(r=>{casMap[r.code.toLowerCase()]=r.coins||0;});
     const achMap={};(achRows||[]).forEach(r=>{const k=r.code.toLowerCase();achMap[k]=(achMap[k]||0)+1;});
@@ -513,7 +541,6 @@ async function loadLB(){
   }catch(e){el.innerHTML='<p class="err">Ошибка: '+esc(e.message)+'</p>';log(e.message,'err');}
 }
 
-loadRes();
 </script>
 </body>
 </html>

@@ -1163,35 +1163,8 @@ let casinoEverOpened=false;
 //  CONFIG — Supabase
 // ══════════════════════════════════════════════
 const SUPABASE_URL = "https://kdsowktuirtkxnmtyoaz.supabase.co";
-const SUPABASE_REST_URL = SUPABASE_URL + "/rest/v1";
 const SUPABASE_FUNCTIONS_URL = SUPABASE_URL + "/functions/v1";
 const SUPABASE_KEY = "sb_publishable_zjMkZslnb71eXQ_q6FQIAQ_eGyoW82B";
-
-// ══════════════════════════════════════════════
-//  REAL API — Supabase REST
-// ══════════════════════════════════════════════
-async function sbFetch(path, options = {}) {
-  const headers = {
-    apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${SUPABASE_KEY}`,
-    'Content-Type': 'application/json',
-    ...(options.headers || {})
-  };
-
-  const r = await fetch(SUPABASE_REST_URL + path, {
-    ...options,
-    headers
-  });
-
-  if (!r.ok) {
-    const text = await r.text().catch(() => '');
-    throw new Error(text || `Supabase error ${r.status}`);
-  }
-
-  if (r.status === 204) return null;
-  const text = await r.text();
-  return text ? JSON.parse(text) : null;
-}
 
 async function sbFunction(name, payload = {}) {
   const r = await fetch(`${SUPABASE_FUNCTIONS_URL}/${name}`, {
@@ -1253,46 +1226,6 @@ function normalizeResultRow(row) {
   return { teams, scores };
 }
 
-function codeParam(code) {
-  return encodeURIComponent(String(code || '').trim());
-}
-
-function codeEqFilter(code) {
-  return `code=eq.${codeParam(code)}`;
-}
-
-function codeIlikeFilter(code) {
-  return `code=ilike.${codeParam(code)}`;
-}
-
-async function getParticipant(code) {
-  const rawCode = String(code || '').trim();
-  if (!rawCode) return null;
-
-  // Главный способ: RPC-функция в Supabase. Она не зависит от регистра кода
-  // и меньше ломается из-за RLS/грантов на таблицу participants.
-  try {
-    const rows = await sbFetch('/rpc/check_luzbet_code', {
-      method: 'POST',
-      body: JSON.stringify({ p_code: rawCode })
-    });
-    if (rows && rows[0]) return rows[0];
-  } catch (e) {
-    console.warn('RPC check_luzbet_code failed, fallback to table query:', e);
-  }
-
-  // Fallback 1: точное совпадение.
-  let rows = await sbFetch(`/participants?${codeEqFilter(rawCode)}&select=code,name&limit=1`);
-  if (rows && rows[0]) return rows[0];
-
-  // Fallback 2: без учёта регистра.
-  rows = await sbFetch(`/participants?${codeIlikeFilter(rawCode)}&select=code,name&limit=1`);
-  if (rows && rows[0]) return rows[0];
-
-  console.warn('Participant not found in Supabase:', rawCode);
-  return null;
-}
-
 async function api(params) {
   try {
     const action = params.action;
@@ -1311,90 +1244,21 @@ async function api(params) {
     }
 
     if (action === 'getLeaderboard') {
-      const [predRows, resultRows, casinoRows, achRows, poResultRows] = await Promise.all([
-        sbFetch('/predictions?select=code,name,data,updated_at,id&order=updated_at.asc,id.asc'),
-        sbFetch('/results?select=group_code,data,id&order=id.asc'),
-        sbFetch('/casino?select=code,coins,spent'),
-        sbFetch('/achievements?select=code,achievement'),
-        sbFetch('/playoff_results?select=data,id&order=id.desc&limit=1'),
-      ]);
-
-      // Results по группам
-      const results = {};
-      (resultRows || []).forEach(row => {
-        results[row.group_code] = normalizeResultRow(row);
-      });
-
-      // playoff_results
-      const poRes = (poResultRows && poResultRows[0] && poResultRows[0].data) || null;
-      if (poRes) results._playoff = poRes;
-
-      // Casino map
-      const casinoMap = {};
-      (casinoRows || []).forEach(r => { casinoMap[String(r.code).toLowerCase()] = r; });
-
-      // Achievements map
-      const achMap = {};
-      (achRows || []).forEach(r => {
-        if (!isKnownAch(r.achievement)) return;
-        const k = String(r.code).toLowerCase();
-        if (!achMap[k]) achMap[k] = [];
-        if (!achMap[k].includes(r.achievement)) achMap[k].push(r.achievement);
-      });
-
-      const latestPredictions = {};
-      (predRows || []).forEach(row => {
-        latestPredictions[String(row.code).toLowerCase()] = row;
-      });
-
-      const leaderboard = Object.values(latestPredictions).map(row => {
-        const scored = scorePreds(row.name, { code: row.code, name: row.name, ...(row.data || {}) }, results);
-        const ck = String(row.code).toLowerCase();
-        const cas = casinoMap[ck] || {};
-        const achs = achMap[ck] || [];
-
-        // Playoff scoring
-        let playoffPts = 0;
-        if (poRes) {
-          const po = row.data || {};
-          if (po.winner   && poRes.winner   && po.winner === poRes.winner)     playoffPts += 5;
-          if (po.finalist && poRes.finalist && po.finalist === poRes.finalist) playoffPts += 3;
-          if (po.third    && poRes.third    && po.third === poRes.third)       playoffPts += 3;
-          const predSemi = (po.semi || '').split('|').filter(Boolean);
-          const actSemi  = Array.isArray(poRes.semi) ? poRes.semi : (poRes.semi||'').split('|').filter(Boolean);
-          predSemi.forEach(t => { if(actSemi.includes(t)) playoffPts += 2; });
-          const fH = parseInt(po.finalH), fA = parseInt(po.finalA);
-          if (!isNaN(fH) && poRes.finalH !== null && fH === parseInt(poRes.finalH) && fA === parseInt(poRes.finalA)) playoffPts += 5;
-          const tH = parseInt(po.thirdH), tA = parseInt(po.thirdA);
-          if (!isNaN(tH) && poRes.thirdH !== null && tH === parseInt(poRes.thirdH) && tA === parseInt(poRes.thirdA)) playoffPts += 3;
-        }
-
-        scored.playoffPts = playoffPts;
-        scored.total += playoffPts;
-        scored.coins = parseInt(cas.coins) || 0;
-        scored.spent = parseInt(cas.spent) || 0;
-        scored.achCount = achs.length;
-        scored.achList = achs;
-        return scored;
-      }).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'ru'));
-
-      return { ok: true, leaderboard, results };
+      return await sbFunction('public-site-data', {});
     }
 
     if (action === 'getCasinoAll') {
-      const rows = await sbFetch('/casino?select=code,name,coins,spent');
-      return { ok: true, rows: rows || [] };
+      const data = await sbFunction('public-site-data', {});
+      return { ok: true, rows: Array.isArray(data.casinoRows) ? data.casinoRows : [] };
     }
 
 if (action === 'getAchAll') {
-  // В achievements нет поля name — имена подтягиваем отдельно из participants.
-  const rows = await sbFetch('/achievements?select=code,achievement');
-  return { ok: true, rows: rows || [] };
+  const data = await sbFunction('public-site-data', {});
+  return { ok: true, rows: Array.isArray(data.achRows) ? data.achRows : [] };
 }
 
     if (action === 'getParticipantsAll') {
-      const rows = await sbFetch('/participants?select=code,name');
-      return { ok: true, rows: rows || [] };
+      return { ok: true, rows: [] };
     }
 
     if (action === 'getCasino') {
@@ -2123,30 +1987,20 @@ async function loadLeaderboard(){
     await flushCasinoSync();
     await flushAchSync();
 
-    // Грузим основной LB + казино + ачивки + участников параллельно
-    const [r, casinoRows, achRows, participantRows] = await Promise.all([
-      api({action:'getLeaderboard'}),
-      api({action:'getCasinoAll'}).catch(()=>({ok:false, rows:[]})),
-      api({action:'getAchAll'}).catch(()=>({ok:false, rows:[]})),
-      api({action:'getParticipantsAll'}).catch(()=>({ok:false, rows:[]})),
-    ]);
+    const r = await api({action:'getLeaderboard'});
     if(!r.ok)throw new Error();
     window._lastResults=r.results;
 
-    // Кэшируем. Казино и ачивки берём из своих таблиц, а не только из списка тех,
-    // кто уже сохранил футбольный прогноз.
     _lbCache = {
       lb: r.leaderboard,
       results: r.results,
-      casinoRows: (casinoRows.ok && Array.isArray(casinoRows.rows))
-        ? casinoRows.rows
+      casinoRows: Array.isArray(r.casinoRows)
+        ? r.casinoRows
         : r.leaderboard.map(p=>({code:p.code,name:p.name,coins:p.coins||0,spent:p.spent||0})),
-      achRows: (achRows.ok && Array.isArray(achRows.rows))
-        ? achRows.rows
-        : r.leaderboard.flatMap(p=>(p.achList||[]).map(a=>({code:p.code,achievement:a}))),
-      participantRows: (participantRows.ok && Array.isArray(participantRows.rows))
-        ? participantRows.rows
-        : [],
+      achRows: Array.isArray(r.achRows)
+        ? r.achRows
+        : r.leaderboard.flatMap(p=>(p.achList||[]).map(a=>({code:p.code,name:p.name,achievement:a}))),
+      participantRows: [],
     };
 
     renderLB(r.leaderboard, r.results);
