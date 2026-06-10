@@ -1130,6 +1130,12 @@ const LS={
   set(k,v){try{localStorage.setItem(k,String(v));}catch(e){}},
   remove(k){try{localStorage.removeItem(k);}catch(e){}},
 };
+document.addEventListener('DOMContentLoaded',()=>{
+  if(LS.get('luzbet_rules_accepted','') === '1'){
+    const modal = document.getElementById('warning-modal');
+    if(modal) modal.classList.add('hidden');
+  }
+});
 let coins=parseInt(LS.get('luzbet_coins','1000'));
 let unlockedAch=new Set(JSON.parse(LS.get('luzbet_ach','[]')));
 let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRaf=null;
@@ -1668,9 +1674,18 @@ function showPage(id){
 // ══════════════════════════════════════════════
 //  MODAL
 // ══════════════════════════════════════════════
-function closeWarning(){document.getElementById('warning-modal').classList.add('hidden');toast('Добро пожаловать. Удачи. Хотя зачем. 🎰','info');}
-function closeWarningMeme(){
+function acceptWarning(){
+  LS.set('luzbet_rules_accepted','1');
   document.getElementById('warning-modal').classList.add('hidden');
+}
+
+function closeWarning(){
+  acceptWarning();
+  toast('Добро пожаловать. Удачи. Хотя зачем. 🎰','info');
+}
+
+function closeWarningMeme(){
+  acceptWarning();
   unlockAch('sam_reshu');
   toast('САМ РЕШУ 😤 Добро пожаловать в ЛузБет!','win',3000);
 }
