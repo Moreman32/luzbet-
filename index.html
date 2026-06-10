@@ -1089,21 +1089,182 @@ let tabsVisited=new Set();
 let casinoEverOpened=false;
 
 // ══════════════════════════════════════════════
-//  CONFIG — вставь URL после деплоя Apps Script
+//  CONFIG — Supabase
 // ══════════════════════════════════════════════
-const API_URL = "https://script.google.com/macros/s/AKfycbzGeu_ZJdOFAb8mleRa6q-8AWQJAVTE7Ou4CNIjiTajd2rLxOjlVz6rNxETsKfAteBx/exec"; 
+const SUPABASE_URL = "https://kdsowktuirtkxnmtyoaz.supabase.co";
+const SUPABASE_REST_URL = SUPABASE_URL + "/rest/v1";
+const SUPABASE_KEY = "sb_publishable_zjMkZslnb71eXQ_q6FQIAQ_eGyoW82B";
 
 // ══════════════════════════════════════════════
-//  REAL API — Google Sheets via Apps Script
+//  REAL API — Supabase REST
 // ══════════════════════════════════════════════
+async function sbFetch(path, options = {}) {
+  const headers = {
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    ...(options.headers || {})
+  };
+
+  const r = await fetch(SUPABASE_REST_URL + path, {
+    ...options,
+    headers
+  });
+
+  if (!r.ok) {
+    const text = await r.text().catch(() => '');
+    throw new Error(text || `Supabase error ${r.status}`);
+  }
+
+  if (r.status === 204) return null;
+  const text = await r.text();
+  return text ? JSON.parse(text) : null;
+}
+
+function stripAction(params) {
+  const data = { ...params };
+  delete data.action;
+  return data;
+}
+
+function normalizeResultRow(row) {
+  const d = row.data || {};
+  const teams = Array.isArray(d.teams) ? d.teams : [d.team1, d.team2].filter(Boolean);
+  const scores = Array.isArray(d.scores) ? d.scores : [];
+  return { teams, scores };
+}
+
+async function getParticipant(code) {
+  const rows = await sbFetch(`/participants?code=eq.${encodeURIComponent(code)}&select=code,name&limit=1`);
+  return rows && rows[0] ? rows[0] : null;
+}
+
 async function api(params) {
-  const url = new URL(API_URL);
-  Object.entries(params).forEach(([k,v]) => { if(v !== undefined) url.searchParams.set(k, v); });
   try {
-    const r = await fetch(url.toString(), { redirect:'follow' });
-    return await r.json();
-  } catch(e) {
-    return { ok: false, error: 'Ошибка сети: ' + e.message };
+    const action = params.action;
+    const code = (params.code || '').trim();
+
+    if (action === 'checkCode') {
+      const participant = await getParticipant(code);
+      if (!participant) return { ok: false, error: 'Код не найден' };
+
+      const pred = await sbFetch(`/predictions?code=eq.${encodeURIComponent(code)}&select=id&limit=1`);
+      return { ok: true, name: participant.name, hasVoted: !!(pred && pred.length) };
+    }
+
+    if (action === 'savePrediction') {
+      const participant = await getParticipant(code);
+      if (!participant) return { ok: false, error: 'Код не найден' };
+
+      const exists = await sbFetch(`/predictions?code=eq.${encodeURIComponent(code)}&select=id&limit=1`);
+      if (exists && exists.length) return { ok: false, error: 'Прогноз уже сохранён. Изменить нельзя.' };
+
+      const data = stripAction(params);
+      data.name = participant.name;
+      data.timestamp = new Date().toISOString();
+
+      await sbFetch('/predictions', {
+        method: 'POST',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ code, name: participant.name, data })
+      });
+      return { ok: true };
+    }
+
+    if (action === 'getPrediction') {
+      const rows = await sbFetch(`/predictions?code=eq.${encodeURIComponent(code)}&select=code,name,data&limit=1`);
+      if (!rows || !rows.length) return { ok: false, error: 'Прогноз не найден' };
+      return { ok: true, prediction: { code: rows[0].code, name: rows[0].name, ...(rows[0].data || {}) } };
+    }
+
+    if (action === 'getLeaderboard') {
+      const [predRows, resultRows] = await Promise.all([
+        sbFetch('/predictions?select=code,name,data'),
+        sbFetch('/results?select=group_code,data')
+      ]);
+
+      const results = {};
+      (resultRows || []).forEach(row => {
+        results[row.group_code] = normalizeResultRow(row);
+      });
+
+      const leaderboard = (predRows || [])
+        .map(row => scorePreds(row.name, { code: row.code, name: row.name, ...(row.data || {}) }, results))
+        .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'ru'));
+
+      return { ok: true, leaderboard, results };
+    }
+
+    if (action === 'getCasino') {
+      const rows = await sbFetch(`/casino?code=eq.${encodeURIComponent(code)}&select=coins,spent,last_daily&limit=1`);
+      if (!rows || !rows.length) return { ok: true, coins: 1000, spent: 0, last_daily: '' };
+      return { ok: true, ...rows[0] };
+    }
+
+    if (action === 'saveCasino') {
+      const participant = await getParticipant(code);
+      const name = participant ? participant.name : (S.name || '');
+      await sbFetch('/casino?on_conflict=code', {
+        method: 'POST',
+        headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({
+          code,
+          name,
+          coins: parseInt(params.coins || 0),
+          spent: parseInt(params.spent || 0),
+          last_daily: params.last_daily || null
+        })
+      });
+      return { ok: true };
+    }
+
+    if (action === 'getAchievements') {
+      const rows = await sbFetch(`/achievements?code=eq.${encodeURIComponent(code)}&select=achievement`);
+      return { ok: true, achievements: (rows || []).map(r => r.achievement) };
+    }
+
+    if (action === 'syncAch') {
+      const ids = JSON.parse(params.ids || '[]');
+      await sbFetch(`/achievements?code=eq.${encodeURIComponent(code)}`, { method: 'DELETE' });
+      if (ids.length) {
+        await sbFetch('/achievements', {
+          method: 'POST',
+          headers: { Prefer: 'return=minimal' },
+          body: JSON.stringify(ids.map(id => ({ code, achievement: id })))
+        });
+      }
+      return { ok: true };
+    }
+
+    if (action === 'getPlayoff') {
+      const rows = await sbFetch(`/playoff?code=eq.${encodeURIComponent(code)}&select=code,name,data&limit=1`);
+      if (!rows || !rows.length) return { ok: true, prediction: null };
+      return { ok: true, prediction: { code: rows[0].code, name: rows[0].name, ...(rows[0].data || {}) } };
+    }
+
+    if (action === 'savePlayoff') {
+      const participant = await getParticipant(code);
+      if (!participant) return { ok: false, error: 'Код не найден' };
+
+      const exists = await sbFetch(`/playoff?code=eq.${encodeURIComponent(code)}&select=id&limit=1`);
+      if (exists && exists.length) return { ok: false, error: 'Плей-офф прогноз уже сохранён.' };
+
+      const data = stripAction(params);
+      data.name = participant.name;
+      data.timestamp = new Date().toISOString();
+
+      await sbFetch('/playoff', {
+        method: 'POST',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ code, name: participant.name, data })
+      });
+      return { ok: true };
+    }
+
+    return { ok: false, error: 'Неизвестное действие: ' + action };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: 'Ошибка Supabase: ' + e.message };
   }
 }
 
