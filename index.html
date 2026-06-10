@@ -1810,7 +1810,7 @@ function showForm(pred=null){
   document.getElementById('ub-name-p').textContent='👋 '+S.name;
   const now=new Date();
   let html=`<div class="legend"><span class="leg-item">⚽ Выход <span class="leg-badge">+1</span></span><span class="leg-item">🎯 Исход <span class="leg-badge">+1</span></span><span class="leg-item">💥 Счёт <span class="leg-badge red">+2</span></span></div>
-  <button class="lucky-btn" onclick="fillLucky()">🎲 НА УДАЧУ — заполнить всё случайно и сохранить</button>
+  <button class="lucky-btn" onclick="fillLucky()">🎲 НА УДАЧУ — заполнить всё случайно, но не забудь сохранить</button>
   <div class="groups-grid">`;
   Object.entries(GROUPS).forEach(([g,d],gi)=>{
     const dl=new Date(d.deadline),locked=now>=dl,soon=(dl-now)/86400000<=1&&!locked;
