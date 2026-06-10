@@ -1398,77 +1398,35 @@ if (action === 'getAchAll') {
     }
 
     if (action === 'getCasino') {
-      const rows = await sbFetch(`/casino?${codeIlikeFilter(code)}&select=coins,spent,last_daily&limit=1`);
-      if (!rows || !rows.length) return { ok: true, coins: 1000, spent: 0, last_daily: '' };
-      const r = rows[0];
-      // last_daily в Supabase хранится как timestamp — конвертируем в ms для сайта
-      const lastDaily = r.last_daily ? String(new Date(r.last_daily).getTime()) : '';
-      return { ok: true, coins: r.coins || 1000, spent: r.spent || 0, last_daily: lastDaily };
+      return await sbFunction('get-casino', { code });
     }
 
     if (action === 'saveCasino') {
-      const participant = await getParticipant(code);
-      const canonicalCode = participant ? participant.code : code;
-      const name = participant ? participant.name : (S.name || '');
-      await sbFetch('/casino?on_conflict=code', {
-        method: 'POST',
-        headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify({
-          code: canonicalCode,
-          name,
-          coins: parseInt(params.coins || 0),
-          spent: parseInt(params.spent || 0),
-          last_daily: params.last_daily ? new Date(parseInt(params.last_daily)).toISOString() : null
-        })
+      return await sbFunction('save-casino', {
+        code,
+        coins: parseInt(params.coins || 0),
+        spent: parseInt(params.spent || 0),
+        last_daily: params.last_daily || ''
       });
-      return { ok: true };
     }
 
     if (action === 'getAchievements') {
-      const rows = await sbFetch(`/achievements?${codeIlikeFilter(code)}&select=achievement`);
-      return { ok: true, achievements: (rows || []).map(r => r.achievement) };
+      return await sbFunction('get-achievements', { code });
     }
 
     if (action === 'syncAch') {
-      const participant = await getParticipant(code);
-      const canonicalCode = participant ? participant.code : code;
-      const ids = JSON.parse(params.ids || '[]');
-      await sbFetch(`/achievements?${codeIlikeFilter(code)}`, { method: 'DELETE' });
-      if (ids.length) {
-        await sbFetch('/achievements', {
-          method: 'POST',
-          headers: { Prefer: 'return=minimal' },
-          body: JSON.stringify(ids.map(id => ({ code: canonicalCode, achievement: id })))
-        });
-      }
-      return { ok: true };
+      return await sbFunction('sync-achievements', {
+        code,
+        ids: JSON.parse(params.ids || '[]')
+      });
     }
 
     if (action === 'getPlayoff') {
-      const rows = await sbFetch(`/playoff?${codeIlikeFilter(code)}&select=code,name,data,created_at,id&order=created_at.desc,id.desc&limit=1`);
-      if (!rows || !rows.length) return { ok: true, prediction: null };
-      return { ok: true, prediction: { code: rows[0].code, name: rows[0].name, ...(rows[0].data || {}) } };
+      return await sbFunction('get-playoff', { code });
     }
 
     if (action === 'savePlayoff') {
-      const participant = await getParticipant(code);
-      if (!participant) return { ok: false, error: 'Код не найден' };
-
-      const exists = await sbFetch(`/playoff?${codeIlikeFilter(code)}&select=id&limit=1`);
-      if (exists && exists.length) return { ok: false, error: 'Плей-офф прогноз уже сохранён.' };
-
-      const data = stripAction(params);
-      data.code = participant.code;
-      data.code = participant.code;
-      data.name = participant.name;
-      data.timestamp = new Date().toISOString();
-
-      await sbFetch('/playoff', {
-        method: 'POST',
-        headers: { Prefer: 'return=minimal' },
-        body: JSON.stringify({ code: participant.code, name: participant.name, data })
-      });
-      return { ok: true };
+      return await sbFunction('save-playoff', params);
     }
 
     return { ok: false, error: 'Неизвестное действие: ' + action };
@@ -1513,15 +1471,13 @@ function saveCasinoKeepAlive() {
   if (!S.code) return;
   try {
     // fetch keepalive успевает отправить маленький запрос даже при закрытии вкладки.
-    // Тут используем S.code: после логина он уже канонический из Supabase.
-    fetch(SUPABASE_REST_URL + '/casino?on_conflict=code', {
+    fetch(SUPABASE_FUNCTIONS_URL + '/save-casino', {
       method: 'POST',
       keepalive: true,
       headers: {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        Prefer: 'resolution=merge-duplicates,return=minimal'
       },
       body: JSON.stringify(getCasinoPayload())
     });
@@ -1598,20 +1554,16 @@ async function flushAchSync() {
 function saveAchKeepAlive(){
   if(!S.code || !achDirty) return;
   try{
-    // Обычный syncAch сначала удаляет старые строки, поэтому через keepalive безопаснее не чистить,
-    // а докинуть текущие ачивки. Дубли в рейтинге всё равно фильтруются.
     const ids = cleanAchIds([...unlockedAch]);
-    if(!ids.length) return;
-    fetch(SUPABASE_REST_URL + '/achievements', {
+    fetch(SUPABASE_FUNCTIONS_URL + '/sync-achievements', {
       method:'POST',
       keepalive:true,
       headers:{
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`,
         'Content-Type':'application/json',
-        Prefer:'return=minimal'
       },
-      body: JSON.stringify(ids.map(id => ({ code:S.code, achievement:id })))
+      body: JSON.stringify({ code: S.code, ids })
     });
   }catch(e){}
 }
