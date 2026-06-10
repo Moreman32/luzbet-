@@ -188,6 +188,15 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .bet-chip.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
 .slot-result-text{min-height:28px;font-family:var(--os);font-size:16px;color:var(--yellow);margin-bottom:8px}
 
+
+/* HIGHER-LOWER FIX */
+.hl-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.hl-actions .btn{padding:0 8px;font-size:14px;min-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:380px){
+  .hl-actions{gap:6px}
+  .hl-actions .btn{font-size:13px;padding:0 6px}
+}
+
 /* BLACKJACK */
 .bj-table{background:rgba(0,80,30,.3);border:1px solid rgba(0,176,80,.2);border-radius:var(--r);padding:14px;margin-bottom:12px;min-height:120px}
 .bj-label{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
@@ -819,7 +828,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
             <div id="hl-next" style="background:linear-gradient(135deg,#1a0050,#3a0080);border:2px solid rgba(155,89,182,.4);border-radius:8px;padding:10px 16px;font-family:var(--os);font-size:28px;font-weight:700;min-width:56px;text-align:center">?</div>
           </div>
           <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px">Карт осталось: <span id="hl-deck-left" style="color:var(--white)">52</span> • Серия: <span id="hl-streak" style="color:var(--yellow)">0</span></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div class="hl-actions">
             <button class="btn btn-green" id="hl-higher" onclick="hlGuess('higher')" disabled>▲ Выше</button>
             <button class="btn btn-ghost" id="hl-deal" onclick="hlDeal()">Старт 🃏</button>
             <button class="btn btn-red" id="hl-lower" onclick="hlGuess('lower')" disabled>▼ Ниже</button>
@@ -2218,8 +2227,9 @@ const WHEEL_SEGMENTS=[
 ];
 function drawWheel(angle=0){
   const canvas=document.getElementById('wheel');if(!canvas)return;
-  const ctx=canvas.getContext('2d'),n=WHEEL_SEGMENTS.length,arc=2*Math.PI/n,cx=130,cy=130,r=120;
-  ctx.clearRect(0,0,260,260);
+  const ctx=canvas.getContext('2d'),n=WHEEL_SEGMENTS.length,arc=2*Math.PI/n;
+  const cx=canvas.width/2,cy=canvas.height/2,r=Math.min(canvas.width,canvas.height)/2-4;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   WHEEL_SEGMENTS.forEach((seg,i)=>{
     const start=angle+i*arc,end=start+arc;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();
@@ -2247,9 +2257,12 @@ function spinWheel(){
     if(progress<1){wheelRaf=requestAnimationFrame(frame);}
     else{
       wheelSpinning=false;document.getElementById('wheel-btn').disabled=false;
-      // determine segment (pointer at top = -PI/2)
-      const norm=(((-wheelAngle-Math.PI/2)%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
-      const idx=Math.floor(norm/(2*Math.PI/WHEEL_SEGMENTS.length))%WHEEL_SEGMENTS.length;
+      // determine segment exactly under the top pointer.
+      // Canvas angles start at 3 o'clock, so the top pointer is -PI/2.
+      const pointerAngle=-Math.PI/2;
+      const arc=2*Math.PI/WHEEL_SEGMENTS.length;
+      const relative=((pointerAngle-wheelAngle)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+      const idx=Math.floor(relative/arc)%WHEEL_SEGMENTS.length;
       const seg=WHEEL_SEGMENTS[idx];
       if(seg.mult>0){coins+=seg.mult;saveCoins();document.getElementById('wheel-result').textContent=`🎉 +${seg.mult} ЛузКоинов!`;toast(`🎡 Колесо: +${seg.mult} ЛК!`,'win');onWin(seg.mult,'🎡 Колесо');}
       else{document.getElementById('wheel-result').textContent='😭 0 ЛК. Ожидаемо.';toast('🎡 0 ЛК. Колесо знает тебя.','err');unlockAch('wheel_zero');onLose();}
