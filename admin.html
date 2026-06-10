@@ -287,6 +287,15 @@ async function sb(path,opts={}){
   return t?JSON.parse(t):null;
 }
 
+function esc(v){
+  return String(v ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
 function normRow(row){
   const d=row.data||{};
   if(Array.isArray(d.teams))return{teams:d.teams,scores:Array.isArray(d.scores)?d.scores:[]};
@@ -318,15 +327,15 @@ function buildForm(){
     html+='<button onclick="deleteResult(\'' + g + '\')" style="background:transparent;border:1px solid #ff4444;color:#ff4444;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;font-family:monospace">🗑 Удалить</button>';
     html+='</div>';
     html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
-    html+='<div><div class="gl">Вышла команда 1</div><input type="text" id="t1-'+g+'" value="'+(r.team1||'')+'" placeholder="Команда 1"/></div>';
-    html+='<div><div class="gl">Вышла команда 2</div><input type="text" id="t2-'+g+'" value="'+(r.team2||'')+'" placeholder="Команда 2"/></div>';
+    html+='<div><div class="gl">Вышла команда 1</div><input type="text" id="t1-'+g+'" value="'+esc(r.team1||'')+'" placeholder="Команда 1"/></div>';
+    html+='<div><div class="gl">Вышла команда 2</div><input type="text" id="t2-'+g+'" value="'+esc(r.team2||'')+'" placeholder="Команда 2"/></div>';
     html+='</div>';
     html+='<div class="gr">';
     for(let i=1;i<=6;i++){
       const v=r['m'+i]||'';
       const lbl=ML[g]?ML[g][i-1]:'m'+i;
       html+='<div><div class="gl" title="'+lbl+'">'+lbl+'</div>';
-      html+='<input type="text" class="sc'+(v?' v':'')+'" id="m'+i+'-'+g+'" value="'+v+'" placeholder="?" ';
+      html+='<input type="text" class="sc'+(v?' v':'')+'" id="m'+i+'-'+g+'" value="'+esc(v)+'" placeholder="?" ';
       html+='oninput="this.classList.toggle(\'v\',this.value.trim()!=\'\')"/></div>';
     }
     html+='</div></div>';
@@ -351,7 +360,7 @@ async function deleteResult(g){
 async function loadRes(){
   log('Загружаю...','info');
   try{
-    const rows=await sb('/results?select=group_code,data');
+    const rows=await sb('/results?select=group_code,data,id&order=id.asc');
     curR={};
     (rows||[]).forEach(r=>{curR[r.group_code]=r.data||{};});
     log('Загружено '+Object.keys(curR).length+' групп','ok');
@@ -394,17 +403,20 @@ async function loadChk(){
   el.innerHTML='<p class="muted">Загружаю...</p>';
   try{
     const[preds,resRows]=await Promise.all([
-      sb('/predictions?select=code,name,data'),
-      sb('/results?select=group_code,data')
+      sb('/predictions?select=code,name,data,updated_at,id&order=updated_at.asc,id.asc'),
+      sb('/results?select=group_code,data,id&order=id.asc')
     ]);
     const results={};
     (resRows||[]).forEach(r=>{results[r.group_code]=normRow(r);});
     const done=Object.keys(results).filter(g=>results[g].teams.length>0).length;
-    if(!preds||!preds.length){el.innerHTML='<p class="muted">Нет прогнозов</p>';return;}
+    const latestPreds={};
+    (preds||[]).forEach(row=>{latestPreds[String(row.code).toLowerCase()]=row;});
+    const dedupPreds=Object.values(latestPreds);
+    if(!dedupPreds.length){el.innerHTML='<p class="muted">Нет прогнозов</p>';return;}
 
-    let html='<div class="card muted" style="margin-bottom:12px">Участников: <b style="color:#fff">'+preds.length+'</b> | Групп с результатами: <b style="color:#fff">'+done+'/12</b></div>';
+    let html='<div class="card muted" style="margin-bottom:12px">Участников: <b style="color:#fff">'+dedupPreds.length+'</b> | Групп с результатами: <b style="color:#fff">'+done+'/12</b></div>';
 
-    preds.forEach(row=>{
+    dedupPreds.forEach(row=>{
       const pred=Object.assign({},row.data||{});
       let tP=0,oP=0,sP=0;
       let tbody='';
@@ -419,7 +431,7 @@ async function loadChk(){
           const hit=hasR&&actual.some(a=>a.toLowerCase()===t.toLowerCase());
           if(hit){gP++;tP++;}
           const cls=hasR?(hit?'hit':'miss'):'';
-          return '<span class="'+cls+'">'+t+'</span>';
+          return '<span class="'+cls+'">'+esc(t)+'</span>';
         }).join(', ')||'<span class="muted">—</span>';
 
         let scHtml='';
@@ -435,9 +447,9 @@ async function loadChk(){
             const outcOk=po===ao;
             if(exact){gP+=2;sP+=2;}else if(outcOk){gP++;oP++;}
             const cls=exact?'hit':outcOk?'hit':'miss';
-            scHtml+='<span class="'+cls+'" style="margin-right:6px;font-size:11px">'+ph+':'+pa+'→'+as.h+':'+as.a+'</span>';
+            scHtml+='<span class="'+cls+'" style="margin-right:6px;font-size:11px">'+esc(ph)+':'+esc(pa)+'→'+esc(as.h)+':'+esc(as.a)+'</span>';
           }else if(ph!==''&&ph!==undefined){
-            scHtml+='<span class="muted" style="margin-right:6px;font-size:11px">'+ph+':'+pa+'?</span>';
+            scHtml+='<span class="muted" style="margin-right:6px;font-size:11px">'+esc(ph)+':'+esc(pa)+'?</span>';
           }
         });
         tbody+='<tr><td style="color:#ffe600;font-size:11px">Гр.'+g+'</td><td>'+teams+'</td><td>'+( scHtml||'<span class="muted">—</span>')+'</td><td class="pts">'+(gP>0?'+'+gP:'0')+'</td></tr>';
@@ -445,15 +457,15 @@ async function loadChk(){
       const tot=tP+oP+sP;
       html+='<div class="card" style="margin-bottom:12px">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">';
-      html+='<div><b style="font-size:15px">'+row.name+'</b> <span class="muted">'+row.code+'</span></div>';
+      html+='<div><b style="font-size:15px">'+esc(row.name)+'</b> <span class="muted">'+esc(row.code)+'</span></div>';
       html+='<div style="display:flex;gap:16px">';
       html+='<span>⚽ <b>'+tP+'</b></span><span>🎯 <b>'+oP+'</b></span><span>💥 <b>'+sP+'</b></span>';
       html+='<span class="pts" style="font-size:22px">'+tot+'</span></div></div>';
       html+='<table><thead><tr><th>Группа</th><th>Команды</th><th>Счёт матчей</th><th>Очки</th></tr></thead><tbody>'+tbody+'</tbody></table></div>';
     });
     el.innerHTML=html;
-    log('Загружено '+preds.length+' прогнозов','ok');
-  }catch(e){el.innerHTML='<p class="err">Ошибка: '+e.message+'</p>';log(e.message,'err');}
+    log('Загружено '+dedupPreds.length+' прогнозов','ok');
+  }catch(e){el.innerHTML='<p class="err">Ошибка: '+esc(e.message)+'</p>';log(e.message,'err');}
 }
 
 // ─── LEADERBOARD ───
@@ -462,15 +474,17 @@ async function loadLB(){
   el.innerHTML='<p class="muted">Загружаю...</p>';
   try{
     const[preds,resRows,casRows,achRows]=await Promise.all([
-      sb('/predictions?select=code,name,data'),
-      sb('/results?select=group_code,data'),
+      sb('/predictions?select=code,name,data,updated_at,id&order=updated_at.asc,id.asc'),
+      sb('/results?select=group_code,data,id&order=id.asc'),
       sb('/casino?select=code,coins'),
       sb('/achievements?select=code,achievement'),
     ]);
     const results={};(resRows||[]).forEach(r=>{results[r.group_code]=normRow(r);});
     const casMap={};(casRows||[]).forEach(r=>{casMap[r.code.toLowerCase()]=r.coins||0;});
     const achMap={};(achRows||[]).forEach(r=>{const k=r.code.toLowerCase();achMap[k]=(achMap[k]||0)+1;});
-    const lb=(preds||[]).map(row=>{
+    const latestPreds={};
+    (preds||[]).forEach(row=>{latestPreds[String(row.code).toLowerCase()]=row;});
+    const lb=Object.values(latestPreds).map(row=>{
       const pred=Object.assign({},row.data||{});
       let tot=0,tP=0,oP=0,sP=0;
       Object.keys(GROUPS).forEach(g=>{
@@ -493,10 +507,10 @@ async function loadLB(){
     }).sort((a,b)=>b.tot-a.tot);
     const m=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
     let html='<table><thead><tr><th>#</th><th>Участник</th><th>Итого</th><th>⚽</th><th>🎯</th><th>💥</th><th>🪙 ЛК</th><th>🏅</th></tr></thead><tbody>';
-    lb.forEach((p,i)=>{html+='<tr><td style="font-size:18px">'+m(i)+'</td><td><b>'+p.name+'</b><br/><span class="muted">'+p.code+'</span></td><td class="pts" style="font-size:20px">'+p.tot+'</td><td>'+p.tP+'</td><td>'+p.oP+'</td><td>'+p.sP+'</td><td>'+p.coins+'</td><td>'+p.achs+'</td></tr>';});
+    lb.forEach((p,i)=>{html+='<tr><td style="font-size:18px">'+m(i)+'</td><td><b>'+esc(p.name)+'</b><br/><span class="muted">'+esc(p.code)+'</span></td><td class="pts" style="font-size:20px">'+p.tot+'</td><td>'+p.tP+'</td><td>'+p.oP+'</td><td>'+p.sP+'</td><td>'+p.coins+'</td><td>'+p.achs+'</td></tr>';});
     el.innerHTML=html+'</tbody></table>';
     log('Таблица обновлена: '+lb.length+' участников','ok');
-  }catch(e){el.innerHTML='<p class="err">Ошибка: '+e.message+'</p>';log(e.message,'err');}
+  }catch(e){el.innerHTML='<p class="err">Ошибка: '+esc(e.message)+'</p>';log(e.message,'err');}
 }
 
 loadRes();

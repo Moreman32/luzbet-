@@ -1198,6 +1198,15 @@ function stripAction(params) {
   return data;
 }
 
+function escapeHtml(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function normalizeResultRow(row) {
   const d = row.data || {};
   // Формат 1: {teams:[...], scores:[...]}
@@ -1310,7 +1319,7 @@ async function api(params) {
     }
 
     if (action === 'getPrediction') {
-      const rows = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=code,name,data&limit=1`);
+      const rows = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=code,name,data,updated_at,id&order=updated_at.desc,id.desc&limit=1`);
       if (!rows || !rows.length) return { ok: false, error: 'Прогноз не найден' };
       const row = rows[0];
       // data — jsonb объект с плоскими полями groupA, groupB_m0_h и т.д.
@@ -1320,11 +1329,11 @@ async function api(params) {
 
     if (action === 'getLeaderboard') {
       const [predRows, resultRows, casinoRows, achRows, poResultRows] = await Promise.all([
-        sbFetch('/predictions?select=code,name,data'),
-        sbFetch('/results?select=group_code,data'),
+        sbFetch('/predictions?select=code,name,data,updated_at,id&order=updated_at.asc,id.asc'),
+        sbFetch('/results?select=group_code,data,id&order=id.asc'),
         sbFetch('/casino?select=code,coins,spent'),
         sbFetch('/achievements?select=code,achievement'),
-        sbFetch('/playoff_results?select=data&limit=1'),
+        sbFetch('/playoff_results?select=data,id&order=id.desc&limit=1'),
       ]);
 
       // Results по группам
@@ -1350,7 +1359,12 @@ async function api(params) {
         if (!achMap[k].includes(r.achievement)) achMap[k].push(r.achievement);
       });
 
-      const leaderboard = (predRows || []).map(row => {
+      const latestPredictions = {};
+      (predRows || []).forEach(row => {
+        latestPredictions[String(row.code).toLowerCase()] = row;
+      });
+
+      const leaderboard = Object.values(latestPredictions).map(row => {
         const scored = scorePreds(row.name, { code: row.code, name: row.name, ...(row.data || {}) }, results);
         const ck = String(row.code).toLowerCase();
         const cas = casinoMap[ck] || {};
@@ -1448,7 +1462,7 @@ if (action === 'getAchAll') {
     }
 
     if (action === 'getPlayoff') {
-      const rows = await sbFetch(`/playoff?${codeIlikeFilter(code)}&select=code,name,data&limit=1`);
+      const rows = await sbFetch(`/playoff?${codeIlikeFilter(code)}&select=code,name,data,created_at,id&order=created_at.desc,id.desc&limit=1`);
       if (!rows || !rows.length) return { ok: true, prediction: null };
       return { ok: true, prediction: { code: rows[0].code, name: rows[0].name, ...(rows[0].data || {}) } };
     }
@@ -1543,13 +1557,14 @@ async function flushCasinoSync(force = false) {
   if (casinoSyncTimer) clearTimeout(casinoSyncTimer);
   casinoSyncTimer = null;
   try {
-    await api({
+    const r = await api({
       action: 'saveCasino',
       code: S.code,
       coins: coins,
       spent: totalSpent,
       last_daily: LS.get('luzbet_daily',''),
     });
+    if (!r || !r.ok) casinoDirty = true;
   } catch(e) {
     casinoDirty = true;
   }
@@ -1586,12 +1601,15 @@ async function flushAchSync() {
   achDirty = false;
   achSyncTimer = null;
   try {
-    await api({
+    const r = await api({
       action: 'syncAch',
       code: S.code,
       ids: JSON.stringify(cleanAchIds([...unlockedAch])),
     });
-  } catch(e) { /* silent fail */ }
+    if (!r || !r.ok) achDirty = true;
+  } catch(e) {
+    achDirty = true;
+  }
 }
 
 function saveAchKeepAlive(){
@@ -1617,7 +1635,6 @@ function saveAchKeepAlive(){
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && achDirty) {
-    saveAchKeepAlive();
     flushAchSync();
   }
 });
@@ -1645,6 +1662,10 @@ function unlockAch(id){
 function saveCoins(){
   LS.set('luzbet_coins',coins);
   scheduleCasinoSync(); // sync to Supabase
+  renderCoinsUI();
+}
+
+function renderCoinsUI(){
   document.getElementById('header-coins-num').textContent=coins;
   document.getElementById('casino-coins').textContent=coins;
   document.getElementById('header-coins').style.display='flex';
@@ -1836,7 +1857,11 @@ async function doLogin(){
 }
 document.getElementById('code-input').addEventListener('focus',()=>loginStartTime=Date.now());
 
-function doLogout(){
+async function doLogout(){
+  if (S.code) {
+    await flushCasinoSync(true).catch(() => {});
+    await flushAchSync().catch(() => {});
+  }
   S={code:null,name:null,voted:false};sel={};scores={};currentPredictionData={};LS.remove('luzbet_session_code');
   document.getElementById('code-input').value='';
   document.getElementById('predict-content').innerHTML='';
@@ -2206,7 +2231,8 @@ function renderLB(lb,results){
   let html=grpDone?'':`<div class="lb-note">⚠️ Результаты не введены. Все на нуле — равенство в страдании.</div>`;
   html+=`<div class="lb-list">`;
   lb.forEach((p,i)=>{
-    html+=`<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${p.name}</div><div class="lb-fun">${funTitle(p.name)}</div><div class="lb-comment">${comment(i,lb.length)}</div></div><div class="lb-right"><div class="lb-pts">${p.total}</div><div class="lb-pts-label">очков</div>${grpDone?`<div class="lb-breakdown">⚽${p.teamPts} 🎯${p.outPts} 💥${p.scPts}</div>`:''}</div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div class="detail-grid">`;
+    const safeName = escapeHtml(p.name);
+    html+=`<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${safeName}</div><div class="lb-fun">${escapeHtml(funTitle(p.name))}</div><div class="lb-comment">${escapeHtml(comment(i,lb.length))}</div></div><div class="lb-right"><div class="lb-pts">${p.total}</div><div class="lb-pts-label">очков</div>${grpDone?`<div class="lb-breakdown">⚽${p.teamPts} 🎯${p.outPts} 💥${p.scPts}</div>`:''}</div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div class="detail-grid">`;
     for(const[g,d]of Object.entries(p.detail)){
       if(!d.predicted.length)continue;
       // Считаем очки для этой группы
@@ -2221,7 +2247,7 @@ function renderLB(lb,results){
           cls=hit?' hit':' miss';
           if(hit)grpPts++;
         }
-        html+=`<div class="dc-team${cls}">${flag} ${t}</div>`;
+        html+=`<div class="dc-team${cls}">${escapeHtml(flag ? flag + ' ' : '')}${escapeHtml(t)}</div>`;
       });
       // Счёт матчей
       if(d.predScores && d.predScores.length){
@@ -2268,7 +2294,7 @@ function selectBet(val,el){slotBet=val;document.querySelectorAll('.bet-chip').fo
 
 function spinSlots(){
   if(coins<slotBet){toast('❌ Недостаточно ЛузКоинов. Это дно, приятель.','err');return;}
-  coins-=slotBet;saveCoins();unlockAch('slots_first');
+  coins-=slotBet;spendCoins(slotBet);saveCoins();unlockAch('slots_first');
   const btn=document.getElementById('spin-btn');btn.disabled=true;
   [0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('spinning'));
   document.getElementById('slot-result-text').textContent='';
@@ -2311,7 +2337,7 @@ function bjRenderHands(revealDealer=false){
 function bjDeal(){
   const bet=parseInt(document.getElementById('bj-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
-  coins-=bet;saveCoins();unlockAch('bj_first');
+  coins-=bet;spendCoins(bet);saveCoins();unlockAch('bj_first');
   const deck=BJ_DECK();
   bjState={deck,player:[deck.pop(),deck.pop()],dealer:[deck.pop(),deck.pop()],bet,over:false};
   bjRenderHands();document.getElementById('bj-result').textContent='';document.getElementById('bj-result').className='bj-result';
@@ -2375,7 +2401,7 @@ function drawWheel(angle=0){
 function spinWheel(){
   if(wheelSpinning)return;
   if(coins<30){toast('❌ Мало ЛузКоинов для спина.','err');return;}
-  coins-=30;saveCoins();unlockAch('wheel_first');
+  coins-=30;spendCoins(30);saveCoins();unlockAch('wheel_first');
   wheelSpinning=true;document.getElementById('wheel-btn').disabled=true;document.getElementById('wheel-result').textContent='';
   const totalRot=(Math.random()*4+5)*2*Math.PI,dur=4000;
   const start=performance.now(),startAngle=wheelAngle;
@@ -2467,7 +2493,7 @@ function showTournament(){
   const list=document.getElementById('tournament-list');
   if(!sessionWins.length){list.innerHTML='<div style="font-size:13px;color:var(--muted);text-align:center;padding:16px">Пока нет выигрышей. Начни проигрывать — выигрыши появятся между.</div>';return;}
   const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-  list.innerHTML=sessionWins.slice(0,10).map((w,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${medal(i)} ${w.game}</span><span style="color:var(--muted);font-size:11px">${w.time}</span><span style="font-family:var(--os);color:var(--yellow)">+${w.amount} ЛК</span></div>`).join('');
+  list.innerHTML=sessionWins.slice(0,10).map((w,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${medal(i)} ${escapeHtml(w.game)}</span><span style="color:var(--muted);font-size:11px">${escapeHtml(w.time)}</span><span style="font-family:var(--os);color:var(--yellow)">+${w.amount} ЛК</span></div>`).join('');
 }
 
 // ══════════════════════════════════════════════
@@ -2984,7 +3010,7 @@ function runNextDialogue(){
       if(!chat)return;
       const d=document.createElement('div');
       d.className='chat-msg';
-      d.innerHTML=`<span class="chat-avatar">${msg.avatar}</span><div class="chat-body"><span class="chat-name">${msg.name}</span> <span class="chat-text">${msg.msg}</span></div>`;
+      d.innerHTML=`<span class="chat-avatar">${escapeHtml(msg.avatar)}</span><div class="chat-body"><span class="chat-name">${escapeHtml(msg.name)}</span> <span class="chat-text">${escapeHtml(msg.msg)}</span></div>`;
       chat.appendChild(d);
       while(chat.children.length>60)chat.removeChild(chat.firstChild);
       chat.scrollTop=chat.scrollHeight;
@@ -2999,7 +3025,7 @@ function startChat(){
     const chat=document.getElementById('casino-chat');
     if(!chat)return;
     const d=document.createElement('div');d.className='chat-msg';
-    d.innerHTML=`<span class="chat-avatar">${bot.avatar}</span><div class="chat-body"><span class="chat-name">${bot.name}</span> <span class="chat-text">${html}</span></div>`;
+    d.innerHTML=`<span class="chat-avatar">${escapeHtml(bot.avatar)}</span><div class="chat-body"><span class="chat-name">${escapeHtml(bot.name)}</span> <span class="chat-text">${html}</span></div>`;
     chat.appendChild(d);
     while(chat.children.length>40)chat.removeChild(chat.firstChild);
     chat.scrollTop=chat.scrollHeight;
@@ -3057,7 +3083,7 @@ function chatNotifyWin(game,amount){
   const chat=document.getElementById('casino-chat');if(!chat)return;
   if(!S.name)return;
   const d=document.createElement('div');d.className='chat-msg';
-  d.innerHTML=`<span class="chat-avatar">👤</span><div class="chat-body"><span class="chat-name" style="color:var(--white)">${S.name}</span> <span class="chat-text"><span class="win">+${amount} ЛК</span> в ${game}! 🎉</span></div>`;
+  d.innerHTML=`<span class="chat-avatar">👤</span><div class="chat-body"><span class="chat-name" style="color:var(--white)">${escapeHtml(S.name)}</span> <span class="chat-text"><span class="win">+${amount} ЛК</span> в ${escapeHtml(game)}! 🎉</span></div>`;
   chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
 }
 
@@ -3241,15 +3267,17 @@ const CARD_TITLES = [
 ];
 
 function buildPlayerCard(name) {
-  const avatar = CARD_AVATARS[Math.abs(name.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % CARD_AVATARS.length];
-  const title = CARD_TITLES[Math.abs(name.split('').reduce((a,c)=>a+c.charCodeAt(0)*2,0)) % CARD_TITLES.length];
-  const rating = 55 + Math.abs(name.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 40;
+  const rawName = String(name || '');
+  const avatar = CARD_AVATARS[Math.abs(rawName.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % CARD_AVATARS.length];
+  const title = CARD_TITLES[Math.abs(rawName.split('').reduce((a,c)=>a+c.charCodeAt(0)*2,0)) % CARD_TITLES.length];
+  const rating = 55 + Math.abs(rawName.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 40;
+  const safeName = escapeHtml(rawName);
   return `<div class="player-card">
     <div class="pc-rating">${rating}</div>
     <div class="pc-country">ЛУЗБЕТ™ • ЧМ 2026</div>
     <span class="pc-avatar">${avatar}</span>
-    <div class="pc-name">${name}</div>
-    <div class="pc-title">${title}</div>
+    <div class="pc-name">${safeName}</div>
+    <div class="pc-title">${escapeHtml(title)}</div>
     <div class="pc-stats">
       <div class="pc-stat"><div class="pc-stat-num">${rating}</div><div class="pc-stat-label">РЕЙ&shy;ТИНГ</div></div>
       <div class="pc-stat"><div class="pc-stat-num">${Math.floor(rating*0.6)}</div><div class="pc-stat-label">УДА&shy;ЧА</div></div>
@@ -3282,11 +3310,12 @@ const NP_BODIES = [
 ];
 
 function buildNewspaper(name) {
+  const rawName = String(name || '');
   const groups = Object.keys(GROUPS);
   const randGroup = groups[Math.floor(Math.random()*groups.length)];
-  const headline = NP_HEADLINES[Math.floor(Math.random()*NP_HEADLINES.length)](name);
+  const headline = NP_HEADLINES[Math.floor(Math.random()*NP_HEADLINES.length)](rawName);
   const subhead = NP_SUBHEADS[Math.floor(Math.random()*NP_SUBHEADS.length)];
-  const body = NP_BODIES[Math.floor(Math.random()*NP_BODIES.length)](name, 'Группу '+randGroup);
+  const body = NP_BODIES[Math.floor(Math.random()*NP_BODIES.length)](rawName, 'Группу '+randGroup);
   const now = new Date();
   const dateStr = now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
   return `<div class="newspaper">
@@ -3294,10 +3323,10 @@ function buildNewspaper(name) {
       <div class="np-masthead">⚽ ЛУЗБЕТ ГЕРАЛЬД ⚽</div>
       <div class="np-date">${dateStr} • Выпуск №${Math.floor(Math.random()*9000)+1000} • Цена: 0 ₽ (и то дорого)</div>
     </div>
-    <div class="np-headline">${headline}</div>
+    <div class="np-headline">${escapeHtml(headline)}</div>
     <div class="np-byline">Автор: корр. Вася Экспертов | Фото: не было</div>
-    <div class="np-subhead">${subhead}</div>
-    <div class="np-body">${body}</div>
+    <div class="np-subhead">${escapeHtml(subhead)}</div>
+    <div class="np-body">${escapeHtml(body)}</div>
     <div class="np-footer">Редакция не несёт ответственности за содержание прогнозов, судьбу авторов и итоги ЧМ-2026</div>
   </div>`;
 }
@@ -3454,7 +3483,7 @@ async function loadCasinoFromSheets(code) {
       }
       LS.set('luzbet_coins', coins);
       LS.set('luzbet_spent', totalSpent);
-      saveCoins(); // update UI
+      renderCoinsUI();
       updateVip();
       checkDaily();
     }
@@ -3577,7 +3606,7 @@ async function loadPlayoffPage() {
     renderPlayoffForm();
 
   } catch(e) {
-    content.innerHTML = `<div class="alert alert-err show">Ошибка: ${e.message}</div>`;
+    content.innerHTML = `<div class="alert alert-err show">Ошибка: ${escapeHtml(e.message)}</div>`;
   }
 }
 
@@ -3598,12 +3627,13 @@ function renderPlayoffForm() {
       <div class="playoff-section-sub">${key === 'semi' ? 'Выбери 4 команды' : 'Выбери 1 команду'}${key === 'winner' ? ' — максимальный приз' : ''}</div>
       <div class="team-grid" id="po-grid-${key}">`;
 
-    poTeams.forEach(t => {
-      const safeName = t.name.replace(/'/g, "\\'");
+    poTeams.forEach((t, idx) => {
+      const token = `po_team_${key}_${idx}`;
+      window[token] = t.name;
       html += `<button class="playoff-team-btn" id="po-${key}-${t.name.replace(/[\s']/g,'_')}"
-        onclick="poSelect('${key}','${safeName}')">
-        <span class="tf">${t.flag}</span>
-        <span class="tn">${t.name}</span>
+        onclick="poSelect('${key}',window['${token}'])">
+        <span class="tf">${escapeHtml(t.flag)}</span>
+        <span class="tn">${escapeHtml(t.name)}</span>
         <span class="tc">✓</span>
       </button>`;
     });
@@ -3770,7 +3800,7 @@ function renderPlayoffVoted(pred, results) {
     const cls = hasRes ? (hit ? 'hit' : 'miss') : '';
     html += `<div class="po-voted-row">
       <span class="po-voted-label">${r.label}</span>
-      <span class="po-voted-team">${flag ? flag.flag + ' ' : ''}${val}</span>
+      <span class="po-voted-team">${escapeHtml(flag ? flag.flag + ' ' : '')}${escapeHtml(val)}</span>
       <span class="po-pts ${cls}">${hasRes ? (hit ? '+'+r.pts : '0') : '—'}</span>
     </div>`;
   });
@@ -3785,7 +3815,7 @@ function renderPlayoffVoted(pred, results) {
     const flag = poTeams.find(x => x.name === t);
     const hit = semiActual.includes(t);
     const cls = semiActual.length > 0 ? (hit ? 'hit' : 'miss') : '';
-    html += `<span class="vg-team ${cls}" style="margin:0">${flag ? flag.flag+' ' : ''}${t}</span>`;
+    html += `<span class="vg-team ${cls}" style="margin:0">${escapeHtml(flag ? flag.flag+' ' : '')}${escapeHtml(t)}</span>`;
   });
   html += `</div><span class="po-pts">${semiActual.length ? semiTeams.filter(t=>semiActual.includes(t)).length * 2 : '—'}</span></div>`;
 
@@ -3801,7 +3831,7 @@ function renderPlayoffVoted(pred, results) {
     const cls = hasRes ? (hit ? 'hit' : 'miss') : '';
     html += `<div class="po-voted-row">
       <span class="po-voted-label">${r.label}</span>
-      <span>${r.h}:${r.a} ${hasRes ? '→ '+r.actualH+':'+r.actualA : ''}</span>
+      <span>${escapeHtml(`${r.h}:${r.a}${hasRes ? ' → ' + r.actualH + ':' + r.actualA : ''}`)}</span>
       <span class="po-pts ${cls}">${hasRes ? (hit ? '+'+r.pts : '0') : '—'}</span>
     </div>`;
   });
@@ -3927,7 +3957,7 @@ function sendExtraMsg(){
   extraMsgIdx++;
   const d=document.createElement('div');
   d.className='chat-msg';
-  d.innerHTML=`<span class="chat-avatar">${bot.avatar}</span><div class="chat-body"><span class="chat-name" style="color:#aaa">${bot.name}</span> <span class="chat-text">${EXTRA_MSGS[idx]()}</span></div>`;
+  d.innerHTML=`<span class="chat-avatar">${escapeHtml(bot.avatar)}</span><div class="chat-body"><span class="chat-name" style="color:#aaa">${escapeHtml(bot.name)}</span> <span class="chat-text">${escapeHtml(EXTRA_MSGS[idx]())}</span></div>`;
   chat.appendChild(d);
   while(chat.children.length>60)chat.removeChild(chat.firstChild);
   chat.scrollTop=chat.scrollHeight;
@@ -4123,8 +4153,8 @@ function renderCasinoLB(casinoRows, lb, mode, participantRows=[]) {
     html += `<div class="casino-lb-row ${rc(i)}">
       <div class="clb-rank">${medal(i)}</div>
       <div>
-        <div class="clb-name">${name}</div>
-        <div class="clb-sub">${vip} • потрачено: ${parseInt(row.spent)||0} ЛК</div>
+        <div class="clb-name">${escapeHtml(name)}</div>
+        <div class="clb-sub">${escapeHtml(vip)} • потрачено: ${parseInt(row.spent)||0} ЛК</div>
       </div>
       <div>
         <div class="clb-val" style="color:${mode==='coins'?'var(--yellow)':'var(--red)'}">
@@ -4173,18 +4203,16 @@ function renderAchLB(achRows, lb, participantRows=[]) {
 
   sorted.forEach((row, i) => {
     const name = nameMap[String(row.code).toLowerCase()] || row.code;
-    const total = ALL_ACHIEVEMENTS.length;
-    const pct = Math.round(row.achs.length / total * 100);
     // Показываем иконки ачивок
     const icons = row.achs.map(id => {
       const a = ALL_ACHIEVEMENTS.find(x => x.id === id);
-      return a ? `<span title="${a.name}">${a.icon}</span>` : '';
+      return a ? `<span title="${escapeAttr(a.name)}">${escapeHtml(a.icon)}</span>` : '';
     }).join('');
 
     html += `<div class="casino-lb-row ${rc(i)}">
       <div class="clb-rank">${medal(i)}</div>
       <div style="min-width:0">
-        <div class="clb-name">${name}</div>
+        <div class="clb-name">${escapeHtml(name)}</div>
         <div class="clb-sub" style="flex-wrap:wrap">${icons}</div>
       </div>
       <div>
