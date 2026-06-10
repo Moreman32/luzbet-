@@ -1582,6 +1582,14 @@ function doLogout(){
 // ══════════════════════════════════════════════
 //  PREDICT FORM
 // ══════════════════════════════════════════════
+
+function safeTeamId(g,name){
+  return 't-'+g+'-'+String(name||'').normalize('NFKD').replace(/[^A-Za-z0-9_Ѐ-ӿ-]/g,'_');
+}
+function escapeAttr(v){
+  return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function showForm(pred=null){
   currentPredictionData = pred || currentPredictionData || {};
   sel = {}; scores = {};
@@ -1595,7 +1603,7 @@ function showForm(pred=null){
     const dStr=dl.toLocaleDateString('ru-RU',{day:'numeric',month:'short',timeZone:'Europe/Moscow'})
       +' '+dl.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'})+' МСК';
     html+=`<div class="group-card" id="gc-${g}"><div class="gc-head"><span class="gc-label">ГРУППА ${g}</span>${locked?'<span class="locked-tag">🔒 ВЫХОД ЗАКРЫТ</span>':`<span class="gc-deadline${soon?' soon':''}">${dStr}</span>`}</div><div class="gc-body"><div class="gc-tip">${EXPERT_TIPS[gi%EXPERT_TIPS.length]}</div><div class="gc-hint">Выбери 2 команды на выход:</div>`;
-    d.teams.forEach(t=>{const sid=`t-${g}-${t.n.replace(/[\s.]/g,'_')}`;html+=`<button class="team-btn" id="${sid}" ${locked?'disabled style="opacity:.55;cursor:not-allowed"':'onclick="toggleTeam(\'${g}\',\'${t.n}\')"'}><span class="team-flag">${t.f}</span><span class="team-name">${t.n}</span><span class="team-odds">${t.o}</span><span class="team-check">✓</span></button>`;});
+    d.teams.forEach(t=>{const sid=safeTeamId(g,t.n);html+=`<button class="team-btn" id="${sid}" data-team="${escapeAttr(t.n)}" ${locked?'disabled style="opacity:.55;cursor:not-allowed"':'onclick="toggleTeam(\'${g}\',this.dataset.team)"'}><span class="team-flag">${t.f}</span><span class="team-name">${t.n}</span><span class="team-odds">${t.o}</span><span class="team-check">✓</span></button>`;});
     html+=`<div class="score-section"><div class="score-label">⚡ Прогноз счёта матчей (${d.matches.length} матчей)</div>`;
     d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;const ml=isMatchLocked(m);html+=`<div class="score-match-block"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}${ml?' 🔒':''}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/></div></div>`;});
     html+=`</div><div class="score-hint">Счёт необязателен. Но +2 за точный — не откажешься.</div><div class="gc-progress" id="counter-${g}">выбрано 0/2</div></div></div>`;
@@ -1617,7 +1625,7 @@ function restorePredictionToForm(pred){
     const raw=pred['group'+g]||'';
     sel[g]=raw?raw.split('|').map(x=>x.trim()).filter(Boolean):[];
     sel[g].forEach(name=>{
-      const btn=document.getElementById(`t-${g}-${name.replace(/[\s.]/g,'_')}`);
+      const btn=document.getElementById(safeTeamId(g,name));
       if(btn)btn.classList.add('sel');
     });
     d.matches.forEach((m,mi)=>{
@@ -1662,7 +1670,7 @@ function toggleTeam(g,name){
   if(!sel[g])sel[g]=[];const i=sel[g].indexOf(name);
   if(i>=0)sel[g].splice(i,1);
   else{if(sel[g].length>=2){toast('⛔ Уже 2 выбраны. Жадность не поможет.','err');return;}sel[g].push(name);}
-  const btn=document.getElementById(`t-${g}-${name.replace(/[\s.]/g,'_')}`);
+  const btn=document.getElementById(safeTeamId(g,name));
   if(btn)btn.classList.toggle('sel',sel[g].includes(name));
   const adding=sel[g].includes(name);
   if(adding){showVasya(name);showTeamStats(name,btn||document.body);}
@@ -1694,7 +1702,7 @@ function updateBar(){
 async function doSave(){
   const btn=document.getElementById('save-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
   const now=new Date(),p={action:'savePrediction',code:S.code};
-  let fullGroups=0,scorePairs=0,startedSkipped=0,lockedGroups=0;
+  let fullGroups=0,scorePairs=0,startedSkipped=0,lockedGroups=0,partialGroups=[];
 
   for(const[g,d]of Object.entries(GROUPS)){
     const groupLocked=now>=new Date(d.deadline);
@@ -1702,6 +1710,7 @@ async function doSave(){
     // Выход из группы закрывается со стартом первого матча группы.
     p['group'+g]=groupLocked ? (currentPredictionData['group'+g]||'') : (sel[g]||[]).join('|');
     if(!groupLocked && (sel[g]||[]).length===2) fullGroups++;
+    if(!groupLocked && (sel[g]||[]).length===1) partialGroups.push(g);
 
     d.matches.forEach((m,mi)=>{
       const kh=`group${g}_m${mi}_h`,ka=`group${g}_m${mi}_a`;
