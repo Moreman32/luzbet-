@@ -1603,6 +1603,7 @@ function showPage(id){
   if(id==='achievements')renderAchievements();
   if(id==='rules')unlockAch('page_rules');
   if(id==='playoff')loadPlayoffPage();
+  if(id==='predict' && S.code && Object.keys(currentPredictionData).length>0) restorePredictionToForm(currentPredictionData);
   if(id==='casino'){saveCoins();renderCrashHistory();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
@@ -1640,8 +1641,13 @@ async function doLogin(){
       loadAchFromSheets(S.code);
       if(r.hasVoted){
         const p=await api({action:'getPrediction',code:S.code});
-        currentPredictionData=p.ok?(p.prediction||{}):{};
-        showForm(currentPredictionData);
+        if(p.ok && p.prediction){
+          currentPredictionData=p.prediction;
+          showForm(currentPredictionData);
+        } else {
+          currentPredictionData={};
+          showForm(null);
+        }
         toast('✏️ Прогноз загружен. До старта матчей его можно менять.','ok',3500);
       } else {
         currentPredictionData={};
@@ -1688,7 +1694,14 @@ function showForm(pred=null){
     const dStr=dl.toLocaleDateString('ru-RU',{day:'numeric',month:'short',timeZone:'Europe/Moscow'})
       +' '+dl.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'})+' МСК';
     html+=`<div class="group-card" id="gc-${g}"><div class="gc-head"><span class="gc-label">ГРУППА ${g}</span>${locked?'<span class="locked-tag">🔒 ВЫХОД ЗАКРЫТ</span>':`<span class="gc-deadline${soon?' soon':''}">${dStr}</span>`}</div><div class="gc-body"><div class="gc-tip">${EXPERT_TIPS[gi%EXPERT_TIPS.length]}</div><div class="gc-hint">Выбери 2 команды на выход:</div>`;
-    d.teams.forEach(t=>{const sid=safeTeamId(g,t.n);html+=`<button class="team-btn" id="${sid}" data-team="${escapeAttr(t.n)}" ${locked?'disabled style="opacity:.55;cursor:not-allowed"':'onclick="toggleTeam(\'${g}\',this.dataset.team)"'}><span class="team-flag">${t.f}</span><span class="team-name">${t.n}</span><span class="team-odds">${t.o}</span><span class="team-check">✓</span></button>`;});
+    d.teams.forEach((t,ti)=>{
+      const sid=safeTeamId(g,t.n);
+      // Используем глобальный реестр команд вместо data-team
+      const cbKey='_tc_'+g+'_'+ti;
+      window[cbKey]=t.n;
+      const onclk=locked?'':`onclick="toggleTeam('${g}',window['${cbKey}'])"`;
+      html+=`<button class="team-btn" id="${sid}" ${onclk} ${locked?'disabled style="opacity:.55;cursor:not-allowed"':''}><span class="team-flag">${t.f}</span><span class="team-name">${t.n}</span><span class="team-odds">${t.o}</span><span class="team-check">✓</span></button>`;
+    });
     html+=`<div class="score-section"><div class="score-label">⚡ Прогноз счёта матчей (${d.matches.length} матчей)</div>`;
     d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;const ml=isMatchLocked(m);html+=`<div class="score-match-block"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}${ml?' 🔒':''}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/></div></div>`;});
     html+=`</div><div class="score-hint">Счёт необязателен. Но +2 за точный — не откажешься.</div><div class="gc-progress" id="counter-${g}">выбрано 0/2</div></div></div>`;
