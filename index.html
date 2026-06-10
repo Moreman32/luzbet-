@@ -1164,6 +1164,7 @@ let casinoEverOpened=false;
 // ══════════════════════════════════════════════
 const SUPABASE_URL = "https://kdsowktuirtkxnmtyoaz.supabase.co";
 const SUPABASE_REST_URL = SUPABASE_URL + "/rest/v1";
+const SUPABASE_FUNCTIONS_URL = SUPABASE_URL + "/functions/v1";
 const SUPABASE_KEY = "sb_publishable_zjMkZslnb71eXQ_q6FQIAQ_eGyoW82B";
 
 // ══════════════════════════════════════════════
@@ -1190,6 +1191,28 @@ async function sbFetch(path, options = {}) {
   if (r.status === 204) return null;
   const text = await r.text();
   return text ? JSON.parse(text) : null;
+}
+
+async function sbFunction(name, payload = {}) {
+  const r = await fetch(`${SUPABASE_FUNCTIONS_URL}/${name}`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const text = await r.text().catch(() => '');
+  const data = text ? JSON.parse(text) : null;
+
+  if (!r.ok) {
+    const msg = (data && (data.error || data.message)) || text || `Function error ${r.status}`;
+    throw new Error(msg);
+  }
+
+  return data;
 }
 
 function stripAction(params) {
@@ -1276,55 +1299,15 @@ async function api(params) {
     const code = (params.code || '').trim();
 
     if (action === 'checkCode') {
-      const participant = await getParticipant(code);
-      if (!participant) return { ok: false, error: 'Код не найден' };
-
-      const pred = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=id&limit=1`);
-      return { ok: true, code: participant.code, name: participant.name, hasVoted: !!(pred && pred.length) };
+      return await sbFunction('check-code', { code });
     }
 
     if (action === 'savePrediction') {
-      const participant = await getParticipant(code);
-      if (!participant) return { ok: false, error: 'Код не найден' };
-
-      // Пакуем все поля прогноза в jsonb-объект data (без action, code, name)
-      const data = {};
-      Object.keys(params).forEach(k => {
-        if (k !== 'action' && k !== 'code' && k !== 'name') {
-          data[k] = params[k];
-        }
-      });
-
-      const canonicalCode = participant.code;
-      const now = new Date().toISOString();
-
-      // Пробуем upsert — сначала удаляем старый, потом вставляем
-      // (надёжнее чем on_conflict без уникального индекса)
-      try {
-        // DELETE старый прогноз если есть
-        await sbFetch('/predictions?' + codeIlikeFilter(canonicalCode), { method: 'DELETE' });
-      } catch(e) { /* ok if not exists */ }
-
-      await sbFetch('/predictions', {
-        method: 'POST',
-        headers: { Prefer: 'return=minimal' },
-        body: JSON.stringify({
-          code: canonicalCode,
-          name: participant.name,
-          data: data,
-          updated_at: now
-        })
-      });
-      return { ok: true };
+      return await sbFunction('save-prediction', params);
     }
 
     if (action === 'getPrediction') {
-      const rows = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=code,name,data,updated_at,id&order=updated_at.desc,id.desc&limit=1`);
-      if (!rows || !rows.length) return { ok: false, error: 'Прогноз не найден' };
-      const row = rows[0];
-      // data — jsonb объект с плоскими полями groupA, groupB_m0_h и т.д.
-      const prediction = { code: row.code, name: row.name, ...(row.data || {}) };
-      return { ok: true, prediction };
+      return await sbFunction('get-prediction', { code });
     }
 
     if (action === 'getLeaderboard') {
