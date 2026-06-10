@@ -864,8 +864,8 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 
 <!-- SAVE BAR -->
 <div id="save-bar" class="save-bar">
-  <div class="sb-info"><strong id="save-count">0/0 групп</strong>Заполни все группы с командами</div>
-  <button class="btn btn-yellow" id="save-btn" onclick="doSave()" disabled>ПОСТАВИТЬ ВСЁ →</button>
+  <div class="sb-info"><strong id="save-count">0 групп • 0 счетов</strong>Можно сохранить не всё. Но не забудь команды и точный счёт.</div>
+  <button class="btn btn-yellow" id="save-btn" onclick="doSave()" disabled>СОХРАНИТЬ ПРОГНОЗ →</button>
 </div>
 
 <!-- FOOTER -->
@@ -1075,11 +1075,12 @@ const ALL_ACHIEVEMENTS=[
 //  STATE
 // ══════════════════════════════════════════════
 let S={code:null,name:null,voted:false};
-let sel={},scores={};
+let sel={},scores={},currentPredictionData={};
 // Safari private mode safe storage
 const LS={
   get(k,def=''){try{return localStorage.getItem(k)||def;}catch(e){return def;}},
   set(k,v){try{localStorage.setItem(k,String(v));}catch(e){}},
+  remove(k){try{localStorage.removeItem(k);}catch(e){}},
 };
 let coins=parseInt(LS.get('luzbet_coins','1000'));
 let unlockedAch=new Set(JSON.parse(LS.get('luzbet_ach','[]')));
@@ -1191,18 +1192,17 @@ async function api(params) {
       const participant = await getParticipant(code);
       if (!participant) return { ok: false, error: 'Код не найден' };
 
-      const exists = await sbFetch(`/predictions?${codeIlikeFilter(code)}&select=id&limit=1`);
-      if (exists && exists.length) return { ok: false, error: 'Прогноз уже сохранён. Изменить нельзя.' };
-
       const data = stripAction(params);
       data.code = participant.code;
       data.name = participant.name;
-      data.timestamp = new Date().toISOString();
+      data.timestamp = data.timestamp || new Date().toISOString();
+      data.updated_at = new Date().toISOString();
 
-      await sbFetch('/predictions', {
+      // Теперь прогноз можно менять. Supabase обновит существующую строку по code.
+      await sbFetch('/predictions?on_conflict=code', {
         method: 'POST',
-        headers: { Prefer: 'return=minimal' },
-        body: JSON.stringify({ code: participant.code, name: participant.name, data })
+        headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({ code: participant.code, name: participant.name, data, updated_at: new Date().toISOString() })
       });
       return { ok: true };
     }
@@ -1394,7 +1394,7 @@ function unlockAch(id){
   if(unlockedAch.has(id))return;
   unlockedAch.add(id);
   LS.set('luzbet_ach',JSON.stringify([...unlockedAch]));
-  scheduleAchSync(); // sync to Sheets
+  scheduleAchSync(); // sync to Supabase
   const a=ALL_ACHIEVEMENTS.find(x=>x.id===id);
   if(a){
     toast(`🏅 Ачивка: «${a.name}»`,'win',4000);
@@ -1403,7 +1403,7 @@ function unlockAch(id){
 }
 function saveCoins(){
   LS.set('luzbet_coins',coins);
-  scheduleCasinoSync(); // sync to Sheets
+  scheduleCasinoSync(); // sync to Supabase
   document.getElementById('header-coins-num').textContent=coins;
   document.getElementById('casino-coins').textContent=coins;
   document.getElementById('header-coins').style.display='flex';
@@ -1519,7 +1519,7 @@ function showPage(id){
   if(id==='rules')unlockAch('page_rules');
   if(id==='playoff')loadPlayoffPage();
   if(id==='casino'){saveCoins();renderCrashHistory();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
-  document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code&&!S.voted);
+  document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
 
@@ -1548,13 +1548,20 @@ async function doLogin(){
     if(!r.ok){setAlert('login-alert','err','❌ '+r.error);toast('Неверный код. Это не ты. Или ты, но не тот.','err');}
     else{
       S={code:(r.code||code),name:r.name,voted:r.hasVoted};
+      LS.set('luzbet_session_code', S.code);
       if(elapsed<3)unlockAch('fast_login');
       toast('👋 Привет, '+r.name+'! Готов проиграть?','ok');updateNavAfterLogin();setTimeout(()=>announcePlayer(r.name),500);
-      // Load casino & achievements from Sheets
       loadCasinoFromSheets(S.code);
       loadAchFromSheets(S.code);
-      if(r.hasVoted){const p=await api({action:'getPrediction',code:S.code});showVoted(p.prediction);}
-      else showForm();
+      if(r.hasVoted){
+        const p=await api({action:'getPrediction',code:S.code});
+        currentPredictionData=p.ok?(p.prediction||{}):{};
+        showForm(currentPredictionData);
+        toast('✏️ Прогноз загружен. До старта матчей его можно менять.','ok',3500);
+      } else {
+        currentPredictionData={};
+        showForm();
+      }
       showPage('predict');
     }
   }catch(e){console.error(e);setAlert('login-alert','err','❌ Сервер упал: '+(e.message||e));}
@@ -1563,7 +1570,7 @@ async function doLogin(){
 document.getElementById('code-input').addEventListener('focus',()=>loginStartTime=Date.now());
 
 function doLogout(){
-  S={code:null,name:null,voted:false};sel={};scores={};
+  S={code:null,name:null,voted:false};sel={};scores={};currentPredictionData={};LS.remove('luzbet_session_code');
   document.getElementById('code-input').value='';
   document.getElementById('predict-content').innerHTML='';
   document.getElementById('user-bar-predict').style.display='none';
@@ -1575,7 +1582,9 @@ function doLogout(){
 // ══════════════════════════════════════════════
 //  PREDICT FORM
 // ══════════════════════════════════════════════
-function showForm(){
+function showForm(pred=null){
+  currentPredictionData = pred || currentPredictionData || {};
+  sel = {}; scores = {};
   document.getElementById('user-bar-predict').style.display='block';
   document.getElementById('ub-name-p').textContent='👋 '+S.name;
   const now=new Date();
@@ -1585,10 +1594,10 @@ function showForm(){
     // Format deadline in MSK
     const dStr=dl.toLocaleDateString('ru-RU',{day:'numeric',month:'short',timeZone:'Europe/Moscow'})
       +' '+dl.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'})+' МСК';
-    html+=`<div class="group-card${locked?' locked':''}" id="gc-${g}"><div class="gc-head"><span class="gc-label">ГРУППА ${g}</span>${locked?'<span class="locked-tag">🔒 ЗАКРЫТО</span>':`<span class="gc-deadline${soon?' soon':''}">${dStr}</span>`}</div><div class="gc-body"><div class="gc-tip">${EXPERT_TIPS[gi%EXPERT_TIPS.length]}</div><div class="gc-hint">Выбери 2 команды:</div>`;
-    d.teams.forEach(t=>{const sid=`t-${g}-${t.n.replace(/[\s.]/g,'_')}`;html+=`<button class="team-btn" id="${sid}" onclick="toggleTeam('${g}','${t.n}')"><span class="team-flag">${t.f}</span><span class="team-name">${t.n}</span><span class="team-odds">${t.o}</span><span class="team-check">✓</span></button>`;});
+    html+=`<div class="group-card" id="gc-${g}"><div class="gc-head"><span class="gc-label">ГРУППА ${g}</span>${locked?'<span class="locked-tag">🔒 ВЫХОД ЗАКРЫТ</span>':`<span class="gc-deadline${soon?' soon':''}">${dStr}</span>`}</div><div class="gc-body"><div class="gc-tip">${EXPERT_TIPS[gi%EXPERT_TIPS.length]}</div><div class="gc-hint">Выбери 2 команды на выход:</div>`;
+    d.teams.forEach(t=>{const sid=`t-${g}-${t.n.replace(/[\s.]/g,'_')}`;html+=`<button class="team-btn" id="${sid}" ${locked?'disabled style="opacity:.55;cursor:not-allowed"':'onclick="toggleTeam(\'${g}\',\'${t.n}\')"'}><span class="team-flag">${t.f}</span><span class="team-name">${t.n}</span><span class="team-odds">${t.o}</span><span class="team-check">✓</span></button>`;});
     html+=`<div class="score-section"><div class="score-label">⚡ Прогноз счёта матчей (${d.matches.length} матчей)</div>`;
-    d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;html+=`<div class="score-match-block"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()"/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()"/></div></div>`;});
+    d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;const ml=isMatchLocked(m);html+=`<div class="score-match-block"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}${ml?' 🔒':''}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/></div></div>`;});
     html+=`</div><div class="score-hint">Счёт необязателен. Но +2 за точный — не откажешься.</div><div class="gc-progress" id="counter-${g}">выбрано 0/2</div></div></div>`;
   });
   html+='</div>';
@@ -1597,6 +1606,56 @@ function showForm(){
   // Show expert bot
   const eb=document.getElementById('expert-bot-wrap');if(eb)eb.style.display='block';
   initExpertBot();
+  if(pred) restorePredictionToForm(pred);
+  else updateBar();
+}
+
+
+function restorePredictionToForm(pred){
+  if(!pred)return;
+  for(const[g,d]of Object.entries(GROUPS)){
+    const raw=pred['group'+g]||'';
+    sel[g]=raw?raw.split('|').map(x=>x.trim()).filter(Boolean):[];
+    sel[g].forEach(name=>{
+      const btn=document.getElementById(`t-${g}-${name.replace(/[\s.]/g,'_')}`);
+      if(btn)btn.classList.add('sel');
+    });
+    d.matches.forEach((m,mi)=>{
+      const kh=`group${g}_m${mi}_h`,ka=`group${g}_m${mi}_a`;
+      const sh=`${g}_m${mi}_h`,sa=`${g}_m${mi}_a`;
+      if(pred[kh]!==undefined && pred[kh]!==null && pred[kh]!==''){
+        scores[sh]=pred[kh];
+        const input=document.getElementById('s-'+sh); if(input)input.value=pred[kh];
+      }
+      if(pred[ka]!==undefined && pred[ka]!==null && pred[ka]!==''){
+        scores[sa]=pred[ka];
+        const input=document.getElementById('s-'+sa); if(input)input.value=pred[ka];
+      }
+    });
+    const n=sel[g].length,ctr=document.getElementById(`counter-${g}`),card=document.getElementById(`gc-${g}`);
+    if(ctr){ctr.textContent=n===2?'✅ готово':`выбрано ${n}/2`;ctr.className='gc-progress'+(n===2?' ok':'');}
+    if(card)card.classList.toggle('done',n===2);
+  }
+  updateBar();
+}
+
+function monthRuToNum(mon){
+  const m={'янв':1,'фев':2,'мар':3,'апр':4,'май':5,'мая':5,'июн':6,'июл':7,'авг':8,'сен':9,'окт':10,'ноя':11,'дек':12};
+  return m[String(mon||'').toLowerCase().replace('.','')]||1;
+}
+function matchStartDate(m){
+  const x=String(m.msk||'').match(/(\d{1,2})\s+([А-Яа-яёЁ.]+),\s*(\d{1,2}):(\d{2})/);
+  if(!x)return null;
+  const dd=x[1].padStart(2,'0'), mm=String(monthRuToNum(x[2])).padStart(2,'0');
+  return new Date(`2026-${mm}-${dd}T${x[3].padStart(2,'0')}:${x[4]}:00+03:00`);
+}
+function isMatchLocked(m){
+  const d=matchStartDate(m);
+  return d ? new Date()>=d : false;
+}
+function scorePairComplete(g,mi){
+  const h=scores[`${g}_m${mi}_h`], a=scores[`${g}_m${mi}_a`];
+  return h!==undefined && h!=='' && a!==undefined && a!=='';
 }
 
 function toggleTeam(g,name){
@@ -1613,12 +1672,20 @@ function toggleTeam(g,name){
   if(n===2)toast('✅ Группа '+g+' — сделано. Плохой выбор, но смелый.','ok',2000);
   updateBar();
 }
-function setScore(k,v){scores[k]=v;}
+function setScore(k,v){scores[k]=v;updateBar();}
 function updateBar(){
-  const now=new Date(),open=Object.entries(GROUPS).filter(([,d])=>now<new Date(d.deadline));
-  const filled=open.filter(([g])=>(sel[g] && sel[g].length)===2).length;
-  document.getElementById('save-count').textContent=`${filled}/${open.length} групп`;
-  document.getElementById('save-btn').disabled=filled<open.length;
+  const now=new Date();
+  const teamGroups=Object.entries(GROUPS).filter(([g])=>(sel[g]&&sel[g].length)>0).length;
+  let fullGroups=0,scorePairs=0;
+  Object.entries(GROUPS).forEach(([g,d])=>{
+    if((sel[g]&&sel[g].length)===2)fullGroups++;
+    d.matches.forEach((_,mi)=>{if(scorePairComplete(g,mi))scorePairs++;});
+  });
+  const hasAny = teamGroups>0 || scorePairs>0;
+  document.getElementById('save-count').textContent=`${fullGroups} групп • ${scorePairs} счетов`;
+  const btn=document.getElementById('save-btn');
+  btn.disabled=!hasAny;
+  btn.textContent=S.voted?'ОБНОВИТЬ ПРОГНОЗ →':'СОХРАНИТЬ ПРОГНОЗ →';
 }
 
 // ══════════════════════════════════════════════
@@ -1627,22 +1694,50 @@ function updateBar(){
 async function doSave(){
   const btn=document.getElementById('save-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
   const now=new Date(),p={action:'savePrediction',code:S.code};
+  let fullGroups=0,scorePairs=0,startedSkipped=0,lockedGroups=0;
+
   for(const[g,d]of Object.entries(GROUPS)){
-    const locked=now>=new Date(d.deadline);p['group'+g]=locked?'':(sel[g]||[]).join('|');
-    d.matches.forEach((_,mi)=>{p[`group${g}_m${mi}_h`]=scores[`${g}_m${mi}_h`]||'';p[`group${g}_m${mi}_a`]=scores[`${g}_m${mi}_a`]||'';});
+    const groupLocked=now>=new Date(d.deadline);
+    if(groupLocked) lockedGroups++;
+    // Выход из группы закрывается со стартом первого матча группы.
+    p['group'+g]=groupLocked ? (currentPredictionData['group'+g]||'') : (sel[g]||[]).join('|');
+    if(!groupLocked && (sel[g]||[]).length===2) fullGroups++;
+
+    d.matches.forEach((m,mi)=>{
+      const kh=`group${g}_m${mi}_h`,ka=`group${g}_m${mi}_a`;
+      if(isMatchLocked(m)){
+        p[kh]=currentPredictionData[kh]||'';
+        p[ka]=currentPredictionData[ka]||'';
+        if((scores[`${g}_m${mi}_h`]||scores[`${g}_m${mi}_a`]) && (!currentPredictionData[kh] && !currentPredictionData[ka])) startedSkipped++;
+      }else{
+        p[kh]=scores[`${g}_m${mi}_h`]||'';
+        p[ka]=scores[`${g}_m${mi}_a`]||'';
+        if(p[kh]!=='' && p[ka]!=='')scorePairs++;
+      }
+    });
   }
-  const hasScores=Object.values(scores).some(v=>v!=='');
+
+  if(fullGroups===0 || scorePairs===0){
+    const msg=[];
+    if(fullGroups===0)msg.push('ты не выбрал ни одной пары команд на выход из группы');
+    if(scorePairs===0)msg.push('ты не указал ни одного точного счёта');
+    const ok=confirm('Напоминание ЛузБет™: '+msg.join(' и ')+'.\n\nСохранить всё равно? Можно, но очки сами себя не заработают.');
+    if(!ok){btn.disabled=false;updateBar();return;}
+  }
+  if(startedSkipped>0)toast(`🔒 ${startedSkipped} прогнозов на уже начавшиеся матчи не изменены.`,'err',4500);
+
+  const hasScores=scorePairs>0;
   try{
     const r=await api(p);
     if(r.ok){
-      S.voted=true;document.getElementById('save-bar').classList.remove('up');
-      unlockAch('voted');unlockAch('all_groups');if(hasScores)unlockAch('has_scores');
-      // Check last_second
-      const minDl=Math.min(...Object.values(GROUPS).filter(d=>now<new Date(d.deadline)).map(d=>new Date(d.deadline).getTime()));
-      if((minDl-now.getTime())<600000)unlockAch('last_second');
+      S.voted=true;currentPredictionData={...p};
+      unlockAch('voted');if(fullGroups===Object.keys(GROUPS).length)unlockAch('all_groups');if(hasScores)unlockAch('has_scores');
+      const futureDeadlines=Object.values(GROUPS).filter(d=>now<new Date(d.deadline)).map(d=>new Date(d.deadline).getTime());
+      if(futureDeadlines.length){const minDl=Math.min(...futureDeadlines);if((minDl-now.getTime())<600000)unlockAch('last_second');}
       showSaveSlot(p);
-    }else{setAlert('predict-alert','err','❌ '+r.error);btn.disabled=false;btn.textContent='ПОСТАВИТЬ ВСЁ →';}
-  }catch(e){setAlert('predict-alert','err','❌ Сервер упал.');btn.disabled=false;btn.textContent='ПОСТАВИТЬ ВСЁ →';}
+      updateBar();
+    }else{setAlert('predict-alert','err','❌ '+r.error);btn.disabled=false;updateBar();}
+  }catch(e){setAlert('predict-alert','err','❌ Сервер упал: '+(e.message||e));btn.disabled=false;updateBar();}
 }
 
 function showSaveSlot(pred){
@@ -1656,17 +1751,21 @@ function showSaveSlot(pred){
   setTimeout(()=>{
     [0,1,2].forEach(i=>document.getElementById('sr'+i).classList.remove('spinning'));
     const res=SAVE_SLOT_RESULTS[Math.floor(Math.random()*SAVE_SLOT_RESULTS.length)];
-    res.e.split('').forEach((e,i)=>{document.getElementById('se'+i).textContent=e;});
+    Array.from(res.e).slice(0,3).forEach((e,i)=>{document.getElementById('se'+i).textContent=e;});
     document.getElementById('save-slot-result').textContent=res.t;
     document.getElementById('save-slot-sub').textContent=res.s;
     document.getElementById('save-slot-close').style.display='block';
+    setTimeout(()=>{
+      const modal=document.getElementById('slot-save-modal');
+      if(modal && !modal.classList.contains('hidden')) closeSaveSlot();
+    },8000);
   },2400);
 }
 
 function closeSaveSlot(){
   document.getElementById('slot-save-modal').classList.add('hidden');
   launchConfetti(120);
-  api({action:'getPrediction',code:S.code}).then(p=>showVoted(p.prediction));
+  api({action:'getPrediction',code:S.code}).then(p=>{currentPredictionData=p.ok?(p.prediction||currentPredictionData):currentPredictionData;showForm(currentPredictionData);});
 }
 
 // ══════════════════════════════════════════════
@@ -3468,6 +3567,30 @@ function activateKonami(){
 }
 let konamiEasterEggUsed=false;
 
+
+async function restoreSession(){
+  const savedCode=LS.get('luzbet_session_code','');
+  if(!savedCode)return;
+  try{
+    const r=await api({action:'checkCode',code:savedCode});
+    if(!r.ok){LS.remove('luzbet_session_code');return;}
+    S={code:r.code||savedCode,name:r.name,voted:r.hasVoted};
+    updateNavAfterLogin();
+    loadCasinoFromSheets(S.code);
+    loadAchFromSheets(S.code);
+    if(r.hasVoted){
+      const p=await api({action:'getPrediction',code:S.code});
+      currentPredictionData=p.ok?(p.prediction||{}):{};
+      showForm(currentPredictionData);
+    }else{
+      currentPredictionData={};
+      showForm();
+    }
+    showPage('predict');
+    toast('🔐 Сессия восстановлена. Повторно вводить код не нужно.','ok',2500);
+  }catch(e){console.warn('restoreSession failed',e);}
+}
+
 // ══ INIT (must be last — all consts/functions must be defined first) ══
 document.addEventListener('DOMContentLoaded', function() {
   saveCoins();
@@ -3478,6 +3601,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderCrashHistory();
   updateNavAfterLogin();
   updateCountdown();
+  restoreSession();
 });
 </script>
 </body>
