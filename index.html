@@ -465,6 +465,14 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
     </div>
   </div>
 </div>
+<script>
+try{
+  if(localStorage.getItem('luzbet_rules_accepted') === '1'){
+    var wm=document.getElementById('warning-modal');
+    if(wm) wm.classList.add('hidden');
+  }
+}catch(e){}
+</script>
 
 <!-- SLOT MODAL -->
 <div class="modal-wrap hidden" id="slot-save-modal">
@@ -1112,10 +1120,20 @@ const ALL_ACHIEVEMENTS=[
   {id:"rich",cat:"casino",icon:"🤑",name:"Богач",desc:"Накопил 2000+ ЛузКоинов. На что ты их тратил?",secret:true},
   {id:"win_streak3",cat:"casino",icon:"🔥",name:"В огне",desc:"3 победы подряд в любой игре.",secret:false},
   {id:"win_streak5",cat:"casino",icon:"⚡",name:"Против системы",desc:"5 побед подряд. Система злится. Мы — тоже.",secret:true},
+  {id:"daily_bonus",cat:"casino",icon:"🎁",name:"Халявщик",desc:"Забрал ежедневный бонус. Бесплатно — любимый коэффициент.",secret:false},
+  {id:"dice_win",cat:"casino",icon:"🎲",name:"Кости знают",desc:"Угадал сумму кубиков. Один раз повезло — не привыкать.",secret:false},
+  {id:"crash_first",cat:"casino",icon:"🪃",name:"Краш-тест",desc:"Сыграл в краш. Машина улетела, деньги тоже.",secret:false},
+  {id:"crash_5x",cat:"casino",icon:"🚀",name:"До луны",desc:"Забрал выигрыш на 5× или выше. Теперь главное — остановиться. Но нет.",secret:true},
+  {id:"hl_first",cat:"casino",icon:"🎴",name:"Выше-ниже",desc:"Сыграл в выше-ниже. Карты против тебя, но ты держишься.",secret:false},
+  {id:"hl_streak5",cat:"casino",icon:"🃏",name:"Пять карт судьбы",desc:"Собрал серию 5 в выше-ниже. Подозрительно удачно.",secret:true},
+  {id:"horse_first",cat:"casino",icon:"🐎",name:"На ипподроме",desc:"Поставил на скачки. Даже улитка оценила.",secret:false},
+  {id:"horse_win",cat:"casino",icon:"🏁",name:"Финишировал",desc:"Угадал победителя скачек. Лошадь старалась, ты случайно нажал.",secret:false},
   // ОБЩИЕ
   {id:"page_rules",cat:"general",icon:"📜",name:"Законопослушный",desc:"Прочитал правила. Или открыл вкладку. Считается.",secret:false},
   {id:"night_owl",cat:"general",icon:"🦉",name:"Ночная сова",desc:"Зашёл на сайт после полуночи. Серьёзно?",secret:true},
   {id:"all_tabs",cat:"general",icon:"🗺️",name:"Исследователь",desc:"Открыл все вкладки сайта. Включая эту.",secret:false},
+  {id:"sam_reshu",cat:"general",icon:"😤",name:"Сам решу",desc:"Нажал главную кнопку согласия. Ответственность принята, надежда потеряна.",secret:false},
+  {id:"konami",cat:"general",icon:"🕹️",name:"Старый читер",desc:"Ввёл секретную комбинацию. Призы не положены, уважение сомнительное.",secret:true},
   {id:"fast_login",cat:"general",icon:"⚡",name:"Молния",desc:"Ввёл код за менее чем 3 секунды. Тренировался?",secret:true},
 ];
 
@@ -1570,8 +1588,38 @@ async function flushAchSync() {
   } catch(e) { /* silent fail */ }
 }
 
+function saveAchKeepAlive(){
+  if(!S.code || !achDirty) return;
+  try{
+    // Обычный syncAch сначала удаляет старые строки, поэтому через keepalive безопаснее не чистить,
+    // а докинуть текущие ачивки. Дубли в рейтинге всё равно фильтруются.
+    const ids = cleanAchIds([...unlockedAch]);
+    if(!ids.length) return;
+    fetch(SUPABASE_REST_URL + '/achievements', {
+      method:'POST',
+      keepalive:true,
+      headers:{
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type':'application/json',
+        Prefer:'return=minimal'
+      },
+      body: JSON.stringify(ids.map(id => ({ code:S.code, achievement:id })))
+    });
+  }catch(e){}
+}
+
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && achDirty) flushAchSync();
+  if (document.hidden && achDirty) {
+    saveAchKeepAlive();
+    flushAchSync();
+  }
+});
+window.addEventListener('pagehide', () => {
+  if (achDirty) saveAchKeepAlive();
+});
+window.addEventListener('beforeunload', () => {
+  if (achDirty) saveAchKeepAlive();
 });
 
 // ══════════════════════════════════════════════
@@ -3404,8 +3452,11 @@ async function loadCasinoFromSheets(code) {
 }
 
 async function loadAchFromSheets(code) {
-  // Ачивки должны быть строго по текущему игроку, а не из общего localStorage браузера.
-  unlockedAch = new Set();
+  // Ачивки должны быть строго по текущему игроку.
+  // Но сохраняем ачивки, полученные в текущей сессии до завершения загрузки из Supabase
+  // (например fast_login сразу после входа).
+  const sessionAch = cleanAchIds([...unlockedAch]);
+  unlockedAch = new Set(sessionAch);
 
   try {
     const r = await api({ action: 'getAchievements', code });
@@ -3416,6 +3467,7 @@ async function loadAchFromSheets(code) {
 
     renderAchievements();
     updateProfilePage();
+    if (sessionAch.length) scheduleAchSync();
   } catch(e) {
     renderAchievements();
     updateProfilePage();
