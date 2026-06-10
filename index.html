@@ -1134,6 +1134,8 @@ const LS={
 LS.remove('luzbet_ach');
 let coins=parseInt(LS.get('luzbet_coins','1000'));
 let unlockedAch=new Set();
+function isKnownAch(id){return ALL_ACHIEVEMENTS.some(a=>a.id===id);}
+function cleanAchIds(ids){return [...new Set((ids||[]).filter(id=>isKnownAch(id)))];}
 let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRaf=null;
 let loginStartTime=0;
 let tabsVisited=new Set();
@@ -1324,9 +1326,10 @@ async function api(params) {
       // Achievements map
       const achMap = {};
       (achRows || []).forEach(r => {
+        if (!isKnownAch(r.achievement)) return;
         const k = String(r.code).toLowerCase();
         if (!achMap[k]) achMap[k] = [];
-        achMap[k].push(r.achievement);
+        if (!achMap[k].includes(r.achievement)) achMap[k].push(r.achievement);
       });
 
       const leaderboard = (predRows || []).map(row => {
@@ -1469,20 +1472,51 @@ function scorePreds(name,preds,results){
 }
 
 // ══════════════════════════════════════════════
-//  CASINO SYNC — отложенная синхронизация
+//  CASINO SYNC — отложенная синхронизация + аварийное сохранение
 // ══════════════════════════════════════════════
 let casinoSyncTimer = null;
 let casinoDirty = false;
+const CASINO_SYNC_DELAY = 15000; // 15 сек: не долбим БД после каждого клика, но сохраняем быстро
+
+function getCasinoPayload() {
+  return {
+    code: S.code,
+    name: S.name || '',
+    coins: parseInt(coins || 0),
+    spent: parseInt(totalSpent || 0),
+    last_daily: LS.get('luzbet_daily','') ? new Date(parseInt(LS.get('luzbet_daily',''))).toISOString() : null
+  };
+}
+
+function saveCasinoKeepAlive() {
+  if (!S.code) return;
+  try {
+    // fetch keepalive успевает отправить маленький запрос даже при закрытии вкладки.
+    // Тут используем S.code: после логина он уже канонический из Supabase.
+    fetch(SUPABASE_REST_URL + '/casino?on_conflict=code', {
+      method: 'POST',
+      keepalive: true,
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify(getCasinoPayload())
+    });
+  } catch(e) { /* silent fail */ }
+}
 
 function scheduleCasinoSync() {
   casinoDirty = true;
   if (casinoSyncTimer) clearTimeout(casinoSyncTimer);
-  casinoSyncTimer = setTimeout(flushCasinoSync, 5000); // 5 сек
+  casinoSyncTimer = setTimeout(flushCasinoSync, CASINO_SYNC_DELAY);
 }
 
-async function flushCasinoSync() {
-  if (!casinoDirty || !S.code) return;
+async function flushCasinoSync(force = false) {
+  if ((!casinoDirty && !force) || !S.code) return;
   casinoDirty = false;
+  if (casinoSyncTimer) clearTimeout(casinoSyncTimer);
   casinoSyncTimer = null;
   try {
     await api({
@@ -1492,15 +1526,23 @@ async function flushCasinoSync() {
       spent: totalSpent,
       last_daily: LS.get('luzbet_daily',''),
     });
-  } catch(e) { /* silent fail */ }
+  } catch(e) {
+    casinoDirty = true;
+  }
 }
 
 // Sync on page hide/unload
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && casinoDirty) flushCasinoSync();
+  if (document.hidden && casinoDirty) {
+    saveCasinoKeepAlive();
+    flushCasinoSync(true);
+  }
+});
+window.addEventListener('pagehide', () => {
+  if (casinoDirty) saveCasinoKeepAlive();
 });
 window.addEventListener('beforeunload', () => {
-  if (casinoDirty) flushCasinoSync();
+  if (casinoDirty) saveCasinoKeepAlive();
 });
 
 // ══════════════════════════════════════════════
@@ -1523,7 +1565,7 @@ async function flushAchSync() {
     await api({
       action: 'syncAch',
       code: S.code,
-      ids: JSON.stringify([...unlockedAch]),
+      ids: JSON.stringify(cleanAchIds([...unlockedAch])),
     });
   } catch(e) { /* silent fail */ }
 }
@@ -1536,6 +1578,7 @@ document.addEventListener('visibilitychange', () => {
 //  ACHIEVEMENTS
 // ══════════════════════════════════════════════
 function unlockAch(id){
+  if(!isKnownAch(id))return;
   if(unlockedAch.has(id))return;
   unlockedAch.add(id);
   scheduleAchSync(); // sync to Supabase
@@ -1679,9 +1722,17 @@ function showPage(id){
 // ══════════════════════════════════════════════
 //  MODAL
 // ══════════════════════════════════════════════
-function closeWarning(){document.getElementById('warning-modal').classList.add('hidden');toast('Добро пожаловать. Удачи. Хотя зачем. 🎰','info');}
+function acceptWarning(){
+  LS.set('luzbet_rules_accepted','1');
+  const modal=document.getElementById('warning-modal');
+  if(modal) modal.classList.add('hidden');
+}
+function closeWarning(){
+  acceptWarning();
+  toast('Добро пожаловать. Удачи. Хотя зачем. 🎰','info');
+}
 function closeWarningMeme(){
-  document.getElementById('warning-modal').classList.add('hidden');
+  acceptWarning();
   unlockAch('sam_reshu');
   toast('САМ РЕШУ 😤 Добро пожаловать в ЛузБет!','win',3000);
 }
@@ -3360,9 +3411,7 @@ async function loadAchFromSheets(code) {
     const r = await api({ action: 'getAchievements', code });
 
     if (r.ok && Array.isArray(r.achievements)) {
-      r.achievements
-        .filter(id => ALL_ACHIEVEMENTS.some(a => a.id === id))
-        .forEach(id => unlockedAch.add(id));
+      cleanAchIds(r.achievements).forEach(id => unlockedAch.add(id));
     }
 
     renderAchievements();
@@ -4024,12 +4073,13 @@ function renderAchLB(achRows, lb) {
   const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
   const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
 
-  // Считаем ачивки по участникам
+  // Считаем только реальные ачивки из ALL_ACHIEVEMENTS и убираем дубли.
   const achMap = {};
   (achRows||[]).forEach(r => {
+    if(!isKnownAch(r.achievement)) return;
     const k = String(r.code).toLowerCase();
     if(!achMap[k]) achMap[k] = { code: r.code, achs: [] };
-    achMap[k].achs.push(r.achievement);
+    if(!achMap[k].achs.includes(r.achievement)) achMap[k].achs.push(r.achievement);
   });
 
   // Добавляем имена из lb
@@ -4084,6 +4134,10 @@ function getVipLabelForSpent(spent) {
 
 // ══ INIT (must be last — all consts/functions must be defined first) ══
 document.addEventListener('DOMContentLoaded', function() {
+  if(LS.get('luzbet_rules_accepted','') === '1'){
+    const modal=document.getElementById('warning-modal');
+    if(modal) modal.classList.add('hidden');
+  }
   saveCoins();
   updateVip();
   checkDaily();
