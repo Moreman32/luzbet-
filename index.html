@@ -1138,16 +1138,27 @@ function codeParam(code) {
   return encodeURIComponent(String(code || '').trim());
 }
 
+function codeEqFilter(code) {
+  return `code=eq.${codeParam(code)}`;
+}
+
 function codeIlikeFilter(code) {
-  // В Google Sheets код проверялся без учёта регистра.
-  // В Supabase eq регистрозависимый, поэтому используем ilike для такого же поведения.
   return `code=ilike.${codeParam(code)}`;
 }
 
 async function getParticipant(code) {
   if (!String(code || '').trim()) return null;
-  const rows = await sbFetch(`/participants?${codeIlikeFilter(code)}&select=code,name&limit=1`);
-  return rows && rows[0] ? rows[0] : null;
+
+  // 1) Сначала точное совпадение, как в таблице participants.
+  let rows = await sbFetch(`/participants?${codeEqFilter(code)}&select=code,name&limit=1`);
+  if (rows && rows[0]) return rows[0];
+
+  // 2) Затем fallback без учёта регистра.
+  rows = await sbFetch(`/participants?${codeIlikeFilter(code)}&select=code,name&limit=1`);
+  if (rows && rows[0]) return rows[0];
+
+  console.warn('Participant not found in Supabase:', code);
+  return null;
 }
 
 async function api(params) {
@@ -1527,8 +1538,8 @@ async function doLogin(){
       if(elapsed<3)unlockAch('fast_login');
       toast('👋 Привет, '+r.name+'! Готов проиграть?','ok');updateNavAfterLogin();setTimeout(()=>announcePlayer(r.name),500);
       // Load casino & achievements from Sheets
-      loadCasinoFromSheets(code);
-      loadAchFromSheets(code);
+      loadCasinoFromSheets(S.code);
+      loadAchFromSheets(S.code);
       if(r.hasVoted){const p=await api({action:'getPrediction',code:S.code});showVoted(p.prediction);}
       else showForm();
       showPage('predict');
