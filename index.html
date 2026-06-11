@@ -2011,6 +2011,7 @@ async function logCasinoEvent(evt){
     await api({
       action:'logCasinoEvent',
       code:S.code,
+      round_id: evt.round_id || '',
       game: evt.game || '',
       event_type: evt.event_type || 'round',
       bet: evt.bet || 0,
@@ -2020,6 +2021,43 @@ async function logCasinoEvent(evt){
     });
     scheduleCasinoStatsReload();
   }catch(e){}
+}
+
+function makeCasinoRoundId(game){
+  return `${S.code || 'guest'}_${game}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
+async function startCasinoRound(game, bet, meta={}){
+  const roundId = makeCasinoRoundId(game);
+  await logCasinoEvent({
+    round_id: roundId,
+    game,
+    event_type: 'round',
+    bet,
+    payout: 0,
+    delta: -bet,
+    meta: {
+      ...meta,
+      status: 'started',
+      forced_loss_if_closed: true
+    }
+  });
+  return roundId;
+}
+
+async function finishCasinoRound(roundId, game, bet, payout, meta={}){
+  await logCasinoEvent({
+    round_id: roundId || '',
+    game,
+    event_type: 'round',
+    bet,
+    payout,
+    delta: payout - bet,
+    meta: {
+      ...meta,
+      status: 'finished'
+    }
+  });
 }
 
 function renderAchievements(){
@@ -2659,11 +2697,13 @@ function renderLB(lb,results){
 // ══════════════════════════════════════════════
 function selectBet(val,el){slotBet=val;document.querySelectorAll('.bet-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
 
-function spinSlots(){
+async function spinSlots(){
   if(coins<slotBet){toast('❌ Недостаточно ЛузКоинов. Это дно, приятель.','err');return;}
   const bet = slotBet;
+  const btn=document.getElementById('spin-btn');
+  btn.disabled=true;
+  const roundId = await startCasinoRound('slots', bet, { source:'spin_start' });
   coins-=bet;spendCoins(bet);saveCoins();unlockAch('slots_first');
-  const btn=document.getElementById('spin-btn');btn.disabled=true;
   [0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('spinning'));
   document.getElementById('slot-result-text').textContent='';
   let t=0,iv=setInterval(()=>{[0,1,2].forEach(i=>document.getElementById('e'+i).textContent=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)]);soundReel();t+=120;if(t>1800)clearInterval(iv);},120);
@@ -2676,14 +2716,14 @@ function spinSlots(){
       const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e];win=bet*8;unlockAch('slots_jackpot');[0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('winner'));
     } else if(rand<0.25){// two match — 22% × ×2.5
       const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)],e2=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e2];win=Math.round(bet*2.5);
-    } else {// no match — 90%
+    } else {// no match
       do{result=[0,1,2].map(()=>SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)]);}while(result[0]===result[1]||result[1]===result[2]||result[0]===result[2]);win=0;
     }
     [0,1,2].forEach(i=>document.getElementById('e'+i).textContent=result[i]);
     [0,1,2].forEach(i=>document.getElementById('r'+i).classList.toggle('winner',rand<0.03));
     if(win>0){coins+=win;saveCoins();document.getElementById('slot-result-text').textContent=`+${win} ЛК! 🎉`;toast(`🎰 Выиграл ${win} ЛузКоинов!`,'win');if(rand<0.03)soundJackpot();onWin(win,'🎰 Слоты');}
     else{document.getElementById('slot-result-text').textContent='Мимо. Как обычно.';onLose();}
-    logCasinoEvent({ game:'slots', bet, payout:win, delta:win-bet, meta:{ result, jackpot: rand<0.03, two_match: rand>=0.03 && rand<0.25 } });
+    finishCasinoRound(roundId, 'slots', bet, win, { result, jackpot: rand<0.03, two_match: rand>=0.03 && rand<0.25 });
     btn.disabled=false;
   },2000);
 }
@@ -2703,14 +2743,15 @@ function bjRenderHands(revealDealer=false){
   const ds=revealDealer?bjScore(dh):bjVal(dh[0].v);
   document.getElementById('dealer-score').innerHTML=revealDealer?`<b>Счёт: ${ds}</b>`:`Открытая карта: ${ds}`;
 }
-function bjDeal(){
+async function bjDeal(){
   const bet=parseInt(document.getElementById('bj-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  document.getElementById('bj-deal-btn').disabled=true;
+  const roundId = await startCasinoRound('blackjack', bet, { source:'deal_start' });
   coins-=bet;spendCoins(bet);saveCoins();unlockAch('bj_first');
   const deck=BJ_DECK();
-  bjState={deck,player:[deck.pop(),deck.pop()],dealer:[deck.pop(),deck.pop()],bet,over:false};
+  bjState={deck,player:[deck.pop(),deck.pop()],dealer:[deck.pop(),deck.pop()],bet,roundId,over:false};
   bjRenderHands();document.getElementById('bj-result').textContent='';document.getElementById('bj-result').className='bj-result';
-  document.getElementById('bj-deal-btn').disabled=true;
   document.getElementById('bj-hit-btn').disabled=false;document.getElementById('bj-stand-btn').disabled=false;
   document.getElementById('bj-new-btn').style.display='none';
   const ps=bjScore(bjState.player);if(ps===21){unlockAch('bj_21');bjStand();}
@@ -2730,22 +2771,17 @@ function bjStand(){
 }
 function bjEnd(result){
   const bet=bjState.bet;
+  const roundId=bjState.roundId;
   const res=document.getElementById('bj-result');
   let payout = 0;
   if(result==='win'){payout=bet*2;coins+=payout;saveCoins();res.textContent='🏆 Победа! +'+bet+' ЛК';res.className='bj-result win';toast('🃏 Победил дилера «Судьбу»! +'+bet+' ЛК','win');onWin(payout,'🃏 Блэкджек');}
   else if(result==='push'){payout=bet;coins+=payout;saveCoins();res.textContent='🤝 Ничья. Возврат.';res.className='bj-result push';toast('🃏 Ничья. Хотя бы не потерял.','info');}
   else if(result==='bust'){res.textContent='💀 Перебор! Судьба довольна.';res.className='bj-result lose';toast('💀 Перебор. Судьба смеётся.','err');onLose();}
   else{res.textContent='😭 Судьба победила. Сюрприз.';res.className='bj-result lose';toast('😭 Проиграл Судьбе. Ожидаемо.','err');onLose();}
-  logCasinoEvent({
-    game:'blackjack',
-    bet,
-    payout,
-    delta:payout-bet,
-    meta:{
-      result,
-      player_score: bjState ? bjScore(bjState.player) : null,
-      dealer_score: bjState ? bjScore(bjState.dealer) : null,
-    }
+  finishCasinoRound(roundId, 'blackjack', bet, payout, {
+    result,
+    player_score: bjState ? bjScore(bjState.player) : null,
+    dealer_score: bjState ? bjScore(bjState.dealer) : null,
   });
   document.getElementById('bj-deal-btn').disabled=false;document.getElementById('bj-new-btn').style.display='block';
 }
@@ -2779,12 +2815,13 @@ function drawWheel(angle=0){
   // center
   ctx.beginPath();ctx.arc(cx,cy,16,0,2*Math.PI);ctx.fillStyle='#111';ctx.fill();ctx.strokeStyle='#ffe600';ctx.lineWidth=2;ctx.stroke();
 }
-function spinWheel(){
+async function spinWheel(){
   if(wheelSpinning)return;
   if(coins<30){toast('❌ Мало ЛузКоинов для спина.','err');return;}
   const bet = 30;
-  coins-=bet;spendCoins(bet);saveCoins();unlockAch('wheel_first');
   wheelSpinning=true;document.getElementById('wheel-btn').disabled=true;document.getElementById('wheel-result').textContent='';
+  const roundId = await startCasinoRound('wheel', bet, { source:'wheel_start' });
+  coins-=bet;spendCoins(bet);saveCoins();unlockAch('wheel_first');
   const totalRot=(Math.random()*4+5)*2*Math.PI,dur=4000;
   const start=performance.now(),startAngle=wheelAngle;
   function frame(now){
@@ -2795,8 +2832,6 @@ function spinWheel(){
     if(progress<1){wheelRaf=requestAnimationFrame(frame);}
     else{
       wheelSpinning=false;document.getElementById('wheel-btn').disabled=false;
-      // determine segment exactly under the top pointer.
-      // Canvas angles start at 3 o'clock, so the top pointer is -PI/2.
       const pointerAngle=-Math.PI/2;
       const arc=2*Math.PI/WHEEL_SEGMENTS.length;
       const relative=((pointerAngle-wheelAngle)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
@@ -2804,7 +2839,7 @@ function spinWheel(){
       const seg=WHEEL_SEGMENTS[idx];
       if(seg.mult>0){coins+=seg.mult;saveCoins();document.getElementById('wheel-result').textContent=`🎉 +${seg.mult} ЛузКоинов!`;toast(`🎡 Колесо: +${seg.mult} ЛК!`,'win');onWin(seg.mult,'🎡 Колесо');}
       else{document.getElementById('wheel-result').textContent='😭 0 ЛК. Ожидаемо.';toast('🎡 0 ЛК. Колесо знает тебя.','err');unlockAch('wheel_zero');onLose();}
-      logCasinoEvent({ game:'wheel', bet, payout:seg.mult, delta:seg.mult-bet, meta:{ segment:seg.label, mult:seg.mult } });
+      finishCasinoRound(roundId, 'wheel', bet, seg.mult, { segment:seg.label, mult:seg.mult });
     }
   }
   wheelRaf=requestAnimationFrame(frame);
@@ -2907,7 +2942,7 @@ function toggleCasinoStats(force){
 //  DICE
 // ══════════════════════════════════════════════
 let lastChanceBusy=false;
-function playLastChance(side){
+async function playLastChance(side){
   if(lastChanceBusy)return;
   if(coins<1){toast('❌ Нужна хотя бы 1 ЛК','err');return;}
   const bet=1;
@@ -2919,6 +2954,7 @@ function playLastChance(side){
   lastChanceBusy=true;
   headBtn.disabled=true;
   tailBtn.disabled=true;
+  const roundId = await startCasinoRound('coinflip', bet, { pick:side, source:'coinflip_start' });
   coins-=bet;spendCoins(bet);saveCoins();
   resultEl.textContent='Монетка крутится...';
   const faces=['🪙','💿','🟡','⚪'];
@@ -2943,13 +2979,7 @@ function playLastChance(side){
       toast('🪙 Не угадал. Монетка бессердечна.','err');
       onLose();
     }
-    logCasinoEvent({
-      game:'coinflip',
-      bet,
-      payout,
-      delta:payout-bet,
-      meta:{ pick:side, result:face, win }
-    });
+    finishCasinoRound(roundId, 'coinflip', bet, payout, { pick:side, result:face, win });
     lastChanceBusy=false;
     headBtn.disabled=false;
     tailBtn.disabled=false;
@@ -2959,13 +2989,14 @@ function playLastChance(side){
 const DICE_FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
 const DICE_PAYOUTS={2:28,3:14,4:10,5:7,6:6,7:5,8:6,9:7,10:10,11:14,12:28};
 let diceSelected=null,diceRolling=false;
-function diceGuess(n,el){
+async function diceGuess(n,el){
   if(diceRolling)return;
   if(coins<20){toast('❌ Нужно 20 ЛК','err');return;}
   const bet = 20;
   document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected'));
   el.classList.add('selected');diceSelected=n;
   diceRolling=true;
+  const roundId = await startCasinoRound('dice', bet, { guess:n, source:'dice_start' });
   coins-=bet;spendCoins(bet);saveCoins();
   document.getElementById('dice-result').textContent='';
   document.getElementById('dice-sum').textContent='?';
@@ -2989,7 +3020,7 @@ function diceGuess(n,el){
     });
     if(win){coins+=payout;spendCoins(0);saveCoins();document.getElementById('dice-result').textContent=`🎲 ТОЧНО! +${payout} ЛК (×${DICE_PAYOUTS[n]})`;toast(`🎲 Угадал! +${payout} ЛК`,'win');recordWin('🎲 Кости',payout);onWin(payout,'🎲 Кости');unlockAch('dice_win');}
     else{document.getElementById('dice-result').textContent=`Выпало ${sum}. Ты ставил на ${n}. Типичная история.`;toast('🎲 Мимо. Сумма была '+sum,'err');onLose();}
-    logCasinoEvent({ game:'dice', bet, payout, delta:payout-bet, meta:{ guess:n, d1, d2, sum, multiplier:DICE_PAYOUTS[n] || 0 } });
+    finishCasinoRound(roundId, 'dice', bet, payout, { guess:n, d1, d2, sum, multiplier:DICE_PAYOUTS[n] || 0 });
     setTimeout(()=>{document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected','hit','miss'));diceRolling=false;diceSelected=null;},1800);
   },1100);
 }
@@ -3062,10 +3093,11 @@ function resetCrashScene(){
   if(boom)boom.classList.remove('show');
   renderCrashScene(1);
 }
-function crashStart(){
+async function crashStart(){
   const bet=parseInt(document.getElementById('crash-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛК','err');return;}
   if(crashState.running)return;
+  const roundId = await startCasinoRound('crash', bet, { source:'crash_start' });
   coins-=bet;spendCoins(bet);saveCoins();
   // determine crash point: heavily skewed low
   const r=Math.random();
@@ -3075,7 +3107,7 @@ function crashStart(){
   else if(r<0.85)crashAt=+(2.5+Math.random()*2.5).toFixed(2);
   else if(r<0.95)crashAt=+(5+Math.random()*5).toFixed(2);
   else crashAt=+(10+Math.random()*20).toFixed(2);
-  crashState={running:true,mult:1,bet,crashAt};
+  crashState={running:true,mult:1,bet,roundId,crashAt};
   document.getElementById('crash-start-btn').disabled=true;
   document.getElementById('crash-cash-btn').disabled=false;
   document.getElementById('crash-result').textContent='';
@@ -3100,7 +3132,7 @@ function crashStart(){
       toast('💥 Краш на '+crashState.crashAt+'×. RIP '+bet+' ЛК','err');onLose();
       soundCrash();addCrashHistory(crashState.crashAt);
       unlockAch('crash_first');
-      logCasinoEvent({ game:'crash', bet, payout:0, delta:-bet, meta:{ result:'crash', crash_at:crashState.crashAt } });
+      finishCasinoRound(crashState.roundId, 'crash', bet, 0, { result:'crash', crash_at:crashState.crashAt });
     }
   },120);
 }
@@ -3118,22 +3150,23 @@ function crashCash(){
   recordWin('🪃 Краш',payout);onWin();
   unlockAch('crash_first');
   if(crashState.mult>=5)unlockAch('crash_5x');
-  logCasinoEvent({ game:'crash', bet:crashState.bet, payout, delta:payout-crashState.bet, meta:{ result:'cashout', multiplier:crashState.mult, crash_at:crashState.crashAt } });
+  finishCasinoRound(crashState.roundId, 'crash', crashState.bet, payout, { result:'cashout', multiplier:crashState.mult, crash_at:crashState.crashAt });
 }
 
 // ══════════════════════════════════════════════
 //  HIGHER LOWER
 // ══════════════════════════════════════════════
-let hlDeck=[],hlCurrent=null,hlBet=0,hlStreakCount=0,hlPot=0;
+let hlDeck=[],hlCurrent=null,hlBet=0,hlStreakCount=0,hlPot=0,hlRoundId='';
 let hlResolving=false;
 const HL_VALS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const HL_NUM={2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,J:11,Q:12,K:13,A:14};
 function hlMakeDeck(){const suits=['♠','♥','♦','♣'];const d=[];suits.forEach(s=>HL_VALS.forEach(v=>d.push({v,s,n:HL_NUM[v]})));return d.sort(()=>Math.random()-.5);}
 function hlCardLabel(c){const red=['♥','♦'].includes(c.s);return `<span style="color:${red?'var(--red)':'#111'}">${c.v}${c.s}</span>`;}
-function hlDeal(){
+async function hlDeal(){
   if(coins<15){toast('❌ Нужно 15 ЛК','err');return;}
   hlResolving=false;
   hlDeck=hlMakeDeck();hlStreakCount=0;hlPot=15;
+  hlRoundId = await startCasinoRound('higher_lower', 15, { source:'hl_start' });
   coins-=15;spendCoins(15);saveCoins();
   hlCurrent=hlDeck.pop();
   document.getElementById('hl-current').innerHTML=hlCardLabel(hlCurrent);
@@ -3193,7 +3226,7 @@ function hlCollect(){
   coins+=payout;saveCoins();
   document.getElementById('hl-result').textContent=`💰 Забрал ${hlPot} ЛК! (серия: ${hlStreakCount})`;
   toast(`🎴 Собрал ${hlPot} ЛК!`,'win');recordWin('🎴 Выше-Ниже',hlPot);onWin(hlPot,'🎴 Выше-Ниже');
-  logCasinoEvent({ game:'higher_lower', bet, payout, delta:payout-bet, meta:{ result:'collect', streak:hlStreakCount, pot:hlPot } });
+  finishCasinoRound(hlRoundId, 'higher_lower', bet, payout, { result:'collect', streak:hlStreakCount, pot:hlPot });
   hlEnd(true);
 }
 function hlEnd(won){
@@ -3202,9 +3235,10 @@ function hlEnd(won){
   document.getElementById('hl-deal').textContent='Старт 🃏';document.getElementById('hl-deal').onclick=hlDeal;
   if(!won){
     onLose();
-    logCasinoEvent({ game:'higher_lower', bet:15, payout:0, delta:-15, meta:{ result:'lose', streak:hlStreakCount } });
+    finishCasinoRound(hlRoundId, 'higher_lower', 15, 0, { result:'lose', streak:hlStreakCount });
   }
   hlCurrent=null;
+  hlRoundId='';
 }
 
 // ══════════════════════════════════════════════
@@ -3223,8 +3257,10 @@ async function horseRace(){
   if(selectedHorse===null||horseRunning)return;
   if(coins<30){toast('❌ Нужно 30 ЛК','err');return;}
   const bet = 30;
-  coins-=bet;spendCoins(bet);saveCoins();horseRunning=true;
+  horseRunning=true;
   document.getElementById('horse-start-btn').disabled=true;
+  const roundId = await startCasinoRound('horse', bet, { selected:selectedHorse, source:'horse_start' });
+  coins-=bet;spendCoins(bet);saveCoins();
   document.getElementById('horse-result').textContent='🏁 Скачки начались!';
   setHorseComment(HORSE_COMMENTS.start[Math.floor(Math.random()*HORSE_COMMENTS.start.length)]);
   soundTick();
@@ -3285,17 +3321,11 @@ async function horseRace(){
         document.getElementById('horse-result').textContent=`${HORSES[winner].emoji} ${HORSES[winner].name} победил. Твоя финишировала где-то там.`;
         toast(`🐎 ${HORSES[winner].name} победил. Не твоя.`,'err');onLose();
       }
-      logCasinoEvent({
-        game:'horse',
-        bet,
-        payout,
-        delta:payout-bet,
-        meta:{
-          selected:selectedHorse,
-          winner,
-          selected_name: HORSES[selectedHorse] ? HORSES[selectedHorse].name : '',
-          winner_name: HORSES[winner] ? HORSES[winner].name : '',
-        }
+      finishCasinoRound(roundId, 'horse', bet, payout, {
+        selected:selectedHorse,
+        winner,
+        selected_name: HORSES[selectedHorse] ? HORSES[selectedHorse].name : '',
+        winner_name: HORSES[winner] ? HORSES[winner].name : '',
       });
       unlockAch('horse_first');
       selectedHorse=null;
@@ -3376,7 +3406,7 @@ function buildPlinkoOffsets(slotIndex){
   return offsets;
 }
 
-function dropPlinko(){
+async function dropPlinko(){
   if(plinkoRunning)return;
   if(coins<plinkoBet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   const chip=document.getElementById('plinko-chip');
@@ -3386,6 +3416,7 @@ function dropPlinko(){
   coins-=bet;spendCoins(bet);saveCoins();
   plinkoRunning=true;
   document.getElementById('plinko-btn').disabled=true;
+  const roundId = await startCasinoRound('plinko', bet, { source:'plinko_start' });
   resultEl.textContent='Шарик пошёл искать приключения...';
   document.querySelectorAll('.plinko-slot').forEach(s=>s.classList.remove('hit'));
   const mult=weightedPick(PLINKO_MULTS, PLINKO_WEIGHTS);
@@ -3417,7 +3448,7 @@ function dropPlinko(){
           toast('🟡 Плинко: шарик выбрал 0×','err');
           onLose();
         }
-        logCasinoEvent({ game:'plinko', bet, payout, delta, meta:{ multiplier:mult, slot_index:slotIndex } });
+        finishCasinoRound(roundId, 'plinko', bet, payout, { multiplier:mult, slot_index:slotIndex });
         plinkoRunning=false;
         document.getElementById('plinko-btn').disabled=false;
       },220);
@@ -3444,11 +3475,12 @@ function renderMinesBoard(showAll=false){
   grid.innerHTML=html;
 }
 
-function startMines(){
+async function startMines(){
   const bet=parseInt(document.getElementById('mines-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  const roundId = await startCasinoRound('mines', bet, { source:'mines_start' });
   const cells=[...Array(12).keys()].sort(()=>Math.random()-.5).slice(0,2);
-  minesState={ running:true, bet, mines:new Set(cells), opened:new Set(), multiplier:1, mineCount:2 };
+  minesState={ running:true, roundId, bet, mines:new Set(cells), opened:new Set(), multiplier:1, mineCount:2 };
   coins-=bet;spendCoins(bet);saveCoins();
   document.getElementById('mines-result').textContent='Ищи алмазы. Но не жадничай.';
   document.getElementById('mines-mult').textContent='1.00×';
@@ -3466,7 +3498,7 @@ function clickMine(idx){
     document.getElementById('mines-cash-btn').disabled=true;
     renderMinesBoard(true);
     onLose();
-    logCasinoEvent({ game:'mines', bet:minesState.bet, payout:0, delta:-minesState.bet, meta:{ opened:minesState.opened.size, mine_at:idx } });
+    finishCasinoRound(minesState.roundId, 'mines', minesState.bet, 0, { opened:minesState.opened.size, mine_at:idx });
     return;
   }
   minesState.opened.add(idx);
@@ -3489,13 +3521,13 @@ function cashoutMines(){
   renderMinesBoard(true);
   toast(`💣 Минёр: +${payout} ЛК`,'win');
   onWin(payout,'💣 Минёр');
-  logCasinoEvent({ game:'mines', bet:minesState.bet, payout, delta:payout-minesState.bet, meta:{ opened:minesState.opened.size, multiplier:minesState.multiplier } });
+  finishCasinoRound(minesState.roundId, 'mines', minesState.bet, payout, { opened:minesState.opened.size, multiplier:minesState.multiplier });
 }
 
 // ══════════════════════════════════════════════
 //  TOWER
 // ══════════════════════════════════════════════
-let towerState={ running:false, bet:0, level:0, bombs:[], multipliers:[1.2,1.5,1.9,2.4,3.1,4.2] };
+let towerState={ running:false, roundId:'', bet:0, level:0, bombs:[], multipliers:[1.2,1.5,1.9,2.4,3.1,4.2] };
 
 function renderTower(){
   const grid=document.getElementById('tower-grid');
@@ -3514,16 +3546,17 @@ function renderTower(){
   grid.innerHTML=html;
 }
 
-function startTower(){
+async function startTower(){
   const bet=parseInt(document.getElementById('tower-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   towerState.running=true;
+  document.getElementById('tower-start-btn').disabled=true;
+  towerState.roundId=await startCasinoRound('tower', bet, { source:'tower_start' });
   towerState.bet=bet;
   towerState.level=0;
   towerState.bombs=Array.from({length:6},()=>Math.floor(Math.random()*3));
   coins-=bet;spendCoins(bet);saveCoins();
   document.getElementById('tower-result').textContent='Поднимайся выше. Но одна дверь на этаже ломает мечты.';
-  document.getElementById('tower-start-btn').disabled=true;
   document.getElementById('tower-cash-btn').disabled=true;
   renderTower();
 }
@@ -3550,7 +3583,7 @@ function pickTower(col){
     document.getElementById('tower-start-btn').disabled=false;
     document.getElementById('tower-cash-btn').disabled=true;
     onLose();
-    logCasinoEvent({ game:'tower', bet:towerState.bet, payout:0, delta:-towerState.bet, meta:{ level, bomb_col:bomb, picked:col } });
+    finishCasinoRound(towerState.roundId, 'tower', towerState.bet, 0, { level, bomb_col:bomb, picked:col });
     setTimeout(renderTower,700);
     return;
   }
@@ -3577,7 +3610,7 @@ function cashoutTower(){
   renderTower();
   toast(`🗼 Башня: +${payout} ЛК`,'win');
   onWin(payout,'🗼 Башня');
-  logCasinoEvent({ game:'tower', bet:towerState.bet, payout, delta:payout-towerState.bet, meta:{ level:towerState.level, multiplier:mult } });
+  finishCasinoRound(towerState.roundId, 'tower', towerState.bet, payout, { level:towerState.level, multiplier:mult });
 }
 
 // ══════════════════════════════════════════════
