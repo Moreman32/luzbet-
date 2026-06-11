@@ -1572,6 +1572,13 @@ if (action === 'getAchAll') {
       });
     }
 
+    if (action === 'getMyCasinoStats') {
+      return await sbFunction('get-my-casino-stats', {
+        code,
+        days: parseInt(params.days || 1)
+      });
+    }
+
     return { ok: false, error: 'Неизвестное действие: ' + action };
   } catch (e) {
     console.error(e);
@@ -1754,6 +1761,7 @@ function renderCoinsUI(){
 let casinoStatsReloadTimer = null;
 let casinoStatsLastLoadedCode = '';
 let casinoStatsCache = emptyCasinoStats();
+let casinoCashbackStatsCache = emptyCasinoStats();
 const CASHBACK_DAILY_CAP = 300;
 
 function getTodayKey(){
@@ -1779,7 +1787,7 @@ function getVipCashbackPct(spent=totalSpent){
   return Number(level.cashback_pct || 0);
 }
 
-function getCashbackState(stats=casinoStatsCache){
+function getCashbackState(stats=casinoCashbackStatsCache){
   const sum = stats && stats.summary ? stats.summary : emptyCasinoStats().summary;
   const today = getTodayKey();
   const rawLoss = Math.max(0, -Math.round(Number(sum.net_sum || 0)));
@@ -1789,7 +1797,7 @@ function getCashbackState(stats=casinoStatsCache){
   return { rawLoss, pct, available, claimed, today };
 }
 
-function updateCashbackUI(stats=casinoStatsCache){
+function updateCashbackUI(stats=casinoCashbackStatsCache){
   const amountEl = document.getElementById('cashback-amount');
   const pctEl = document.getElementById('cashback-percent');
   const lossEl = document.getElementById('cashback-loss');
@@ -1947,25 +1955,47 @@ function renderCasinoStats(stats){
       <div class="casino-game-stat-line"><span>Итог</span><strong>—</strong></div>
     </div>
   `;
-  updateCashbackUI(data);
+  updateCashbackUI();
+}
+
+async function loadCasinoCashbackStats(force=false){
+  if(!S.code){
+    casinoCashbackStatsCache = emptyCasinoStats();
+    updateCashbackUI();
+    return;
+  }
+  try{
+    const r = await api({ action:'getMyCasinoStats', code:S.code, days:1 });
+    casinoCashbackStatsCache = (r && r.ok) ? r : emptyCasinoStats();
+  }catch(e){
+    casinoCashbackStatsCache = emptyCasinoStats();
+  }
+  updateCashbackUI();
 }
 
 async function loadCasinoStats(force=false){
-  if(!S.code) { renderCasinoStats(emptyCasinoStats()); return; }
+  if(!S.code) {
+    renderCasinoStats(emptyCasinoStats());
+    await loadCasinoCashbackStats(true);
+    return;
+  }
   if(!force && casinoStatsLastLoadedCode === S.code && document.getElementById('page-casino').classList.contains('active') === false) return;
   try{
     const r = await api({ action:'getCasinoStats', days:7 });
     if(r && r.ok){
       casinoStatsLastLoadedCode = S.code;
       renderCasinoStats(r);
+      await loadCasinoCashbackStats(true);
       return;
     }
   }catch(e){}
   renderCasinoStats(emptyCasinoStats());
+  await loadCasinoCashbackStats(true);
 }
 
 async function claimCasinoCashback(){
   if(!S.code){toast('🔐 Сначала войди в аккаунт','err');return;}
+  await loadCasinoCashbackStats(true);
   const state = getCashbackState();
   if(state.claimed){toast('♻️ Сегодня кешбек уже получен.','info');return;}
   if(state.available <= 0){toast('♻️ Кешбек пока не положен. Нужен минус за сегодня.','info');return;}
@@ -1995,7 +2025,7 @@ async function claimCasinoCashback(){
   } else {
     scheduleCasinoStatsReload();
   }
-  updateCashbackUI();
+  await loadCasinoCashbackStats(true);
 }
 
 function scheduleCasinoStatsReload(){
