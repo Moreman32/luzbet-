@@ -1555,6 +1555,7 @@ if (action === 'getAchAll') {
     if (action === 'logCasinoEvent') {
       return await sbFunction('log-casino-event', {
         code,
+        round_id: params.round_id || '',
         game: params.game || '',
         event_type: params.event_type || 'round',
         bet: parseInt(params.bet || 0),
