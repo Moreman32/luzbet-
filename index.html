@@ -520,14 +520,16 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   left:50%;
   bottom:0;
   width:min(650px,85vw);
-  max-height:80vh;
-  object-fit:contain;
+  aspect-ratio:946/1280;
   z-index:9998;
   pointer-events:none;
   transform:translate(-50%,115%);
   opacity:0;
   transition:transform 1s ease, opacity .25s ease;
   filter:drop-shadow(0 12px 22px rgba(0,0,0,.55));
+  background-position:center bottom;
+  background-repeat:no-repeat;
+  background-size:contain;
 }
 .big-win-pop.show{
   transform:translate(-50%,0);
@@ -603,7 +605,7 @@ try{
 <div id="coin-rain" style="position:fixed;inset:0;pointer-events:none;z-index:9990;overflow:hidden"></div>
 <div id="toast-wrap"></div>
 <!-- BIG WIN POPUP -->
-<img id="big-win-pop" class="big-win-pop" src="big-win1.png" alt="">
+<div id="big-win-pop" class="big-win-pop" aria-hidden="true"></div>
 
 
 <!-- TICKER -->
@@ -2987,32 +2989,30 @@ async function spinWheel(){
   wheelRaf=requestAnimationFrame(frame);
 }
 
-function showBigWinPop(){
+function showBigWinPop(imageSrc){
   const el=document.getElementById('big-win-pop');
   if(!el) return false;
   if(showBigWinPop._active) return false;
   showBigWinPop._active=true;
-  const chosen=bigWinImagePool[Math.floor(Math.random()*bigWinImagePool.length)];
   el.classList.remove('show');
   void el.offsetWidth;
-  el.style.visibility='hidden';
-  el.src=chosen.src;
+  el.style.backgroundImage=`url("${imageSrc}")`;
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    el.style.visibility='';
     el.classList.add('show');
   }));
   clearTimeout(showBigWinPop._timer);
   showBigWinPop._timer=setTimeout(()=>{
     el.classList.remove('show');
-    el.style.visibility='';
     showBigWinPop._active=false;
   },2000);
   return true;
 }
 
 function triggerBigWinEffect(){
-  if(!showBigWinPop()) return;
-  requestAnimationFrame(()=>playBigWinSound());
+  const image=bigWinImagePool[Math.floor(Math.random()*bigWinImagePool.length)];
+  const sound=bigWinSoundPool[Math.floor(Math.random()*bigWinSoundPool.length)];
+  if(!showBigWinPop(image.src)) return;
+  requestAnimationFrame(()=>playBigWinSound(sound));
 }
 
 function onWin(amount=0,game=''){
@@ -3859,6 +3859,7 @@ const bigWinImagePool=['big-win1.png','big-win2.png'].map(src=>{
 const bigWinSoundPool=['grac1.ogg','grac2.ogg','grac3.ogg'].map(src=>{
   const audio=new Audio(src);
   audio.preload='auto';
+  audio.load();
   return audio;
 });
 function getAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}return audioCtx;}
@@ -3873,18 +3874,18 @@ function playTone(freq,dur,type='sine',vol=0.15,delay=0){
   o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+dur+0.05);
 }
 function soundWin(){[0,.08,.16,.24].forEach((d,i)=>playTone([523,659,784,1047][i],.18,'sine',.18,d));}
-function playBigWinSound(){
-  if(!bigWinSoundPool.length)return;
+function playBigWinSound(audio){
+  if(!audio)return;
   if(playBigWinSound._active)return;
   playBigWinSound._active=true;
-  const base=bigWinSoundPool[Math.floor(Math.random()*bigWinSoundPool.length)];
   try{
-    const audio=base.cloneNode();
+    audio.pause();
     audio.currentTime=0;
-    audio.addEventListener('ended',()=>{playBigWinSound._active=false;},{once:true});
-    audio.addEventListener('error',()=>{playBigWinSound._active=false;},{once:true});
+    const done=()=>{playBigWinSound._active=false;};
+    audio.addEventListener('ended',done,{once:true});
+    audio.addEventListener('error',done,{once:true});
     audio.play().catch(()=>{});
-    setTimeout(()=>{playBigWinSound._active=false;},4000);
+    setTimeout(done, Math.max((audio.duration || 0) * 1000 + 250, 4000));
   }catch(e){playBigWinSound._active=false;}
 }
 function soundLose(){playTone(220,.3,'sawtooth',.1);playTone(180,.4,'sawtooth',.08,.15);}
