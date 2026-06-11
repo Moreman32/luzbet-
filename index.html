@@ -1787,7 +1787,8 @@ function unlockAch(id){
 }
 function saveCoins(){
   LS.set('luzbet_coins',coins);
-  scheduleCasinoSync(); // sync to Supabase
+  // До входа это только локальный UI state, в Supabase такое отправлять не нужно.
+  if(S.code) scheduleCasinoSync();
   renderCoinsUI();
 }
 
@@ -2334,11 +2335,36 @@ async function doLogout(){
     await flushCasinoSync(true).catch(() => {});
     await flushAchSync().catch(() => {});
   }
-  S={code:null,name:null,voted:false};sel={};scores={};currentPredictionData={};LS.remove('luzbet_session_code');
+  if (casinoSyncTimer) clearTimeout(casinoSyncTimer);
+  if (achSyncTimer) clearTimeout(achSyncTimer);
+  S={code:null,name:null,voted:false};
+  sel={};
+  scores={};
+  currentPredictionData={};
+  coins=1000;
+  totalSpent=0;
+  unlockedAch=new Set();
+  tabsVisited=new Set();
+  casinoEverOpened=false;
+  sessionWins=[];
+  casinoServerState={ last_daily:'', last_cashback:'' };
+  casinoStatsLastLoadedCode='';
+  casinoStatsCache=emptyCasinoStats();
+  casinoCashbackStatsCache=emptyCasinoStats();
+  casinoDirty=false;
+  achDirty=false;
+  casinoSyncTimer=null;
+  achSyncTimer=null;
+  LS.remove('luzbet_session_code');
+  LS.remove('luzbet_coins');
+  LS.remove('luzbet_spent');
   document.getElementById('code-input').value='';
   document.getElementById('predict-content').innerHTML='';
   document.getElementById('user-bar-predict').style.display='none';
   document.getElementById('save-bar').classList.remove('up');
+  renderCoinsUI();
+  updateVip();
+  renderAchievements();
   updateNavAfterLogin();toast('Сессия завершена. Данные забыты. Как и твои прогнозы.','info');
   showPage('login');
 }
@@ -4818,8 +4844,10 @@ function renderPlayoffVoted(pred, results) {
   });
 
   // Semi
-  const semiTeams = (pred.semi || '').split('|').filter(Boolean);
-  const semiActual = (poRes.semi || []);
+  const semiTeams = String(pred.semi || '').split('|').map(x=>x.trim()).filter(Boolean);
+  const semiActual = Array.isArray(poRes.semi)
+    ? poRes.semi
+    : String(poRes.semi || '').split('|').map(x=>x.trim()).filter(Boolean);
   html += `<div class="po-voted-row" style="flex-wrap:wrap">
     <span class="po-voted-label">🎯 Полуфиналисты</span>
     <div style="display:flex;flex-wrap:wrap;gap:6px;flex:1">`;
