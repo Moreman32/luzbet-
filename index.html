@@ -824,7 +824,14 @@ try{
       <div id="tournament-list"></div>
     </div>
 
-    <div class="casino-stats-panel">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div>
+        <div style="font-family:var(--os);font-size:13px;color:var(--yellow);letter-spacing:1px">📈 СТАТИСТИКА КАЗИНО</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Подробная статистика по дням и по каждой игре.</div>
+      </div>
+      <button class="btn btn-ghost" onclick="toggleCasinoStats()" style="height:36px;font-size:12px" id="casino-stats-toggle-btn">Показать →</button>
+    </div>
+    <div class="casino-stats-panel" id="casino-stats-panel" style="display:none">
       <div class="casino-stats-head">
         <div>
           <div class="casino-stats-title">📈 Статистика казино</div>
@@ -892,21 +899,6 @@ try{
     </div>
 
     <div id="casino-games" class="casino-games">
-
-      <!-- LAST CHANCE -->
-      <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title">🪙 Последний шанс</span><span class="cgc-rtp">1 ЛК • орёл или решка</span></div>
-        <div class="cgc-body">
-          <div style="display:flex;align-items:center;justify-content:center;height:84px;background:var(--dark);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
-            <div id="last-coin" style="font-size:42px;line-height:1;filter:drop-shadow(0 0 10px rgba(255,230,0,.18))">🪙</div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button class="btn btn-yellow" id="last-heads-btn" onclick="playLastChance('heads')">ОРЁЛ</button>
-            <button class="btn btn-red" id="last-tails-btn" onclick="playLastChance('tails')">РЕШКА</button>
-          </div>
-          <div id="last-chance-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)">Если осталась 1 ЛК, это твой мини-камбэк.</div>
-        </div>
-      </div>
 
       <!-- SLOTS -->
       <div class="casino-game-card">
@@ -1108,6 +1100,21 @@ try{
             <button class="btn btn-green" id="tower-cash-btn" onclick="cashoutTower()" disabled>Забрать 💰</button>
           </div>
           <div id="tower-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- LAST CHANCE -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">🪙 Последний шанс</span><span class="cgc-rtp">1 ЛК • орёл или решка</span></div>
+        <div class="cgc-body">
+          <div style="display:flex;align-items:center;justify-content:center;height:84px;background:var(--dark);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
+            <div id="last-coin" style="font-size:42px;line-height:1;filter:drop-shadow(0 0 10px rgba(255,230,0,.18))">🪙</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-yellow" id="last-heads-btn" onclick="playLastChance('heads')">ОРЁЛ</button>
+            <button class="btn btn-red" id="last-tails-btn" onclick="playLastChance('tails')">РЕШКА</button>
+          </div>
+          <div id="last-chance-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)">Если осталась 1 ЛК, это твой мини-камбэк.</div>
         </div>
       </div>
 
@@ -2126,7 +2133,7 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();loadCasinoStats();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
@@ -2880,6 +2887,16 @@ function showTournament(){
   if(!sessionWins.length){list.innerHTML='<div style="font-size:13px;color:var(--muted);text-align:center;padding:16px">Пока нет выигрышей. Начни проигрывать — выигрыши появятся между.</div>';return;}
   const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
   list.innerHTML=sessionWins.slice(0,10).map((w,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${medal(i)} ${escapeHtml(w.game)}</span><span style="color:var(--muted);font-size:11px">${escapeHtml(w.time)}</span><span style="font-family:var(--os);color:var(--yellow)">+${w.amount} ЛК</span></div>`).join('');
+}
+
+function toggleCasinoStats(force){
+  const panel=document.getElementById('casino-stats-panel');
+  const btn=document.getElementById('casino-stats-toggle-btn');
+  if(!panel || !btn) return;
+  const shouldOpen = typeof force === 'boolean' ? force : panel.style.display === 'none';
+  panel.style.display = shouldOpen ? 'block' : 'none';
+  btn.textContent = shouldOpen ? 'Скрыть ↑' : 'Показать →';
+  if(shouldOpen) loadCasinoStats(true);
 }
 
 // ══════════════════════════════════════════════
