@@ -602,8 +602,8 @@ try{
 <div id="vasya-bubble" style="display:none" class="vася-bubble"><div class="vася-head"><span class="vася-avatar">🧔</span><div class="vася-name">ЭКСПЕРТ ВАСЯ</div></div><div class="vася-text" id="vasya-text"></div></div>
 <div id="coin-rain" style="position:fixed;inset:0;pointer-events:none;z-index:9990;overflow:hidden"></div>
 <div id="toast-wrap"></div>
-<!-- BIG WIN POPUP: положи PNG без фона рядом с index.html и назови big-win.png -->
-<img id="big-win-pop" class="big-win-pop" src="big-win.png" alt="">
+<!-- BIG WIN POPUP -->
+<img id="big-win-pop" class="big-win-pop" src="big-win1.png" alt="">
 
 
 <!-- TICKER -->
@@ -2990,6 +2990,8 @@ async function spinWheel(){
 function showBigWinPop(){
   const el=document.getElementById('big-win-pop');
   if(!el) return;
+  const variants=['big-win1.png','big-win2.png'];
+  el.src=variants[Math.floor(Math.random()*variants.length)];
   el.classList.remove('show');
   void el.offsetWidth;
   el.classList.add('show');
@@ -3001,10 +3003,15 @@ function showBigWinPop(){
 
 function onWin(amount=0,game=''){
   winStreak++;
-  if(Number(amount)>100)showBigWinPop();
+  const isBigWin=Number(amount)>=100;
+  if(isBigWin){
+    showBigWinPop();
+    playBigWinSound();
+  }else{
+    soundWin();
+  }
   if(winStreak>=3)unlockAch('win_streak3');
   if(winStreak>=5)unlockAch('win_streak5');
-  soundWin();
   if(amount>=50)coinRain(amount);
   if(amount>0&&game)chatNotifyWin(game,amount);
 }
@@ -3831,6 +3838,11 @@ function showBankruptTip(){
 //  SOUND ENGINE (Web Audio API)
 // ══════════════════════════════════════════════
 let audioCtx=null;
+const bigWinSoundPool=['grac1.ogg','grac2.ogg','grac3.ogg'].map(src=>{
+  const audio=new Audio(src);
+  audio.preload='auto';
+  return audio;
+});
 function getAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}return audioCtx;}
 function playTone(freq,dur,type='sine',vol=0.15,delay=0){
   const ctx=getAudio();if(!ctx)return;
@@ -3843,6 +3855,15 @@ function playTone(freq,dur,type='sine',vol=0.15,delay=0){
   o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+dur+0.05);
 }
 function soundWin(){[0,.08,.16,.24].forEach((d,i)=>playTone([523,659,784,1047][i],.18,'sine',.18,d));}
+function playBigWinSound(){
+  if(!bigWinSoundPool.length)return;
+  const base=bigWinSoundPool[Math.floor(Math.random()*bigWinSoundPool.length)];
+  try{
+    const audio=base.cloneNode();
+    audio.currentTime=0;
+    audio.play().catch(()=>{});
+  }catch(e){}
+}
 function soundLose(){playTone(220,.3,'sawtooth',.1);playTone(180,.4,'sawtooth',.08,.15);}
 function soundClick(){playTone(440,.06,'sine',.08);}
 function soundCoin(){[0,.05,.1].forEach((d,i)=>playTone([880,1100,1320][i],.12,'sine',.12,d));}
