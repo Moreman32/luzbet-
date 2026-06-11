@@ -2989,27 +2989,32 @@ async function spinWheel(){
 
 function showBigWinPop(){
   const el=document.getElementById('big-win-pop');
-  if(!el) return;
-  if(showBigWinPop._active) return;
+  if(!el) return false;
+  if(showBigWinPop._active) return false;
   showBigWinPop._active=true;
   const variants=['big-win1.png','big-win2.png'];
   el.src=variants[Math.floor(Math.random()*variants.length)];
   el.classList.remove('show');
   void el.offsetWidth;
-  el.classList.add('show');
+  requestAnimationFrame(()=>el.classList.add('show'));
   clearTimeout(showBigWinPop._timer);
   showBigWinPop._timer=setTimeout(()=>{
     el.classList.remove('show');
     showBigWinPop._active=false;
   },2000);
+  return true;
+}
+
+function triggerBigWinEffect(){
+  if(!showBigWinPop()) return;
+  requestAnimationFrame(()=>playBigWinSound());
 }
 
 function onWin(amount=0,game=''){
   winStreak++;
   const isBigWin=Number(amount)>=100;
   if(isBigWin){
-    showBigWinPop();
-    playBigWinSound();
+    triggerBigWinEffect();
   }else{
     soundWin();
   }
