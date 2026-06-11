@@ -1828,7 +1828,7 @@ function dayKeyFromTimestamp(ts){
 }
 
 function getVipCashbackPct(spent=totalSpent){
-  const level = VIP_LEVELS.slice().reverse().find(v => spent >= v.thresh) || VIP_LEVELS[0];
+  const level = getVipForSpent(spent);
   return Number(level.cashback_pct || 0);
 }
 
@@ -3044,7 +3044,11 @@ const VIP_LEVELS=[
   {name:'👑 МИФИК',thresh:35000,color:'#8e44ad',tc:'#d6a2ff',next:75000,cashback_pct:12},
   {name:'🔥 ИМПЕРАТОР',thresh:75000,color:'#ff6b35',tc:'#ffd1b8',next:null,cashback_pct:15},
 ];
-function getVip(){return VIP_LEVELS.slice().reverse().find(v=>totalSpent>=v.thresh)||VIP_LEVELS[0];}
+function getVipForSpent(spent=0){
+  const spentNum=Math.max(0, parseInt(spent,10) || 0);
+  return VIP_LEVELS.slice().reverse().find(v=>spentNum>=v.thresh)||VIP_LEVELS[0];
+}
+function getVip(){return getVipForSpent(totalSpent);}
 function updateVip(){
   const v=getVip(),badge=document.getElementById('vip-badge');
   if(!badge)return;
@@ -5324,16 +5328,8 @@ function renderAchLB(achRows, lb, participantRows=[]) {
 }
 
 function getVipLabelForSpent(spent) {
-  const levels = [
-    {thresh:75000,name:'🔥 ИМПЕРАТОР'},
-    {thresh:35000,name:'👑 МИФИК'},
-    {thresh:15000,name:'💎 ЛЕГЕНДА'},
-    {thresh:5000, name:'🥇 ЗОЛОТО'},
-    {thresh:2000, name:'🥈 СЕРЕБРО'},
-    {thresh:500,  name:'🥉 БРОНЗА'},
-    {thresh:0,    name:'👤 НОВИЧОК'},
-  ];
-  return (levels.find(l => spent >= l.thresh) || levels[levels.length-1]).name;
+  const vip = getVipForSpent(spent);
+  return vip.thresh > 0 ? vip.name : '👤 НОВИЧОК';
 }
 
 // ══ INIT (must be last — all consts/functions must be defined first) ══
