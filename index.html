@@ -1949,7 +1949,7 @@ async function loadCasinoStats(force=false){
   if(!S.code) { renderCasinoStats(emptyCasinoStats()); return; }
   if(!force && casinoStatsLastLoadedCode === S.code && document.getElementById('page-casino').classList.contains('active') === false) return;
   try{
-    const r = await api({ action:'getCasinoStats', code:S.code, days:7 });
+    const r = await api({ action:'getCasinoStats', days:7 });
     if(r && r.ok){
       casinoStatsLastLoadedCode = S.code;
       renderCasinoStats(r);
