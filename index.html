@@ -893,6 +893,21 @@ try{
 
     <div id="casino-games" class="casino-games">
 
+      <!-- LAST CHANCE -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">🪙 Последний шанс</span><span class="cgc-rtp">1 ЛК • орёл или решка</span></div>
+        <div class="cgc-body">
+          <div style="display:flex;align-items:center;justify-content:center;height:84px;background:var(--dark);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
+            <div id="last-coin" style="font-size:42px;line-height:1;filter:drop-shadow(0 0 10px rgba(255,230,0,.18))">🪙</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-yellow" id="last-heads-btn" onclick="playLastChance('heads')">ОРЁЛ</button>
+            <button class="btn btn-red" id="last-tails-btn" onclick="playLastChance('tails')">РЕШКА</button>
+          </div>
+          <div id="last-chance-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)">Если осталась 1 ЛК, это твой мини-камбэк.</div>
+        </div>
+      </div>
+
       <!-- SLOTS -->
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🎰 Слоты</span><span class="cgc-rtp">RTP: 40% (честно)</span></div>
@@ -1886,6 +1901,7 @@ function renderCasinoStats(stats){
   `);
 
   const gameNames = {
+    coinflip:'🪙 Последний шанс',
     slots:'🎰 Слоты',
     blackjack:'🃏 Блэкджек',
     wheel:'🎡 Колесо',
@@ -2869,6 +2885,56 @@ function showTournament(){
 // ══════════════════════════════════════════════
 //  DICE
 // ══════════════════════════════════════════════
+let lastChanceBusy=false;
+function playLastChance(side){
+  if(lastChanceBusy)return;
+  if(coins<1){toast('❌ Нужна хотя бы 1 ЛК','err');return;}
+  const bet=1;
+  const resultEl=document.getElementById('last-chance-result');
+  const coinEl=document.getElementById('last-coin');
+  const headBtn=document.getElementById('last-heads-btn');
+  const tailBtn=document.getElementById('last-tails-btn');
+  if(!resultEl || !coinEl || !headBtn || !tailBtn) return;
+  lastChanceBusy=true;
+  headBtn.disabled=true;
+  tailBtn.disabled=true;
+  coins-=bet;spendCoins(bet);saveCoins();
+  resultEl.textContent='Монетка крутится...';
+  const faces=['🪙','💿','🟡','⚪'];
+  let ticks=0;
+  const iv=setInterval(()=>{
+    coinEl.textContent=faces[ticks % faces.length];
+    ticks++;
+    if(ticks>=10) clearInterval(iv);
+  },90);
+  setTimeout(()=>{
+    const win = Math.random() < 0.48;
+    const face = win ? side : (side === 'heads' ? 'tails' : 'heads');
+    const payout = win ? 2 : 0;
+    coinEl.textContent = face === 'heads' ? '🦅' : '👑';
+    if(win){
+      coins+=payout;saveCoins();
+      resultEl.textContent=`${face === 'heads' ? 'Орёл' : 'Решка'}! +${payout} ЛК`;
+      toast(`🪙 Последний шанс: +${payout} ЛК`,'win');
+      onWin(payout,'🪙 Последний шанс');
+    } else {
+      resultEl.textContent=`${face === 'heads' ? 'Орёл' : 'Решка'}. Последняя ЛК ушла красиво.`;
+      toast('🪙 Не угадал. Монетка бессердечна.','err');
+      onLose();
+    }
+    logCasinoEvent({
+      game:'coinflip',
+      bet,
+      payout,
+      delta:payout-bet,
+      meta:{ pick:side, result:face, win }
+    });
+    lastChanceBusy=false;
+    headBtn.disabled=false;
+    tailBtn.disabled=false;
+  },1050);
+}
+
 const DICE_FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
 const DICE_PAYOUTS={2:28,3:14,4:10,5:7,6:6,7:5,8:6,9:7,10:10,11:14,12:28};
 let diceSelected=null,diceRolling=false;
