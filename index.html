@@ -195,11 +195,22 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .casino-game-stat-name{font-family:var(--os);font-size:13px;color:var(--white);margin-bottom:8px}
 .casino-game-stat-line{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);margin-bottom:4px}
 .casino-game-stat-line strong{color:var(--white);font-family:var(--os);font-weight:700}
+.cashback-panel{max-width:420px;margin:0 auto 12px;background:linear-gradient(135deg,rgba(255,230,0,.09),rgba(255,255,255,.03));border:1px solid rgba(255,230,0,.2);border-radius:14px;padding:14px 16px}
+.cashback-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.cashback-title{font-family:var(--os);font-size:13px;color:var(--yellow);letter-spacing:1px}
+.cashback-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
+.cashback-value{font-family:var(--os);font-size:24px;color:var(--white);line-height:1}
+.cashback-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 12px}
+.cashback-chip{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.cashback-chip-label{font-size:10px;color:var(--muted);margin-bottom:4px}
+.cashback-chip-value{font-family:var(--os);font-size:13px;color:var(--white)}
+.cashback-note{font-size:10px;color:var(--muted);line-height:1.45}
 @media(max-width:720px){
   .casino-stats-row{grid-template-columns:1fr 1fr;gap:6px}
   .casino-stats-row.head{display:none}
   .casino-stats-day{grid-column:1/-1}
   .casino-stats-cell{text-align:left}
+  .cashback-meta{grid-template-columns:1fr}
 }
 
 /* SLOTS */
@@ -773,6 +784,31 @@ try{
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px"><span id="vip-label">До Бронзы</span><span id="vip-spent-label">0 / 500 ЛК потрачено</span></div>
         <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div id="vip-bar" style="height:100%;background:var(--yellow);border-radius:3px;transition:width .5s;width:0%"></div></div>
       </div>
+      <div class="cashback-panel">
+        <div class="cashback-top">
+          <div>
+            <div class="cashback-title">♻️ КЕШБЕК КАЗИНО</div>
+            <div class="cashback-sub">Возвращаем часть сегодняшнего минуса 1 раз в день. Размер зависит от VIP.</div>
+          </div>
+          <div class="cashback-value" id="cashback-amount">0 ЛК</div>
+        </div>
+        <div class="cashback-meta">
+          <div class="cashback-chip">
+            <div class="cashback-chip-label">VIP ставка</div>
+            <div class="cashback-chip-value" id="cashback-percent">2.0%</div>
+          </div>
+          <div class="cashback-chip">
+            <div class="cashback-chip-label">Минус сегодня</div>
+            <div class="cashback-chip-value" id="cashback-loss">0 ЛК</div>
+          </div>
+          <div class="cashback-chip">
+            <div class="cashback-chip-label">Лимит</div>
+            <div class="cashback-chip-value" id="cashback-limit">300 ЛК</div>
+          </div>
+        </div>
+        <button id="cashback-btn" class="btn btn-yellow btn-full" onclick="claimCasinoCashback()">Забрать кешбек</button>
+        <div class="cashback-note" id="cashback-note" style="margin-top:8px">Сначала надо немного пострадать.</div>
+      </div>
       <button id="daily-btn" class="btn btn-green" onclick="claimDaily()" style="margin-bottom:8px">🎁 Ежедневный бонус +200 ЛК</button>
       <div id="daily-timer" style="font-size:11px;color:var(--muted);margin-bottom:4px;display:none"></div>
       <div class="casino-disclaimer">ЛузКоины не имеют реальной ценности. Вы уже проигрываете просто читая это.</div>
@@ -978,16 +1014,16 @@ try{
         <div class="cgc-head"><span class="cgc-title">🐎 Скачки</span><span class="cgc-rtp">4 лошади • 30 ЛК</span></div>
         <div class="cgc-body">
           <div id="horse-track" style="background:rgba(0,80,20,.2);border:1px solid rgba(0,176,80,.2);border-radius:var(--r);padding:12px;margin-bottom:12px">
-            <div class="horse-lane" id="hl0"><span class="horse-emoji">🐎</span><span class="horse-name">Быстрый Брюс</span><div class="horse-progress"><div class="horse-bar" id="hb0"></div></div><span class="horse-odds-label">×2.0</span></div>
-            <div class="horse-lane" id="hl1"><span class="horse-emoji">🐴</span><span class="horse-name">Медленный Мэт</span><div class="horse-progress"><div class="horse-bar" id="hb1"></div></div><span class="horse-odds-label">×3.5</span></div>
-            <div class="horse-lane" id="hl2"><span class="horse-emoji">🦄</span><span class="horse-name">Единорог-69</span><div class="horse-progress"><div class="horse-bar" id="hb2"></div></div><span class="horse-odds-label">×5.0</span></div>
-            <div class="horse-lane" id="hl3"><span class="horse-emoji">🐌</span><span class="horse-name">Философ (улитка)</span><div class="horse-progress"><div class="horse-bar" id="hb3"></div></div><span class="horse-odds-label">×10.0</span></div>
+            <div class="horse-lane" id="hl0"><span class="horse-emoji">🐎</span><span class="horse-name">Быстрый Брюс</span><div class="horse-progress"><div class="horse-bar" id="hb0"></div></div><span class="horse-odds-label">×1.9</span></div>
+            <div class="horse-lane" id="hl1"><span class="horse-emoji">🐴</span><span class="horse-name">Медленный Мэт</span><div class="horse-progress"><div class="horse-bar" id="hb1"></div></div><span class="horse-odds-label">×3.3</span></div>
+            <div class="horse-lane" id="hl2"><span class="horse-emoji">🦄</span><span class="horse-name">Единорог-69</span><div class="horse-progress"><div class="horse-bar" id="hb2"></div></div><span class="horse-odds-label">×4.8</span></div>
+            <div class="horse-lane" id="hl3"><span class="horse-emoji">🐌</span><span class="horse-name">Философ (улитка)</span><div class="horse-progress"><div class="horse-bar" id="hb3"></div></div><span class="horse-odds-label">×9.5</span></div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px">
-            <button class="horse-bet-btn" onclick="selectHorse(0,this)">🐎 Брюс ×2.0</button>
-            <button class="horse-bet-btn" onclick="selectHorse(1,this)">🐴 Мэт ×3.5</button>
-            <button class="horse-bet-btn" onclick="selectHorse(2,this)">🦄 Единорог ×5.0</button>
-            <button class="horse-bet-btn" onclick="selectHorse(3,this)">🐌 Философ ×10.0</button>
+            <button class="horse-bet-btn" onclick="selectHorse(0,this)">🐎 Брюс ×1.9</button>
+            <button class="horse-bet-btn" onclick="selectHorse(1,this)">🐴 Мэт ×3.3</button>
+            <button class="horse-bet-btn" onclick="selectHorse(2,this)">🦄 Единорог ×4.8</button>
+            <button class="horse-bet-btn" onclick="selectHorse(3,this)">🐌 Философ ×9.5</button>
           </div>
           <div id="horse-commentary" style="background:rgba(0,80,20,.15);border:1px solid rgba(0,176,80,.15);border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--muted);min-height:36px;line-height:1.5;display:none">
             <span style="color:var(--green);font-family:var(--os);font-size:10px;letter-spacing:1px;display:block;margin-bottom:2px">🎙️ КОММЕНТАТОР</span>
@@ -1459,9 +1495,16 @@ if (action === 'getAchAll') {
       return await sbFunction('save-casino', {
         code,
         coins: parseInt(params.coins || 0),
-        spent: parseInt(params.spent || 0),
-        last_daily: params.last_daily || ''
+        spent: parseInt(params.spent || 0)
       });
+    }
+
+    if (action === 'claimDailyBonus') {
+      return await sbFunction('claim-daily-bonus', { code });
+    }
+
+    if (action === 'claimCasinoCashback') {
+      return await sbFunction('claim-casino-cashback', { code });
     }
 
     if (action === 'getAchievements') {
@@ -1529,14 +1572,14 @@ function scorePreds(name,preds,results){
 let casinoSyncTimer = null;
 let casinoDirty = false;
 const CASINO_SYNC_DELAY = 15000; // 15 сек: не долбим БД после каждого клика, но сохраняем быстро
+let casinoServerState = { last_daily: '', last_cashback: '' };
 
 function getCasinoPayload() {
   return {
     code: S.code,
     name: S.name || '',
     coins: parseInt(coins || 0),
-    spent: parseInt(totalSpent || 0),
-    last_daily: LS.get('luzbet_daily','') ? new Date(parseInt(LS.get('luzbet_daily',''))).toISOString() : null
+    spent: parseInt(totalSpent || 0)
   };
 }
 
@@ -1574,7 +1617,6 @@ async function flushCasinoSync(force = false) {
       code: S.code,
       coins: coins,
       spent: totalSpent,
-      last_daily: LS.get('luzbet_daily',''),
     });
     if (!r || !r.ok) casinoDirty = true;
   } catch(e) {
@@ -1684,6 +1726,62 @@ function renderCoinsUI(){
 
 let casinoStatsReloadTimer = null;
 let casinoStatsLastLoadedCode = '';
+let casinoStatsCache = emptyCasinoStats();
+const CASHBACK_DAILY_CAP = 300;
+
+function getTodayKey(){
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const d = String(now.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function dayKeyFromTimestamp(ts){
+  if(!ts) return '';
+  const d = new Date(ts);
+  if(Number.isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function getVipCashbackPct(spent=totalSpent){
+  const level = VIP_LEVELS.slice().reverse().find(v => spent >= v.thresh) || VIP_LEVELS[0];
+  return Number(level.cashback_pct || 0);
+}
+
+function getCashbackState(stats=casinoStatsCache){
+  const sum = stats && stats.summary ? stats.summary : emptyCasinoStats().summary;
+  const today = getTodayKey();
+  const rawLoss = Math.max(0, -Math.round(Number(sum.net_sum || 0)));
+  const pct = getVipCashbackPct();
+  const available = Math.min(CASHBACK_DAILY_CAP, Math.floor(rawLoss * pct / 100));
+  const claimed = dayKeyFromTimestamp(casinoServerState.last_cashback) === today;
+  return { rawLoss, pct, available, claimed, today };
+}
+
+function updateCashbackUI(stats=casinoStatsCache){
+  const amountEl = document.getElementById('cashback-amount');
+  const pctEl = document.getElementById('cashback-percent');
+  const lossEl = document.getElementById('cashback-loss');
+  const limitEl = document.getElementById('cashback-limit');
+  const btn = document.getElementById('cashback-btn');
+  const note = document.getElementById('cashback-note');
+  if(!amountEl || !pctEl || !lossEl || !limitEl || !btn || !note) return;
+  const state = getCashbackState(stats);
+  amountEl.textContent = formatCoins(state.available);
+  pctEl.textContent = `${state.pct.toFixed(1)}%`;
+  lossEl.textContent = formatCoins(state.rawLoss);
+  limitEl.textContent = formatCoins(CASHBACK_DAILY_CAP);
+  btn.disabled = !S.code || state.claimed || state.available <= 0;
+  if(!S.code) note.textContent = 'Кешбек доступен только после входа.';
+  else if(state.claimed) note.textContent = 'Сегодня уже забрал. Возвращайся завтра за новой компенсацией страданий.';
+  else if(state.rawLoss <= 0) note.textContent = 'Сегодня минуса нет. Красавчик, но кешбек тогда не положен.';
+  else if(state.available <= 0) note.textContent = 'Минус слишком маленький, кешбек пока округляется в ноль.';
+  else note.textContent = `Сегодня можешь вернуть ${formatCoins(state.available)} из минуса ${formatCoins(state.rawLoss)} по VIP ставке ${state.pct.toFixed(1)}%.`;
+}
 
 function emptyCasinoStats(){
   return {
@@ -1729,6 +1827,7 @@ function statsDateLabel(dateKey){
 
 function renderCasinoStats(stats){
   const data = stats && stats.ok ? stats : emptyCasinoStats();
+  casinoStatsCache = data;
   const sum = data.summary || emptyCasinoStats().summary;
   const summary = document.getElementById('casino-stats-summary');
   const daysEl = document.getElementById('casino-stats-days');
@@ -1820,6 +1919,7 @@ function renderCasinoStats(stats){
       <div class="casino-game-stat-line"><span>Итог</span><strong>—</strong></div>
     </div>
   `;
+  updateCashbackUI(data);
 }
 
 async function loadCasinoStats(force=false){
@@ -1834,6 +1934,40 @@ async function loadCasinoStats(force=false){
     }
   }catch(e){}
   renderCasinoStats(emptyCasinoStats());
+}
+
+async function claimCasinoCashback(){
+  if(!S.code){toast('🔐 Сначала войди в аккаунт','err');return;}
+  const state = getCashbackState();
+  if(state.claimed){toast('♻️ Сегодня кешбек уже получен.','info');return;}
+  if(state.available <= 0){toast('♻️ Кешбек пока не положен. Нужен минус за сегодня.','info');return;}
+  const r = await api({ action:'claimCasinoCashback', code:S.code });
+  if(!r || !r.ok){toast(r && r.error ? r.error : 'Не удалось получить кешбек.','err');return;}
+  const amount = parseInt(r.amount || 0) || 0;
+  if(amount <= 0){toast('♻️ Сегодня кешбек не положен.','info');return;}
+  casinoServerState.last_cashback = r.last_cashback || new Date().toISOString();
+  coins += amount;
+  saveCoins();
+  toast(`♻️ Кешбек: +${amount} ЛК`,'win',3800);
+  if(r.logged !== true){
+    logCasinoEvent({
+      game:'system',
+      event_type:'bonus',
+      bet:0,
+      payout:amount,
+      delta:amount,
+      meta:{
+        source:'daily_cashback',
+        vip: getVip().name,
+        cashback_percent: state.pct,
+        based_on_loss: state.rawLoss,
+        capped_at: CASHBACK_DAILY_CAP,
+      }
+    });
+  } else {
+    scheduleCasinoStatsReload();
+  }
+  updateCashbackUI();
 }
 
 function scheduleCasinoStatsReload(){
@@ -2508,13 +2642,13 @@ function spinSlots(){
   let t=0,iv=setInterval(()=>{[0,1,2].forEach(i=>document.getElementById('e'+i).textContent=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)]);soundReel();t+=120;if(t>1800)clearInterval(iv);},120);
   setTimeout(()=>{
     [0,1,2].forEach(i=>document.getElementById('r'+i).classList.remove('spinning'));
-    // weighted: mostly loss
+    // softer than before: wins happen more often, but jackpot is smaller
     const rand=Math.random();
     let result,win=0;
-    if(rand<0.02){// jackpot — 2% × ×10 = 20%
-      const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e];win=bet*10;unlockAch('slots_jackpot');[0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('winner'));
-    } else if(rand<0.10){// two match — 8% × ×2 = 16%
-      const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)],e2=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e2];win=bet*2;
+    if(rand<0.03){// jackpot — 3% × ×8
+      const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e];win=bet*8;unlockAch('slots_jackpot');[0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('winner'));
+    } else if(rand<0.25){// two match — 22% × ×2.5
+      const e=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)],e2=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)];result=[e,e,e2];win=Math.round(bet*2.5);
     } else {// no match — 90%
       do{result=[0,1,2].map(()=>SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)]);}while(result[0]===result[1]||result[1]===result[2]||result[0]===result[2]);win=0;
     }
@@ -2522,7 +2656,7 @@ function spinSlots(){
     [0,1,2].forEach(i=>document.getElementById('r'+i).classList.toggle('winner',rand<0.03));
     if(win>0){coins+=win;saveCoins();document.getElementById('slot-result-text').textContent=`+${win} ЛК! 🎉`;toast(`🎰 Выиграл ${win} ЛузКоинов!`,'win');if(rand<0.03)soundJackpot();onWin(win,'🎰 Слоты');}
     else{document.getElementById('slot-result-text').textContent='Мимо. Как обычно.';onLose();}
-    logCasinoEvent({ game:'slots', bet, payout:win, delta:win-bet, meta:{ result, jackpot: rand<0.02, two_match: rand>=0.02 && rand<0.10 } });
+    logCasinoEvent({ game:'slots', bet, payout:win, delta:win-bet, meta:{ result, jackpot: rand<0.03, two_match: rand>=0.03 && rand<0.25 } });
     btn.disabled=false;
   },2000);
 }
@@ -2658,11 +2792,13 @@ function resetCoins(){coins=100;saveCoins();toast('🙏 Получил 100 ЛК 
 // ══════════════════════════════════════════════
 let totalSpent = parseInt(LS.get('luzbet_spent','0'));
 const VIP_LEVELS=[
-  {name:'НОВИЧОК',thresh:0,color:'#555',tc:'#888',next:500},
-  {name:'🥉 БРОНЗА',thresh:500,color:'#cd7f32',tc:'#cd7f32',next:2000},
-  {name:'🥈 СЕРЕБРО',thresh:2000,color:'silver',tc:'silver',next:5000},
-  {name:'🥇 ЗОЛОТО',thresh:5000,color:'#ffd700',tc:'#ffd700',next:15000},
-  {name:'💎 ЛЕГЕНДА',thresh:15000,color:'linear-gradient(90deg,#ff6b6b,#ffd700,#00ff88)',tc:'#fff',next:null},
+  {name:'НОВИЧОК',thresh:0,color:'#555',tc:'#888',next:500,cashback_pct:2},
+  {name:'🥉 БРОНЗА',thresh:500,color:'#cd7f32',tc:'#cd7f32',next:2000,cashback_pct:3},
+  {name:'🥈 СЕРЕБРО',thresh:2000,color:'silver',tc:'silver',next:5000,cashback_pct:5},
+  {name:'🥇 ЗОЛОТО',thresh:5000,color:'#ffd700',tc:'#ffd700',next:15000,cashback_pct:7},
+  {name:'💎 ЛЕГЕНДА',thresh:15000,color:'#00d084',tc:'#00ffb3',next:35000,cashback_pct:10},
+  {name:'👑 МИФИК',thresh:35000,color:'#8e44ad',tc:'#d6a2ff',next:75000,cashback_pct:12},
+  {name:'🔥 ИМПЕРАТОР',thresh:75000,color:'#ff6b35',tc:'#ffd1b8',next:null,cashback_pct:15},
 ];
 function getVip(){return VIP_LEVELS.slice().reverse().find(v=>totalSpent>=v.thresh)||VIP_LEVELS[0];}
 function updateVip(){
@@ -2681,6 +2817,7 @@ function updateVip(){
     document.getElementById('vip-label').textContent='Максимальный уровень';
     document.getElementById('vip-spent-label').textContent='Потрачено: '+totalSpent+' ЛК';
   }
+  updateCashbackUI();
 }
 function spendCoins(n){totalSpent+=n;LS.set('luzbet_spent',totalSpent);updateVip();}
 
@@ -2688,17 +2825,27 @@ function spendCoins(n){totalSpent+=n;LS.set('luzbet_spent',totalSpent);updateVip
 //  DAILY BONUS
 // ══════════════════════════════════════════════
 function checkDaily(){
-  const last=parseInt(LS.get('luzbet_daily','0'));
-  const now=Date.now(),diff=now-last,btn=document.getElementById('daily-btn'),timer=document.getElementById('daily-timer');
+  const lastRaw=casinoServerState.last_daily || '';
+  const lastTs=lastRaw ? new Date(lastRaw).getTime() : 0;
+  const now=Date.now(),diff=now-lastTs,btn=document.getElementById('daily-btn'),timer=document.getElementById('daily-timer');
   if(!btn)return;
-  if(diff>=86400000){btn.disabled=false;btn.textContent='🎁 Ежедневный бонус +200 ЛК';if(timer)timer.style.display='none';}
+  if(!lastTs || diff>=86400000){btn.disabled=false;btn.textContent='🎁 Ежедневный бонус +200 ЛК';if(timer)timer.style.display='none';}
   else{btn.disabled=true;btn.textContent='🎁 Бонус получен';const left=86400000-diff;const h=Math.floor(left/3600000),m=Math.floor((left%3600000)/60000);if(timer){timer.style.display='block';timer.textContent='Следующий бонус через '+h+'ч '+m+'м';}}
 }
-function claimDaily(){
-  LS.set('luzbet_daily',Date.now());
-  coins+=200;saveCoins();toast('🎁 +200 ЛК ежедневный бонус!','win',4000);checkDaily();
+async function claimDaily(){
+  if(!S.code){toast('🔐 Сначала войди в аккаунт','err');return;}
+  const r = await api({ action:'claimDailyBonus', code:S.code });
+  if(!r || !r.ok){toast(r && r.error ? r.error : 'Не удалось получить бонус.','err');return;}
+  const amount = parseInt(r.amount || 0) || 0;
+  if(amount <= 0){toast('🎁 Сегодня бонус уже получен.','info');checkDaily();return;}
+  casinoServerState.last_daily = r.last_daily || new Date().toISOString();
+  coins+=amount;saveCoins();toast(`🎁 +${amount} ЛК ежедневный бонус!`,'win',4000);checkDaily();
   unlockAch('daily_bonus');
-  logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:200, delta:200, meta:{ source:'daily_bonus' } });
+  if(r.logged !== true){
+    logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:amount, delta:amount, meta:{ source:'daily_bonus' } });
+  } else {
+    scheduleCasinoStatsReload();
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -2723,6 +2870,7 @@ function showTournament(){
 //  DICE
 // ══════════════════════════════════════════════
 const DICE_FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const DICE_PAYOUTS={2:28,3:14,4:10,5:7,6:6,7:5,8:6,9:7,10:10,11:14,12:28};
 let diceSelected=null,diceRolling=false;
 function diceGuess(n,el){
   if(diceRolling)return;
@@ -2746,16 +2894,15 @@ function diceGuess(n,el){
     document.getElementById('dice2').textContent=DICE_FACES[d2-1];
     document.getElementById('dice-sum').textContent=sum;
     const win=n===sum;
-    // payout: harder numbers pay more
-    const payouts={2:12,3:8,4:5,5:4,6:3,7:2,8:3,9:4,10:5,11:8,12:12}; // RTP≈44%
-    const payout=win?bet*payouts[n]:0;
+    // Softer payouts: редкие числа платят сильно больше, центр чаще заходит и тоже не обижает.
+    const payout=win?bet*DICE_PAYOUTS[n]:0;
     document.querySelectorAll('.dice-num-btn').forEach(b=>{
       if(parseInt(b.textContent)===sum)b.classList.add('hit');
       else if(b.classList.contains('selected'))b.classList.add('miss');
     });
-    if(win){coins+=payout;spendCoins(0);saveCoins();document.getElementById('dice-result').textContent=`🎲 ТОЧНО! +${payout} ЛК (×${payouts[n]})`;toast(`🎲 Угадал! +${payout} ЛК`,'win');recordWin('🎲 Кости',payout);onWin(payout,'🎲 Кости');unlockAch('dice_win');}
+    if(win){coins+=payout;spendCoins(0);saveCoins();document.getElementById('dice-result').textContent=`🎲 ТОЧНО! +${payout} ЛК (×${DICE_PAYOUTS[n]})`;toast(`🎲 Угадал! +${payout} ЛК`,'win');recordWin('🎲 Кости',payout);onWin(payout,'🎲 Кости');unlockAch('dice_win');}
     else{document.getElementById('dice-result').textContent=`Выпало ${sum}. Ты ставил на ${n}. Типичная история.`;toast('🎲 Мимо. Сумма была '+sum,'err');onLose();}
-    logCasinoEvent({ game:'dice', bet, payout, delta:payout-bet, meta:{ guess:n, d1, d2, sum, multiplier:payouts[n] || 0 } });
+    logCasinoEvent({ game:'dice', bet, payout, delta:payout-bet, meta:{ guess:n, d1, d2, sum, multiplier:DICE_PAYOUTS[n] || 0 } });
     setTimeout(()=>{document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected','hit','miss'));diceRolling=false;diceSelected=null;},1800);
   },1100);
 }
@@ -2976,7 +3123,7 @@ function hlEnd(won){
 // ══════════════════════════════════════════════
 //  HORSES
 // ══════════════════════════════════════════════
-const HORSES=[{name:'Быстрый Брюс',emoji:'🐎',odds:2.0},{name:'Медленный Мэт',emoji:'🐴',odds:3.5},{name:'Единорог-69',emoji:'🦄',odds:5.0},{name:'Философ (улитка)',emoji:'🐌',odds:10.0}];
+const HORSES=[{name:'Быстрый Брюс',emoji:'🐎',odds:1.9},{name:'Медленный Мэт',emoji:'🐴',odds:3.3},{name:'Единорог-69',emoji:'🦄',odds:4.8},{name:'Философ (улитка)',emoji:'🐌',odds:9.5}];
 let selectedHorse=null,horseRunning=false;
 function selectHorse(idx,el){
   if(horseRunning)return;
@@ -3036,8 +3183,9 @@ async function horseRace(){
       document.getElementById('horse-start-btn').disabled=false;
 
       const win=winner===selectedHorse;
-      // house edge: выплата = odds * 0.55 * ставка
-      const payout=win?Math.floor(bet*HORSES[winner].odds*0.55):0;
+      // Для игрока выплата должна ощущаться как настоящие коэффициенты:
+      // фаворит дает умеренную прибыль, а не жалкие +3 ЛК с ставки 30.
+      const payout=win?Math.floor(bet*HORSES[winner].odds):0;
 
       setHorseComment(HORSE_COMMENTS.finish[0](winner,selectedHorse));
 
@@ -4086,18 +4234,14 @@ async function loadCasinoFromSheets(code) {
       // Не смешиваем их с localStorage прошлого пользователя в этом же браузере.
       coins = parseInt(r.coins) || 1000;
       totalSpent = parseInt(r.spent) || 0;
-      // daily bonus
-      const sheetsDaily = r.last_daily || '';
-      const localDaily  = LS.get('luzbet_daily','0');
-      // use whichever is more recent
-      if (sheetsDaily && parseInt(sheetsDaily) > parseInt(localDaily||'0')) {
-        LS.set('luzbet_daily', sheetsDaily);
-      }
+      casinoServerState.last_daily = r.last_daily || '';
+      casinoServerState.last_cashback = r.last_cashback || '';
       LS.set('luzbet_coins', coins);
       LS.set('luzbet_spent', totalSpent);
       renderCoinsUI();
       updateVip();
       checkDaily();
+      updateCashbackUI();
     }
   } catch(e) { /* use local */ }
 }
@@ -4839,6 +4983,8 @@ function renderAchLB(achRows, lb, participantRows=[]) {
 
 function getVipLabelForSpent(spent) {
   const levels = [
+    {thresh:75000,name:'🔥 ИМПЕРАТОР'},
+    {thresh:35000,name:'👑 МИФИК'},
     {thresh:15000,name:'💎 ЛЕГЕНДА'},
     {thresh:5000, name:'🥇 ЗОЛОТО'},
     {thresh:2000, name:'🥈 СЕРЕБРО'},
@@ -4857,6 +5003,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderPlinkoBoard();
   renderMinesBoard(false);
   renderTower();
+  updateCashbackUI();
   saveCoins();
   updateVip();
   checkDaily();

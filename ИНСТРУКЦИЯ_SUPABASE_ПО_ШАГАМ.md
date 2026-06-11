@@ -273,6 +273,8 @@ for each row execute function public.set_updated_at();
 - `save-prediction`
 - `get-casino`
 - `save-casino`
+- `claim-daily-bonus`
+- `claim-casino-cashback`
 - `get-achievements`
 - `sync-achievements`
 - `get-playoff`
@@ -570,12 +572,48 @@ create index if not exists casino_events_created_at_idx
   on public.casino_events (created_at desc);
 ```
 
+И добавь в `casino` отдельное поле для серверного кешбека:
+
+```sql
+alter table public.casino
+  add column if not exists last_cashback timestamp with time zone;
+```
+
 ### Какие функции нужны для статистики казино
 
-Добавь ещё 2 Edge Function:
+Добавь ещё 4 Edge Function:
 
 - `log-casino-event`
 - `get-casino-stats`
+- `claim-daily-bonus`
+- `claim-casino-cashback`
+
+### Что нужно поправить в старых функциях казино
+
+#### `get-casino`
+
+Функция должна возвращать не только:
+
+- `coins`
+- `spent`
+- `last_daily`
+
+но ещё и:
+
+- `last_cashback`
+
+#### `save-casino`
+
+Очень важно:
+
+- `save-casino` больше не должна принимать `last_daily` от клиента;
+- `save-casino` больше не должна принимать `last_cashback` от клиента;
+- она должна обновлять только:
+  - `coins`
+  - `spent`
+  - `name`
+
+Иначе клиент сможет случайно или специально сбить серверную защиту daily bonus и кешбека.
 
 ### Что делает `log-casino-event`
 
@@ -755,6 +793,311 @@ Deno.serve(async (req) => {
 ```
 
 4. После этого открой таблицу `public.casino_events` и проверь, что строка появилась.
+
+### Готовый код `claim-daily-bonus`
+
+Создай Edge Function с именем:
+
+- `claim-daily-bonus`
+
+И вставь в неё этот код:
+
+```ts
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json; charset=utf-8",
+};
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+
+const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+const DAILY_BONUS_AMOUNT = 200;
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeaders });
+}
+
+function sameUtcDay(a: string | null | undefined, b: Date) {
+  if (!a) return false;
+  const d = new Date(a);
+  return (
+    d.getUTCFullYear() === b.getUTCFullYear() &&
+    d.getUTCMonth() === b.getUTCMonth() &&
+    d.getUTCDate() === b.getUTCDate()
+  );
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") {
+    return json({ ok: false, error: "Method not allowed" }, 405);
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const code = String(body?.code || "").trim();
+
+    if (!code) {
+      return json({ ok: false, error: "code is required" }, 400);
+    }
+
+    const { data: participant, error: participantError } = await sb
+      .from("participants")
+      .select("code, name")
+      .eq("code", code)
+      .maybeSingle();
+
+    if (participantError) return json({ ok: false, error: participantError.message }, 500);
+    if (!participant) return json({ ok: false, error: "participant not found" }, 404);
+
+    const { data: casinoRow, error: casinoError } = await sb
+      .from("casino")
+      .select("code, name, coins, spent, last_daily, last_cashback")
+      .eq("code", code)
+      .maybeSingle();
+
+    if (casinoError) return json({ ok: false, error: casinoError.message }, 500);
+
+    const now = new Date();
+    if (sameUtcDay(casinoRow?.last_daily, now)) {
+      return json({
+        ok: true,
+        amount: 0,
+        last_daily: casinoRow?.last_daily || now.toISOString(),
+        logged: true,
+      });
+    }
+
+    const nextCoins = (Number(casinoRow?.coins || 1000) || 1000) + DAILY_BONUS_AMOUNT;
+    const nextSpent = Number(casinoRow?.spent || 0) || 0;
+    const last_cashback = casinoRow?.last_cashback || null;
+    const last_daily = now.toISOString();
+
+    const { error: upsertError } = await sb.from("casino").upsert({
+      code,
+      name: casinoRow?.name || participant.name || "",
+      coins: nextCoins,
+      spent: nextSpent,
+      last_daily,
+      last_cashback,
+    }, { onConflict: "code" });
+
+    if (upsertError) return json({ ok: false, error: upsertError.message }, 500);
+
+    const { error: logError } = await sb.from("casino_events").insert({
+      code,
+      game: "system",
+      event_type: "bonus",
+      bet: 0,
+      payout: DAILY_BONUS_AMOUNT,
+      delta: DAILY_BONUS_AMOUNT,
+      meta: { source: "daily_bonus" },
+    });
+
+    if (logError) return json({ ok: false, error: logError.message }, 500);
+
+    return json({
+      ok: true,
+      amount: DAILY_BONUS_AMOUNT,
+      last_daily,
+      logged: true,
+    });
+  } catch (e) {
+    return json(
+      { ok: false, error: e instanceof Error ? e.message : "Unknown error" },
+      500,
+    );
+  }
+});
+```
+
+### Готовый код `claim-casino-cashback`
+
+Создай Edge Function с именем:
+
+- `claim-casino-cashback`
+
+И вставь в неё этот код:
+
+```ts
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json; charset=utf-8",
+};
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+
+const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+const CASHBACK_DAILY_CAP = 300;
+
+const VIP_CASHBACK_LEVELS = [
+  { thresh: 75000, pct: 15 },
+  { thresh: 35000, pct: 12 },
+  { thresh: 15000, pct: 10 },
+  { thresh: 5000, pct: 7 },
+  { thresh: 2000, pct: 5 },
+  { thresh: 500, pct: 3 },
+  { thresh: 0, pct: 2 },
+];
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeaders });
+}
+
+function sameUtcDay(a: string | null | undefined, b: Date) {
+  if (!a) return false;
+  const d = new Date(a);
+  return (
+    d.getUTCFullYear() === b.getUTCFullYear() &&
+    d.getUTCMonth() === b.getUTCMonth() &&
+    d.getUTCDate() === b.getUTCDate()
+  );
+}
+
+function getCashbackPct(spent: number) {
+  return (VIP_CASHBACK_LEVELS.find((x) => spent >= x.thresh) || VIP_CASHBACK_LEVELS[VIP_CASHBACK_LEVELS.length - 1]).pct;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") {
+    return json({ ok: false, error: "Method not allowed" }, 405);
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const code = String(body?.code || "").trim();
+
+    if (!code) {
+      return json({ ok: false, error: "code is required" }, 400);
+    }
+
+    const { data: participant, error: participantError } = await sb
+      .from("participants")
+      .select("code, name")
+      .eq("code", code)
+      .maybeSingle();
+
+    if (participantError) return json({ ok: false, error: participantError.message }, 500);
+    if (!participant) return json({ ok: false, error: "participant not found" }, 404);
+
+    const { data: casinoRow, error: casinoError } = await sb
+      .from("casino")
+      .select("code, name, coins, spent, last_daily, last_cashback")
+      .eq("code", code)
+      .maybeSingle();
+
+    if (casinoError) return json({ ok: false, error: casinoError.message }, 500);
+
+    const now = new Date();
+    if (sameUtcDay(casinoRow?.last_cashback, now)) {
+      return json({
+        ok: true,
+        amount: 0,
+        last_cashback: casinoRow?.last_cashback || now.toISOString(),
+        logged: true,
+      });
+    }
+
+    const dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+    const nextDayStart = new Date(dayStart);
+    nextDayStart.setUTCDate(nextDayStart.getUTCDate() + 1);
+
+    const { data: rows, error: statsError } = await sb
+      .from("casino_events")
+      .select("delta, game, event_type")
+      .eq("code", code)
+      .eq("event_type", "round")
+      .neq("game", "system")
+      .gte("created_at", dayStart.toISOString())
+      .lt("created_at", nextDayStart.toISOString());
+
+    if (statsError) return json({ ok: false, error: statsError.message }, 500);
+
+    const net = (rows || []).reduce((sum, row) => sum + (Number(row.delta || 0) || 0), 0);
+    const rawLoss = Math.max(0, -Math.round(net));
+    const spent = Number(casinoRow?.spent || 0) || 0;
+    const cashbackPct = getCashbackPct(spent);
+    const amount = Math.min(CASHBACK_DAILY_CAP, Math.floor(rawLoss * cashbackPct / 100));
+
+    if (amount <= 0) {
+      return json({
+        ok: true,
+        amount: 0,
+        last_cashback: casinoRow?.last_cashback || null,
+        logged: true,
+      });
+    }
+
+    const nextCoins = (Number(casinoRow?.coins || 1000) || 1000) + amount;
+    const nextSpent = spent;
+    const last_daily = casinoRow?.last_daily || null;
+    const last_cashback = now.toISOString();
+
+    const { error: upsertError } = await sb.from("casino").upsert({
+      code,
+      name: casinoRow?.name || participant.name || "",
+      coins: nextCoins,
+      spent: nextSpent,
+      last_daily,
+      last_cashback,
+    }, { onConflict: "code" });
+
+    if (upsertError) return json({ ok: false, error: upsertError.message }, 500);
+
+    const { error: logError } = await sb.from("casino_events").insert({
+      code,
+      game: "system",
+      event_type: "bonus",
+      bet: 0,
+      payout: amount,
+      delta: amount,
+      meta: {
+        source: "daily_cashback",
+        cashback_percent: cashbackPct,
+        based_on_loss: rawLoss,
+        capped_at: CASHBACK_DAILY_CAP,
+      },
+    });
+
+    if (logError) return json({ ok: false, error: logError.message }, 500);
+
+    return json({
+      ok: true,
+      amount,
+      last_cashback,
+      logged: true,
+    });
+  } catch (e) {
+    return json(
+      { ok: false, error: e instanceof Error ? e.message : "Unknown error" },
+      500,
+    );
+  }
+});
+```
 
 ### Какие `game` уже реально отправляет фронт
 
