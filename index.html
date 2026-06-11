@@ -2990,6 +2990,8 @@ async function spinWheel(){
 function showBigWinPop(){
   const el=document.getElementById('big-win-pop');
   if(!el) return;
+  if(showBigWinPop._active) return;
+  showBigWinPop._active=true;
   const variants=['big-win1.png','big-win2.png'];
   el.src=variants[Math.floor(Math.random()*variants.length)];
   el.classList.remove('show');
@@ -2998,6 +3000,7 @@ function showBigWinPop(){
   clearTimeout(showBigWinPop._timer);
   showBigWinPop._timer=setTimeout(()=>{
     el.classList.remove('show');
+    showBigWinPop._active=false;
   },2000);
 }
 
@@ -3857,12 +3860,17 @@ function playTone(freq,dur,type='sine',vol=0.15,delay=0){
 function soundWin(){[0,.08,.16,.24].forEach((d,i)=>playTone([523,659,784,1047][i],.18,'sine',.18,d));}
 function playBigWinSound(){
   if(!bigWinSoundPool.length)return;
+  if(playBigWinSound._active)return;
+  playBigWinSound._active=true;
   const base=bigWinSoundPool[Math.floor(Math.random()*bigWinSoundPool.length)];
   try{
     const audio=base.cloneNode();
     audio.currentTime=0;
+    audio.addEventListener('ended',()=>{playBigWinSound._active=false;},{once:true});
+    audio.addEventListener('error',()=>{playBigWinSound._active=false;},{once:true});
     audio.play().catch(()=>{});
-  }catch(e){}
+    setTimeout(()=>{playBigWinSound._active=false;},4000);
+  }catch(e){playBigWinSound._active=false;}
 }
 function soundLose(){playTone(220,.3,'sawtooth',.1);playTone(180,.4,'sawtooth',.08,.15);}
 function soundClick(){playTone(440,.06,'sine',.08);}
