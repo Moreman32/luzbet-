@@ -543,49 +543,77 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   width:min(760px,92vw);
   max-height:min(78vh,720px);
   overflow:hidden;
-  background:linear-gradient(180deg,#12040a,#1a0c12 60%,#0e0e14);
-  border:1px solid rgba(255,230,0,.22);
+  background:
+    radial-gradient(circle at top,rgba(255,240,120,.2),transparent 34%),
+    linear-gradient(180deg,#3a0505,#220909 48%,#14070f 100%);
+  border:2px solid rgba(255,230,0,.5);
   border-radius:18px;
-  box-shadow:0 24px 80px rgba(0,0,0,.55);
+  box-shadow:0 28px 110px rgba(0,0,0,.68),0 0 0 4px rgba(255,70,70,.12);
   z-index:10020;
   opacity:0;
   pointer-events:none;
   transition:opacity .22s ease,transform .22s ease;
+}
+.match-rewards-pop::before{
+  content:'';
+  position:absolute;
+  inset:-3px;
+  border-radius:20px;
+  background:linear-gradient(135deg,rgba(255,230,0,.9),rgba(255,75,75,.85),rgba(255,230,0,.75));
+  z-index:-1;
+  filter:blur(18px);
+  opacity:.85;
 }
 .match-rewards-pop.show{
   opacity:1;
   pointer-events:auto;
   transform:translate(-50%,-50%) scale(1);
 }
+.match-rewards-backdrop{
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle at center,rgba(255,230,0,.14),rgba(0,0,0,.88) 42%,rgba(0,0,0,.94));
+  backdrop-filter:blur(7px);
+  z-index:10010;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s ease;
+}
+.match-rewards-backdrop.show{
+  opacity:1;
+  pointer-events:auto;
+}
 .match-rewards-head{
   padding:18px 20px 12px;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  background:linear-gradient(90deg,rgba(255,230,0,.08),rgba(255,80,80,.08));
+  border-bottom:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(90deg,rgba(255,230,0,.22),rgba(255,80,80,.28));
 }
 .match-rewards-title{
   font-family:var(--os);
-  font-size:22px;
-  color:var(--yellow);
+  font-size:24px;
+  color:#fff3a0;
   margin-bottom:6px;
+  text-shadow:0 0 24px rgba(255,230,0,.4);
 }
 .match-rewards-sub{
-  font-size:12px;
-  color:var(--muted);
+  font-size:13px;
+  color:#fff1f1;
 }
 .match-rewards-total{
   margin-top:10px;
   font-family:var(--os);
-  font-size:18px;
-  color:#8fff96;
+  font-size:22px;
+  color:#a8ff8f;
+  text-shadow:0 0 18px rgba(168,255,143,.22);
 }
 .match-rewards-list{
-  padding:14px 16px 18px;
-  max-height:calc(78vh - 118px);
+  padding:14px 16px 10px;
+  max-height:calc(78vh - 182px);
   overflow:auto;
 }
 .match-reward-row{
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.1);
   border-radius:14px;
   padding:12px 14px;
   margin-bottom:10px;
@@ -610,7 +638,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   margin-top:8px;
   font-size:13px;
   line-height:1.45;
-  color:#ffd7d7;
+  color:#ffe1e1;
 }
 .match-reward-delta{
   white-space:nowrap;
@@ -634,6 +662,40 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .match-reward-tag.exact{color:#8fff96;background:rgba(143,255,150,.12)}
 .match-reward-tag.outcome{color:#ffe07a;background:rgba(255,224,122,.12)}
 .match-reward-tag.miss{color:#ff9aa8;background:rgba(255,154,168,.12)}
+.match-rewards-foot{
+  padding:14px 16px 18px;
+  border-top:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.07));
+}
+.match-rewards-lock{
+  font-family:var(--os);
+  font-size:15px;
+  color:#fff0a8;
+  margin-bottom:10px;
+  text-align:center;
+}
+.match-rewards-btn{
+  width:100%;
+  min-height:52px;
+  border:none;
+  border-radius:14px;
+  font-family:var(--os);
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:.4px;
+  color:#2b0909;
+  background:linear-gradient(135deg,#fff06a,#ffcf33 46%,#ff9254 100%);
+  box-shadow:0 14px 28px rgba(255,170,0,.32);
+}
+.match-rewards-btn[disabled]{
+  cursor:not-allowed;
+  color:#6c5b00;
+  background:linear-gradient(135deg,#8b7d1b,#6d5f12);
+  box-shadow:none;
+}
+body.match-rewards-locked{
+  overflow:hidden;
+}
 @media(max-width:480px){
   .big-win-pop{width:min(220px,62vw);max-height:40vh;}
   .match-rewards-title{font-size:18px}
@@ -708,6 +770,7 @@ try{
 <div id="toast-wrap"></div>
 <!-- BIG WIN POPUP -->
 <div id="big-win-pop" class="big-win-pop" aria-hidden="true"></div>
+<div id="match-rewards-backdrop" class="match-rewards-backdrop" aria-hidden="true"></div>
 <div id="match-rewards-pop" class="match-rewards-pop" aria-hidden="true">
   <div class="match-rewards-head">
     <div class="match-rewards-title">МАТЧИ ЗАКОНЧИЛИСЬ. ТЕПЕРЬ ТЕРПИ ВЕРДИКТ.</div>
@@ -715,6 +778,10 @@ try{
     <div class="match-rewards-total" id="match-rewards-total">+0 ЛК</div>
   </div>
   <div class="match-rewards-list" id="match-rewards-list"></div>
+  <div class="match-rewards-foot">
+    <div class="match-rewards-lock" id="match-rewards-lock-text">Обязательный просмотр: осталось 15 сек</div>
+    <button id="match-rewards-ack-btn" class="match-rewards-btn" onclick="ackMatchRewardsPopup()" disabled>СМОТРЮ И ТЕРПЛЮ…</button>
+  </div>
 </div>
 
 
@@ -1754,6 +1821,8 @@ function scorePreds(name,preds,results){
 let matchRewardsPopupTimer = null;
 let matchRewardsPopupActive = false;
 let matchRewardsLastCheckAt = 0;
+let matchRewardsPendingIds = [];
+let matchRewardsUnlockAt = 0;
 
 function getMatchRewardLabel(type){
   if(type==='exact') return { cls:'exact', text:'ТОЧНЫЙ СЧЕТ', icon:'💯' };
@@ -1770,24 +1839,62 @@ function getMatchRewardTeams(groupCode, matchIndex){
 
 function closeMatchRewardsPopup(){
   const popup=document.getElementById('match-rewards-pop');
+  const backdrop=document.getElementById('match-rewards-backdrop');
   if(!popup) return;
   popup.classList.remove('show');
+  if(backdrop) backdrop.classList.remove('show');
+  document.body.classList.remove('match-rewards-locked');
   matchRewardsPopupActive=false;
+  matchRewardsPendingIds=[];
+  matchRewardsUnlockAt=0;
   if(matchRewardsPopupTimer){
     clearTimeout(matchRewardsPopupTimer);
     matchRewardsPopupTimer=null;
   }
 }
 
+function updateMatchRewardsLockUI(){
+  const btn=document.getElementById('match-rewards-ack-btn');
+  const text=document.getElementById('match-rewards-lock-text');
+  if(!btn || !text || !matchRewardsPopupActive) return;
+  const leftMs=Math.max(0, matchRewardsUnlockAt - Date.now());
+  const leftSec=Math.ceil(leftMs / 1000);
+  if(leftSec > 0){
+    btn.disabled=true;
+    btn.textContent=`СМОТРИМ ДО КОНЦА… ${leftSec} СЕК`;
+    text.textContent=`Обязательный просмотр: осталось ${leftSec} сек`;
+    matchRewardsPopupTimer=setTimeout(updateMatchRewardsLockUI, 250);
+    return;
+  }
+  btn.disabled=false;
+  btn.textContent='ЗАБРАТЬ ЛУЗКОИНЫ И ПРИНЯТЬ ПОЗОР';
+  text.textContent='Теперь нажми кнопку. Пока не нажмешь, окно не исчезнет.';
+  matchRewardsPopupTimer=null;
+}
+
+async function ackMatchRewardsPopup(){
+  if(!matchRewardsPopupActive || Date.now() < matchRewardsUnlockAt) return;
+  const ids=[...matchRewardsPendingIds];
+  closeMatchRewardsPopup();
+  if(S.code && ids.length){
+    await api({ action:'markMatchRewardsShown', code:S.code, ids }).catch(()=>null);
+    await loadCasinoFromSheets(S.code).catch(()=>null);
+  }
+}
+
 async function showMatchRewardsPopup(rows){
   if(!Array.isArray(rows) || !rows.length) return;
   const popup=document.getElementById('match-rewards-pop');
+  const backdrop=document.getElementById('match-rewards-backdrop');
   const list=document.getElementById('match-rewards-list');
   const totalEl=document.getElementById('match-rewards-total');
   const subEl=document.getElementById('match-rewards-sub');
-  if(!popup || !list || !totalEl || !subEl) return;
+  const btn=document.getElementById('match-rewards-ack-btn');
+  const lockText=document.getElementById('match-rewards-lock-text');
+  if(!popup || !list || !totalEl || !subEl || !btn || !lockText) return;
 
   const ids = rows.map(r=>parseInt(r.id,10)).filter(Boolean);
+  matchRewardsPendingIds=ids;
   const total = rows.reduce((sum,row)=>sum + (parseInt(row.coins_delta,10) || 0), 0);
   totalEl.textContent = `+${total} ЛК`;
   subEl.textContent = rows.length===1
@@ -1811,17 +1918,17 @@ async function showMatchRewardsPopup(rows){
     </div>`;
   }).join('');
 
+  btn.disabled=true;
+  btn.textContent='СМОТРЮ И ТЕРПЛЮ… 15 СЕК';
+  lockText.textContent='Обязательный просмотр: осталось 15 сек';
+  matchRewardsUnlockAt=Date.now()+15000;
   popup.classList.add('show');
+  if(backdrop) backdrop.classList.add('show');
+  document.body.classList.add('match-rewards-locked');
   matchRewardsPopupActive=true;
 
   if(matchRewardsPopupTimer) clearTimeout(matchRewardsPopupTimer);
-  matchRewardsPopupTimer=setTimeout(async ()=>{
-    closeMatchRewardsPopup();
-    if(S.code && ids.length){
-      await api({ action:'markMatchRewardsShown', code:S.code, ids }).catch(()=>null);
-      await loadCasinoFromSheets(S.code).catch(()=>null);
-    }
-  },10000);
+  updateMatchRewardsLockUI();
 }
 
 async function checkPendingMatchRewards(force=false){
