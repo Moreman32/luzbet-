@@ -535,8 +535,110 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   transform:translate(-50%,0);
   opacity:1;
 }
+.match-rewards-pop{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) scale(.96);
+  width:min(760px,92vw);
+  max-height:min(78vh,720px);
+  overflow:hidden;
+  background:linear-gradient(180deg,#12040a,#1a0c12 60%,#0e0e14);
+  border:1px solid rgba(255,230,0,.22);
+  border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,.55);
+  z-index:10020;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s ease,transform .22s ease;
+}
+.match-rewards-pop.show{
+  opacity:1;
+  pointer-events:auto;
+  transform:translate(-50%,-50%) scale(1);
+}
+.match-rewards-head{
+  padding:18px 20px 12px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  background:linear-gradient(90deg,rgba(255,230,0,.08),rgba(255,80,80,.08));
+}
+.match-rewards-title{
+  font-family:var(--os);
+  font-size:22px;
+  color:var(--yellow);
+  margin-bottom:6px;
+}
+.match-rewards-sub{
+  font-size:12px;
+  color:var(--muted);
+}
+.match-rewards-total{
+  margin-top:10px;
+  font-family:var(--os);
+  font-size:18px;
+  color:#8fff96;
+}
+.match-rewards-list{
+  padding:14px 16px 18px;
+  max-height:calc(78vh - 118px);
+  overflow:auto;
+}
+.match-reward-row{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;
+  padding:12px 14px;
+  margin-bottom:10px;
+}
+.match-reward-line{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.match-reward-match{
+  font-family:var(--os);
+  font-size:15px;
+  color:var(--white);
+}
+.match-reward-pred{
+  margin-top:4px;
+  font-size:11px;
+  color:var(--muted);
+}
+.match-reward-comment{
+  margin-top:8px;
+  font-size:13px;
+  line-height:1.45;
+  color:#ffd7d7;
+}
+.match-reward-delta{
+  white-space:nowrap;
+  font-family:var(--os);
+  font-size:24px;
+  color:#8fff96;
+}
+.match-reward-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:10px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.match-reward-tag.exact{color:#8fff96;background:rgba(143,255,150,.12)}
+.match-reward-tag.outcome{color:#ffe07a;background:rgba(255,224,122,.12)}
+.match-reward-tag.miss{color:#ff9aa8;background:rgba(255,154,168,.12)}
 @media(max-width:480px){
   .big-win-pop{width:min(220px,62vw);max-height:40vh;}
+  .match-rewards-title{font-size:18px}
+  .match-reward-line{flex-direction:column}
+  .match-reward-delta{font-size:20px}
 }
 
 </style>
@@ -606,6 +708,14 @@ try{
 <div id="toast-wrap"></div>
 <!-- BIG WIN POPUP -->
 <div id="big-win-pop" class="big-win-pop" aria-hidden="true"></div>
+<div id="match-rewards-pop" class="match-rewards-pop" aria-hidden="true">
+  <div class="match-rewards-head">
+    <div class="match-rewards-title">МАТЧИ ЗАКОНЧИЛИСЬ. ТЕПЕРЬ ТЕРПИ ВЕРДИКТ.</div>
+    <div class="match-rewards-sub" id="match-rewards-sub">Сейчас тебе напомнят, насколько ты был близок к позору. Или уже в нём.</div>
+    <div class="match-rewards-total" id="match-rewards-total">+0 ЛК</div>
+  </div>
+  <div class="match-rewards-list" id="match-rewards-list"></div>
+</div>
 
 
 <!-- TICKER -->
@@ -1609,6 +1719,17 @@ if (action === 'getAchAll') {
       });
     }
 
+    if (action === 'getPendingMatchRewards') {
+      return await sbFunction('get-pending-match-rewards', { code });
+    }
+
+    if (action === 'markMatchRewardsShown') {
+      return await sbFunction('mark-match-rewards-shown', {
+        code,
+        ids: Array.isArray(params.ids) ? params.ids : []
+      });
+    }
+
     return { ok: false, error: 'Неизвестное действие: ' + action };
   } catch (e) {
     console.error(e);
@@ -1628,6 +1749,92 @@ function scorePreds(name,preds,results){
     detail[g]={predicted,actual,pts:gPts,actScores,predScores};
   }
   return{name,total:teamPts+outPts+scPts,teamPts,outPts,scPts,detail};
+}
+
+let matchRewardsPopupTimer = null;
+let matchRewardsPopupActive = false;
+let matchRewardsLastCheckAt = 0;
+
+function getMatchRewardLabel(type){
+  if(type==='exact') return { cls:'exact', text:'ТОЧНЫЙ СЧЕТ', icon:'💯' };
+  if(type==='outcome') return { cls:'outcome', text:'ИСХОД УГАДАН', icon:'🟡' };
+  return { cls:'miss', text:'ПОЛНЫЙ МРАК', icon:'🪦' };
+}
+
+function getMatchRewardTeams(groupCode, matchIndex){
+  const group = GROUPS[String(groupCode || '').toUpperCase()];
+  const match = group && Array.isArray(group.matches) ? group.matches[matchIndex] : null;
+  if(!match) return `Группа ${escapeHtml(groupCode)} • матч ${Number(matchIndex)+1}`;
+  return `${escapeHtml(match.h)} vs ${escapeHtml(match.a)}`;
+}
+
+function closeMatchRewardsPopup(){
+  const popup=document.getElementById('match-rewards-pop');
+  if(!popup) return;
+  popup.classList.remove('show');
+  matchRewardsPopupActive=false;
+  if(matchRewardsPopupTimer){
+    clearTimeout(matchRewardsPopupTimer);
+    matchRewardsPopupTimer=null;
+  }
+}
+
+async function showMatchRewardsPopup(rows){
+  if(!Array.isArray(rows) || !rows.length) return;
+  const popup=document.getElementById('match-rewards-pop');
+  const list=document.getElementById('match-rewards-list');
+  const totalEl=document.getElementById('match-rewards-total');
+  const subEl=document.getElementById('match-rewards-sub');
+  if(!popup || !list || !totalEl || !subEl) return;
+
+  const ids = rows.map(r=>parseInt(r.id,10)).filter(Boolean);
+  const total = rows.reduce((sum,row)=>sum + (parseInt(row.coins_delta,10) || 0), 0);
+  totalEl.textContent = `+${total} ЛК`;
+  subEl.textContent = rows.length===1
+    ? 'Один матч закончился. И да, тебя по нему уже оценили.'
+    : `Матчей закрыто: ${rows.length}. Коллективный разбор твоих решений готов.`;
+
+  list.innerHTML = rows.map(row=>{
+    const meta=getMatchRewardLabel(String(row.result_type || 'miss'));
+    const actual=`${parseInt(row.actual_home,10)}:${parseInt(row.actual_away,10)}`;
+    const predicted=`${parseInt(row.pred_home,10)}:${parseInt(row.pred_away,10)}`;
+    return `<div class="match-reward-row">
+      <div class="match-reward-tag ${meta.cls}">${meta.icon} ${meta.text}</div>
+      <div class="match-reward-line">
+        <div>
+          <div class="match-reward-match">${getMatchRewardTeams(row.group_code, parseInt(row.match_index,10))} → ${actual}</div>
+          <div class="match-reward-pred">Твой прогноз: ${predicted}</div>
+        </div>
+        <div class="match-reward-delta">+${parseInt(row.coins_delta,10) || 0}</div>
+      </div>
+      <div class="match-reward-comment">${escapeHtml(row.message || '')}</div>
+    </div>`;
+  }).join('');
+
+  popup.classList.add('show');
+  matchRewardsPopupActive=true;
+
+  if(matchRewardsPopupTimer) clearTimeout(matchRewardsPopupTimer);
+  matchRewardsPopupTimer=setTimeout(async ()=>{
+    closeMatchRewardsPopup();
+    if(S.code && ids.length){
+      await api({ action:'markMatchRewardsShown', code:S.code, ids }).catch(()=>null);
+      await loadCasinoFromSheets(S.code).catch(()=>null);
+    }
+  },10000);
+}
+
+async function checkPendingMatchRewards(force=false){
+  if(!S.code || matchRewardsPopupActive) return;
+  const now=Date.now();
+  if(!force && now - matchRewardsLastCheckAt < 30000) return;
+  matchRewardsLastCheckAt=now;
+  try{
+    const r=await api({ action:'getPendingMatchRewards', code:S.code });
+    if(r && r.ok && Array.isArray(r.rewards) && r.rewards.length){
+      await showMatchRewardsPopup(r.rewards);
+    }
+  }catch(e){}
 }
 
 // ══════════════════════════════════════════════
@@ -1707,6 +1914,9 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden && casinoDirty) {
     saveCasinoKeepAlive();
     flushCasinoSync(true);
+  }
+  if (!document.hidden && S.code) {
+    checkPendingMatchRewards();
   }
 });
 window.addEventListener('pagehide', () => {
@@ -2326,6 +2536,7 @@ async function doLogin(){
         showForm();
       }
       showPage('predict');
+      setTimeout(()=>checkPendingMatchRewards(true),900);
     }
   }catch(e){console.error(e);setAlert('login-alert','err','❌ Сервер упал: '+(e.message||e));}
   btn.disabled=false;btn.textContent='ВОЙТИ →';
@@ -2360,6 +2571,8 @@ async function doLogout(){
   LS.remove('luzbet_session_code');
   LS.remove('luzbet_coins');
   LS.remove('luzbet_spent');
+  closeMatchRewardsPopup();
+  matchRewardsLastCheckAt=0;
   document.getElementById('code-input').value='';
   document.getElementById('predict-content').innerHTML='';
   document.getElementById('user-bar-predict').style.display='none';
@@ -5133,6 +5346,7 @@ async function restoreSession(){
     }
     showPage('predict');
     toast('🔐 Сессия восстановлена. Повторно вводить код не нужно.','ok',2500);
+    setTimeout(()=>checkPendingMatchRewards(true),900);
   }catch(e){console.warn('restoreSession failed',e);}
 }
 

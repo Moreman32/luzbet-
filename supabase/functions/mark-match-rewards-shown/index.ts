@@ -1,0 +1,47 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders, json } from "../_shared/admin.ts";
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const code = String(body?.code || "").trim();
+    const ids = Array.isArray(body?.ids)
+      ? body.ids.map((id: unknown) => Number(id)).filter((id: number) => Number.isFinite(id) && id > 0)
+      : [];
+
+    if (!code) {
+      return json({ ok: false, error: "code is required" }, 400);
+    }
+
+    if (!ids.length) {
+      return json({ ok: true, updated: 0 });
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    const { error } = await supabase
+      .from("match_rewards")
+      .update({ shown_at: new Date().toISOString() })
+      .eq("code", code)
+      .in("id", ids);
+
+    if (error) throw error;
+
+    return json({
+      ok: true,
+      updated: ids.length,
+    });
+  } catch (e) {
+    return json(
+      { ok: false, error: e instanceof Error ? e.message : "mark-match-rewards-shown failed" },
+      500,
+    );
+  }
+});

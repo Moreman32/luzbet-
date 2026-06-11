@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, json, requireAdmin } from "../_shared/admin.ts";
+import { settleGroupRewards } from "../_shared/match-rewards.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -47,9 +48,12 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
+    const settlement = await settleGroupRewards(supabase, groupCode);
+
     return json({
       ok: true,
       row: saved,
+      settlement,
     });
   } catch (e) {
     return json(

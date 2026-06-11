@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, json, requireAdmin } from "../_shared/admin.ts";
+import { clearGroupRewards } from "../_shared/match-rewards.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -29,7 +30,9 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
-    return json({ ok: true });
+    const settlement = await clearGroupRewards(supabase, groupCode);
+
+    return json({ ok: true, settlement });
   } catch (e) {
     return json(
       { ok: false, error: e instanceof Error ? e.message : "admin-results-delete failed" },
