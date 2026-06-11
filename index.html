@@ -2206,7 +2206,7 @@ function showPage(id){
   if(id==='profile') updateProfilePage();
   tabsVisited.add(id);
   if(tabsVisited.size>=5)unlockAch('all_tabs');
-  if(id==='leaderboard')loadLeaderboard();
+  if(id==='leaderboard')loadLeaderboard(true);
   if(id==='achievements')renderAchievements();
   if(id==='rules')unlockAch('page_rules');
   if(id==='playoff')loadPlayoffPage();
@@ -2219,7 +2219,7 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();updateCashbackUI();loadCasinoCashbackStats(true);if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
@@ -2639,33 +2639,63 @@ async function showVoted(pred){
 // ══════════════════════════════════════════════
 //  LEADERBOARD
 // ══════════════════════════════════════════════
-async function loadLeaderboard(){
-  document.getElementById('lb-content').innerHTML='<div class="loading-ctr"><div class="spinner"></div><br/><br/>Считаем чужие ошибки...</div>';
-  try{
-    // Перед рейтингом принудительно сохраняем свежие данные текущего игрока.
-    // Иначе после игры в казино рейтинг мог не видеть изменения до отложенной синхронизации.
-    await flushCasinoSync();
-    await flushAchSync();
+async function loadLeaderboard(force=false){
+  const content = document.getElementById('lb-content');
 
-    const r = await api({action:'getLeaderboard'});
-    if(!r.ok)throw new Error();
-    window._lastResults=r.results;
-
-    _lbCache = {
-      lb: r.leaderboard,
-      results: r.results,
-      casinoRows: Array.isArray(r.casinoRows)
-        ? r.casinoRows
-        : r.leaderboard.map(p=>({code:p.code,name:p.name,coins:p.coins||0,spent:p.spent||0})),
-      achRows: Array.isArray(r.achRows)
-        ? r.achRows
-        : r.leaderboard.flatMap(p=>(p.achList||[]).map(a=>({code:p.code,name:p.name,achievement:a}))),
-      participantRows: [],
-    };
-
-    renderLB(r.leaderboard, r.results);
+  // Если все топы уже загружены — просто показываем активную вкладку без нового запроса.
+  if(_lbCache && !force){
+    renderActiveLbTab();
+    return _lbCache;
   }
-  catch(e){document.getElementById('lb-content').innerHTML='<div class="alert alert-err show">Не удалось загрузить.</div>';}
+
+  // Если запрос уже идёт — не запускаем второй параллельный запрос.
+  if(_lbLoadingPromise){
+    return _lbLoadingPromise;
+  }
+
+  if(content){
+    content.innerHTML='<div class="loading-ctr"><div class="spinner"></div><br/><br/>Загружаем все топы сразу...</div>';
+  }
+
+  _lbLoadingPromise = (async()=>{
+    try{
+      // Перед рейтингом принудительно сохраняем свежие данные текущего игрока.
+      // Иначе после игры в казино рейтинг мог не видеть изменения до отложенной синхронизации.
+      await flushCasinoSync();
+      await flushAchSync();
+
+      const r = await api({action:'getLeaderboard'});
+      if(!r.ok) throw new Error(r.error || 'leaderboard failed');
+      window._lastResults = r.results;
+
+      _lbCache = {
+        lb: Array.isArray(r.leaderboard) ? r.leaderboard : [],
+        results: r.results || {},
+        casinoRows: Array.isArray(r.casinoRows)
+          ? r.casinoRows
+          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).map(p=>({code:p.code,name:p.name,coins:p.coins||0,spent:p.spent||0})),
+        achRows: Array.isArray(r.achRows)
+          ? r.achRows
+          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).flatMap(p=>(p.achList||[]).map(a=>({code:p.code,name:p.name,achievement:a}))),
+        participantRows: Array.isArray(r.participantRows) ? r.participantRows : [],
+      };
+
+      // В одном ответе уже лежат все топы: прогнозы, монеты, потрачено и ачивки.
+      // Рендерим текущую активную вкладку, но остальные вкладки будут открываться мгновенно из _lbCache.
+      renderActiveLbTab();
+      return _lbCache;
+    }
+    catch(e){
+      console.error(e);
+      if(content) content.innerHTML='<div class="alert alert-err show">Не удалось загрузить рейтинг.</div>';
+      throw e;
+    }
+    finally{
+      _lbLoadingPromise = null;
+    }
+  })();
+
+  return _lbLoadingPromise;
 }
 
 function renderLB(lb,results){
@@ -4406,7 +4436,6 @@ async function loadCasinoFromSheets(code) {
       updateVip();
       checkDaily();
       updateCashbackUI();
-      loadCasinoCashbackStats(true);
     }
   } catch(e) { /* use local */ }
 }
@@ -5016,20 +5045,33 @@ async function fillLucky(){
 // ══════════════════════════════════════════════
 //  LEADERBOARD TABS
 // ══════════════════════════════════════════════
-let _lbCache = null; // кэш данных
+let _lbCache = null; // кэш всех топов рейтинга
+let _lbLoadingPromise = null;
+let _activeLbTab = 'predictions';
 
-function switchLbTab(tab) {
-  document.querySelectorAll('.lb-sub-tab').forEach(t => t.classList.remove('active'));
-  const el = document.getElementById('lbt-' + tab);
-  if(el) el.classList.add('active');
-
-  if(!_lbCache) { loadLeaderboard(); return; }
+function renderActiveLbTab(){
+  if(!_lbCache) return;
 
   const { lb, results, casinoRows, achRows, participantRows } = _lbCache;
-  if(tab === 'predictions')   renderLB(lb, results);
-  if(tab === 'casino-coins')  renderCasinoLB(casinoRows, lb, 'coins', participantRows);
-  if(tab === 'casino-spent')  renderCasinoLB(casinoRows, lb, 'spent', participantRows);
-  if(tab === 'achievements')  renderAchLB(achRows, lb, participantRows);
+
+  if(_activeLbTab === 'predictions')   renderLB(lb, results);
+  if(_activeLbTab === 'casino-coins')  renderCasinoLB(casinoRows, lb, 'coins', participantRows);
+  if(_activeLbTab === 'casino-spent')  renderCasinoLB(casinoRows, lb, 'spent', participantRows);
+  if(_activeLbTab === 'achievements')  renderAchLB(achRows, lb, participantRows);
+}
+
+function switchLbTab(tab) {
+  _activeLbTab = tab || 'predictions';
+
+  document.querySelectorAll('.lb-sub-tab').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('lbt-' + _activeLbTab);
+  if(el) el.classList.add('active');
+
+  // Если кэш уже есть — переключаем топ мгновенно.
+  // Если кэша ещё нет — грузим одним запросом сразу все топы.
+  if(!_lbCache) { loadLeaderboard(); return; }
+
+  renderActiveLbTab();
 }
 
 function renderCasinoLB(casinoRows, lb, mode, participantRows=[]) {
