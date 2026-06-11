@@ -1652,6 +1652,20 @@ async function flushCasinoSync(force = false) {
       coins: coins,
       spent: totalSpent,
     });
+
+    // Если сервер увидел старую вкладку, он НЕ перезаписывает баланс,
+    // а возвращает актуальные значения. Подтягиваем их в текущую вкладку.
+    if (r && r.ok && r.stale) {
+      coins = parseInt(r.coins || coins) || coins;
+      totalSpent = parseInt(r.spent || totalSpent) || totalSpent;
+      LS.set('luzbet_coins', coins);
+      LS.set('luzbet_spent', totalSpent);
+      renderCoinsUI();
+      updateVip();
+      updateCashbackUI();
+      return;
+    }
+
     if (!r || !r.ok) casinoDirty = true;
   } catch(e) {
     casinoDirty = true;
