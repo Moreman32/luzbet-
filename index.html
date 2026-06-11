@@ -3074,6 +3074,9 @@ async function horseRace(){
 // ══════════════════════════════════════════════
 const PLINKO_MULTS=[0,0.5,0.8,1,1.2,1.5,2,3,5];
 const PLINKO_WEIGHTS=[14,14,12,12,12,10,8,5,2];
+const PLINKO_ROWS=8;
+const PLINKO_HALF_STEP=13;
+const PLINKO_STEP_Y=24;
 let plinkoBet=10,plinkoRunning=false;
 
 function selectPlinkoBet(val,el){
@@ -3100,7 +3103,7 @@ function renderPlinkoBoard(){
   const chip=document.getElementById('plinko-chip');
   if(!board || !slots || !chip) return;
   if(!board.querySelector('.plinko-peg')){
-    const rows=7, startY=28, gapY=28, gapX=26;
+    const rows=PLINKO_ROWS, startY=28, gapY=24, gapX=26;
     for(let row=0;row<rows;row++){
       const count=row+2;
       const startX=120-((count-1)*gapX/2);
@@ -3119,6 +3122,25 @@ function renderPlinkoBoard(){
   chip.style.transform='translateX(-50%)';
 }
 
+function buildPlinkoOffsets(slotIndex){
+  const rights=Math.max(0,Math.min(PLINKO_ROWS, slotIndex));
+  const moves=[
+    ...Array(rights).fill(PLINKO_HALF_STEP),
+    ...Array(PLINKO_ROWS-rights).fill(-PLINKO_HALF_STEP),
+  ];
+  for(let i=moves.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [moves[i],moves[j]]=[moves[j],moves[i]];
+  }
+  const offsets=[];
+  let x=0;
+  moves.forEach(move=>{
+    x+=move;
+    offsets.push(x);
+  });
+  return offsets;
+}
+
 function dropPlinko(){
   if(plinkoRunning)return;
   if(coins<plinkoBet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
@@ -3133,19 +3155,19 @@ function dropPlinko(){
   document.querySelectorAll('.plinko-slot').forEach(s=>s.classList.remove('hit'));
   const mult=weightedPick(PLINKO_MULTS, PLINKO_WEIGHTS);
   const slotIndex=PLINKO_MULTS.indexOf(mult);
-  const path=[-18,12,-10,18,-8,10,0];
+  const offsets=buildPlinkoOffsets(slotIndex);
   let step=0;
   const iv=setInterval(()=>{
-    const x=path[step] ?? 0;
+    const x=offsets[step] ?? offsets[offsets.length-1] ?? 0;
     chip.style.transform=`translateX(calc(-50% + ${x}px))`;
-    chip.style.top=(12 + step*28)+'px';
+    chip.style.top=(12 + step*PLINKO_STEP_Y)+'px';
     step++;
-    if(step>=path.length){
+    if(step>=offsets.length){
       clearInterval(iv);
       setTimeout(()=>{
-        const finalX=((slotIndex-(PLINKO_MULTS.length-1)/2)*26);
+        const finalX=offsets[offsets.length-1] ?? 0;
         chip.style.transform=`translateX(calc(-50% + ${finalX}px))`;
-        chip.style.top='214px';
+        chip.style.top=(12 + (offsets.length-1)*PLINKO_STEP_Y)+'px';
         const payout=Math.round(bet*mult);
         const delta=payout-bet;
         const slotEl=document.getElementById(`plinko-slot-${slotIndex}`);
