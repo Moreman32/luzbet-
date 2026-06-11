@@ -2219,7 +2219,7 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();updateCashbackUI();loadCasinoCashbackStats(true);if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
@@ -4406,6 +4406,7 @@ async function loadCasinoFromSheets(code) {
       updateVip();
       checkDaily();
       updateCashbackUI();
+      loadCasinoCashbackStats(true);
     }
   } catch(e) { /* use local */ }
 }
