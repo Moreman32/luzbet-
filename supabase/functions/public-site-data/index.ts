@@ -1,0 +1,199 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json; charset=utf-8",
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: corsHeaders,
+  });
+}
+
+function normalizeResultRow(row: any) {
+  const d = row?.data || {};
+  if (Array.isArray(d.teams)) {
+    return {
+      teams: d.teams,
+      scores: Array.isArray(d.scores) ? d.scores : [],
+    };
+  }
+  const teams = [d.team1, d.team2].filter(Boolean);
+  const scores: Array<{ h: number | null; a: number | null }> = [];
+  for (let i = 1; i <= 6; i++) {
+    const raw = String(d[`m${i}`] || "").trim();
+    if (!raw) {
+      scores.push({ h: null, a: null });
+      continue;
+    }
+    const sep = raw.includes("-") ? "-" : raw.includes(":") ? ":" : null;
+    if (!sep) {
+      scores.push({ h: null, a: null });
+      continue;
+    }
+    const [h, a] = raw.split(sep).map((v) => Number.parseInt(v, 10));
+    scores.push(Number.isFinite(h) && Number.isFinite(a) ? { h, a } : { h: null, a: null });
+  }
+  return { teams, scores };
+}
+
+function scorePrediction(row: any, results: Record<string, any>) {
+  const pred = row?.data && typeof row.data === "object" ? row.data : {};
+  let teamPts = 0;
+  let outPts = 0;
+  let diffPts = 0;
+  let scPts = 0;
+  const detail: Record<string, any> = {};
+
+  for (const [groupCode, result] of Object.entries(results)) {
+    if (groupCode.startsWith("_")) continue;
+    const raw = String(pred[`group${groupCode}`] || "");
+    const predicted = raw ? raw.split("|").map((s) => s.trim()).filter(Boolean) : [];
+    const actual = Array.isArray((result as any)?.teams) ? (result as any).teams : [];
+    const actScores = Array.isArray((result as any)?.scores) ? (result as any).scores : [];
+    let groupPts = 0;
+
+    predicted.forEach((team) => {
+      if (actual.some((a: string) => a.toLowerCase() === team.toLowerCase())) {
+        teamPts += 1;
+        groupPts += 1;
+      }
+    });
+
+    const predScores: Array<{ h: number; a: number } | null> = [];
+    for (let matchIndex = 0; matchIndex < 6; matchIndex++) {
+      const ph = pred[`group${groupCode}_m${matchIndex}_h`];
+      const pa = pred[`group${groupCode}_m${matchIndex}_a`];
+      const parsedH = ph !== undefined && ph !== "" ? Number.parseInt(ph, 10) : null;
+      const parsedA = pa !== undefined && pa !== "" ? Number.parseInt(pa, 10) : null;
+      predScores.push(parsedH === null || parsedA === null ? null : { h: parsedH, a: parsedA });
+
+      const actualScore = actScores[matchIndex];
+      if (parsedH === null || parsedA === null) continue;
+      if (!actualScore || actualScore.h === null || actualScore.h === undefined) continue;
+
+      const predDiff = parsedH - parsedA;
+      const actDiff = actualScore.h - actualScore.a;
+      const predOutcome = predDiff > 0 ? "h" : predDiff < 0 ? "a" : "d";
+      const actOutcome = actDiff > 0 ? "h" : actDiff < 0 ? "a" : "d";
+
+      if (parsedH === actualScore.h && parsedA === actualScore.a) {
+        scPts += 3;
+        groupPts += 3;
+      } else if (predDiff === actDiff) {
+        diffPts += 2;
+        groupPts += 2;
+      } else if (predOutcome === actOutcome) {
+        outPts += 1;
+        groupPts += 1;
+      }
+    }
+
+    detail[groupCode] = {
+      predicted,
+      actual,
+      pts: groupPts,
+      actScores,
+      predScores,
+    };
+  }
+
+  return {
+    name: row.name,
+    code: row.code,
+    total: teamPts + outPts + diffPts + scPts,
+    teamPts,
+    outPts,
+    diffPts,
+    scPts,
+    playoffPts: 0,
+    detail,
+  };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    const [predictionsRes, resultsRes, casinoRes, achRes] = await Promise.all([
+      supabase.from("predictions").select("id,code,name,data,updated_at").order("updated_at", { ascending: true }).order("id", { ascending: true }),
+      supabase.from("results").select("group_code,data").order("group_code", { ascending: true }),
+      supabase.from("casino").select("code,name,coins,spent").order("code", { ascending: true }),
+      supabase.from("achievements").select("code,achievement").order("id", { ascending: true }),
+    ]);
+
+    if (predictionsRes.error) throw predictionsRes.error;
+    if (resultsRes.error) throw resultsRes.error;
+    if (casinoRes.error) throw casinoRes.error;
+    if (achRes.error) throw achRes.error;
+
+    const results: Record<string, any> = {};
+    for (const row of resultsRes.data || []) {
+      results[String(row.group_code || "").toUpperCase()] = normalizeResultRow(row);
+    }
+
+    const latestPredictions = new Map<string, any>();
+    for (const row of predictionsRes.data || []) {
+      const key = String(row.code || "").trim().toLowerCase();
+      if (!key) continue;
+      latestPredictions.set(key, row);
+    }
+
+    const casinoMap = new Map<string, any>();
+    for (const row of casinoRes.data || []) {
+      casinoMap.set(String(row.code || "").toLowerCase(), row);
+    }
+
+    const achMap = new Map<string, string[]>();
+    for (const row of achRes.data || []) {
+      const key = String(row.code || "").toLowerCase();
+      const next = achMap.get(key) || [];
+      next.push(String(row.achievement || ""));
+      achMap.set(key, next);
+    }
+
+    const leaderboard = [...latestPredictions.values()].map((row) => {
+      const base = scorePrediction(row, results);
+      const casino = casinoMap.get(String(row.code || "").toLowerCase());
+      const achList = achMap.get(String(row.code || "").toLowerCase()) || [];
+      return {
+        ...base,
+        coins: Number(casino?.coins || 0),
+        spent: Number(casino?.spent || 0),
+        achCount: achList.length,
+        achList,
+      };
+    }).sort((a, b) =>
+      b.total - a.total ||
+      b.teamPts - a.teamPts ||
+      b.scPts - a.scPts ||
+      b.diffPts - a.diffPts ||
+      b.outPts - a.outPts ||
+      String(a.name || "").localeCompare(String(b.name || ""), "ru")
+    );
+
+    return json({
+      ok: true,
+      leaderboard,
+      results,
+      casinoRows: casinoRes.data || [],
+      achRows: achRes.data || [],
+    });
+  } catch (e) {
+    return json(
+      { ok: false, error: e instanceof Error ? e.message : "public-site-data failed" },
+      500,
+    );
+  }
+});

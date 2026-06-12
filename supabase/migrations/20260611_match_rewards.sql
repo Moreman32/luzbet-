@@ -8,7 +8,7 @@ create table if not exists public.match_rewards (
   pred_away integer not null,
   actual_home integer not null,
   actual_away integer not null,
-  result_type text not null check (result_type in ('exact', 'outcome', 'miss')),
+  result_type text not null check (result_type in ('exact', 'diff', 'outcome', 'miss')),
   coins_delta integer not null,
   message text not null,
   settled_at timestamptz not null default now(),

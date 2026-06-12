@@ -447,7 +447,7 @@ async function loadChk(){
 
     dedupPreds.forEach(row=>{
       const pred=Object.assign({},row.data||{});
-      let tP=0,oP=0,sP=0;
+      let tP=0,oP=0,dP=0,sP=0;
       let tbody='';
       Object.keys(GROUPS).forEach(g=>{
         const raw=pred['group'+g]||'';
@@ -470,12 +470,17 @@ async function loadChk(){
           if(ph===undefined||ph==='')return;
           const as=actSc[mi];
           if(as&&as.h!==null&&as.h!==undefined){
+            const predDiff=parseInt(ph)-parseInt(pa);
+            const actDiff=as.h-as.a;
             const exact=parseInt(ph)===as.h&&parseInt(pa)===as.a;
-            const po=parseInt(ph)>parseInt(pa)?'h':parseInt(ph)<parseInt(pa)?'a':'d';
-            const ao=as.h>as.a?'h':as.h<as.a?'a':'d';
+            const po=predDiff>0?'h':predDiff<0?'a':'d';
+            const ao=actDiff>0?'h':actDiff<0?'a':'d';
+            const diffOk=predDiff===actDiff;
             const outcOk=po===ao;
-            if(exact){gP+=2;sP+=2;}else if(outcOk){gP++;oP++;}
-            const cls=exact?'hit':outcOk?'hit':'miss';
+            if(exact){gP+=3;sP+=3;}
+            else if(diffOk){gP+=2;dP+=2;}
+            else if(outcOk){gP+=1;oP++;}
+            const cls=exact||diffOk||outcOk?'hit':'miss';
             scHtml+='<span class="'+cls+'" style="margin-right:6px;font-size:11px">'+esc(ph)+':'+esc(pa)+'→'+esc(as.h)+':'+esc(as.a)+'</span>';
           }else if(ph!==''&&ph!==undefined){
             scHtml+='<span class="muted" style="margin-right:6px;font-size:11px">'+esc(ph)+':'+esc(pa)+'?</span>';
@@ -483,12 +488,12 @@ async function loadChk(){
         });
         tbody+='<tr><td style="color:#ffe600;font-size:11px">Гр.'+g+'</td><td>'+teams+'</td><td>'+( scHtml||'<span class="muted">—</span>')+'</td><td class="pts">'+(gP>0?'+'+gP:'0')+'</td></tr>';
       });
-      const tot=tP+oP+sP;
+      const tot=tP+oP+dP+sP;
       html+='<div class="card" style="margin-bottom:12px">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">';
       html+='<div><b style="font-size:15px">'+esc(row.name)+'</b> <span class="muted">'+esc(row.code)+'</span></div>';
       html+='<div style="display:flex;gap:16px">';
-      html+='<span>⚽ <b>'+tP+'</b></span><span>🎯 <b>'+oP+'</b></span><span>💥 <b>'+sP+'</b></span>';
+      html+='<span>⚽ <b>'+tP+'</b></span><span>🎯 <b>'+oP+'</b></span><span>↔️ <b>'+dP+'</b></span><span>💥 <b>'+sP+'</b></span>';
       html+='<span class="pts" style="font-size:22px">'+tot+'</span></div></div>';
       html+='<table><thead><tr><th>Группа</th><th>Команды</th><th>Счёт матчей</th><th>Очки</th></tr></thead><tbody>'+tbody+'</tbody></table></div>';
     });
@@ -514,7 +519,7 @@ async function loadLB(){
     (preds||[]).forEach(row=>{latestPreds[String(row.code).toLowerCase()]=row;});
     const lb=Object.values(latestPreds).map(row=>{
       const pred=Object.assign({},row.data||{});
-      let tot=0,tP=0,oP=0,sP=0;
+      let tot=0,tP=0,oP=0,dP=0,sP=0;
       Object.keys(GROUPS).forEach(g=>{
         const predicted=(pred['group'+g]||'').split('|').map(s=>s.trim()).filter(Boolean);
         const actual=(results[g]&&results[g].teams)||[];
@@ -525,17 +530,21 @@ async function loadLB(){
           const as=actSc[mi];
           if((ph===undefined||ph===''))return;
           if(!as||as.h===null||as.h===undefined)return;
+          const predDiff=parseInt(ph)-parseInt(pa);
+          const actDiff=as.h-as.a;
           const exact=parseInt(ph)===as.h&&parseInt(pa)===as.a;
-          const po=parseInt(ph)>parseInt(pa)?'h':parseInt(ph)<parseInt(pa)?'a':'d';
-          const ao=as.h>as.a?'h':as.h<as.a?'a':'d';
-          if(exact){tot+=2;sP+=2;}else if(po===ao){tot++;oP++;}
+          const po=predDiff>0?'h':predDiff<0?'a':'d';
+          const ao=actDiff>0?'h':actDiff<0?'a':'d';
+          if(exact){tot+=3;sP+=3;}
+          else if(predDiff===actDiff){tot+=2;dP+=2;}
+          else if(po===ao){tot+=1;oP++;}
         });
       });
-      return{name:row.name,code:row.code,tot,tP,oP,sP,coins:casMap[row.code.toLowerCase()]||0,achs:achMap[row.code.toLowerCase()]||0};
+      return{name:row.name,code:row.code,tot,tP,oP,dP,sP,coins:casMap[row.code.toLowerCase()]||0,achs:achMap[row.code.toLowerCase()]||0};
     }).sort((a,b)=>b.tot-a.tot);
     const m=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-    let html='<table><thead><tr><th>#</th><th>Участник</th><th>Итого</th><th>⚽</th><th>🎯</th><th>💥</th><th>🪙 ЛК</th><th>🏅</th></tr></thead><tbody>';
-    lb.forEach((p,i)=>{html+='<tr><td style="font-size:18px">'+m(i)+'</td><td><b>'+esc(p.name)+'</b><br/><span class="muted">'+esc(p.code)+'</span></td><td class="pts" style="font-size:20px">'+p.tot+'</td><td>'+p.tP+'</td><td>'+p.oP+'</td><td>'+p.sP+'</td><td>'+p.coins+'</td><td>'+p.achs+'</td></tr>';});
+    let html='<table><thead><tr><th>#</th><th>Участник</th><th>Итого</th><th>⚽</th><th>🎯</th><th>↔️</th><th>💥</th><th>🪙 ЛК</th><th>🏅</th></tr></thead><tbody>';
+    lb.forEach((p,i)=>{html+='<tr><td style="font-size:18px">'+m(i)+'</td><td><b>'+esc(p.name)+'</b><br/><span class="muted">'+esc(p.code)+'</span></td><td class="pts" style="font-size:20px">'+p.tot+'</td><td>'+p.tP+'</td><td>'+p.oP+'</td><td>'+p.dP+'</td><td>'+p.sP+'</td><td>'+p.coins+'</td><td>'+p.achs+'</td></tr>';});
     el.innerHTML=html+'</tbody></table>';
     log('Таблица обновлена: '+lb.length+' участников','ok');
   }catch(e){el.innerHTML='<p class="err">Ошибка: '+esc(e.message)+'</p>';log(e.message,'err');}
