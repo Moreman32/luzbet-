@@ -1713,6 +1713,24 @@ let coins=parseInt(LS.get('luzbet_coins','1000'));
 let unlockedAch=new Set();
 function isKnownAch(id){return ALL_ACHIEVEMENTS.some(a=>a.id===id);}
 function cleanAchIds(ids){return [...new Set((ids||[]).filter(id=>isKnownAch(id)))];}
+function achStorageKey(code){
+  const key=String(code||'').trim().toLowerCase();
+  return key ? `luzbet_ach_${key}` : '';
+}
+function saveAchLocal(code=S.code){
+  const key=achStorageKey(code);
+  if(!key) return;
+  LS.set(key, JSON.stringify(cleanAchIds([...unlockedAch])));
+}
+function loadAchLocal(code){
+  const key=achStorageKey(code);
+  if(!key) return [];
+  try{
+    return cleanAchIds(JSON.parse(LS.get(key,'[]')));
+  }catch(e){
+    return [];
+  }
+}
 let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRaf=null;
 let loginStartTime=0;
 let tabsVisited=new Set();
@@ -2214,6 +2232,7 @@ async function flushAchSync() {
       ids: JSON.stringify(cleanAchIds([...unlockedAch])),
     });
     if (!r || !r.ok) achDirty = true;
+    else saveAchLocal();
   } catch(e) {
     achDirty = true;
   }
@@ -2251,13 +2270,14 @@ window.addEventListener('beforeunload', () => {
 // ══════════════════════════════════════════════
 //  ACHIEVEMENTS
 // ══════════════════════════════════════════════
-function unlockAch(id){
+function unlockAch(id, opts={}){
   if(!isKnownAch(id))return;
   if(unlockedAch.has(id))return;
   unlockedAch.add(id);
+  saveAchLocal();
   scheduleAchSync(); // sync to Supabase
   const a=ALL_ACHIEVEMENTS.find(x=>x.id===id);
-  if(a){
+  if(a && opts.silent !== true){
     toast(`🏅 Ачивка: «${a.name}»`,'win',4000);
     if(document.getElementById('page-achievements').classList.contains('active'))renderAchievements();
   }
@@ -2265,9 +2285,9 @@ function unlockAch(id){
 
 function refreshVipAchievements(){
   const vip = getVipForSpent(totalSpent);
-  if(vip.thresh >= 500) unlockAch('vip_bronze');
-  if(vip.thresh >= 5000) unlockAch('vip_gold');
-  if(vip.thresh >= 15000) unlockAch('vip_legend');
+  if(vip.thresh >= 500) unlockAch('vip_bronze', { silent:true });
+  if(vip.thresh >= 5000) unlockAch('vip_gold', { silent:true });
+  if(vip.thresh >= 15000) unlockAch('vip_legend', { silent:true });
 }
 
 function saveCoins(){
@@ -5193,8 +5213,9 @@ async function loadAchFromSheets(code) {
   // Ачивки должны быть строго по текущему игроку.
   // Но сохраняем ачивки, полученные в текущей сессии до завершения загрузки из Supabase
   // (например fast_login сразу после входа).
+  const localAch = loadAchLocal(code);
   const sessionAch = cleanAchIds([...unlockedAch]);
-  unlockedAch = new Set(sessionAch);
+  unlockedAch = new Set(cleanAchIds([...localAch, ...sessionAch]));
 
   try {
     const r = await api({ action: 'getAchievements', code });
@@ -5203,10 +5224,12 @@ async function loadAchFromSheets(code) {
       cleanAchIds(r.achievements).forEach(id => unlockedAch.add(id));
     }
 
+    saveAchLocal(code);
     renderAchievements();
     updateProfilePage();
     if (sessionAch.length) scheduleAchSync();
   } catch(e) {
+    saveAchLocal(code);
     renderAchievements();
     updateProfilePage();
   }

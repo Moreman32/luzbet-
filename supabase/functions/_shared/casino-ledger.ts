@@ -74,6 +74,10 @@ export function isGameplayCasinoEvent(row: CasinoEventRow) {
   return true;
 }
 
+export function isFinishedGameplayCasinoEvent(row: CasinoEventRow) {
+  return isGameplayCasinoEvent(row) && isFinished(row);
+}
+
 export function buildSpentMap(rows: CasinoEventRow[]) {
   const spentMap = new Map<string, number>();
 
@@ -174,7 +178,7 @@ export function summarizeCasinoEvents(
   }
 
   for (const row of rows) {
-    if (!isGameplayCasinoEvent(row)) continue;
+    if (!isFinishedGameplayCasinoEvent(row)) continue;
 
     const createdAt = String(row.created_at || "");
     if (!createdAt) continue;
