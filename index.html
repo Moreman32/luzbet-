@@ -131,6 +131,8 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .score-label{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
 .score-match-block{margin-bottom:12px}
 .score-match-teams{font-size:11px;color:var(--muted2);text-align:center;margin-bottom:6px}
+.score-match-meta{margin-top:6px;text-align:center;font-size:10px;color:var(--muted);line-height:1.45}
+.score-match-meta strong{color:var(--white)}
 .score-inputs{display:grid;grid-template-columns:1fr 32px 1fr;align-items:center;gap:4px}
 .score-vs{font-family:var(--os);font-size:18px;color:var(--muted);text-align:center}
 .score-hint{font-size:10px;color:var(--muted2);text-align:center;margin-top:4px}
@@ -281,10 +283,12 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .team-btn.result-miss{background:rgba(232,0,42,.08);border-color:rgba(232,0,42,.3);color:#ff6b6b;opacity:.7}
 .team-btn.result-hit .team-check::after{content:' ✓';color:var(--green)}
 .score-match-block.score-exact{background:rgba(0,176,80,.07);border:1px solid rgba(0,176,80,.25);border-radius:6px;padding:6px 8px}
+.score-match-block.score-diff{background:rgba(154,208,255,.08);border:1px solid rgba(154,208,255,.25);border-radius:6px;padding:6px 8px}
 .score-match-block.score-outcome{background:rgba(79,195,247,.06);border:1px solid rgba(79,195,247,.2);border-radius:6px;padding:6px 8px}
 .score-match-block.score-miss{background:rgba(232,0,42,.05);border:1px solid rgba(232,0,42,.15);border-radius:6px;padding:6px 8px}
 .score-result-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:6px;display:inline-block}
 .badge-exact{background:var(--green);color:#000}
+.badge-diff{background:#9ad0ff;color:#000}
 .badge-outcome{background:var(--blue);color:#000}
 .badge-miss{background:var(--red);color:#fff}
 .badge-pending{background:var(--border);color:var(--muted)}
@@ -2746,13 +2750,41 @@ function normalizePredictionData(pred){
   return out;
 }
 
+function getMatchPointsInfo(ph, pa, actualScore){
+  if(actualScore==null || actualScore.h==null || actualScore.a==null){
+    return { points:null, label:'', badge:'', badgeClass:'', rowClass:'' };
+  }
+
+  const home = parseInt(ph, 10);
+  const away = parseInt(pa, 10);
+  if(Number.isNaN(home) || Number.isNaN(away)){
+    return { points:null, label:'', badge:'', badgeClass:'', rowClass:'' };
+  }
+
+  const predDiff = home - away;
+  const actDiff = actualScore.h - actualScore.a;
+  const predOutcome = predDiff > 0 ? 'h' : predDiff < 0 ? 'a' : 'd';
+  const actOutcome = actDiff > 0 ? 'h' : actDiff < 0 ? 'a' : 'd';
+
+  if(home === actualScore.h && away === actualScore.a){
+    return { points:3, label:'Точный счёт', badge:'+3 💥', badgeClass:'badge-exact', rowClass:'score-exact' };
+  }
+  if(predDiff === actDiff){
+    return { points:2, label:'Угадал разницу', badge:'+2 ↔️', badgeClass:'badge-diff', rowClass:'score-diff' };
+  }
+  if(predOutcome === actOutcome){
+    return { points:1, label:'Угадал исход', badge:'+1 🎯', badgeClass:'badge-outcome', rowClass:'score-outcome' };
+  }
+  return { points:0, label:'Мимо', badge:'0 ✖', badgeClass:'badge-miss', rowClass:'score-miss' };
+}
+
 function showForm(pred=null){
   currentPredictionData = normalizePredictionData(pred || currentPredictionData || {});
   sel = {}; scores = {};
   document.getElementById('user-bar-predict').style.display='block';
   document.getElementById('ub-name-p').textContent='👋 '+S.name;
   const now=new Date();
-  let html=`<div class="legend"><span class="leg-item">⚽ Выход <span class="leg-badge">+1</span></span><span class="leg-item">🎯 Исход <span class="leg-badge">+1</span></span><span class="leg-item">💥 Счёт <span class="leg-badge red">+2</span></span></div>
+  let html=`<div class="legend"><span class="leg-item">⚽ Выход из группы <span class="leg-badge">+3</span></span><span class="leg-item">🎯 Исход <span class="leg-badge">+1</span></span><span class="leg-item">↔️ Разница голов <span class="leg-badge">+2</span></span><span class="leg-item">💥 Точный счёт <span class="leg-badge red">+3</span></span></div>
   <button class="lucky-btn" onclick="fillLucky()">🎲 НА УДАЧУ — заполнить всё случайно, но не забудь сохранить</button>
   <div class="groups-grid">`;
   Object.entries(GROUPS).forEach(([g,d],gi)=>{
@@ -2770,7 +2802,7 @@ function showForm(pred=null){
       html+=`<button class="team-btn" id="${sid}" ${onclk} ${locked?'disabled style="opacity:.55;cursor:not-allowed"':''}><span class="team-flag">${t.f}</span><span class="team-name">${t.n}</span><span class="team-odds">${t.o}</span><span class="team-check">✓</span></button>`;
     });
     html+=`<div class="score-section"><div class="score-label">⚡ Прогноз счёта матчей (${d.matches.length} матчей)</div>`;
-    d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;const ml=isMatchLocked(m);html+=`<div class="score-match-block" id="smb-${g}-${mi}"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}${ml?' 🔒':''}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/></div></div>`;});
+    d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;const ml=isMatchLocked(m);html+=`<div class="score-match-block" id="smb-${g}-${mi}"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}${ml?' 🔒':''}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/></div><div class="score-match-meta" id="smm-${g}-${mi}"></div></div>`;});
     html+=`</div><div class="score-hint">Очки за купон: выход из группы +3, исход матча +1, разница голов +2, точный счёт +3.</div><div class="gc-progress" id="counter-${g}">выбрано 0/2</div></div></div>`;
   });
   html+='</div>';
@@ -2823,17 +2855,12 @@ function restorePredictionToForm(pred){
         // Подсветка блока счёта если результат уже известен
         const block=document.getElementById('smb-'+g+'-'+mi);
         const as=actScores[mi];
-        if(block && as && as.h!==null && as.h!==undefined){
-          const phN=parseInt(ph), paN=parseInt(pa);
-          const exact = phN===as.h && paN===as.a;
-          const po = phN>paN?'h':phN<paN?'a':'d';
-          const ao = as.h>as.a?'h':as.h<as.a?'a':'d';
-          const outcomeOk = po===ao;
+        const meta=document.getElementById('smm-'+g+'-'+mi);
+        if(block && meta && as && as.h!==null && as.h!==undefined){
+          const info=getMatchPointsInfo(ph, pa, as);
 
-          block.classList.remove('score-exact','score-outcome','score-miss');
-          if(exact)        block.classList.add('score-exact');
-          else if(outcomeOk) block.classList.add('score-outcome');
-          else               block.classList.add('score-miss');
+          block.classList.remove('score-exact','score-diff','score-outcome','score-miss');
+          if(info.rowClass) block.classList.add(info.rowClass);
 
           // Бейдж результата
           let badge=block.querySelector('.score-result-badge');
@@ -2843,13 +2870,9 @@ function restorePredictionToForm(pred){
             const lbl=block.querySelector('.score-match-teams');
             if(lbl)lbl.appendChild(badge);
           }
-          if(exact){
-            badge.textContent='+2 💥'; badge.className='score-result-badge badge-exact';
-          } else if(outcomeOk){
-            badge.textContent='+1 🎯'; badge.className='score-result-badge badge-outcome';
-          } else {
-            badge.textContent='✗ 0'; badge.className='score-result-badge badge-miss';
-          }
+          badge.textContent=info.badge;
+          badge.className='score-result-badge '+info.badgeClass;
+          meta.innerHTML=`Факт: <strong>${as.h}:${as.a}</strong> · За матч: <strong>${info.points}</strong> ${info.label ? `(${info.label})` : ''}`;
         }
       }
     });
@@ -3045,7 +3068,7 @@ async function showVoted(pred){
     html+=`<div class="vg"><div class="vg-label">ГРУППА ${g}</div>`;
     if(!teams.length)html+=`<div class="vg-team" style="font-style:italic;font-size:11px">нет ставки</div>`;
     else teams.forEach(t=>{const flag=(gd.teams.find(x=>x.n===t)||{}).f||'';let cls='';if(hasRes)cls=actual.some(a=>a.toLowerCase()===t.toLowerCase())?' hit':' miss';html+=`<div class="vg-team${cls}">${flag} ${t}</div>`;});
-    if(gd.matches.length){html+=`<div class="vg-scores">`;gd.matches.forEach((m,mi)=>{const ph=pred[`group${g}_m${mi}_h`],pa=pred[`group${g}_m${mi}_a`];const as=actScores[mi];const hasPred=ph!==undefined&&ph!=='';const hasAct=(as && as.h)!==null&&(as && as.h)!==undefined;if(!hasPred&&!hasAct)return;let cls='';if(hasPred&&hasAct){const predDiff=parseInt(ph)-parseInt(pa);const actDiff=as.h-as.a;const exact=parseInt(ph)===as.h&&parseInt(pa)===as.a;const po=predDiff>0?'h':predDiff<0?'a':'d';const ao=actDiff>0?'h':actDiff<0?'a':'d';cls=exact||predDiff===actDiff||po===ao?' h':' m';}html+=`<div class="vg-score-row"><span>${m.h.split(' ')[0]}:${m.a.split(' ')[0]}</span><span class="${cls.trim()}">${hasPred?`${ph}:${pa}`:'—'} → ${hasAct?`${as.h}:${as.a}`:'?:?'}</span></div>`;});html+=`</div>`;}
+    if(gd.matches.length){html+=`<div class="vg-scores">`;gd.matches.forEach((m,mi)=>{const ph=pred[`group${g}_m${mi}_h`],pa=pred[`group${g}_m${mi}_a`];const as=actScores[mi];const hasPred=ph!==undefined&&ph!=='';const hasAct=(as && as.h)!==null&&(as && as.h)!==undefined;if(!hasPred&&!hasAct)return;let cls='';let earned='';if(hasPred&&hasAct){const info=getMatchPointsInfo(ph,pa,as);cls=info.points>0?' h':' m';earned=` · ${info.points===0?'0':`+${info.points}`}`;}html+=`<div class="vg-score-row"><span>${m.h.split(' ')[0]}:${m.a.split(' ')[0]}</span><span class="${cls.trim()}">${hasPred?`${ph}:${pa}`:'—'} → ${hasAct?`${as.h}:${as.a}`:'?:?'}${earned}</span></div>`;});html+=`</div>`;}
     html+=`</div>`;
   }
   html+='</div>';
@@ -3139,10 +3162,10 @@ function renderLB(lb,results){
       d.predicted.forEach(t=>{
         const flag=safeFind((GROUPS[g] && GROUPS[g].teams)||[], x=>x.n===t).f||'';
         let cls='';
-        if(d.actual.length){
+          if(d.actual.length){
           const hit=d.actual.some(a=>a.toLowerCase()===t.toLowerCase());
           cls=hit?' hit':' miss';
-          if(hit)grpPts++;
+          if(hit)grpPts+=3;
         }
         html+=`<div class="dc-team${cls}">${escapeHtml(flag ? flag + ' ' : '')}${escapeHtml(t)}</div>`;
       });
@@ -3156,12 +3179,11 @@ function renderLB(lb,results){
           let ptsBadge='';
           let rowCls='';
           if(as && as.h!==null && as.h!==undefined){
-            const exact=ps.h===as.h&&ps.a===as.a;
-            const po=ps.h>ps.a?'h':ps.h<ps.a?'a':'d';
-            const ao=as.h>as.a?'h':as.h<as.a?'a':'d';
-            if(exact){grpPts+=2;ptsBadge='<span style="color:#00b050;font-weight:700">+2</span>';rowCls='h';}
-            else if(po===ao){grpPts++;ptsBadge='<span style="color:#4fc3f7;font-weight:700">+1</span>';rowCls='h';}
-            else{ptsBadge='<span style="color:var(--red)">✗</span>';rowCls='m';}
+            const info=getMatchPointsInfo(ps.h, ps.a, as);
+            grpPts+=info.points||0;
+            if(info.points>0) rowCls='h';
+            else rowCls='m';
+            ptsBadge=`<span style="color:${info.points===3?'#00b050':info.points===2?'#9ad0ff':info.points===1?'#4fc3f7':'var(--red)'};font-weight:700">${info.points===0?'0':`+${info.points}`}</span>`;
           }
           // Короткие названия команд
           const hn=m.h.split(' ')[0].slice(0,6);
