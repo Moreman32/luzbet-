@@ -2668,22 +2668,8 @@ function makeCasinoRoundId(game){
   return `${S.code || 'guest'}_${game}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
-async function startCasinoRound(game, bet, meta={}){
-  const roundId = makeCasinoRoundId(game);
-  await logCasinoEvent({
-    round_id: roundId,
-    game,
-    event_type: 'round',
-    bet,
-    payout: 0,
-    delta: -bet,
-    meta: {
-      ...meta,
-      status: 'started',
-      forced_loss_if_closed: true
-    }
-  });
-  return roundId;
+async function startCasinoRound(game, bet, meta={}) {
+  return makeCasinoRoundId(game);
 }
 
 async function tryStartCasinoRound(game, bet, meta={}){
