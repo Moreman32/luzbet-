@@ -899,7 +899,7 @@ try{
       <div style="background:linear-gradient(135deg,#1e1400,#2a1c00);border:1px solid rgba(255,230,0,.2);border-radius:var(--r);padding:20px">
         <div style="font-family:var(--os);font-size:16px;color:var(--yellow);margin-bottom:14px">🎁 Система очков + 🪙 ЛузКоины</div>
         <div style="font-size:13px;color:var(--muted);line-height:2.1">
-          ⚽ Выход команды <span style="float:right;font-family:var(--os);font-weight:700;color:var(--white)">+1 очко</span><br/>
+          ⚽ Выход команды <span style="float:right;font-family:var(--os);font-weight:700;color:var(--white)">+3 очка</span><br/>
           🎯 Угадал исход <span style="float:right;font-family:var(--os);font-weight:700;color:var(--yellow)">+1 очко</span><br/>
           ↔️ Угадал разницу мячей <span style="float:right;font-family:var(--os);font-weight:700;color:#9ad0ff">+2 очка</span><br/>
           💥 Угадал исход и счёт <span style="float:right;font-family:var(--os);font-weight:700;color:var(--red)">+3 очка</span><br/>
@@ -1369,7 +1369,7 @@ try{
     <p style="font-size:13px;color:var(--muted);margin-bottom:24px">Редакция от 1 апреля 2026 г. Действует бессрочно и бесповоротно.</p>
     <div class="rules-block"><div class="rules-num">01</div><div class="rules-title">Участие</div><div class="rules-text">К участию допускаются все сотрудники с кодом. Один код — один прогноз. <b>Изменить нельзя.</b> Как ипотека.</div></div>
     <div class="rules-block"><div class="rules-num">02</div><div class="rules-title">Дедлайны</div><div class="rules-text">Ставки принимаются до начала первого матча группы. После — форма блокируется. Жалобы: <b>/dev/null</b>.</div></div>
-    <div class="rules-block"><div class="rules-num">03</div><div class="rules-title">Очки</div><div class="rules-text"><b>+1</b> — команда вышла. <b>0</b> — мимо исхода. <b>+1</b> — угадал исход. <b>+2</b> — угадал разницу мячей. <b>+3</b> — угадал исход и точный счёт. Всё логично, но всё равно проиграешь.</div></div>
+    <div class="rules-block"><div class="rules-num">03</div><div class="rules-title">Очки</div><div class="rules-text"><b>+3</b> — команда вышла из группы. <b>0</b> — мимо исхода матча. <b>+1</b> — угадал исход. <b>+2</b> — угадал разницу мячей. <b>+3</b> — угадал исход и точный счёт. Всё логично, но всё равно проиграешь.</div></div>
     <div class="rules-block"><div class="rules-num">04</div><div class="rules-title">Казино</div><div class="rules-text">Казино работает на <b>ЛузКоины</b> — виртуальная валюта без реальной стоимости. Стартовый баланс: 1000 ЛК. Пополнить нельзя. При банкротстве — 100 ЛК милостыни раз в сессию.</div></div>
     <div class="rules-block"><div class="rules-num">05</div><div class="rules-title">Достижения</div><div class="rules-text">Ачивки разблокируются автоматически по действиям. <b>Некоторые постыдны.</b> Все видны в рейтинге. Скрыть нельзя.</div></div>
     <div class="rules-block"><div class="rules-num">06</div><div class="rules-title">Призы</div><div class="rules-text">Победитель получает уважение (временное) и что-то материальное по усмотрению организатора. Последние места получают ачивки «Дно» и сочувствие.</div></div>
@@ -1813,7 +1813,7 @@ function scorePreds(name,preds,results){
   for(const[g,gd]of Object.entries(GROUPS)){
     const raw=preds['group'+g]||'';const predicted=raw?raw.split('|').map(s=>s.trim()).filter(Boolean):[];
     const actual=(results[g] && results[g].teams)||[];const actScores=(results[g] && results[g].scores)||[];let gPts=0;
-    predicted.forEach(t=>{if(actual.some(a=>a.toLowerCase()===t.toLowerCase())){gPts++;teamPts++;}});
+    predicted.forEach(t=>{if(actual.some(a=>a.toLowerCase()===t.toLowerCase())){gPts+=3;teamPts+=3;}});
     const predScores=[];
     gd.matches.forEach((_,mi)=>{
       const ph=preds[`group${g}_m${mi}_h`],pa=preds[`group${g}_m${mi}_a`];
@@ -2771,7 +2771,7 @@ function showForm(pred=null){
     });
     html+=`<div class="score-section"><div class="score-label">⚡ Прогноз счёта матчей (${d.matches.length} матчей)</div>`;
     d.matches.forEach((m,mi)=>{const kh=`${g}_m${mi}_h`,ka=`${g}_m${mi}_a`;const ml=isMatchLocked(m);html+=`<div class="score-match-block" id="smb-${g}-${mi}"><div class="score-match-teams">${m.h} — ${m.a}<span style="color:var(--muted);font-size:10px;margin-left:6px">${m.msk}${ml?' 🔒':''}</span></div><div class="score-inputs"><input type="number" min="0" max="20" placeholder="?" id="s-${kh}" oninput="setScore('${kh}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/><div class="score-vs">:</div><input type="number" min="0" max="20" placeholder="?" id="s-${ka}" oninput="setScore('${ka}',this.value)" onwheel="this.blur()" ${ml?'disabled style="opacity:.55;cursor:not-allowed"':''}/></div></div>`;});
-    html+=`</div><div class="score-hint">Счёт необязателен. Но за матч можно взять 1 за исход, 2 за разницу или 3 за точный счёт.</div><div class="gc-progress" id="counter-${g}">выбрано 0/2</div></div></div>`;
+    html+=`</div><div class="score-hint">Очки за купон: выход из группы +3, исход матча +1, разница голов +2, точный счёт +3.</div><div class="gc-progress" id="counter-${g}">выбрано 0/2</div></div></div>`;
   });
   html+='</div>';
   document.getElementById('predict-content').innerHTML=html;
@@ -3016,7 +3016,7 @@ async function showVoted(pred){
   for(const[g,gd]of Object.entries(GROUPS)){
     const raw=pred['group'+g]||'';const predicted=raw?raw.split('|').map(s=>s.trim()):[];
     const actual=(results[g] && results[g].teams)||[];const actScores=(results[g] && results[g].scores)||[];
-    predicted.forEach(t=>{if(actual.some(a=>a.toLowerCase()===t.toLowerCase()))tPts++;});
+    predicted.forEach(t=>{if(actual.some(a=>a.toLowerCase()===t.toLowerCase()))tPts+=3;});
     gd.matches.forEach((_,mi)=>{
       const ph=parseInt(pred[`group${g}_m${mi}_h`]),pa=parseInt(pred[`group${g}_m${mi}_a`]);
       const as=actScores[mi];

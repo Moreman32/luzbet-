@@ -458,7 +458,7 @@ async function loadChk(){
         let gP=0;
         const teams=predicted.map(t=>{
           const hit=hasR&&actual.some(a=>a.toLowerCase()===t.toLowerCase());
-          if(hit){gP++;tP++;}
+          if(hit){gP+=3;tP+=3;}
           const cls=hasR?(hit?'hit':'miss'):'';
           return '<span class="'+cls+'">'+esc(t)+'</span>';
         }).join(', ')||'<span class="muted">—</span>';
@@ -524,7 +524,7 @@ async function loadLB(){
         const predicted=(pred['group'+g]||'').split('|').map(s=>s.trim()).filter(Boolean);
         const actual=(results[g]&&results[g].teams)||[];
         const actSc=(results[g]&&results[g].scores)||[];
-        predicted.forEach(t=>{if(actual.some(a=>a.toLowerCase()===t.toLowerCase())){tot++;tP++;}});
+        predicted.forEach(t=>{if(actual.some(a=>a.toLowerCase()===t.toLowerCase())){tot+=3;tP+=3;}});
         GROUPS[g].matches.forEach((_,mi)=>{
           const ph=pred['group'+g+'_m'+mi+'_h'],pa=pred['group'+g+'_m'+mi+'_a'];
           const as=actSc[mi];

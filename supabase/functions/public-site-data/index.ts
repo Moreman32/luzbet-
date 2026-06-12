@@ -59,8 +59,8 @@ function scorePrediction(row: any, results: Record<string, any>) {
 
     predicted.forEach((team) => {
       if (actual.some((a: string) => a.toLowerCase() === team.toLowerCase())) {
-        teamPts += 1;
-        groupPts += 1;
+        teamPts += 3;
+        groupPts += 3;
       }
     });
 
