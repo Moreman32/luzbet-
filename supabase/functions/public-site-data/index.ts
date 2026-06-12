@@ -115,6 +115,34 @@ function scorePrediction(row: any, results: Record<string, any>) {
   };
 }
 
+async function loadSpentTotals(supabase: ReturnType<typeof createClient>) {
+  const spentMap = new Map<string, number>();
+  const pageSize = 1000;
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("casino_events")
+      .select("code,bet")
+      .order("id", { ascending: true })
+      .range(from, from + pageSize - 1);
+
+    if (error) throw error;
+
+    const rows = data || [];
+    for (const row of rows) {
+      const key = String(row.code || "").trim().toLowerCase();
+      if (!key) continue;
+      spentMap.set(key, (spentMap.get(key) || 0) + Number(row.bet || 0));
+    }
+
+    if (rows.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return spentMap;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -126,11 +154,12 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const [predictionsRes, resultsRes, casinoRes, achRes] = await Promise.all([
+    const [predictionsRes, resultsRes, casinoRes, achRes, spentMap] = await Promise.all([
       supabase.from("predictions").select("id,code,name,data,updated_at").order("updated_at", { ascending: true }).order("id", { ascending: true }),
       supabase.from("results").select("group_code,data").order("group_code", { ascending: true }),
       supabase.from("casino").select("code,name,coins,spent").order("code", { ascending: true }),
       supabase.from("achievements").select("code,achievement").order("id", { ascending: true }),
+      loadSpentTotals(supabase),
     ]);
 
     if (predictionsRes.error) throw predictionsRes.error;
@@ -152,7 +181,11 @@ Deno.serve(async (req) => {
 
     const casinoMap = new Map<string, any>();
     for (const row of casinoRes.data || []) {
-      casinoMap.set(String(row.code || "").toLowerCase(), row);
+      const key = String(row.code || "").toLowerCase();
+      casinoMap.set(key, {
+        ...row,
+        spent: spentMap.get(key) ?? Number(row.spent || 0),
+      });
     }
 
     const achMap = new Map<string, string[]>();
@@ -183,11 +216,19 @@ Deno.serve(async (req) => {
       String(a.name || "").localeCompare(String(b.name || ""), "ru")
     );
 
+    const casinoRows = (casinoRes.data || []).map((row) => {
+      const key = String(row.code || "").toLowerCase();
+      return {
+        ...row,
+        spent: spentMap.get(key) ?? Number(row.spent || 0),
+      };
+    });
+
     return json({
       ok: true,
       leaderboard,
       results,
-      casinoRows: casinoRes.data || [],
+      casinoRows,
       achRows: achRes.data || [],
     });
   } catch (e) {
