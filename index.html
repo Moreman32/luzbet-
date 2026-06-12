@@ -3147,6 +3147,16 @@ async function loadLeaderboard(force=false){
         participantRows: Array.isArray(r.participantRows) ? r.participantRows : [],
       };
 
+      if(S.code){
+        const trustedSpent = getTrustedSpentForCode(S.code, _lbCache);
+        if(trustedSpent !== null && trustedSpent !== totalSpent){
+          totalSpent = trustedSpent;
+          LS.set('luzbet_spent', totalSpent);
+          updateVip();
+          updateProfilePage();
+        }
+      }
+
       // В одном ответе уже лежат все топы: прогнозы, монеты, потрачено и ачивки.
       // Рендерим текущую активную вкладку, но остальные вкладки будут открываться мгновенно из _lbCache.
       renderActiveLbTab();
@@ -3163,6 +3173,43 @@ async function loadLeaderboard(force=false){
   })();
 
   return _lbLoadingPromise;
+}
+
+function getTrustedSpentForCode(code, cache=_lbCache){
+  const key=String(code||'').trim().toLowerCase();
+  if(!key || !cache || !Array.isArray(cache.casinoRows)) return null;
+  const row=cache.casinoRows.find(x=>String(x.code||'').trim().toLowerCase()===key);
+  if(!row) return null;
+  const spent=parseInt(row.spent,10);
+  return Number.isFinite(spent) ? spent : null;
+}
+
+async function syncTrustedSpent(code, opts={}){
+  const preferCache = opts.preferCache !== false;
+  const key=String(code||'').trim().toLowerCase();
+  if(!key) return null;
+
+  let spent = preferCache ? getTrustedSpentForCode(key) : null;
+  if(spent === null){
+    try{
+      const rowsRes = await api({ action:'getCasinoAll' });
+      if(rowsRes && rowsRes.ok && Array.isArray(rowsRes.rows)){
+        const tempCache = { casinoRows: rowsRes.rows };
+        spent = getTrustedSpentForCode(key, tempCache);
+      }
+    }catch(e){
+      spent = null;
+    }
+  }
+
+  if(spent !== null){
+    totalSpent = spent;
+    LS.set('luzbet_spent', totalSpent);
+    updateVip();
+    updateProfilePage();
+  }
+
+  return spent;
 }
 
 function renderLB(lb,results){
@@ -4976,6 +5023,7 @@ async function loadCasinoFromSheets(code) {
       updateVip();
       checkDaily();
       updateCashbackUI();
+      await syncTrustedSpent(code, { preferCache:true });
     }
   } catch(e) { /* use local */ }
 }
