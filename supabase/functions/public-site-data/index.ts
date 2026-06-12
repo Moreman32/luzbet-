@@ -123,7 +123,7 @@ async function loadSpentTotals(supabase: ReturnType<typeof createClient>) {
   while (true) {
     const { data, error } = await supabase
       .from("casino_events")
-      .select("code,bet")
+      .select("code,bet,meta")
       .order("id", { ascending: true })
       .range(from, from + pageSize - 1);
 
@@ -131,6 +131,8 @@ async function loadSpentTotals(supabase: ReturnType<typeof createClient>) {
 
     const rows = data || [];
     for (const row of rows) {
+      const status = String((row as any)?.meta?.status || "");
+      if (status === "started") continue;
       const key = String(row.code || "").trim().toLowerCase();
       if (!key) continue;
       spentMap.set(key, (spentMap.get(key) || 0) + Number(row.bet || 0));
