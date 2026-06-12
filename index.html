@@ -610,6 +610,33 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   color:#a8ff8f;
   text-shadow:0 0 18px rgba(168,255,143,.22);
 }
+.match-rewards-ad{
+  margin:14px 16px 0;
+  padding:12px 14px;
+  border-radius:14px;
+  border:2px dashed rgba(255,230,0,.7);
+  background:
+    linear-gradient(135deg,rgba(255,230,0,.16),rgba(255,92,92,.18)),
+    rgba(255,255,255,.04);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08) inset;
+  animation:matchRewardsAdBlink 1.1s steps(2,end) infinite;
+}
+.match-rewards-ad-label{
+  font-family:var(--os);
+  font-size:11px;
+  letter-spacing:1.2px;
+  color:#fff39a;
+  margin-bottom:6px;
+}
+.match-rewards-ad-text{
+  font-size:14px;
+  line-height:1.45;
+  color:#fff;
+}
+@keyframes matchRewardsAdBlink{
+  0%, 100%{transform:scale(1);filter:brightness(1)}
+  50%{transform:scale(1.015);filter:brightness(1.18)}
+}
 .match-rewards-list{
   padding:14px 16px 10px;
   max-height:calc(78vh - 182px);
@@ -780,6 +807,10 @@ try{
     <div class="match-rewards-title">МАТЧИ ЗАКОНЧИЛИСЬ. ТЕПЕРЬ ТЕРПИ ВЕРДИКТ.</div>
     <div class="match-rewards-sub" id="match-rewards-sub">Сейчас тебе напомнят, насколько ты был близок к позору. Или уже в нём.</div>
     <div class="match-rewards-total" id="match-rewards-total">+0 ЛК</div>
+  </div>
+  <div class="match-rewards-ad" id="match-rewards-ad">
+    <div class="match-rewards-ad-label">СРОЧНОЕ ОБЪЯВЛЕНИЕ</div>
+    <div class="match-rewards-ad-text" id="match-rewards-ad-text">Продаю носки, носил около 12 раз за 2 недели, 800 ЛК — Стас</div>
   </div>
   <div class="match-rewards-list" id="match-rewards-list"></div>
   <div class="match-rewards-foot">
@@ -1872,6 +1903,25 @@ function getMatchRewardTeams(groupCode, matchIndex){
   return `${escapeHtml(match.h)} vs ${escapeHtml(match.a)}`;
 }
 
+const MATCH_REWARD_ADS = [
+  'Продаю носки, носил около 12 раз за 2 недели, 800 ЛК — Стас',
+  'Куплю чужую уверенность в Аргентине. Свою уже потерял. 650 ЛК — Дима',
+  'Продам почти новый прогноз на 0:0. Один раз уже не сработал. 500 ЛК — Стас',
+  'Меняю два точных исхода на один точный счет. Без доплат. — Дима',
+  'Срочно продаю счастливую кружку для ставок. После 7 поражений подряд стала просто кружкой. 900 ЛК — Стас',
+  'Куплю совесть после ставки на явного аутсайдера. Дорого. — Дима',
+  'Продам тапки для просмотра ночных матчей. Пропитаны отчаянием. 400 ЛК — Стас',
+  'Ищу человека, который реально верил в этот счет. Вознаграждение 300 ЛК — Дима',
+  'Продаю калькулятор прогнозов. Показывает только "ну попробуй". 720 ЛК — Стас',
+  'Сниму комнату для хранения несбывшихся надежд. Плачу лузкоинами. — Дима',
+  'Продам VIP-воздух. Вдыхал во время серии побед. Осталось 38%. 1100 ЛК — Стас',
+  'Меняю три железных "ну тут очевидно" на один рабочий инсайд. — Дима',
+];
+
+function getRandomMatchRewardAd(){
+  return MATCH_REWARD_ADS[Math.floor(Math.random()*MATCH_REWARD_ADS.length)] || MATCH_REWARD_ADS[0];
+}
+
 function closeMatchRewardsPopup(){
   const popup=document.getElementById('match-rewards-pop');
   const backdrop=document.getElementById('match-rewards-backdrop');
@@ -1924,9 +1974,10 @@ async function showMatchRewardsPopup(rows){
   const list=document.getElementById('match-rewards-list');
   const totalEl=document.getElementById('match-rewards-total');
   const subEl=document.getElementById('match-rewards-sub');
+  const adText=document.getElementById('match-rewards-ad-text');
   const btn=document.getElementById('match-rewards-ack-btn');
   const lockText=document.getElementById('match-rewards-lock-text');
-  if(!popup || !list || !totalEl || !subEl || !btn || !lockText) return;
+  if(!popup || !list || !totalEl || !subEl || !adText || !btn || !lockText) return;
 
   const ids = rows.map(r=>parseInt(r.id,10)).filter(Boolean);
   matchRewardsPendingIds=ids;
@@ -1935,6 +1986,7 @@ async function showMatchRewardsPopup(rows){
   subEl.textContent = rows.length===1
     ? 'Один матч закончился. И да, тебя по нему уже оценили.'
     : `Матчей закрыто: ${rows.length}. Коллективный разбор твоих решений готов.`;
+  adText.textContent = getRandomMatchRewardAd();
 
   list.innerHTML = rows.map(row=>{
     const meta=getMatchRewardLabel(String(row.result_type || 'miss'));
