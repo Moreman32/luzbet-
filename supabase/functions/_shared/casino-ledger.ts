@@ -19,6 +19,19 @@ function eventStatus(row: CasinoEventRow) {
   return String(row?.meta?.status || "");
 }
 
+function eventSource(row: CasinoEventRow) {
+  return String(row?.meta?.source || "");
+}
+
+function isAdministrativeCasinoSource(row: CasinoEventRow) {
+  const source = eventSource(row);
+  return (
+    source === "balance_reconciliation" ||
+    source === "balance_reconciliation_redistributed" ||
+    source === "profit_shift_to_crash"
+  );
+}
+
 function eventRoundKey(row: CasinoEventRow) {
   const code = String(row?.code || "").trim().toLowerCase();
   const roundId = String(row?.round_id || "").trim();
@@ -71,6 +84,7 @@ export function canonicalizeCasinoEvents(rows: CasinoEventRow[]) {
 export function isGameplayCasinoEvent(row: CasinoEventRow) {
   if (String(row?.event_type || "") !== "round") return false;
   if (String(row?.game || "") === "system") return false;
+  if (isAdministrativeCasinoSource(row)) return false;
   return true;
 }
 
@@ -82,6 +96,7 @@ export function buildSpentMap(rows: CasinoEventRow[]) {
   const spentMap = new Map<string, number>();
 
   for (const row of canonicalizeCasinoEvents(rows)) {
+    if (isAdministrativeCasinoSource(row)) continue;
     const key = String(row?.code || "").trim().toLowerCase();
     if (!key) continue;
     spentMap.set(key, (spentMap.get(key) || 0) + Number(row?.bet || 0));

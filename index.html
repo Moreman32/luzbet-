@@ -1713,6 +1713,33 @@ let coins=parseInt(LS.get('luzbet_coins','1000'));
 let unlockedAch=new Set();
 function isKnownAch(id){return ALL_ACHIEVEMENTS.some(a=>a.id===id);}
 function cleanAchIds(ids){return [...new Set((ids||[]).filter(id=>isKnownAch(id)))];}
+function casinoStateStorageKey(code){
+  const key=String(code||'').trim().toLowerCase();
+  return key ? `luzbet_casino_state_${key}` : '';
+}
+function loadCasinoLocalState(code){
+  const key=casinoStateStorageKey(code);
+  if(!key) return null;
+  try{
+    const raw=LS.get(key,'');
+    if(!raw) return null;
+    const data=JSON.parse(raw);
+    return data && typeof data==='object' ? data : null;
+  }catch(e){
+    return null;
+  }
+}
+function saveCasinoLocalState(code=S.code, opts={}){
+  const key=casinoStateStorageKey(code);
+  if(!key) return;
+  LS.set(key, JSON.stringify({
+    code: String(code||'').trim().toLowerCase(),
+    coins: parseInt(coins||0,10) || 0,
+    spent: parseInt(totalSpent||0,10) || 0,
+    dirty: opts.dirty === true,
+    updated_at: new Date().toISOString(),
+  }));
+}
 function achStorageKey(code){
   const key=String(code||'').trim().toLowerCase();
   return key ? `luzbet_ach_${key}` : '';
@@ -2111,6 +2138,7 @@ async function checkPendingMatchRewards(force=false){
 let casinoSyncTimer = null;
 let casinoDirty = false;
 const CASINO_SYNC_DELAY = 3000; // 3 сек: активные игроки быстрее доходят до базы, но без лишнего спама
+const CASINO_LOCAL_STATE_TTL_MS = 15 * 60 * 1000;
 let casinoServerState = { last_daily: '', last_cashback: '' };
 let casinoRefreshTimer = null;
 
@@ -2142,6 +2170,7 @@ function saveCasinoKeepAlive() {
 
 function scheduleCasinoSync() {
   casinoDirty = true;
+  saveCasinoLocalState(S.code, { dirty:true });
   if (casinoSyncTimer) clearTimeout(casinoSyncTimer);
   casinoSyncTimer = setTimeout(flushCasinoSync, CASINO_SYNC_DELAY);
 }
@@ -2175,6 +2204,7 @@ async function flushCasinoSync(force = false) {
       totalSpent = parseInt(r.spent || totalSpent) || totalSpent;
       LS.set('luzbet_coins', coins);
       LS.set('luzbet_spent', totalSpent);
+      saveCasinoLocalState(S.code, { dirty:false });
       renderCoinsUI();
       updateVip();
       updateCashbackUI();
@@ -2182,12 +2212,15 @@ async function flushCasinoSync(force = false) {
     }
 
     if (r && r.ok) {
+      saveCasinoLocalState(S.code, { dirty:false });
       scheduleCasinoServerRefresh(1200);
     } else {
       casinoDirty = true;
+      saveCasinoLocalState(S.code, { dirty:true });
     }
   } catch(e) {
     casinoDirty = true;
+    saveCasinoLocalState(S.code, { dirty:true });
   }
 }
 
@@ -2292,6 +2325,7 @@ function refreshVipAchievements(){
 
 function saveCoins(){
   LS.set('luzbet_coins',coins);
+  saveCasinoLocalState(S.code, { dirty:!!S.code });
   // До входа это только локальный UI state, в Supabase такое отправлять не нужно.
   if(S.code) scheduleCasinoSync();
   renderCoinsUI();
@@ -2593,7 +2627,7 @@ async function claimCasinoCashback(){
         based_on_loss: state.rawLoss,
         capped_at: CASHBACK_DAILY_CAP,
       }
-    });
+    }).catch(()=>{});
   } else {
     scheduleCasinoStatsReload();
   }
@@ -2611,21 +2645,23 @@ function scheduleCasinoStatsReload(){
 }
 
 async function logCasinoEvent(evt){
-  if(!S.code) return;
-  try{
-    await api({
-      action:'logCasinoEvent',
-      code:S.code,
-      round_id: evt.round_id || '',
-      game: evt.game || '',
-      event_type: evt.event_type || 'round',
-      bet: evt.bet || 0,
-      payout: evt.payout || 0,
-      delta: evt.delta || 0,
-      meta: evt.meta || {},
-    });
-    scheduleCasinoStatsReload();
-  }catch(e){}
+  if(!S.code) return false;
+  const r = await api({
+    action:'logCasinoEvent',
+    code:S.code,
+    round_id: evt.round_id || '',
+    game: evt.game || '',
+    event_type: evt.event_type || 'round',
+    bet: evt.bet || 0,
+    payout: evt.payout || 0,
+    delta: evt.delta || 0,
+    meta: evt.meta || {},
+  });
+  if(!r || r.ok !== true){
+    throw new Error((r && (r.error || r.message)) || 'logCasinoEvent failed');
+  }
+  scheduleCasinoStatsReload();
+  return true;
 }
 
 function makeCasinoRoundId(game){
@@ -2650,6 +2686,16 @@ async function startCasinoRound(game, bet, meta={}){
   return roundId;
 }
 
+async function tryStartCasinoRound(game, bet, meta={}){
+  try{
+    return await startCasinoRound(game, bet, meta);
+  }catch(e){
+    console.error('startCasinoRound failed', game, e);
+    toast('⚠️ Ставка не сохранилась в базе. Повтори ещё раз.','err');
+    return '';
+  }
+}
+
 async function finishCasinoRound(roundId, game, bet, payout, meta={}){
   await logCasinoEvent({
     round_id: roundId || '',
@@ -2665,6 +2711,20 @@ async function finishCasinoRound(roundId, game, bet, payout, meta={}){
   });
   if (S.code) {
     await flushCasinoSync(true);
+  }
+  return true;
+}
+
+async function persistCasinoRoundFinish(roundId, game, bet, payout, meta={}){
+  try{
+    await finishCasinoRound(roundId, game, bet, payout, meta);
+    return true;
+  }catch(e){
+    console.error('finishCasinoRound failed', game, e);
+    casinoDirty = true;
+    saveCasinoLocalState(S.code, { dirty:true });
+    toast('⚠️ Результат раунда ещё не сохранился в базе. Не закрывай страницу.','err');
+    return false;
   }
 }
 
@@ -3453,12 +3513,13 @@ async function spinSlots(){
   const bet = slotBet;
   const btn=document.getElementById('spin-btn');
   btn.disabled=true;
-  const roundId = await startCasinoRound('slots', bet, { source:'spin_start' });
+  const roundId = await tryStartCasinoRound('slots', bet, { source:'spin_start' });
+  if(!roundId){btn.disabled=false;return;}
   coins-=bet;spendCoins(bet);saveCoins();unlockAch('slots_first');
   [0,1,2].forEach(i=>document.getElementById('r'+i).classList.add('spinning'));
   document.getElementById('slot-result-text').textContent='';
   let t=0,iv=setInterval(()=>{[0,1,2].forEach(i=>document.getElementById('e'+i).textContent=SLOT_EMOJIS[Math.floor(Math.random()*SLOT_EMOJIS.length)]);soundReel();t+=120;if(t>1800)clearInterval(iv);},120);
-  setTimeout(()=>{
+  setTimeout(async ()=>{
     [0,1,2].forEach(i=>document.getElementById('r'+i).classList.remove('spinning'));
     const rand=Math.random();
     let result,win=0;
@@ -3473,7 +3534,7 @@ async function spinSlots(){
     [0,1,2].forEach(i=>document.getElementById('r'+i).classList.toggle('winner',rand<0.02));
     if(win>0){coins+=win;saveCoins();document.getElementById('slot-result-text').textContent=`+${win} ЛК! 🎉`;toast(`🎰 Выиграл ${win} ЛузКоинов!`,'win');if(rand<0.02)soundJackpot();onWin(win,'🎰 Слоты');}
     else{document.getElementById('slot-result-text').textContent='Мимо. Как обычно.';onLose();}
-    finishCasinoRound(roundId, 'slots', bet, win, { result, jackpot: rand<0.02, two_match: rand>=0.02 && rand<0.20 });
+    await persistCasinoRoundFinish(roundId, 'slots', bet, win, { result, jackpot: rand<0.02, two_match: rand>=0.02 && rand<0.20 });
     btn.disabled=false;
   },2000);
 }
@@ -3497,7 +3558,8 @@ async function bjDeal(){
   const bet=parseInt(document.getElementById('bj-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   document.getElementById('bj-deal-btn').disabled=true;
-  const roundId = await startCasinoRound('blackjack', bet, { source:'deal_start' });
+  const roundId = await tryStartCasinoRound('blackjack', bet, { source:'deal_start' });
+  if(!roundId){document.getElementById('bj-deal-btn').disabled=false;return;}
   coins-=bet;spendCoins(bet);saveCoins();unlockAch('bj_first');
   const deck=BJ_DECK();
   bjState={deck,player:[deck.pop(),deck.pop()],dealer:[deck.pop(),deck.pop()],bet,roundId,over:false};
@@ -3519,7 +3581,7 @@ function bjStand(){
   const ps=bjScore(bjState.player),ds=bjScore(bjState.dealer);
   if(ps>21)bjEnd('bust');else if(ds>21||ps>ds)bjEnd('win');else if(ps===ds)bjEnd('push');else bjEnd('lose');
 }
-function bjEnd(result){
+async function bjEnd(result){
   const bet=bjState.bet;
   const roundId=bjState.roundId;
   const res=document.getElementById('bj-result');
@@ -3528,7 +3590,7 @@ function bjEnd(result){
   else if(result==='push'){payout=bet;coins+=payout;saveCoins();res.textContent='🤝 Ничья. Возврат.';res.className='bj-result push';toast('🃏 Ничья. Хотя бы не потерял.','info');}
   else if(result==='bust'){res.textContent='💀 Перебор! Судьба довольна.';res.className='bj-result lose';toast('💀 Перебор. Судьба смеётся.','err');onLose();}
   else{res.textContent='😭 Судьба победила. Сюрприз.';res.className='bj-result lose';toast('😭 Проиграл Судьбе. Ожидаемо.','err');onLose();}
-  finishCasinoRound(roundId, 'blackjack', bet, payout, {
+  await persistCasinoRoundFinish(roundId, 'blackjack', bet, payout, {
     result,
     player_score: bjState ? bjScore(bjState.player) : null,
     dealer_score: bjState ? bjScore(bjState.dealer) : null,
@@ -3570,11 +3632,12 @@ async function spinWheel(){
   if(coins<30){toast('❌ Мало ЛузКоинов для спина.','err');return;}
   const bet = 30;
   wheelSpinning=true;document.getElementById('wheel-btn').disabled=true;document.getElementById('wheel-result').textContent='';
-  const roundId = await startCasinoRound('wheel', bet, { source:'wheel_start' });
+  const roundId = await tryStartCasinoRound('wheel', bet, { source:'wheel_start' });
+  if(!roundId){wheelSpinning=false;document.getElementById('wheel-btn').disabled=false;return;}
   coins-=bet;spendCoins(bet);saveCoins();unlockAch('wheel_first');
   const totalRot=(Math.random()*4+5)*2*Math.PI,dur=4000;
   const start=performance.now(),startAngle=wheelAngle;
-  function frame(now){
+  async function frame(now){
     const elapsed=now-start,progress=Math.min(elapsed/dur,1);
     const ease=1-Math.pow(1-progress,3);
     wheelAngle=startAngle+totalRot*ease;
@@ -3589,7 +3652,7 @@ async function spinWheel(){
       const seg=WHEEL_SEGMENTS[idx];
       if(seg.mult>0){coins+=seg.mult;saveCoins();document.getElementById('wheel-result').textContent=`🎉 +${seg.mult} ЛузКоинов!`;toast(`🎡 Колесо: +${seg.mult} ЛК!`,'win');onWin(seg.mult,'🎡 Колесо');}
       else{document.getElementById('wheel-result').textContent='😭 0 ЛК. Ожидаемо.';toast('🎡 0 ЛК. Колесо знает тебя.','err');unlockAch('wheel_zero');onLose();}
-      finishCasinoRound(roundId, 'wheel', bet, seg.mult, { segment:seg.label, mult:seg.mult });
+      await persistCasinoRoundFinish(roundId, 'wheel', bet, seg.mult, { segment:seg.label, mult:seg.mult });
     }
   }
   wheelRaf=requestAnimationFrame(frame);
@@ -3635,7 +3698,7 @@ function onWin(amount=0,game=''){
   if(amount>0&&game)chatNotifyWin(game,amount);
 }
 function onLose(){winStreak=0;soundLose();}
-function resetCoins(){coins=100;saveCoins();toast('🙏 Получил 100 ЛК милостыни. Не трать сразу.','ok');showBankruptTip();logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:100, delta:100, meta:{ source:'bankrupt_reset' } });}
+function resetCoins(){coins=100;saveCoins();toast('🙏 Получил 100 ЛК милостыни. Не трать сразу.','ok');showBankruptTip();logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:100, delta:100, meta:{ source:'bankrupt_reset' } }).catch(()=>{});}
 
 // ══════════════════════════════════════════════
 //  VIP SYSTEM
@@ -3697,7 +3760,7 @@ async function claimDaily(){
   coins+=amount;saveCoins();toast(`🎁 +${amount} ЛК ежедневный бонус!`,'win',4000);checkDaily();
   unlockAch('daily_bonus');
   if(r.logged !== true){
-    logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:amount, delta:amount, meta:{ source:'daily_bonus' } });
+    logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:amount, delta:amount, meta:{ source:'daily_bonus' } }).catch(()=>{});
   } else {
     scheduleCasinoStatsReload();
   }
@@ -3747,17 +3810,23 @@ async function playLastChance(side){
   lastChanceBusy=true;
   headBtn.disabled=true;
   tailBtn.disabled=true;
-  const roundId = await startCasinoRound('coinflip', bet, { pick:side, source:'coinflip_start' });
+  const roundId = await tryStartCasinoRound('coinflip', bet, { pick:side, source:'coinflip_start' });
+  if(!roundId){
+    lastChanceBusy=false;
+    headBtn.disabled=false;
+    tailBtn.disabled=false;
+    return;
+  }
   coins-=bet;spendCoins(bet);saveCoins();
   resultEl.textContent='Монетка крутится...';
   const faces=['🪙','💿','🟡','⚪'];
   let ticks=0;
-  const iv=setInterval(()=>{
+  const iv=setInterval(async ()=>{
     coinEl.textContent=faces[ticks % faces.length];
     ticks++;
     if(ticks>=10) clearInterval(iv);
   },90);
-  setTimeout(()=>{
+  setTimeout(async ()=>{
     const win = Math.random() < 0.45;
     const face = win ? side : (side === 'heads' ? 'tails' : 'heads');
     const payout = win ? 2 : 0;
@@ -3772,7 +3841,7 @@ async function playLastChance(side){
       toast('🪙 Не угадал. Монетка бессердечна.','err');
       onLose();
     }
-    finishCasinoRound(roundId, 'coinflip', bet, payout, { pick:side, result:face, win });
+    await persistCasinoRoundFinish(roundId, 'coinflip', bet, payout, { pick:side, result:face, win });
     lastChanceBusy=false;
     headBtn.disabled=false;
     tailBtn.disabled=false;
@@ -3789,17 +3858,23 @@ async function diceGuess(n,el){
   document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected'));
   el.classList.add('selected');diceSelected=n;
   diceRolling=true;
-  const roundId = await startCasinoRound('dice', bet, { guess:n, source:'dice_start' });
+  const roundId = await tryStartCasinoRound('dice', bet, { guess:n, source:'dice_start' });
+  if(!roundId){
+    diceRolling=false;
+    diceSelected=null;
+    document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected'));
+    return;
+  }
   coins-=bet;spendCoins(bet);saveCoins();
   document.getElementById('dice-result').textContent='';
   document.getElementById('dice-sum').textContent='?';
   let t=0;
-  const iv=setInterval(()=>{
+  const iv=setInterval(async ()=>{
     document.getElementById('dice1').textContent=DICE_FACES[Math.floor(Math.random()*6)];
     document.getElementById('dice2').textContent=DICE_FACES[Math.floor(Math.random()*6)];
     t+=100;if(t>900)clearInterval(iv);
   },100);
-  setTimeout(()=>{
+  setTimeout(async ()=>{
     const d1=Math.ceil(Math.random()*6),d2=Math.ceil(Math.random()*6),sum=d1+d2;
     document.getElementById('dice1').textContent=DICE_FACES[d1-1];
     document.getElementById('dice2').textContent=DICE_FACES[d2-1];
@@ -3813,7 +3888,7 @@ async function diceGuess(n,el){
     });
     if(win){coins+=payout;spendCoins(0);saveCoins();document.getElementById('dice-result').textContent=`🎲 ТОЧНО! +${payout} ЛК (×${DICE_PAYOUTS[n]})`;toast(`🎲 Угадал! +${payout} ЛК`,'win');recordWin('🎲 Кости',payout);onWin(payout,'🎲 Кости');unlockAch('dice_win');}
     else{document.getElementById('dice-result').textContent=`Выпало ${sum}. Ты ставил на ${n}. Типичная история.`;toast('🎲 Мимо. Сумма была '+sum,'err');onLose();}
-    finishCasinoRound(roundId, 'dice', bet, payout, { guess:n, d1, d2, sum, multiplier:DICE_PAYOUTS[n] || 0 });
+    await persistCasinoRoundFinish(roundId, 'dice', bet, payout, { guess:n, d1, d2, sum, multiplier:DICE_PAYOUTS[n] || 0 });
     setTimeout(()=>{document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected','hit','miss'));diceRolling=false;diceSelected=null;},1800);
   },1100);
 }
@@ -3890,7 +3965,8 @@ async function crashStart(){
   const bet=parseInt(document.getElementById('crash-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛК','err');return;}
   if(crashState.running)return;
-  const roundId = await startCasinoRound('crash', bet, { source:'crash_start' });
+  const roundId = await tryStartCasinoRound('crash', bet, { source:'crash_start' });
+  if(!roundId)return;
   coins-=bet;spendCoins(bet);saveCoins();
   // determine crash point: heavily skewed low
   const r=Math.random();
@@ -3908,7 +3984,7 @@ async function crashStart(){
   document.getElementById('crash-mult').style.color='var(--green)';
   const el=document.getElementById('crash-mult');
   resetCrashScene();
-  crashState.interval=setInterval(()=>{
+  crashState.interval=setInterval(async ()=>{
     crashState.mult=+(crashState.mult*1.05).toFixed(2);
     el.textContent=crashState.mult+'×';
     renderCrashScene(crashState.mult);
@@ -3925,11 +4001,11 @@ async function crashStart(){
       toast('💥 Краш на '+crashState.crashAt+'×. RIP '+bet+' ЛК','err');onLose();
       soundCrash();addCrashHistory(crashState.crashAt);
       unlockAch('crash_first');
-      finishCasinoRound(crashState.roundId, 'crash', bet, 0, { result:'crash', crash_at:crashState.crashAt });
+      await persistCasinoRoundFinish(crashState.roundId, 'crash', bet, 0, { result:'crash', crash_at:crashState.crashAt });
     }
   },120);
 }
-function crashCash(){
+async function crashCash(){
   if(!crashState.running)return;
   clearInterval(crashState.interval);crashState.running=false;
   const payout=Math.floor(crashState.bet*crashState.mult);
@@ -3943,7 +4019,7 @@ function crashCash(){
   recordWin('🪃 Краш',payout);onWin();
   unlockAch('crash_first');
   if(crashState.mult>=5)unlockAch('crash_5x');
-  finishCasinoRound(crashState.roundId, 'crash', crashState.bet, payout, { result:'cashout', multiplier:crashState.mult, crash_at:crashState.crashAt });
+  await persistCasinoRoundFinish(crashState.roundId, 'crash', crashState.bet, payout, { result:'cashout', multiplier:crashState.mult, crash_at:crashState.crashAt });
 }
 
 // ══════════════════════════════════════════════
@@ -3978,7 +4054,8 @@ async function hlDeal(){
   if(coins<15){toast('❌ Нужно 15 ЛК','err');return;}
   hlResolving=false;
   hlDeck=hlMakeDeck();hlStreakCount=0;hlPot=15;
-  hlRoundId = await startCasinoRound('higher_lower', 15, { source:'hl_start' });
+  hlRoundId = await tryStartCasinoRound('higher_lower', 15, { source:'hl_start' });
+  if(!hlRoundId)return;
   coins-=15;spendCoins(15);saveCoins();
   hlCurrent=hlDeck.pop();
   document.getElementById('hl-current').innerHTML=hlCardLabel(hlCurrent);
@@ -4031,22 +4108,22 @@ function hlGuess(dir){
     setTimeout(()=>hlEnd(false),2000);
   }
 }
-function hlCollect(){
+async function hlCollect(){
   const payout = hlPot;
   const bet = 15;
   coins+=payout;saveCoins();
   document.getElementById('hl-result').textContent=`💰 Забрал ${hlPot} ЛК! (серия: ${hlStreakCount})`;
   toast(`🎴 Собрал ${hlPot} ЛК!`,'win');recordWin('🎴 Выше-Ниже',hlPot);onWin(hlPot,'🎴 Выше-Ниже');
-  finishCasinoRound(hlRoundId, 'higher_lower', bet, payout, { result:'collect', streak:hlStreakCount, pot:hlPot });
-  hlEnd(true);
+  await persistCasinoRoundFinish(hlRoundId, 'higher_lower', bet, payout, { result:'collect', streak:hlStreakCount, pot:hlPot });
+  await hlEnd(true);
 }
-function hlEnd(won){
+async function hlEnd(won){
   hlResolving=false;
   document.getElementById('hl-higher').disabled=true;document.getElementById('hl-lower').disabled=true;
   document.getElementById('hl-deal').textContent='Старт 🃏';document.getElementById('hl-deal').onclick=hlDeal;
   if(!won){
     onLose();
-    finishCasinoRound(hlRoundId, 'higher_lower', 15, 0, { result:'lose', streak:hlStreakCount });
+    await persistCasinoRoundFinish(hlRoundId, 'higher_lower', 15, 0, { result:'lose', streak:hlStreakCount });
   }
   hlCurrent=null;
   hlRoundId='';
@@ -4070,7 +4147,12 @@ async function horseRace(){
   const bet = 30;
   horseRunning=true;
   document.getElementById('horse-start-btn').disabled=true;
-  const roundId = await startCasinoRound('horse', bet, { selected:selectedHorse, source:'horse_start' });
+  const roundId = await tryStartCasinoRound('horse', bet, { selected:selectedHorse, source:'horse_start' });
+  if(!roundId){
+    horseRunning=false;
+    document.getElementById('horse-start-btn').disabled=false;
+    return;
+  }
   coins-=bet;spendCoins(bet);saveCoins();
   document.getElementById('horse-result').textContent='🏁 Скачки начались!';
   setHorseComment(HORSE_COMMENTS.start[Math.floor(Math.random()*HORSE_COMMENTS.start.length)]);
@@ -4099,7 +4181,7 @@ async function horseRace(){
   const bars=[0,1,2,3].map(i=>document.getElementById('hb'+i));
   let raceOver=false;
 
-  const iv=setInterval(()=>{
+  const iv=setInterval(async ()=>{
     if(raceOver)return;
     for(let i=0;i<4;i++){
       pos[i]+=speeds[i]*(0.85+Math.random()*0.3);
@@ -4132,7 +4214,7 @@ async function horseRace(){
         document.getElementById('horse-result').textContent=`${HORSES[winner].emoji} ${HORSES[winner].name} победил. Твоя финишировала где-то там.`;
         toast(`🐎 ${HORSES[winner].name} победил. Не твоя.`,'err');onLose();
       }
-      finishCasinoRound(roundId, 'horse', bet, payout, {
+      await persistCasinoRoundFinish(roundId, 'horse', bet, payout, {
         selected:selectedHorse,
         winner,
         selected_name: HORSES[selectedHorse] ? HORSES[selectedHorse].name : '',
@@ -4224,11 +4306,16 @@ async function dropPlinko(){
   const resultEl=document.getElementById('plinko-result');
   if(!chip || !resultEl) return;
   const bet=plinkoBet;
-  coins-=bet;spendCoins(bet);saveCoins();
-  unlockAch('plinko_first');
   plinkoRunning=true;
   document.getElementById('plinko-btn').disabled=true;
-  const roundId = await startCasinoRound('plinko', bet, { source:'plinko_start' });
+  const roundId = await tryStartCasinoRound('plinko', bet, { source:'plinko_start' });
+  if(!roundId){
+    plinkoRunning=false;
+    document.getElementById('plinko-btn').disabled=false;
+    return;
+  }
+  coins-=bet;spendCoins(bet);saveCoins();
+  unlockAch('plinko_first');
   resultEl.textContent='Шарик пошёл искать приключения...';
   document.querySelectorAll('.plinko-slot').forEach(s=>s.classList.remove('hit'));
   const mult=weightedPick(PLINKO_MULTS, PLINKO_WEIGHTS);
@@ -4242,12 +4329,11 @@ async function dropPlinko(){
     step++;
     if(step>=offsets.length){
       clearInterval(iv);
-      setTimeout(()=>{
+      setTimeout(async ()=>{
         const finalX=offsets[offsets.length-1] ?? 0;
         chip.style.transform=`translateX(calc(-50% + ${finalX}px))`;
         chip.style.top=(12 + (offsets.length-1)*PLINKO_STEP_Y)+'px';
         const payout=Math.round(bet*mult);
-        const delta=payout-bet;
         const slotEl=document.getElementById(`plinko-slot-${slotIndex}`);
         if(slotEl) slotEl.classList.add('hit');
         if(payout>0){
@@ -4261,7 +4347,7 @@ async function dropPlinko(){
           toast('🟡 Плинко: шарик выбрал 0×','err');
           onLose();
         }
-        finishCasinoRound(roundId, 'plinko', bet, payout, { multiplier:mult, slot_index:slotIndex });
+        await persistCasinoRoundFinish(roundId, 'plinko', bet, payout, { multiplier:mult, slot_index:slotIndex });
         plinkoRunning=false;
         document.getElementById('plinko-btn').disabled=false;
       },220);
@@ -4291,7 +4377,8 @@ function renderMinesBoard(showAll=false){
 async function startMines(){
   const bet=parseInt(document.getElementById('mines-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
-  const roundId = await startCasinoRound('mines', bet, { source:'mines_start' });
+  const roundId = await tryStartCasinoRound('mines', bet, { source:'mines_start' });
+  if(!roundId)return;
   const cells=[...Array(12).keys()].sort(()=>Math.random()-.5).slice(0,2);
   minesState={ running:true, roundId, bet, mines:new Set(cells), opened:new Set(), multiplier:1, mineCount:2 };
   coins-=bet;spendCoins(bet);saveCoins();
@@ -4303,7 +4390,7 @@ async function startMines(){
   renderMinesBoard(false);
 }
 
-function clickMine(idx){
+async function clickMine(idx){
   if(!minesState.running || minesState.opened.has(idx)) return;
   if(minesState.mines.has(idx)){
     minesState.running=false;
@@ -4312,7 +4399,7 @@ function clickMine(idx){
     document.getElementById('mines-cash-btn').disabled=true;
     renderMinesBoard(true);
     onLose();
-    finishCasinoRound(minesState.roundId, 'mines', minesState.bet, 0, { opened:minesState.opened.size, mine_at:idx });
+    await persistCasinoRoundFinish(minesState.roundId, 'mines', minesState.bet, 0, { opened:minesState.opened.size, mine_at:idx });
     return;
   }
   minesState.opened.add(idx);
@@ -4325,7 +4412,7 @@ function clickMine(idx){
   renderMinesBoard(false);
 }
 
-function cashoutMines(){
+async function cashoutMines(){
   if(!minesState.running || !minesState.opened.size) return;
   const payout=Math.round(minesState.bet * minesState.multiplier);
   coins+=payout;saveCoins();
@@ -4336,7 +4423,7 @@ function cashoutMines(){
   renderMinesBoard(true);
   toast(`💣 Минёр: +${payout} ЛК`,'win');
   onWin(payout,'💣 Минёр');
-  finishCasinoRound(minesState.roundId, 'mines', minesState.bet, payout, { opened:minesState.opened.size, multiplier:minesState.multiplier });
+  await persistCasinoRoundFinish(minesState.roundId, 'mines', minesState.bet, payout, { opened:minesState.opened.size, multiplier:minesState.multiplier });
 }
 
 // ══════════════════════════════════════════════
@@ -4364,9 +4451,13 @@ function renderTower(){
 async function startTower(){
   const bet=parseInt(document.getElementById('tower-bet').value);
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
-  towerState.running=true;
   document.getElementById('tower-start-btn').disabled=true;
-  towerState.roundId=await startCasinoRound('tower', bet, { source:'tower_start' });
+  towerState.roundId=await tryStartCasinoRound('tower', bet, { source:'tower_start' });
+  if(!towerState.roundId){
+    document.getElementById('tower-start-btn').disabled=false;
+    return;
+  }
+  towerState.running=true;
   towerState.bet=bet;
   towerState.level=0;
   towerState.bombs=Array.from({length:6},()=>Math.floor(Math.random()*3));
@@ -4388,7 +4479,7 @@ function revealTowerRow(level, bombCol){
   });
 }
 
-function pickTower(col){
+async function pickTower(col){
   if(!towerState.running) return;
   const level=towerState.level;
   const bomb=towerState.bombs[level];
@@ -4399,7 +4490,7 @@ function pickTower(col){
     document.getElementById('tower-start-btn').disabled=false;
     document.getElementById('tower-cash-btn').disabled=true;
     onLose();
-    finishCasinoRound(towerState.roundId, 'tower', towerState.bet, 0, { level, bomb_col:bomb, picked:col });
+    await persistCasinoRoundFinish(towerState.roundId, 'tower', towerState.bet, 0, { level, bomb_col:bomb, picked:col });
     setTimeout(renderTower,700);
     return;
   }
@@ -4414,7 +4505,7 @@ function pickTower(col){
   setTimeout(renderTower,700);
 }
 
-function cashoutTower(){
+async function cashoutTower(){
   if(!towerState.running || towerState.level===0) return;
   const mult=towerState.multipliers[towerState.level-1];
   const payout=Math.round(towerState.bet * mult);
@@ -4427,7 +4518,7 @@ function cashoutTower(){
   renderTower();
   toast(`🗼 Башня: +${payout} ЛК`,'win');
   onWin(payout,'🗼 Башня');
-  finishCasinoRound(towerState.roundId, 'tower', towerState.bet, payout, { level:towerState.level, multiplier:mult });
+  await persistCasinoRoundFinish(towerState.roundId, 'tower', towerState.bet, payout, { level:towerState.level, multiplier:mult });
 }
 
 // ══════════════════════════════════════════════
@@ -5192,19 +5283,34 @@ async function loadCasinoFromSheets(code) {
   try {
     const r = await api({ action: 'getCasino', code });
     if (r.ok) {
+      const localState = loadCasinoLocalState(code);
+      const localTs = localState && localState.updated_at ? Date.parse(localState.updated_at) : 0;
+      const localIsFresh = Number.isFinite(localTs) && (Date.now() - localTs) <= CASINO_LOCAL_STATE_TTL_MS;
+      const shouldPreferLocal =
+        !!(localState && localState.dirty && localIsFresh) &&
+        (
+          parseInt(localState.coins, 10) !== (parseInt(r.coins, 10) || 1000) ||
+          parseInt(localState.spent, 10) !== (parseInt(r.spent, 10) || 0)
+        );
+
       // Данные казино привязаны к текущему коду игрока.
       // Не смешиваем их с localStorage прошлого пользователя в этом же браузере.
-      coins = parseInt(r.coins) || 1000;
-      totalSpent = parseInt(r.spent) || 0;
+      coins = shouldPreferLocal ? (parseInt(localState.coins, 10) || 1000) : (parseInt(r.coins, 10) || 1000);
+      totalSpent = shouldPreferLocal ? (parseInt(localState.spent, 10) || 0) : (parseInt(r.spent, 10) || 0);
       casinoServerState.last_daily = r.last_daily || '';
       casinoServerState.last_cashback = r.last_cashback || '';
       LS.set('luzbet_coins', coins);
       LS.set('luzbet_spent', totalSpent);
+      saveCasinoLocalState(code, { dirty:shouldPreferLocal });
       renderCoinsUI();
       updateVip();
       checkDaily();
       updateCashbackUI();
       await syncTrustedSpent(code, { preferCache:true });
+      if (shouldPreferLocal) {
+        scheduleCasinoSync();
+        flushCasinoSync(true).catch(() => {});
+      }
     }
   } catch(e) { /* use local */ }
 }
@@ -5743,7 +5849,7 @@ function activateKonami(){
     payout:777,
     delta:777,
     meta:{ source:'konami_code' }
-  });
+  }).catch(()=>{});
   unlockAch('konami');
   toast('🥚 KONAMI CODE! +777 ЛузКоинов! ЭТО МОЁ БОЛОТО!','win',5000);
   // Показываем Васю с Шреком
