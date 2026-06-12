@@ -1880,7 +1880,7 @@ if (action === 'getAchAll') {
     }
 
     if (action === 'getMyCasinoStats') {
-      return await sbFunction('get-my-casino-stats', {
+      return await sbFunction('get-casino-stats', {
         code,
         days: parseInt(params.days || 1)
       });
