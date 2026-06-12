@@ -1904,6 +1904,25 @@ if (action === 'getAchAll') {
       return await sbFunction('save-playoff', params);
     }
 
+    if (action === 'startCasinoRound') {
+      return await sbFunction('start-casino-round', {
+        code,
+        round_id: params.round_id || '',
+        game: params.game || '',
+        bet: parseInt(params.bet || 0),
+        meta: params.meta || {}
+      });
+    }
+
+    if (action === 'finishCasinoRound') {
+      return await sbFunction('finish-casino-round', {
+        code,
+        round_id: params.round_id || '',
+        payout: parseInt(params.payout || 0),
+        meta: params.meta || {}
+      });
+    }
+
     if (action === 'logCasinoEvent') {
       return await sbFunction('log-casino-event', {
         code,
@@ -2137,6 +2156,8 @@ async function checkPendingMatchRewards(force=false){
 // ══════════════════════════════════════════════
 let casinoSyncTimer = null;
 let casinoDirty = false;
+let casinoServerRoundMode = true;
+let casinoBalanceLockedUntil = 0;
 const CASINO_SYNC_DELAY = 3000; // 3 сек: активные игроки быстрее доходят до базы, но без лишнего спама
 const CASINO_LOCAL_STATE_TTL_MS = 15 * 60 * 1000;
 let casinoServerState = { last_daily: '', last_cashback: '' };
@@ -2153,6 +2174,7 @@ function getCasinoPayload() {
 
 function saveCasinoKeepAlive() {
   if (!S.code) return;
+  if (casinoServerRoundMode) return;
   try {
     // fetch keepalive успевает отправить маленький запрос даже при закрытии вкладки.
     fetch(SUPABASE_FUNCTIONS_URL + '/save-casino', {
@@ -2177,14 +2199,23 @@ function scheduleCasinoSync() {
 
 function scheduleCasinoServerRefresh(delay = 1500) {
   if (!S.code) return;
+  if (casinoServerRoundMode && Date.now() < casinoBalanceLockedUntil) return;
   if (casinoRefreshTimer) clearTimeout(casinoRefreshTimer);
   casinoRefreshTimer = setTimeout(async () => {
     casinoRefreshTimer = null;
+    if (casinoServerRoundMode && Date.now() < casinoBalanceLockedUntil) return;
     await loadCasinoFromSheets(S.code);
   }, delay);
 }
 
 async function flushCasinoSync(force = false) {
+  if (casinoServerRoundMode) {
+    casinoDirty = false;
+    if (casinoSyncTimer) clearTimeout(casinoSyncTimer);
+    casinoSyncTimer = null;
+    saveCasinoLocalState(S.code, { dirty:false });
+    return;
+  }
   if ((!casinoDirty && !force) || !S.code) return;
   casinoDirty = false;
   if (casinoSyncTimer) clearTimeout(casinoSyncTimer);
@@ -2324,20 +2355,31 @@ function refreshVipAchievements(){
 }
 
 function saveCoins(){
-  LS.set('luzbet_coins',coins);
-  saveCasinoLocalState(S.code, { dirty:!!S.code });
-  // До входа это только локальный UI state, в Supabase такое отправлять не нужно.
-  if(S.code) scheduleCasinoSync();
+  LS.set('luzbet_coins', coins);
+  LS.set('luzbet_spent', totalSpent);
+  saveCasinoLocalState(S.code, { dirty:false });
+  // Игровые ставки теперь пишет сервер через start/finish-casino-round.
+  // Старый save-casino не вызываем, чтобы не откатывать баланс.
+  if(S.code && !casinoServerRoundMode) scheduleCasinoSync();
   renderCoinsUI();
 }
 
 function renderCoinsUI(){
-  document.getElementById('header-coins-num').textContent=coins;
-  document.getElementById('casino-coins').textContent=coins;
-  document.getElementById('header-coins').style.display='flex';
-  if(coins<=0){document.getElementById('casino-bankrupt').style.display='block';document.getElementById('casino-games').style.display='none';unlockAch('bankrupt');showBankruptTip();}
-  else{document.getElementById('casino-bankrupt').style.display='none';document.getElementById('casino-games').style.display='grid';}
-  if(coins>=2000)unlockAch('rich');
+  document.getElementById('header-coins-num').textContent = coins;
+  document.getElementById('casino-coins').textContent = coins;
+  document.getElementById('header-coins').style.display = 'flex';
+
+  if (coins <= 0) {
+    document.getElementById('casino-bankrupt').style.display = 'block';
+    document.getElementById('casino-games').style.display = 'none';
+    unlockAch('bankrupt', { silent:true });
+    showBankruptTip();
+  } else {
+    document.getElementById('casino-bankrupt').style.display = 'none';
+    document.getElementById('casino-games').style.display = 'grid';
+  }
+
+  if (coins >= 2000) unlockAch('rich', { silent:true });
 }
 
 let casinoStatsReloadTimer = null;
@@ -2668,62 +2710,98 @@ function makeCasinoRoundId(game){
   return `${S.code || 'guest'}_${game}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
-async function startCasinoRound(game, bet, meta={}){
+async function startCasinoRound(game, bet, meta = {}) {
+  if (!S.code) {
+    toast('🔐 Сначала войди в аккаунт', 'err');
+    return '';
+  }
+
   const roundId = makeCasinoRoundId(game);
-  await logCasinoEvent({
+  const r = await api({
+    action: 'startCasinoRound',
+    code: S.code,
     round_id: roundId,
     game,
-    event_type: 'round',
     bet,
-    payout: 0,
-    delta: -bet,
-    meta: {
-      ...meta,
-      status: 'started',
-      forced_loss_if_closed: true
-    }
+    meta
   });
-  return roundId;
+
+  if (!r || r.ok !== true) {
+    throw new Error((r && (r.error || r.message)) || 'startCasinoRound failed');
+  }
+
+  casinoBalanceLockedUntil = Date.now() + 8000;
+
+  coins = parseInt(r.coins ?? coins, 10);
+  totalSpent = parseInt(r.spent ?? totalSpent, 10);
+
+  LS.set('luzbet_coins', coins);
+  LS.set('luzbet_spent', totalSpent);
+  saveCasinoLocalState(S.code, { dirty:false });
+
+  renderCoinsUI();
+  updateVip();
+  updateCashbackUI();
+
+  return r.round_id || roundId;
 }
 
-async function tryStartCasinoRound(game, bet, meta={}){
-  try{
+async function tryStartCasinoRound(game, bet, meta = {}) {
+  try {
     return await startCasinoRound(game, bet, meta);
-  }catch(e){
+  } catch(e) {
     console.error('startCasinoRound failed', game, e);
-    toast('⚠️ Ставка не сохранилась в базе. Повтори ещё раз.','err');
+    const msg = e && e.message ? e.message : String(e || 'неизвестная ошибка');
+    toast(`⚠️ Ставка не сохранилась: ${msg}`, 'err', 7000);
     return '';
   }
 }
 
-async function finishCasinoRound(roundId, game, bet, payout, meta={}){
-  await logCasinoEvent({
-    round_id: roundId || '',
-    game,
-    event_type: 'round',
-    bet,
+async function finishCasinoRound(roundId, game, bet, payout, meta = {}) {
+  if (!S.code || !roundId) return false;
+
+  const r = await api({
+    action: 'finishCasinoRound',
+    code: S.code,
+    round_id: roundId,
     payout,
-    delta: payout - bet,
     meta: {
       ...meta,
-      status: 'finished'
+      game_from_client: game,
+      bet_from_client: bet
     }
   });
-  if (S.code) {
-    await flushCasinoSync(true);
+
+  if (!r || r.ok !== true) {
+    throw new Error((r && (r.error || r.message)) || 'finishCasinoRound failed');
   }
+
+  casinoBalanceLockedUntil = Date.now() + 8000;
+
+  coins = parseInt(r.coins ?? coins, 10);
+  totalSpent = parseInt(r.spent ?? totalSpent, 10);
+
+  LS.set('luzbet_coins', coins);
+  LS.set('luzbet_spent', totalSpent);
+  saveCasinoLocalState(S.code, { dirty:false });
+
+  renderCoinsUI();
+  updateVip();
+  updateCashbackUI();
+  scheduleCasinoStatsReload();
+
   return true;
 }
 
-async function persistCasinoRoundFinish(roundId, game, bet, payout, meta={}){
-  try{
+async function persistCasinoRoundFinish(roundId, game, bet, payout, meta = {}) {
+  try {
     await finishCasinoRound(roundId, game, bet, payout, meta);
     return true;
-  }catch(e){
+  } catch(e) {
     console.error('finishCasinoRound failed', game, e);
-    casinoDirty = true;
-    saveCasinoLocalState(S.code, { dirty:true });
-    toast('⚠️ Результат раунда ещё не сохранился в базе. Не закрывай страницу.','err');
+    const msg = e && e.message ? e.message : String(e || 'неизвестная ошибка');
+    toast(`⚠️ Результат раунда не сохранился: ${msg}`, 'err', 7000);
+    scheduleCasinoServerRefresh(3000);
     return false;
   }
 }
@@ -3757,7 +3835,7 @@ async function claimDaily(){
   const amount = parseInt(r.amount || 0) || 0;
   if(amount <= 0){toast('🎁 Сегодня бонус уже получен.','info');checkDaily();return;}
   casinoServerState.last_daily = r.last_daily || new Date().toISOString();
-  coins+=amount;saveCoins();toast(`🎁 +${amount} ЛК ежедневный бонус!`,'win',4000);checkDaily();
+  coins += amount; saveCoins();toast(`🎁 +${amount} ЛК ежедневный бонус!`,'win',4000);checkDaily();
   unlockAch('daily_bonus');
   if(r.logged !== true){
     logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:amount, delta:amount, meta:{ source:'daily_bonus' } }).catch(()=>{});
