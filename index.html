@@ -2332,12 +2332,27 @@ function saveCoins(){
 }
 
 function renderCoinsUI(){
-  document.getElementById('header-coins-num').textContent=coins;
-  document.getElementById('casino-coins').textContent=coins;
-  document.getElementById('header-coins').style.display='flex';
-  if(coins<=0){document.getElementById('casino-bankrupt').style.display='block';document.getElementById('casino-games').style.display='none';unlockAch('bankrupt');showBankruptTip();}
-  else{document.getElementById('casino-bankrupt').style.display='none';document.getElementById('casino-games').style.display='grid';}
-  if(coins>=2000)unlockAch('rich');
+  document.getElementById('header-coins-num').textContent = coins;
+  document.getElementById('casino-coins').textContent = coins;
+  document.getElementById('header-coins').style.display = 'flex';
+
+  if (coins <= 0) {
+    document.getElementById('casino-bankrupt').style.display = 'block';
+    document.getElementById('casino-games').style.display = 'none';
+
+    // Автоачивка при отрисовке UI — без всплывающего тоста
+    unlockAch('bankrupt', { silent: true });
+
+    showBankruptTip();
+  } else {
+    document.getElementById('casino-bankrupt').style.display = 'none';
+    document.getElementById('casino-games').style.display = 'grid';
+  }
+
+  // Автоачивка при обновлении страницы — без всплывающего тоста
+  if (coins >= 2000) {
+    unlockAch('rich', { silent: true });
+  }
 }
 
 let casinoStatsReloadTimer = null;
