@@ -3897,6 +3897,25 @@ const HL_VALS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const HL_NUM={2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,J:11,Q:12,K:13,A:14};
 function hlMakeDeck(){const suits=['♠','♥','♦','♣'];const d=[];suits.forEach(s=>HL_VALS.forEach(v=>d.push({v,s,n:HL_NUM[v]})));return d.sort(()=>Math.random()-.5);}
 function hlCardLabel(c){const red=['♥','♦'].includes(c.s);return `<span style="color:${red?'var(--red)':'#111'}">${c.v}${c.s}</span>`;}
+function drawHlNextCard(current){
+  if(!current) return null;
+  if(!hlDeck.length) return null;
+  let idx=-1;
+  for(let tries=0;tries<hlDeck.length;tries++){
+    const candidateIdx=Math.floor(Math.random()*hlDeck.length);
+    const candidate=hlDeck[candidateIdx];
+    if(candidate && candidate.n!==current.n){
+      idx=candidateIdx;
+      break;
+    }
+  }
+  if(idx<0){
+    idx=hlDeck.findIndex(c=>c && c.n!==current.n);
+  }
+  if(idx<0) return null;
+  const [next]=hlDeck.splice(idx,1);
+  return next||null;
+}
 async function hlDeal(){
   if(coins<15){toast('❌ Нужно 15 ЛК','err');return;}
   hlResolving=false;
@@ -3918,19 +3937,18 @@ async function hlDeal(){
 function hlGuess(dir){
   if(hlResolving)return;
   if(!hlCurrent||!hlDeck.length){toast('Нажми Старт','err');return;}
-  const next=hlDeck.pop();
+  const next=drawHlNextCard(hlCurrent);
+  if(!next){
+    toast('🎴 Подходящих карт не осталось. Забирай банк.','info');
+    hlCollect();
+    return;
+  }
   document.getElementById('hl-next').innerHTML=hlCardLabel(next);
   document.getElementById('hl-deck-left').textContent=hlDeck.length;
   document.getElementById('hl-higher').disabled=true;
   document.getElementById('hl-lower').disabled=true;
   hlResolving=true;
   const correct=(dir==='higher'&&next.n>hlCurrent.n)||(dir==='lower'&&next.n<hlCurrent.n);
-  if(next.n===hlCurrent.n){// tie — lose
-    document.getElementById('hl-result').textContent='Ничья — проигрыш. Судьба жестокая.';
-    toast('🎴 Ничья = проигрыш. Типично.','err');
-    setTimeout(()=>hlEnd(false),2000);
-    return;
-  }
   if(correct){
     hlStreakCount++;hlPot=Math.floor(hlPot*1.5);
     document.getElementById('hl-streak').textContent=hlStreakCount;
