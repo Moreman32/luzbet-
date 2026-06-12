@@ -298,6 +298,22 @@ export async function settleGroupRewards(supabase: any, groupCode: string) {
     };
     const { error } = await supabase.from("casino").upsert(payload, { onConflict: "code" });
     if (error) throw error;
+
+    if (entry.delta !== 0) {
+      const { error: eventError } = await supabase.from("casino_events").insert({
+        code: entry.code,
+        game: "system",
+        event_type: "bonus",
+        bet: 0,
+        payout: entry.delta > 0 ? entry.delta : 0,
+        delta: entry.delta,
+        meta: {
+          source: "match_reward_settlement",
+          group_code: upperGroup,
+        },
+      });
+      if (eventError) throw eventError;
+    }
   }
 
   return {
@@ -348,6 +364,22 @@ export async function clearGroupRewards(supabase: any, groupCode: string) {
       spent: Number(existingCasino.spent || 0),
     }, { onConflict: "code" });
     if (error) throw error;
+
+    if (delta !== 0) {
+      const { error: eventError } = await supabase.from("casino_events").insert({
+        code: existingCasino.code,
+        game: "system",
+        event_type: "bonus",
+        bet: 0,
+        payout: delta > 0 ? delta : 0,
+        delta,
+        meta: {
+          source: "match_reward_clear",
+          group_code: upperGroup,
+        },
+      });
+      if (eventError) throw eventError;
+    }
   }
 
   const ids = rewards.map((row: any) => Number(row.id)).filter((id: number) => Number.isFinite(id));

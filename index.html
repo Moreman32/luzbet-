@@ -2089,8 +2089,9 @@ async function checkPendingMatchRewards(force=false){
 // ══════════════════════════════════════════════
 let casinoSyncTimer = null;
 let casinoDirty = false;
-const CASINO_SYNC_DELAY = 15000; // 15 сек: не долбим БД после каждого клика, но сохраняем быстро
+const CASINO_SYNC_DELAY = 3000; // 3 сек: активные игроки быстрее доходят до базы, но без лишнего спама
 let casinoServerState = { last_daily: '', last_cashback: '' };
+let casinoRefreshTimer = null;
 
 function getCasinoPayload() {
   return {
@@ -2124,6 +2125,15 @@ function scheduleCasinoSync() {
   casinoSyncTimer = setTimeout(flushCasinoSync, CASINO_SYNC_DELAY);
 }
 
+function scheduleCasinoServerRefresh(delay = 1500) {
+  if (!S.code) return;
+  if (casinoRefreshTimer) clearTimeout(casinoRefreshTimer);
+  casinoRefreshTimer = setTimeout(async () => {
+    casinoRefreshTimer = null;
+    await loadCasinoFromSheets(S.code);
+  }, delay);
+}
+
 async function flushCasinoSync(force = false) {
   if ((!casinoDirty && !force) || !S.code) return;
   casinoDirty = false;
@@ -2150,7 +2160,11 @@ async function flushCasinoSync(force = false) {
       return;
     }
 
-    if (!r || !r.ok) casinoDirty = true;
+    if (r && r.ok) {
+      scheduleCasinoServerRefresh(1200);
+    } else {
+      casinoDirty = true;
+    }
   } catch(e) {
     casinoDirty = true;
   }
@@ -2164,6 +2178,7 @@ document.addEventListener('visibilitychange', () => {
   }
   if (!document.hidden && S.code) {
     checkPendingMatchRewards();
+    scheduleCasinoServerRefresh(250);
   }
 });
 window.addEventListener('pagehide', () => {
@@ -2613,6 +2628,9 @@ async function finishCasinoRound(roundId, game, bet, payout, meta={}){
       status: 'finished'
     }
   });
+  if (S.code) {
+    await flushCasinoSync(true);
+  }
 }
 
 function renderAchievements(){
@@ -5675,6 +5693,14 @@ function activateKonami(){
   soundJackpot();
   coins+=777;
   saveCoins();
+  logCasinoEvent({
+    game:'system',
+    event_type:'bonus',
+    bet:0,
+    payout:777,
+    delta:777,
+    meta:{ source:'konami_code' }
+  });
   unlockAch('konami');
   toast('🥚 KONAMI CODE! +777 ЛузКоинов! ЭТО МОЁ БОЛОТО!','win',5000);
   // Показываем Васю с Шреком
