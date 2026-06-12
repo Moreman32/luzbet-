@@ -2357,6 +2357,17 @@ function emptyCasinoStats(){
       win_rate: 0,
       rtp: 0,
     },
+    overall: {
+      games_count: 0,
+      wins_count: 0,
+      losses_count: 0,
+      pushes_count: 0,
+      bet_sum: 0,
+      payout_sum: 0,
+      net_sum: 0,
+      win_rate: 0,
+      rtp: 0,
+    },
     days: [],
     per_game: [],
   };
@@ -2388,21 +2399,22 @@ function statsDateLabel(dateKey){
 function renderCasinoStats(stats){
   const data = stats && stats.ok ? stats : emptyCasinoStats();
   casinoStatsCache = data;
-  const sum = data.summary || emptyCasinoStats().summary;
+  const today = data.summary || emptyCasinoStats().summary;
+  const overall = data.overall || today || emptyCasinoStats().overall;
   const summary = document.getElementById('casino-stats-summary');
   const daysEl = document.getElementById('casino-stats-days');
   const gamesEl = document.getElementById('casino-stats-games');
   if(!summary || !daysEl || !gamesEl) return;
 
   const cards = [
-    ['Игр сегодня', sum.games_count, ''],
-    ['Побед', sum.wins_count, 'good'],
-    ['Поражений', sum.losses_count, 'bad'],
-    ['Поставлено', formatCoins(sum.bet_sum), ''],
-    ['Возврат', formatCoins(sum.payout_sum), sum.payout_sum > sum.bet_sum ? 'good' : ''],
-    ['Итог', formatSignedCoins(sum.net_sum), sum.net_sum > 0 ? 'good' : (sum.net_sum < 0 ? 'bad' : '')],
-    ['Winrate', formatPct(sum.win_rate), sum.win_rate >= 50 ? 'good' : ''],
-    ['RTP', formatPct(sum.rtp), sum.rtp >= 100 ? 'good' : (sum.rtp < 60 ? 'bad' : '')],
+    ['Игр сегодня', today.games_count, ''],
+    ['Игр за период', overall.games_count, ''],
+    ['Побед / поражений', `${overall.wins_count || 0}/${overall.losses_count || 0}`, ''],
+    ['Поставлено за период', formatCoins(overall.bet_sum), ''],
+    ['Возврат за период', formatCoins(overall.payout_sum), overall.payout_sum > overall.bet_sum ? 'good' : ''],
+    ['Итог за период', formatSignedCoins(overall.net_sum), overall.net_sum > 0 ? 'good' : (overall.net_sum < 0 ? 'bad' : '')],
+    ['Winrate за период', formatPct(overall.win_rate), overall.win_rate >= 50 ? 'good' : ''],
+    ['RTP за период', formatPct(overall.rtp), overall.rtp >= 100 ? 'good' : (overall.rtp < 60 ? 'bad' : '')],
   ];
 
   summary.innerHTML = cards.map(([label, value, cls]) => `
