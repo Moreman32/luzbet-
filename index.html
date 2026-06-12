@@ -1571,8 +1571,12 @@ const ALL_ACHIEVEMENTS=[
   {id:"perfect_group",cat:"contest",icon:"✨",name:"Прозорливец",desc:"Угадал обе команды, вышедшие из одной группы.",secret:false},
   {id:"exact_score",cat:"contest",icon:"💥",name:"Снайпер",desc:"Угадал точный счёт матча. Это невозможно. Но ты сделал.",secret:false},
   {id:"all_exact",cat:"contest",icon:"🎯",name:"Оракул",desc:"Угадал 3+ точных счёта. Либо ты читерил, либо мы — баги.",secret:true},
+  {id:"outcome_reader",cat:"contest",icon:"🧠",name:"Читатель исходов",desc:"Набрал 5+ очков только на угадывании исходов матчей.",secret:false},
+  {id:"diff_hunter",cat:"contest",icon:"↔️",name:"Охотник за разницей",desc:"Дважды угадал разницу голов. Уже не случайность.",secret:false},
+  {id:"points_20",cat:"contest",icon:"🏆",name:"План сработал",desc:"Набрал 20+ очков в групповом этапе. Подозрительно сильно.",secret:true},
   {id:"early_bird",cat:"contest",icon:"🐦",name:"Ранняя пташка",desc:"Сделал ставку раньше всех в группе.",secret:false},
   {id:"last_second",cat:"contest",icon:"⏱️",name:"До свистка",desc:"Сделал ставку за последние 10 минут до дедлайна.",secret:true},
+  {id:"playoff_saved",cat:"contest",icon:"🏟️",name:"Плей-офф живёт в тебе",desc:"Зафиксировал купон плей-офф. Назад дороги нет.",secret:false},
   // КАЗИНО
   {id:"casino_first",cat:"casino",icon:"🎰",name:"Дебютант",desc:"Первый раз сыграл в казино. Добро пожаловать в проигрыш.",secret:false},
   {id:"slots_first",cat:"casino",icon:"🍋",name:"Одноручный бандит",desc:"Первый раз нажал крутить слоты.",secret:false},
@@ -1594,6 +1598,13 @@ const ALL_ACHIEVEMENTS=[
   {id:"hl_streak5",cat:"casino",icon:"🃏",name:"Пять карт судьбы",desc:"Собрал серию 5 в выше-ниже. Подозрительно удачно.",secret:true},
   {id:"horse_first",cat:"casino",icon:"🐎",name:"На ипподроме",desc:"Поставил на скачки. Даже улитка оценила.",secret:false},
   {id:"horse_win",cat:"casino",icon:"🏁",name:"Финишировал",desc:"Угадал победителя скачек. Лошадь старалась, ты случайно нажал.",secret:false},
+  {id:"plinko_first",cat:"casino",icon:"🟡",name:"Шар судьбы",desc:"Первый раз запустил шарик в Плинко.",secret:false},
+  {id:"plinko_5x",cat:"casino",icon:"🌕",name:"Отскок в стратосферу",desc:"Поймал 5× или выше в Плинко.",secret:true},
+  {id:"mines_first",cat:"casino",icon:"💣",name:"Сапёр без лицензии",desc:"Запустил первую игру в Минёра.",secret:false},
+  {id:"mines_3safe",cat:"casino",icon:"💎",name:"Стальные нервы",desc:"Открыл 3 безопасные клетки в Минёре за один заход.",secret:true},
+  {id:"tower_first",cat:"casino",icon:"🗼",name:"Первый этаж",desc:"Зашёл в Башню и всё равно решил лезть выше.",secret:false},
+  {id:"tower_top",cat:"casino",icon:"👑",name:"На самой крыше",desc:"Добрался до вершины Башни и забрал награду.",secret:true},
+  {id:"cashback_claim",cat:"casino",icon:"♻️",name:"Компенсация страданий",desc:"Забрал ежедневный кешбек казино. Хоть что-то вернулось.",secret:false},
   // ОБЩИЕ
   {id:"page_rules",cat:"general",icon:"📜",name:"Законопослушный",desc:"Прочитал правила. Или открыл вкладку. Считается.",secret:false},
   {id:"night_owl",cat:"general",icon:"🦉",name:"Ночная сова",desc:"Зашёл на сайт после полуночи. Серьёзно?",secret:true},
@@ -1601,6 +1612,9 @@ const ALL_ACHIEVEMENTS=[
   {id:"sam_reshu",cat:"general",icon:"😤",name:"Сам решу",desc:"Нажал главную кнопку согласия. Ответственность принята, надежда потеряна.",secret:false},
   {id:"konami",cat:"general",icon:"🕹️",name:"Старый читер",desc:"Ввёл секретную комбинацию. Призы не положены, уважение сомнительное.",secret:true},
   {id:"fast_login",cat:"general",icon:"⚡",name:"Молния",desc:"Ввёл код за менее чем 3 секунды. Тренировался?",secret:true},
+  {id:"vip_bronze",cat:"general",icon:"🥉",name:"Бронзовый клиент",desc:"Дошёл до VIP-уровня Бронза по сумме ставок.",secret:false},
+  {id:"vip_gold",cat:"general",icon:"🥇",name:"Золотой клиент",desc:"Дошёл до VIP-уровня Золото. Касса тебя запомнила.",secret:false},
+  {id:"vip_legend",cat:"general",icon:"💎",name:"Легенда заведения",desc:"Дошёл до VIP-уровня Легенда. Это уже не просто хобби.",secret:true},
 ];
 
 // ══════════════════════════════════════════════
@@ -2125,6 +2139,14 @@ function unlockAch(id){
     if(document.getElementById('page-achievements').classList.contains('active'))renderAchievements();
   }
 }
+
+function refreshVipAchievements(){
+  const vip = getVipForSpent(totalSpent);
+  if(vip.thresh >= 500) unlockAch('vip_bronze');
+  if(vip.thresh >= 5000) unlockAch('vip_gold');
+  if(vip.thresh >= 15000) unlockAch('vip_legend');
+}
+
 function saveCoins(){
   LS.set('luzbet_coins',coins);
   // До входа это только локальный UI state, в Supabase такое отправлять не нужно.
@@ -2420,6 +2442,7 @@ async function claimCasinoCashback(){
   } else {
     scheduleCasinoStatsReload();
   }
+  unlockAch('cashback_claim');
   await loadCasinoCashbackStats(true);
 }
 
@@ -3055,6 +3078,9 @@ async function showVoted(pred){
   }
   if(tPts===0&&Object.values(results).some(v=>(v.teams && v.teams.length)>0))unlockAch('zero_pts');
   const total=tPts+oPts+dPts+sPts;
+  if(oPts>=5)unlockAch('outcome_reader');
+  if(dPts>=4)unlockAch('diff_hunter');
+  if(total>=20)unlockAch('points_20');
   const grpDone=Object.values(results).filter(v=>(v.teams && v.teams.length)>0).length;
   // Hide expert bot
   const eb2=document.getElementById('expert-bot-wrap');if(eb2)eb2.style.display='none';
@@ -3421,6 +3447,7 @@ function getVipForSpent(spent=0){
 function getVip(){return getVipForSpent(totalSpent);}
 function updateVip(){
   const v=getVip(),badge=document.getElementById('vip-badge');
+  refreshVipAchievements();
   if(!badge)return;
   badge.textContent=v.name;badge.style.borderColor=v.color;badge.style.color=v.tc;
   const next=VIP_LEVELS.find(x=>x.thresh>totalSpent);
@@ -3970,6 +3997,7 @@ async function dropPlinko(){
   if(!chip || !resultEl) return;
   const bet=plinkoBet;
   coins-=bet;spendCoins(bet);saveCoins();
+  unlockAch('plinko_first');
   plinkoRunning=true;
   document.getElementById('plinko-btn').disabled=true;
   const roundId = await startCasinoRound('plinko', bet, { source:'plinko_start' });
@@ -3999,6 +4027,7 @@ async function dropPlinko(){
           resultEl.textContent=`${mult}× → ${payout} ЛК`;
           toast(`🟡 Плинко: ${mult}× и ${payout} ЛК`,'win');
           onWin(payout,'🟡 Плинко');
+          if(mult>=5)unlockAch('plinko_5x');
         }else{
           resultEl.textContent='0×. Шарик выбрал тьму.';
           toast('🟡 Плинко: шарик выбрал 0×','err');
@@ -4038,6 +4067,7 @@ async function startMines(){
   const cells=[...Array(12).keys()].sort(()=>Math.random()-.5).slice(0,2);
   minesState={ running:true, roundId, bet, mines:new Set(cells), opened:new Set(), multiplier:1, mineCount:2 };
   coins-=bet;spendCoins(bet);saveCoins();
+  unlockAch('mines_first');
   document.getElementById('mines-result').textContent='Ищи алмазы. Но не жадничай.';
   document.getElementById('mines-mult').textContent='1.00×';
   document.getElementById('mines-start-btn').disabled=true;
@@ -4060,6 +4090,7 @@ function clickMine(idx){
   minesState.opened.add(idx);
   const level=minesState.opened.size;
   minesState.multiplier=MINES_MULTS[Math.min(level-1, MINES_MULTS.length-1)];
+  if(level>=3)unlockAch('mines_3safe');
   document.getElementById('mines-mult').textContent=`${minesState.multiplier.toFixed(2)}×`;
   document.getElementById('mines-result').textContent=`✅ Безопасно. Открыто: ${level}`;
   document.getElementById('mines-cash-btn').disabled=false;
@@ -4112,6 +4143,7 @@ async function startTower(){
   towerState.level=0;
   towerState.bombs=Array.from({length:6},()=>Math.floor(Math.random()*3));
   coins-=bet;spendCoins(bet);saveCoins();
+  unlockAch('tower_first');
   document.getElementById('tower-result').textContent='Поднимайся выше. Но одна дверь на этаже ломает мечты.';
   document.getElementById('tower-cash-btn').disabled=true;
   renderTower();
@@ -4160,6 +4192,7 @@ function cashoutTower(){
   const payout=Math.round(towerState.bet * mult);
   coins+=payout;saveCoins();
   towerState.running=false;
+  if(towerState.level>=6)unlockAch('tower_top');
   document.getElementById('tower-result').textContent=`💰 Забрал ${payout} ЛК на ${mult.toFixed(2)}×`;
   document.getElementById('tower-start-btn').disabled=false;
   document.getElementById('tower-cash-btn').disabled=true;
@@ -5216,6 +5249,7 @@ async function savePlayoff() {
     const r = await api(params);
     if (r.ok) {
       poVoted = true;
+      unlockAch('playoff_saved');
       toast('🏆 Плей-офф купон сохранён!', 'ok', 4000);
       soundWin();
       const lb = await api({ action: 'getLeaderboard' });
@@ -5238,6 +5272,7 @@ async function savePlayoff() {
 function renderPlayoffVoted(pred, results) {
   const content = document.getElementById('playoff-content');
   const poRes = (results && results._playoff) || {};
+  unlockAch('playoff_saved');
 
   const rows = [
     { label: '🏆 Победитель', key: 'winner',   pts: 5, actual: poRes.winner },
