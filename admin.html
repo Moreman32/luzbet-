@@ -4,6 +4,19 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ЛузБет — Админ</title>
+<link rel="canonical" href="https://luzbet.lol/admin.html">
+<script>
+(() => {
+  const { protocol, hostname, pathname, search, hash } = window.location;
+  const isLocal =
+    protocol === 'file:' ||
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '[::1]';
+  if (isLocal || hostname === 'luzbet.lol') return;
+  window.location.replace(`https://luzbet.lol${pathname}${search}${hash}`);
+})();
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:monospace;background:#0f0f0f;color:#f0f0f0;padding:16px;max-width:1200px;margin:0 auto;font-size:13px}
