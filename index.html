@@ -243,6 +243,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .slot-bet-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .bet-chip{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-family:var(--os);font-size:13px;cursor:pointer;color:var(--muted);transition:all .15s}
 .bet-chip.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
+.bet-chip-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 10px}
 .slot-result-text{min-height:28px;font-family:var(--os);font-size:16px;color:var(--yellow);margin-bottom:8px}
 
 
@@ -1253,18 +1254,14 @@ try{
         <div class="cgc-head"><span class="cgc-title">🔢 Кено</span><span class="cgc-rtp">Выбери 3 из 12</span></div>
         <div class="cgc-body">
           <div class="mini-game-panel">
-            <div class="mini-game-hint">Отмечаешь 3 шара, автомат тянет 4. Чем больше совпадений, тем жирнее выплата.</div>
+            <div class="mini-game-hint">Выбери ровно 3 числа, потом нажми кнопку. Автомат достанет 4 шара: 1 совпадение вернёт ставку, 2 и 3 совпадения уже дают прибыль.</div>
             <div class="mini-pill-row">
               <span class="mini-pill">1 совп. = x1</span>
               <span class="mini-pill">2 совп. = x3</span>
               <span class="mini-pill">3 совп. = x8</span>
             </div>
           </div>
-          <div style="font-size:11px;color:var(--muted)">Ставка:
-            <select id="keno-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
-              <option value="20">20 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
-            </select>
-          </div>
+          <div class="bet-chip-row"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('keno',20,this)">20</div><div class="bet-chip" onclick="selectCasinoBet('keno',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('keno',100,this)">100</div></div>
           <div id="keno-grid" class="keno-grid"></div>
           <div class="mini-game-stats">
             <div class="mini-stat"><div class="mini-stat-label">Твои числа</div><div class="mini-stat-value" id="keno-picked">—</div></div>
@@ -1280,7 +1277,7 @@ try{
         <div class="cgc-head"><span class="cgc-title">🎟️ Лотерейный билет</span><span class="cgc-rtp">Стереть и пожалеть</span></div>
         <div class="cgc-body">
           <div class="mini-game-panel">
-            <div class="mini-game-hint">Покупаешь билет и вскрываешь 6 ячеек. Иногда там деньги. Чаще философия.</div>
+            <div class="mini-game-hint">Выбираешь цену билета и стираешь его целиком. Если выпадает билет с меткой x1, ставка просто возвращается, всё выше x1 уже приносит чистый плюс.</div>
             <div class="scratch-prizes">
               <div class="scratch-prize">Возврат<strong>x1</strong></div>
               <div class="scratch-prize">Тройка<strong>x2</strong></div>
@@ -1288,11 +1285,7 @@ try{
               <div class="scratch-prize">Мифический<strong>x8</strong></div>
             </div>
           </div>
-          <div style="font-size:11px;color:var(--muted)">Цена билета:
-            <select id="scratch-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
-              <option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
-            </select>
-          </div>
+          <div class="bet-chip-row"><span style="font-size:11px;color:var(--muted)">Цена билета:</span><div class="bet-chip active" onclick="selectCasinoBet('scratch',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('scratch',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('scratch',100,this)">100</div></div>
           <div id="scratch-board" class="scratch-board"></div>
           <button class="btn btn-yellow btn-full" id="scratch-btn" onclick="playScratchTicket()">СТЕРЕТЬ БИЛЕТ</button>
           <div id="scratch-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
@@ -1301,11 +1294,12 @@ try{
 
       <!-- RPS -->
       <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title">✊ Камень-Ножницы-Бумага</span><span class="cgc-rtp">15 ЛК • против киоска</span></div>
+        <div class="cgc-head"><span class="cgc-title">✊ Камень-Ножницы-Бумага</span><span class="cgc-rtp">ставка: <span id="bet-label-rps">15 ЛК</span></span></div>
         <div class="cgc-body">
           <div class="mini-game-panel">
-            <div class="mini-game-hint">Выбираешь знак, автомат отвечает сразу. Победа платит x2, ничья возвращает ставку.</div>
+            <div class="mini-game-hint">Нажми на один из трёх знаков. Победа платит x2, ничья просто возвращает ставку, проигрыш сжигает её полностью.</div>
           </div>
+          <div class="bet-chip-row"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('rps',15,this)">15</div><div class="bet-chip" onclick="selectCasinoBet('rps',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('rps',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('rps',100,this)">100</div></div>
           <div class="rps-grid">
             <button class="rps-btn" onclick="playRps('rock',this)">✊<br/>Камень</button>
             <button class="rps-btn" onclick="playRps('scissors',this)">✌️<br/>Ножницы</button>
@@ -1322,11 +1316,12 @@ try{
 
       <!-- PENALTY -->
       <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title">🥅 Пенальти</span><span class="cgc-rtp">25 ЛК • пробей вратаря</span></div>
+        <div class="cgc-head"><span class="cgc-title">🥅 Пенальти</span><span class="cgc-rtp">ставка: <span id="bet-label-penalty">25 ЛК</span></span></div>
         <div class="cgc-body">
           <div class="mini-game-panel">
-            <div class="mini-game-hint">Бьёшь в один из трёх углов. Если кипер не угадает направление, мяч в сетке и касса платит.</div>
+            <div class="mini-game-hint">Выбери направление удара. Если вратарь прыгает в другую сторону, ты забиваешь и получаешь выплату; если угадает, ставка проиграна.</div>
           </div>
+          <div class="bet-chip-row"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('penalty',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('penalty',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('penalty',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('penalty',150,this)">150</div></div>
           <div class="shot-grid">
             <button class="shot-btn" onclick="playPenalty('left',this)">↙️<br/>Влево</button>
             <button class="shot-btn" onclick="playPenalty('center',this)">⬆️<br/>По центру</button>
@@ -1346,13 +1341,9 @@ try{
         <div class="cgc-head"><span class="cgc-title">🚩 Оффсайд</span><span class="cgc-rtp">Рискни ещё шаг</span></div>
         <div class="cgc-body">
           <div class="mini-game-panel">
-            <div class="mini-game-hint">Старт ничего не даёт. Первый коэффициент открывается только после первого удачного рывка без флажка.</div>
+            <div class="mini-game-hint">Нажми старт, потом решай: забрать текущую сумму или сделать ещё один рывок. Первый шанс на выплату появляется только после успешного первого шага.</div>
           </div>
-          <div style="font-size:11px;color:var(--muted)">Ставка:
-            <select id="offside-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
-              <option value="20">20 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
-            </select>
-          </div>
+          <div class="bet-chip-row"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('offside',20,this)">20</div><div class="bet-chip" onclick="selectCasinoBet('offside',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('offside',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('offside',150,this)">150</div></div>
           <div class="offside-stage">
             <div class="mini-stat"><div class="mini-stat-label">Текущая зона</div><div class="mini-stat-value" id="offside-stage-label">Старт</div></div>
             <div class="mini-stat"><div class="mini-stat-label">Доступно сейчас</div><div class="mini-stat-value" id="offside-cashout-label">—</div></div>
@@ -1372,13 +1363,9 @@ try{
         <div class="cgc-head"><span class="cgc-title">📺 VAR Челлендж</span><span class="cgc-rtp">Открой повтор судьбы</span></div>
         <div class="cgc-body">
           <div class="mini-game-panel">
-            <div class="mini-game-hint">После запуска выбираешь один экран повтора. Внутри либо отмена радости, либо подтверждённый гол.</div>
+            <div class="mini-game-hint">Сначала запускаешь раунд, потом открываешь один из трёх экранов. Один экран может всё отменить, остальные дают разные множители выплаты.</div>
           </div>
-          <div style="font-size:11px;color:var(--muted)">Ставка:
-            <select id="var-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
-              <option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
-            </select>
-          </div>
+          <div class="bet-chip-row"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('var_challenge',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('var_challenge',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('var_challenge',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('var_challenge',150,this)">150</div></div>
           <div id="var-grid" class="var-grid">
             <button class="var-card" onclick="pickVarCard(0)">📺 VAR 1<small>неизвестный повтор</small></button>
             <button class="var-card" onclick="pickVarCard(1)">📺 VAR 2<small>неизвестный повтор</small></button>
@@ -1393,6 +1380,9 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🎰 Слоты</span><span class="cgc-rtp">RTP: 40% (честно)</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Нажми крутить после выбора ставки. Два одинаковых символа дают небольшую выплату, три одинаковых запускают большой выигрыш.</div>
+          </div>
           <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px">
             <div class="reel-box" id="r0"><div class="reel-emoji" id="e0">⚽</div></div>
             <div class="reel-box" id="r1"><div class="reel-emoji" id="e1">⚽</div></div>
@@ -1400,7 +1390,7 @@ try{
           </div>
           <div class="slot-result-text" id="slot-result-text"></div>
           <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Ставка:</div>
-          <div class="slot-bet-row"><div class="bet-chip active" onclick="selectBet(10,this)">10</div><div class="bet-chip" onclick="selectBet(25,this)">25</div><div class="bet-chip" onclick="selectBet(50,this)">50</div><div class="bet-chip" onclick="selectBet(100,this)">100</div><div class="bet-chip" onclick="selectBet(150,this)">150</div><div class="bet-chip" onclick="selectBet(250,this)">250</div><div class="bet-chip" onclick="selectBet(500,this)">500</div></div>
+          <div class="slot-bet-row"><div class="bet-chip active" onclick="selectCasinoBet('slots',10,this)">10</div><div class="bet-chip" onclick="selectCasinoBet('slots',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('slots',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('slots',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('slots',150,this)">150</div><div class="bet-chip" onclick="selectCasinoBet('slots',250,this)">250</div><div class="bet-chip" onclick="selectCasinoBet('slots',500,this)">500</div></div>
           <button class="btn btn-yellow btn-full" id="spin-btn" onclick="spinSlots()">КРУТИТЬ 🎰</button>
         </div>
       </div>
@@ -1409,33 +1399,44 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🃏 Блэкджек</span><span class="cgc-rtp">vs Судьба</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Собери руку ближе к 21, чем у дилера, но не перебери. Ничья возвращает ставку, победа платит меньше чем x2, как в обычном блэкджеке.</div>
+          </div>
           <div class="bj-table"><div class="bj-label">🤖 Судьба</div><div class="bj-cards" id="dealer-cards"></div><div class="bj-score" id="dealer-score"></div></div>
           <div class="bj-table"><div class="bj-label">👤 Ты</div><div class="bj-cards" id="player-cards"></div><div class="bj-score" id="player-score"></div></div>
           <div class="bj-result" id="bj-result"></div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-align:center">Ставка: <select id="bj-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px"><option value="10">10 ЛК</option><option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option><option value="150">150 ЛК</option><option value="250">250 ЛК</option><option value="500">500 ЛК</option></select></div>
+          <div class="bet-chip-row" style="justify-content:center"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('blackjack',10,this)">10</div><div class="bet-chip" onclick="selectCasinoBet('blackjack',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('blackjack',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('blackjack',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('blackjack',150,this)">150</div><div class="bet-chip" onclick="selectCasinoBet('blackjack',250,this)">250</div><div class="bet-chip" onclick="selectCasinoBet('blackjack',500,this)">500</div></div>
           <div class="bj-actions"><button class="btn btn-yellow" onclick="bjDeal()" id="bj-deal-btn">Раздать 🃏</button><button class="btn btn-ghost" disabled id="bj-hit-btn" onclick="bjHit()">Ещё 🎴</button><button class="btn btn-ghost" disabled id="bj-stand-btn" onclick="bjStand()">Хватит 🛑</button><button class="btn btn-ghost" id="bj-new-btn" onclick="bjNewGame()" style="display:none">Снова 🔄</button></div>
         </div>
       </div>
 
       <!-- WHEEL -->
       <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title">🎡 Колесо</span><span class="cgc-rtp">30 ЛК / спин</span></div>
+        <div class="cgc-head"><span class="cgc-title">🎡 Колесо</span><span class="cgc-rtp">ставка: <span id="bet-label-wheel">30 ЛК</span></span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Выбираешь ставку и крутишь. Сектор может сжечь ставку, вернуть её целиком, вернуть часть или умножить её вплоть до x10.</div>
+          </div>
           <div class="wheel-wrap"><div class="wheel-canvas-wrap"><div class="wheel-pointer">▼</div><canvas id="wheel" width="240" height="240"></canvas></div></div>
           <div class="wheel-result" id="wheel-result"></div>
-          <button class="btn btn-yellow btn-full" id="wheel-btn" onclick="spinWheel()" style="margin-top:10px">КРУТИТЬ (−30 ЛК) 🎡</button>
+          <div class="bet-chip-row" style="justify-content:center"><div class="bet-chip active" onclick="selectCasinoBet('wheel',30,this)">30</div><div class="bet-chip" onclick="selectCasinoBet('wheel',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('wheel',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('wheel',150,this)">150</div></div>
+          <button class="btn btn-yellow btn-full" id="wheel-btn" onclick="spinWheel()" style="margin-top:10px">КРУТИТЬ 🎡</button>
         </div>
       </div>
 
       <!-- DICE -->
       <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title">🎲 Кости</span><span class="cgc-rtp">20 ЛК • угадай 2–12</span></div>
+        <div class="cgc-head"><span class="cgc-title">🎲 Кости</span><span class="cgc-rtp">ставка: <span id="bet-label-dice">20 ЛК</span></span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Выбери сумму от 2 до 12. Чем реже выпадает выбранное число, тем выше множитель выплаты.</div>
+          </div>
           <div style="display:flex;justify-content:center;gap:16px;margin-bottom:10px">
             <div id="dice1" style="width:64px;height:64px;background:var(--dark);border:2px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:36px">🎲</div>
             <div id="dice2" style="width:64px;height:64px;background:var(--dark);border:2px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:36px">🎲</div>
           </div>
           <div style="text-align:center;font-family:var(--os);font-size:14px;color:var(--muted);margin-bottom:10px">Сумма = <span id="dice-sum" style="color:var(--yellow)">?</span></div>
+          <div class="bet-chip-row" style="justify-content:center"><div class="bet-chip active" onclick="selectCasinoBet('dice',20,this)">20</div><div class="bet-chip" onclick="selectCasinoBet('dice',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('dice',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('dice',150,this)">150</div></div>
           <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:10px" id="dice-btns">
             <button class="dice-num-btn" onclick="diceGuess(2,this)">2</button>
             <button class="dice-num-btn" onclick="diceGuess(3,this)">3</button>
@@ -1457,6 +1458,9 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🪃 Краш</span><span class="cgc-rtp">Забери до краша!</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">После старта множитель растёт сам. Твоя задача успеть нажать «Забрать» до того, как график взорвётся.</div>
+          </div>
           <div class="crash-display" id="crash-display">
             <div class="crash-grid"></div>
             <svg class="crash-svg" viewBox="0 0 320 110" preserveAspectRatio="none" aria-hidden="true">
@@ -1470,10 +1474,7 @@ try{
               <div class="crash-status" id="crash-status">Нажми «Старт»</div>
             </div>
           </div>
-          <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
-            <span style="font-size:11px;color:var(--muted);white-space:nowrap">Ставка:</span>
-            <select id="crash-bet" style="flex:1;padding:6px;font-size:13px;height:36px"><option value="10">10 ЛК</option><option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option><option value="150">150 ЛК</option><option value="250">250 ЛК</option><option value="500">500 ЛК</option></select>
-          </div>
+          <div class="bet-chip-row"><span style="font-size:11px;color:var(--muted);white-space:nowrap">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('crash',10,this)">10</div><div class="bet-chip" onclick="selectCasinoBet('crash',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('crash',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('crash',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('crash',150,this)">150</div><div class="bet-chip" onclick="selectCasinoBet('crash',250,this)">250</div><div class="bet-chip" onclick="selectCasinoBet('crash',500,this)">500</div></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <button class="btn btn-yellow" id="crash-start-btn" onclick="crashStart()">СТАРТ 🚀</button>
             <button class="btn btn-green" id="crash-cash-btn" onclick="crashCash()" disabled>ЗАБРАТЬ 💰</button>
@@ -1488,14 +1489,18 @@ try{
 
       <!-- HIGHER LOWER -->
       <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title" style="white-space:nowrap">🎴 Выше-Ниже</span><span class="cgc-rtp" style="white-space:nowrap">15 ЛК • +40%</span></div>
+        <div class="cgc-head"><span class="cgc-title" style="white-space:nowrap">🎴 Выше-Ниже</span><span class="cgc-rtp" style="white-space:nowrap">ставка: <span id="bet-label-higher_lower">15 ЛК</span></span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Смотри на открытую карту и угадывай, будет следующая выше или ниже. После каждого удачного шага можешь забрать банк или рискнуть ещё раз.</div>
+          </div>
           <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:12px">
             <div id="hl-current" style="background:#fff;color:#111;border-radius:8px;padding:10px 16px;font-family:var(--os);font-size:28px;font-weight:700;min-width:56px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.5)">?</div>
             <div style="font-size:24px;color:var(--muted)">→</div>
             <div id="hl-next" style="background:linear-gradient(135deg,#f8f8f8,#dcdcdc);color:#2b005c;border:2px solid #9b59ff;border-radius:8px;padding:10px 16px;font-family:var(--os);font-size:28px;font-weight:700;min-width:56px;text-align:center;box-shadow:0 0 12px rgba(155,89,255,.35)">?</div>
           </div>
           <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px">Карт осталось: <span id="hl-deck-left" style="color:var(--white)">52</span> • Серия: <span id="hl-streak" style="color:var(--yellow)">0</span></div>
+          <div class="bet-chip-row" style="justify-content:center"><div class="bet-chip active" onclick="selectCasinoBet('higher_lower',15,this)">15</div><div class="bet-chip" onclick="selectCasinoBet('higher_lower',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('higher_lower',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('higher_lower',100,this)">100</div></div>
           <div class="hl-actions">
             <button class="btn btn-green" id="hl-higher" onclick="hlGuess('higher')" disabled>▲ Выше</button>
             <button class="btn btn-ghost" id="hl-deal" onclick="hlDeal()">Старт 🃏</button>
@@ -1507,8 +1512,12 @@ try{
 
       <!-- HORSES -->
       <div class="casino-game-card" style="grid-column:1/-1">
-        <div class="cgc-head"><span class="cgc-title">🐎 Скачки</span><span class="cgc-rtp">4 лошади • 30 ЛК</span></div>
+        <div class="cgc-head"><span class="cgc-title">🐎 Скачки</span><span class="cgc-rtp">ставка: <span id="bet-label-horse">30 ЛК</span></span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Сначала выбери лошадь, потом запускай гонку. Чем выше коэффициент у лошади, тем реже она побеждает, но тем больше выплата.</div>
+          </div>
+          <div class="bet-chip-row" style="justify-content:center"><div class="bet-chip active" onclick="selectCasinoBet('horse',30,this)">30</div><div class="bet-chip" onclick="selectCasinoBet('horse',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('horse',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('horse',150,this)">150</div></div>
           <div id="horse-track" style="background:rgba(0,80,20,.2);border:1px solid rgba(0,176,80,.2);border-radius:var(--r);padding:12px;margin-bottom:12px">
             <div class="horse-lane" id="hl0"><span class="horse-emoji">🐎</span><span class="horse-name">Быстрый Брюс</span><div class="horse-progress"><div class="horse-bar" id="hb0"></div></div><span class="horse-odds-label">×1.9</span></div>
             <div class="horse-lane" id="hl1"><span class="horse-emoji">🐴</span><span class="horse-name">Медленный Мэт</span><div class="horse-progress"><div class="horse-bar" id="hb1"></div></div><span class="horse-odds-label">×3.3</span></div>
@@ -1534,19 +1543,22 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🟡 Плинко</span><span class="cgc-rtp">Шарик и множители</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Бросаешь шарик и он сам падает в один из слотов снизу. Некоторые слоты сжигают ставку или возвращают только часть, другие умножают её.</div>
+          </div>
           <div class="plinko-board" id="plinko-board">
             <div class="plinko-chip" id="plinko-chip"></div>
           </div>
           <div class="plinko-slots" id="plinko-slots"></div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0">
             <span style="font-size:11px;color:var(--muted)">Ставка:</span>
-            <div class="bet-chip active" id="plinko-bet-10" onclick="selectPlinkoBet(10,this)">10</div>
-            <div class="bet-chip" onclick="selectPlinkoBet(25,this)">25</div>
-            <div class="bet-chip" onclick="selectPlinkoBet(50,this)">50</div>
-            <div class="bet-chip" onclick="selectPlinkoBet(100,this)">100</div>
-            <div class="bet-chip" onclick="selectPlinkoBet(150,this)">150</div>
-            <div class="bet-chip" onclick="selectPlinkoBet(250,this)">250</div>
-            <div class="bet-chip" onclick="selectPlinkoBet(500,this)">500</div>
+            <div class="bet-chip active" id="plinko-bet-10" onclick="selectCasinoBet('plinko',10,this)">10</div>
+            <div class="bet-chip" onclick="selectCasinoBet('plinko',25,this)">25</div>
+            <div class="bet-chip" onclick="selectCasinoBet('plinko',50,this)">50</div>
+            <div class="bet-chip" onclick="selectCasinoBet('plinko',100,this)">100</div>
+            <div class="bet-chip" onclick="selectCasinoBet('plinko',150,this)">150</div>
+            <div class="bet-chip" onclick="selectCasinoBet('plinko',250,this)">250</div>
+            <div class="bet-chip" onclick="selectCasinoBet('plinko',500,this)">500</div>
           </div>
           <button class="btn btn-yellow btn-full" id="plinko-btn" onclick="dropPlinko()">БРОСИТЬ ШАРИК 🟡</button>
           <div id="plinko-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
@@ -1557,12 +1569,12 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">💣 Минёр</span><span class="cgc-rtp">12 клеток • 2 мины</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Нажми старт, открывай клетки и не попади на две мины. Чем больше безопасных клеток откроешь, тем выше множитель перед кнопкой «Забрать».</div>
+          </div>
           <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap">
-            <div style="font-size:11px;color:var(--muted)">Ставка:
-              <select id="mines-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
-                <option value="10">10 ЛК</option><option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option><option value="150">150 ЛК</option><option value="250">250 ЛК</option><option value="500">500 ЛК</option>
-              </select>
-            </div>
+            <div style="font-size:11px;color:var(--muted)">Ставка:</div>
+            <div class="bet-chip-row" style="margin:0"><div class="bet-chip active" onclick="selectCasinoBet('mines',10,this)">10</div><div class="bet-chip" onclick="selectCasinoBet('mines',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('mines',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('mines',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('mines',150,this)">150</div><div class="bet-chip" onclick="selectCasinoBet('mines',250,this)">250</div><div class="bet-chip" onclick="selectCasinoBet('mines',500,this)">500</div></div>
             <div style="font-size:11px;color:var(--muted)">Множитель: <span id="mines-mult" style="color:var(--yellow);font-family:var(--os)">1.00×</span></div>
           </div>
           <div class="mines-grid" id="mines-grid"></div>
@@ -1578,12 +1590,12 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🗼 Башня</span><span class="cgc-rtp">6 этажей • 1 ловушка</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">На каждом этаже одна клетка ловушка и две безопасные. Поднимаешься выше, увеличиваешь множитель и можешь забрать деньги до ошибки.</div>
+          </div>
           <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap">
-            <div style="font-size:11px;color:var(--muted)">Ставка:
-              <select id="tower-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
-                <option value="10">10 ЛК</option><option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option><option value="150">150 ЛК</option><option value="250">250 ЛК</option><option value="500">500 ЛК</option>
-              </select>
-            </div>
+            <div style="font-size:11px;color:var(--muted)">Ставка:</div>
+            <div class="bet-chip-row" style="margin:0"><div class="bet-chip active" onclick="selectCasinoBet('tower',10,this)">10</div><div class="bet-chip" onclick="selectCasinoBet('tower',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('tower',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('tower',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('tower',150,this)">150</div><div class="bet-chip" onclick="selectCasinoBet('tower',250,this)">250</div><div class="bet-chip" onclick="selectCasinoBet('tower',500,this)">500</div></div>
             <div style="font-size:11px;color:var(--muted)">Этаж: <span id="tower-level" style="color:var(--yellow);font-family:var(--os)">0 / 6</span></div>
           </div>
           <div class="tower-grid" id="tower-grid"></div>
@@ -1599,6 +1611,9 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🪙 Последний шанс</span><span class="cgc-rtp">1 ЛК • орёл или решка</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Здесь ставка всегда 1 ЛК. Выбираешь орёл или решку: угадал — получаешь x2, не угадал — монетка всё забирает.</div>
+          </div>
           <div style="display:flex;align-items:center;justify-content:center;height:84px;background:var(--dark);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
             <div id="last-coin" style="font-size:42px;line-height:1;filter:drop-shadow(0 0 10px rgba(255,230,0,.18))">🪙</div>
           </div>
@@ -1858,7 +1873,7 @@ const ALL_ACHIEVEMENTS=[
   {id:"bj_21",cat:"casino",icon:"🎴",name:"Блэкджек!",desc:"Набрал ровно 21. Судьба была против, но ты устоял.",secret:true},
   {id:"bj_bust",cat:"casino",icon:"💣",name:"Перебор",desc:"Перебрал в блэкджеке. Классика жанра.",secret:false},
   {id:"wheel_first",cat:"casino",icon:"🎡",name:"Колесо крутил",desc:"Первый спин колеса фортуны. Оно крутилось. Ты — нет.",secret:false},
-  {id:"wheel_zero",cat:"casino",icon:"😭",name:"Ноль удачи",desc:"Колесо остановилось на «0 ЛК». Судьба подписала акт.",secret:true},
+  {id:"wheel_zero",cat:"casino",icon:"😭",name:"Ноль удачи",desc:"Колесо остановилось на «x0». Судьба подписала акт.",secret:true},
   {id:"bankrupt",cat:"casino",icon:"💀",name:"Банкрот",desc:"Потратил все ЛузКоины до нуля. Легендарное достижение.",secret:false},
   {id:"rich",cat:"casino",icon:"🤑",name:"Богач",desc:"Накопил 2000+ ЛузКоинов. На что ты их тратил?",secret:true},
   {id:"coinflip_first",cat:"casino",icon:"🪙",name:"Последний шанс",desc:"Сыграл в орёл или решку на свой последний грамм достоинства.",secret:false},
@@ -1999,6 +2014,25 @@ function addEarnedTotal(amount){
   syncEarnedLocal();
 }
 let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRaf=null;
+const CASINO_BET_DEFAULTS={
+  slots:10,
+  blackjack:10,
+  wheel:30,
+  dice:20,
+  crash:10,
+  higher_lower:15,
+  horse:30,
+  plinko:10,
+  mines:10,
+  tower:10,
+  keno:20,
+  scratch:25,
+  rps:15,
+  penalty:25,
+  offside:20,
+  var_challenge:25,
+};
+const casinoBetState={...CASINO_BET_DEFAULTS};
 let loginStartTime=0;
 let tabsVisited=new Set();
 let casinoEverOpened=false;
@@ -3905,11 +3939,27 @@ function renderLB(lb,results){
 //  CASINO — SLOTS
 // ══════════════════════════════════════════════
 function selectBet(val,el){
-  slotBet=val;
+  selectCasinoBet('slots', val, el);
+}
+
+function getCasinoBet(game){
+  return Math.max(1, parseInt(casinoBetState[game] ?? CASINO_BET_DEFAULTS[game] ?? 10, 10) || 10);
+}
+
+function updateCasinoBetLabel(game){
+  const el=document.getElementById(`bet-label-${game}`);
+  if(el) el.textContent=`${getCasinoBet(game)} ЛК`;
+}
+
+function selectCasinoBet(game,val,el){
+  casinoBetState[game]=parseInt(val,10)||CASINO_BET_DEFAULTS[game]||10;
+  if(game==='slots') slotBet=casinoBetState[game];
+  if(game==='plinko') plinkoBet=casinoBetState[game];
   if(el && el.parentElement){
     el.parentElement.querySelectorAll('.bet-chip').forEach(c=>c.classList.remove('active'));
     el.classList.add('active');
   }
+  updateCasinoBetLabel(game);
 }
 
 async function spinSlots(){
@@ -3959,7 +4009,7 @@ function bjRenderHands(revealDealer=false){
   document.getElementById('dealer-score').innerHTML=revealDealer?`<b>Счёт: ${ds}</b>`:`Открытая карта: ${ds}`;
 }
 async function bjDeal(){
-  const bet=parseInt(document.getElementById('bj-bet').value);
+  const bet=getCasinoBet('blackjack');
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   document.getElementById('bj-deal-btn').disabled=true;
   const roundId = await tryStartCasinoRound('blackjack', bet, { source:'deal_start' });
@@ -3991,7 +4041,7 @@ async function bjEnd(result){
   const res=document.getElementById('bj-result');
   let payout = 0;
   if(result==='win'){payout=Math.round(bet*1.9);res.textContent='🏆 Победа! +'+(payout-bet)+' ЛК';res.className='bj-result win';toast('🃏 Победил дилера «Судьбу»! +'+(payout-bet)+' ЛК','win');onWin(payout,'🃏 Блэкджек');}
-  else if(result==='push'){payout=bet;res.textContent='🤝 Ничья. Возврат.';res.className='bj-result push';toast('🃏 Ничья. Хотя бы не потерял.','info');}
+  else if(result==='push'){payout=bet;res.textContent='🤝 Ничья. Возврат ставки.';res.className='bj-result push';toast('🃏 Ничья. Ставка вернулась.','info');onPush(payout);}
   else if(result==='bust'){res.textContent='💀 Перебор! Судьба довольна.';res.className='bj-result lose';toast('💀 Перебор. Судьба смеётся.','err');onLose();}
   else{res.textContent='😭 Судьба победила. Сюрприз.';res.className='bj-result lose';toast('😭 Проиграл Судьбе. Ожидаемо.','err');onLose();}
   await persistCasinoRoundFinish(roundId, 'blackjack', bet, payout, {
@@ -4007,12 +4057,18 @@ function bjNewGame(){document.getElementById('player-cards').innerHTML='';docume
 //  CASINO — WHEEL
 // ══════════════════════════════════════════════
 const WHEEL_SEGMENTS=[
-  {label:'5 ЛК',color:'#1a7a3f',mult:5},{label:'10 ЛК',color:'#2e8b57',mult:10},
-  {label:'0 ЛК',color:'#c0392b',mult:0},{label:'20 ЛК',color:'#1a4a7a',mult:20},
-  {label:'5 ЛК',color:'#4b6f44',mult:5},{label:'12 ЛК',color:'#555',mult:12},
-  {label:'0 ЛК',color:'#b03030',mult:0},{label:'30 ЛК',color:'#9b59b6',mult:30},
-  {label:'8 ЛК',color:'#c47000',mult:8},{label:'15 ЛК',color:'#cc8400',mult:15},
-  {label:'0 ЛК',color:'#8b1e1e',mult:0},{label:'JACKPOT',color:'#ffe600',mult:350},
+  {label:'x0',color:'#c0392b',mult:0},
+  {label:'x0.5',color:'#7f8c8d',mult:0.5},
+  {label:'x0.8',color:'#4b6f44',mult:0.8},
+  {label:'x1',color:'#2e8b57',mult:1},
+  {label:'x1.2',color:'#1a7a3f',mult:1.2},
+  {label:'x1.5',color:'#1a4a7a',mult:1.5},
+  {label:'x2',color:'#cc8400',mult:2},
+  {label:'x0',color:'#8b1e1e',mult:0},
+  {label:'x2.5',color:'#c47000',mult:2.5},
+  {label:'x3',color:'#9b59b6',mult:3},
+  {label:'x5',color:'#555',mult:5},
+  {label:'x10',color:'#ffe600',mult:10},
 ];
 function drawWheel(angle=0){
   const canvas=document.getElementById('wheel');if(!canvas)return;
@@ -4033,8 +4089,8 @@ function drawWheel(angle=0){
 }
 async function spinWheel(){
   if(wheelSpinning)return;
-  if(coins<30){toast('❌ Мало ЛузКоинов для спина.','err');return;}
-  const bet = 30;
+  const bet = getCasinoBet('wheel');
+  if(coins<bet){toast('❌ Мало ЛузКоинов для спина.','err');return;}
   wheelSpinning=true;document.getElementById('wheel-btn').disabled=true;document.getElementById('wheel-result').textContent='';
   const roundId = await tryStartCasinoRound('wheel', bet, { source:'wheel_start' });
   if(!roundId){wheelSpinning=false;document.getElementById('wheel-btn').disabled=false;return;}
@@ -4054,9 +4110,28 @@ async function spinWheel(){
       const relative=((pointerAngle-wheelAngle)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
       const idx=Math.floor(relative/arc)%WHEEL_SEGMENTS.length;
       const seg=WHEEL_SEGMENTS[idx];
-      if(seg.mult>0){document.getElementById('wheel-result').textContent=`🎉 +${seg.mult} ЛузКоинов!`;toast(`🎡 Колесо: +${seg.mult} ЛК!`,'win');onWin(seg.mult,'🎡 Колесо');}
-      else{document.getElementById('wheel-result').textContent='😭 0 ЛК. Ожидаемо.';toast('🎡 0 ЛК. Колесо знает тебя.','err');unlockAch('wheel_zero');onLose();}
-      await persistCasinoRoundFinish(roundId, 'wheel', bet, seg.mult, { segment:seg.label, mult:seg.mult });
+      const payout=Math.round(bet*seg.mult);
+      if(seg.mult>0){
+        if(seg.mult < 1){
+          document.getElementById('wheel-result').textContent=`😮 ${seg.label} • частичный возврат ${payout} ЛК`;
+          toast(`🎡 Колесо: ${seg.label}, вернулось только ${payout} ЛК`,'info');
+          onPartialReturn(payout);
+        } else if(seg.mult === 1){
+          document.getElementById('wheel-result').textContent=`🙂 ${seg.label} • возврат ${payout} ЛК`;
+          toast(`🎡 Колесо: ${seg.label}, ставка вернулась`,'info');
+          onPush(payout);
+        } else {
+          document.getElementById('wheel-result').textContent=`🎉 ${seg.label} • выплата ${payout} ЛК`;
+          toast(`🎡 Колесо: ${seg.label}, выплата ${payout} ЛК`,'win');
+          onWin(payout,'🎡 Колесо');
+        }
+      } else {
+        document.getElementById('wheel-result').textContent='😭 x0. Ставка сгорела.';
+        toast('🎡 x0. Колесо знает тебя.','err');
+        unlockAch('wheel_zero');
+        onLose();
+      }
+      await persistCasinoRoundFinish(roundId, 'wheel', bet, payout, { segment:seg.label, mult:seg.mult });
     }
   }
   wheelRaf=requestAnimationFrame(frame);
@@ -4101,6 +4176,16 @@ function onWin(amount=0,game=''){
   if(winStreak>=5)unlockAch('win_streak5');
   if(amount>=50)coinRain(amount);
   if(amount>0&&game)chatNotifyWin(game,amount);
+}
+function onPush(amount=0){
+  if(amount>0)addEarnedTotal(amount);
+  winStreak=0;
+  soundTick();
+}
+function onPartialReturn(amount=0){
+  if(amount>0)addEarnedTotal(amount);
+  winStreak=0;
+  soundTick();
 }
 function onLose(){winStreak=0;soundLose();}
 function resetCoins(){coins=100;addEarnedTotal(100);saveCoins();toast('🙏 Получил 100 ЛК милостыни. Не трать сразу.','ok');showBankruptTip();logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:100, delta:100, meta:{ source:'bankrupt_reset' } }).catch(()=>{});}
@@ -4234,7 +4319,7 @@ function toggleKenoNumber(n){
 }
 async function playKeno(){
   if(kenoBusy)return;
-  const bet=parseInt(document.getElementById('keno-bet').value,10)||20;
+  const bet=getCasinoBet('keno');
   if(kenoSelected.size!==3){toast('🔢 Сначала выбери 3 числа.','err');return;}
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   kenoBusy=true;
@@ -4260,11 +4345,15 @@ async function playKeno(){
     const hits=picks.filter(n=>drawn.includes(n)).length;
     const mult=KENO_PAYOUTS[hits]||0;
     const payout=hits ? bet*mult : 0;
-    if(payout>0){
-      document.getElementById('keno-result').textContent=`🔢 Совпадений: ${hits}. Выплата +${payout} ЛК`;
-      toast(`🔢 Кено: ${hits} совп. и +${payout} ЛК`,'win');
+    if(payout>bet){
+      document.getElementById('keno-result').textContent=`🔢 Совпадений: ${hits}. Выплата ${payout} ЛК`;
+      toast(`🔢 Кено: ${hits} совп. и выплата ${payout} ЛК`,'win');
       recordWin('🔢 Кено',payout);
       onWin(payout,'🔢 Кено');
+    }else if(payout===bet){
+      document.getElementById('keno-result').textContent=`🔢 Совпадений: ${hits}. Ставка вернулась: ${payout} ЛК`;
+      toast(`🔢 Кено: ${hits} совп. Ставка вернулась.`,'info');
+      onPush(payout);
     }else{
       document.getElementById('keno-result').textContent=`Совпадений: ${hits}. Барабан тебя не уважает.`;
       toast('🔢 Кено мимо. Бывает у всех. У тебя чаще.','err');
@@ -4303,7 +4392,7 @@ function pickScratchOutcome(){
 }
 async function playScratchTicket(){
   if(scratchBusy)return;
-  const bet=parseInt(document.getElementById('scratch-bet').value,10)||25;
+  const bet=getCasinoBet('scratch');
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   scratchBusy=true;
   document.getElementById('scratch-btn').disabled=true;
@@ -4316,11 +4405,15 @@ async function playScratchTicket(){
   setTimeout(async ()=>{
     renderScratchBoard(outcome.symbols,true,outcome.mult>0);
     const payout=bet*outcome.mult;
-    if(payout>0){
-      document.getElementById('scratch-result').textContent=`🎟️ ${outcome.label}: +${payout} ЛК`;
-      toast(`🎟️ Билет: +${payout} ЛК`,'win');
+    if(payout>bet){
+      document.getElementById('scratch-result').textContent=`🎟️ ${outcome.label}: выплата ${payout} ЛК`;
+      toast(`🎟️ Билет: выплата ${payout} ЛК`,'win');
       recordWin('🎟️ Лотерейный билет',payout);
       onWin(payout,'🎟️ Лотерейный билет');
+    }else if(payout===bet){
+      document.getElementById('scratch-result').textContent=`🎟️ ${outcome.label}: ставка вернулась (${payout} ЛК)`;
+      toast('🎟️ Билет вернул ставку. Уже не худший исход.','info');
+      onPush(payout);
     }else{
       document.getElementById('scratch-result').textContent='Пусто. Билет был как надежды: красивый, но бесполезный.';
       toast('🎟️ Пустой билет. Коллекционная боль.','err');
@@ -4340,8 +4433,8 @@ const RPS_META={
 let rpsBusy=false;
 async function playRps(choice,el){
   if(rpsBusy)return;
-  const bet=15;
-  if(coins<bet){toast('❌ Нужно 15 ЛК','err');return;}
+  const bet=getCasinoBet('rps');
+  if(coins<bet){toast(`❌ Нужно ${bet} ЛК`,'err');return;}
   rpsBusy=true;
   document.querySelectorAll('.rps-btn').forEach(b=>b.classList.remove('selected'));
   if(el)el.classList.add('selected');
@@ -4365,7 +4458,7 @@ async function playRps(choice,el){
   }else if(result==='draw'){
     document.getElementById('rps-result').textContent='Ничья. Всем неловко, но деньги вернулись.';
     toast('✊ Ничья. Ставка вернулась.','info');
-    onWin(payout,'✊ Камень-Ножницы-Бумага');
+    onPush(payout);
   }else{
     document.getElementById('rps-result').textContent='Поражение. Двор помнит такие истории.';
     toast('✊ Проиграл автомату. Классика.','err');
@@ -4379,8 +4472,8 @@ let penaltyBusy=false;
 const PENALTY_DIRECTIONS={left:{label:'↙️ Влево',emoji:'↙️'},center:{label:'⬆️ Центр',emoji:'⬆️'},right:{label:'↘️ Вправо',emoji:'↘️'}};
 async function playPenalty(direction,el){
   if(penaltyBusy)return;
-  const bet=25;
-  if(coins<bet){toast('❌ Нужно 25 ЛК','err');return;}
+  const bet=getCasinoBet('penalty');
+  if(coins<bet){toast(`❌ Нужно ${bet} ЛК`,'err');return;}
   penaltyBusy=true;
   document.querySelectorAll('.shot-btn').forEach(b=>b.classList.remove('selected'));
   if(el)el.classList.add('selected');
@@ -4439,7 +4532,7 @@ function renderOffsideTrack(){
 }
 async function startOffside(){
   if(offsideState.running)return;
-  const bet=parseInt(document.getElementById('offside-bet').value,10)||20;
+  const bet=getCasinoBet('offside');
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   const roundId=await tryStartCasinoRound('offside', bet, { source:'offside_start' });
   if(!roundId)return;
@@ -4502,7 +4595,7 @@ function resetVarCards(){
 }
 async function startVarChallenge(){
   if(varState.running){toast('📺 Сначала открой один из текущих повторов.','info');return;}
-  const bet=parseInt(document.getElementById('var-bet').value,10)||25;
+  const bet=getCasinoBet('var_challenge');
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   const roundId=await tryStartCasinoRound('var_challenge', bet, { source:'var_start' });
   if(!roundId)return;
@@ -4531,10 +4624,20 @@ async function pickVarCard(idx){
   });
   const payout=Math.round(varState.bet*picked.mult);
   if(payout>0){
-    document.getElementById('var-result').textContent=`📺 VAR решил: ${picked.label}. Выплата +${payout} ЛК`;
-    toast(`📺 VAR: +${payout} ЛК`,'win');
-    recordWin('📺 VAR Челлендж',payout);
-    onWin(payout,'📺 VAR Челлендж');
+    if(payout>varState.bet){
+      document.getElementById('var-result').textContent=`📺 VAR решил: ${picked.label}. Выплата ${payout} ЛК`;
+      toast(`📺 VAR: выплата ${payout} ЛК`,'win');
+      recordWin('📺 VAR Челлендж',payout);
+      onWin(payout,'📺 VAR Челлендж');
+    }else if(payout===varState.bet){
+      document.getElementById('var-result').textContent=`📺 VAR решил: ${picked.label}. Ставка вернулась: ${payout} ЛК`;
+      toast('📺 VAR вернул ставку. Уже хорошо.','info');
+      onPush(payout);
+    }else{
+      document.getElementById('var-result').textContent=`📺 VAR решил: ${picked.label}. Вернулось только ${payout} ЛК`;
+      toast(`📺 VAR: частичный возврат ${payout} ЛК`,'info');
+      onPartialReturn(payout);
+    }
     if(picked.mult>=3)unlockAch('var_goal');
   }else{
     document.getElementById('var-result').textContent='📺 После просмотра: оффсайд. Отменяем радость и деньги.';
@@ -4606,8 +4709,8 @@ const DICE_PAYOUTS={2:24,3:12,4:9,5:6,6:5,7:4,8:5,9:6,10:9,11:12,12:24};
 let diceSelected=null,diceRolling=false;
 async function diceGuess(n,el){
   if(diceRolling)return;
-  if(coins<20){toast('❌ Нужно 20 ЛК','err');return;}
-  const bet = 20;
+  const bet = getCasinoBet('dice');
+  if(coins<bet){toast(`❌ Нужно ${bet} ЛК`,'err');return;}
   document.querySelectorAll('.dice-num-btn').forEach(b=>b.classList.remove('selected'));
   el.classList.add('selected');diceSelected=n;
   diceRolling=true;
@@ -4715,7 +4818,7 @@ function resetCrashScene(){
   renderCrashScene(1);
 }
 async function crashStart(){
-  const bet=parseInt(document.getElementById('crash-bet').value);
+  const bet=getCasinoBet('crash');
   if(coins<bet){toast('❌ Недостаточно ЛК','err');return;}
   if(crashState.running)return;
   const roundId = await tryStartCasinoRound('crash', bet, { source:'crash_start' });
@@ -4767,9 +4870,16 @@ async function crashCash(){
   document.getElementById('crash-start-btn').disabled=false;
   document.getElementById('crash-status').textContent='Забрал вовремя';
   renderCrashScene(crashState.mult);
-  document.getElementById('crash-result').textContent=`Забрал на ${crashState.mult}×! +${payout} ЛК`;
-  toast(`🪃 Забрал ${payout} ЛК на ${crashState.mult}×!`,'win');
-  recordWin('🪃 Краш',payout);onWin(payout,'🪃 Краш');
+  if(payout>crashState.bet){
+    document.getElementById('crash-result').textContent=`Забрал на ${crashState.mult}×! Выплата ${payout} ЛК`;
+    toast(`🪃 Забрал ${payout} ЛК на ${crashState.mult}×!`,'win');
+    recordWin('🪃 Краш',payout);
+    onWin(payout,'🪃 Краш');
+  }else{
+    document.getElementById('crash-result').textContent=`Забрал на ${crashState.mult}×. Ставка вернулась: ${payout} ЛК`;
+    toast('🪃 Забрал вовремя, но без прибыли.','info');
+    onPush(payout);
+  }
   unlockAch('crash_first');
   if(crashState.mult>=5)unlockAch('crash_5x');
   await persistCasinoRoundFinish(crashState.roundId, 'crash', crashState.bet, payout, { result:'cashout', multiplier:crashState.mult, crash_at:crashState.crashAt });
@@ -4804,10 +4914,11 @@ function drawHlNextCard(current){
   return next||null;
 }
 async function hlDeal(){
-  if(coins<15){toast('❌ Нужно 15 ЛК','err');return;}
+  const bet=getCasinoBet('higher_lower');
+  if(coins<bet){toast(`❌ Нужно ${bet} ЛК`,'err');return;}
   hlResolving=false;
-  hlDeck=hlMakeDeck();hlStreakCount=0;hlPot=15;
-  hlRoundId = await tryStartCasinoRound('higher_lower', 15, { source:'hl_start' });
+  hlDeck=hlMakeDeck();hlStreakCount=0;hlPot=bet;hlBet=bet;
+  hlRoundId = await tryStartCasinoRound('higher_lower', bet, { source:'hl_start' });
   if(!hlRoundId)return;
   
   hlCurrent=hlDeck.pop();
@@ -4863,10 +4974,18 @@ function hlGuess(dir){
 }
 async function hlCollect(){
   const payout = hlPot;
-  const bet = 15;
+  const bet = hlBet || getCasinoBet('higher_lower');
   
-  document.getElementById('hl-result').textContent=`💰 Забрал ${hlPot} ЛК! (серия: ${hlStreakCount})`;
-  toast(`🎴 Собрал ${hlPot} ЛК!`,'win');recordWin('🎴 Выше-Ниже',hlPot);onWin(hlPot,'🎴 Выше-Ниже');
+  if(payout>bet){
+    document.getElementById('hl-result').textContent=`💰 Забрал ${hlPot} ЛК! (серия: ${hlStreakCount})`;
+    toast(`🎴 Собрал ${hlPot} ЛК!`,'win');
+    recordWin('🎴 Выше-Ниже',hlPot);
+    onWin(hlPot,'🎴 Выше-Ниже');
+  }else{
+    document.getElementById('hl-result').textContent=`🙂 Забрал свою ставку обратно: ${hlPot} ЛК`;
+    toast('🎴 Забрал без прибыли. Ставка просто вернулась.','info');
+    onPush(payout);
+  }
   await persistCasinoRoundFinish(hlRoundId, 'higher_lower', bet, payout, { result:'collect', streak:hlStreakCount, pot:hlPot });
   await hlEnd(true);
 }
@@ -4876,10 +4995,11 @@ async function hlEnd(won){
   document.getElementById('hl-deal').textContent='Старт 🃏';document.getElementById('hl-deal').onclick=hlDeal;
   if(!won){
     onLose();
-    await persistCasinoRoundFinish(hlRoundId, 'higher_lower', 15, 0, { result:'lose', streak:hlStreakCount });
+    await persistCasinoRoundFinish(hlRoundId, 'higher_lower', hlBet || getCasinoBet('higher_lower'), 0, { result:'lose', streak:hlStreakCount });
   }
   hlCurrent=null;
   hlRoundId='';
+  hlBet=0;
 }
 
 // ══════════════════════════════════════════════
@@ -4896,8 +5016,8 @@ function selectHorse(idx,el){
 }
 async function horseRace(){
   if(selectedHorse===null||horseRunning)return;
-  if(coins<30){toast('❌ Нужно 30 ЛК','err');return;}
-  const bet = 30;
+  const bet = getCasinoBet('horse');
+  if(coins<bet){toast(`❌ Нужно ${bet} ЛК`,'err');return;}
   horseRunning=true;
   document.getElementById('horse-start-btn').disabled=true;
   const roundId = await tryStartCasinoRound('horse', bet, { selected:selectedHorse, source:'horse_start' });
@@ -4990,14 +5110,6 @@ const PLINKO_HALF_STEP=13;
 const PLINKO_STEP_Y=24;
 let plinkoBet=10,plinkoRunning=false;
 
-function selectPlinkoBet(val,el){
-  plinkoBet=val;
-  if(el && el.parentElement){
-    el.parentElement.querySelectorAll('.bet-chip').forEach(c=>c.classList.remove('active'));
-    el.classList.add('active');
-  }
-}
-
 function weightedPick(values, weights){
   const total = weights.reduce((a,b)=>a+b,0);
   let r = Math.random() * total;
@@ -5089,12 +5201,19 @@ async function dropPlinko(){
         const payout=Math.round(bet*mult);
         const slotEl=document.getElementById(`plinko-slot-${slotIndex}`);
         if(slotEl) slotEl.classList.add('hit');
-        if(payout>0){
-          
+        if(payout>bet){
           resultEl.textContent=`${mult}× → ${payout} ЛК`;
           toast(`🟡 Плинко: ${mult}× и ${payout} ЛК`,'win');
           onWin(payout,'🟡 Плинко');
           if(mult>=4)unlockAch('plinko_5x');
+        }else if(payout===bet){
+          resultEl.textContent=`${mult}× → ставка вернулась (${payout} ЛК)`;
+          toast('🟡 Плинко: ставка вернулась.','info');
+          onPush(payout);
+        }else if(payout>0){
+          resultEl.textContent=`${mult}× → вернулось только ${payout} ЛК`;
+          toast(`🟡 Плинко: частичный возврат ${payout} ЛК`,'info');
+          onPartialReturn(payout);
         }else{
           resultEl.textContent='0×. Шарик выбрал тьму.';
           toast('🟡 Плинко: шарик выбрал 0×','err');
@@ -5128,7 +5247,7 @@ function renderMinesBoard(showAll=false){
 }
 
 async function startMines(){
-  const bet=parseInt(document.getElementById('mines-bet').value);
+  const bet=getCasinoBet('mines');
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   const roundId = await tryStartCasinoRound('mines', bet, { source:'mines_start' });
   if(!roundId)return;
@@ -5202,7 +5321,7 @@ function renderTower(){
 }
 
 async function startTower(){
-  const bet=parseInt(document.getElementById('tower-bet').value);
+  const bet=getCasinoBet('tower');
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   document.getElementById('tower-start-btn').disabled=true;
   towerState.roundId=await tryStartCasinoRound('tower', bet, { source:'tower_start' });
@@ -6849,6 +6968,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderScratchBoard();
   renderOffsideTrack();
   resetVarCards();
+  Object.keys(casinoBetState).forEach(updateCasinoBetLabel);
   renderMinesBoard(false);
   renderTower();
   updateCashbackUI();
