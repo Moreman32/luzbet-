@@ -4470,6 +4470,7 @@ async function playRps(choice,el){
 
 let penaltyBusy=false;
 const PENALTY_DIRECTIONS={left:{label:'↙️ Влево',emoji:'↙️'},center:{label:'⬆️ Центр',emoji:'⬆️'},right:{label:'↘️ Вправо',emoji:'↘️'}};
+const PENALTY_PAYOUT_MULT = 2.2;
 async function playPenalty(direction,el){
   if(penaltyBusy)return;
   const bet=getCasinoBet('penalty');
@@ -4481,7 +4482,7 @@ async function playPenalty(direction,el){
   if(!roundId){penaltyBusy=false;document.querySelectorAll('.shot-btn').forEach(b=>b.classList.remove('selected'));return;}
   const keeper=['left','center','right'][Math.floor(Math.random()*3)];
   const goal=keeper!==direction;
-  const payout=goal?55:0;
+  const payout=goal?Math.round(bet * PENALTY_PAYOUT_MULT):0;
   document.getElementById('penalty-shot-emoji').textContent=PENALTY_DIRECTIONS[direction].emoji;
   document.getElementById('penalty-keeper-emoji').textContent=PENALTY_DIRECTIONS[keeper].emoji;
   document.getElementById('penalty-shot').textContent=PENALTY_DIRECTIONS[direction].label;
@@ -4685,7 +4686,7 @@ async function playLastChance(side){
   setTimeout(async ()=>{
     const win = Math.random() < 0.45;
     const face = win ? side : (side === 'heads' ? 'tails' : 'heads');
-    const payout = win ? 2 : 0;
+    const payout = win ? bet * 2 : 0;
     coinEl.textContent = face === 'heads' ? '🦅' : '👑';
     if(win){
       
