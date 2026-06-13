@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { fetchCasinoEvents, summarizeEconomyRows } from "../_shared/casino-ledger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -52,23 +53,29 @@ Deno.serve(async (req) => {
       return json({ ok: false, error: "participant not found" }, 404);
     }
 
-    const { data: row, error } = await sb
-      .from("casino")
-      .select("code, name, coins, spent, last_daily, last_cashback")
-      .eq("code", code)
-      .maybeSingle();
+    const [{ data: row, error }, events] = await Promise.all([
+      sb
+        .from("casino")
+        .select("code, name, coins, spent, last_daily, last_cashback")
+        .eq("code", participant.code)
+        .maybeSingle(),
+      fetchCasinoEvents(sb, { code: participant.code }),
+    ]);
 
     if (error) {
       return json({ ok: false, error: error.message }, 500);
     }
 
+    const economy = summarizeEconomyRows(events);
+
     if (!row) {
       return json({
         ok: true,
-        code,
+        code: participant.code,
         name: participant.name || "",
         coins: 1000,
-        spent: 0,
+        spent: economy.spent_total || 0,
+        earned: economy.earned_total || 0,
         last_daily: null,
         last_cashback: null,
       });
@@ -79,7 +86,8 @@ Deno.serve(async (req) => {
       code: row.code,
       name: row.name || participant.name || "",
       coins: Number(row.coins || 0),
-      spent: Number(row.spent || 0),
+      spent: Number(economy.spent_total || row.spent || 0),
+      earned: Number(economy.earned_total || 0),
       last_daily: row.last_daily || null,
       last_cashback: row.last_cashback || null,
     });

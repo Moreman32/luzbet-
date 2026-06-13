@@ -105,6 +105,23 @@ export function buildSpentMap(rows: CasinoEventRow[]) {
   return spentMap;
 }
 
+export function summarizeEconomyRows(rows: CasinoEventRow[]) {
+  let spent_total = 0;
+  let earned_total = 0;
+
+  for (const row of canonicalizeCasinoEvents(rows)) {
+    if (isAdministrativeCasinoSource(row)) continue;
+    spent_total += Number(row?.bet || 0);
+    earned_total += Number(row?.payout || 0);
+  }
+
+  return {
+    spent_total,
+    earned_total,
+    net_total: earned_total - spent_total,
+  };
+}
+
 export async function fetchCasinoEvents(
   supabase: any,
   options: { since?: string; code?: string; pageSize?: number } = {},

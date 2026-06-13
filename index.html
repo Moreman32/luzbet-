@@ -492,6 +492,25 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .tower-cell.safe{background:rgba(0,176,80,.12);border-color:rgba(0,176,80,.35);color:var(--green)}
 .tower-cell.bomb{background:rgba(232,0,42,.12);border-color:rgba(232,0,42,.35);color:#ff6b6b}
 .tower-row.locked .tower-cell{opacity:.45;cursor:not-allowed}
+.keno-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.keno-ball{background:var(--dark);border:1px solid var(--border);border-radius:999px;color:var(--white);font-family:var(--os);font-size:15px;padding:10px 0;cursor:pointer;transition:all .15s}
+.keno-ball:hover{border-color:var(--muted)}
+.keno-ball.selected{background:rgba(255,230,0,.12);border-color:var(--yellow);color:var(--yellow)}
+.keno-ball.drawn{background:rgba(0,176,80,.12);border-color:var(--green);color:var(--green)}
+.keno-ball.hit{box-shadow:0 0 0 2px rgba(255,230,0,.22) inset}
+.scratch-board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.scratch-cell{background:linear-gradient(135deg,#bcbcbc,#ececec,#b8b8b8);border:1px solid #9a9a9a;border-radius:10px;color:#444;font-family:var(--os);font-size:24px;min-height:68px;display:flex;align-items:center;justify-content:center}
+.scratch-cell.revealed{background:var(--dark);border-color:var(--border);color:var(--yellow)}
+.rps-grid,.shot-grid,.var-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.rps-btn,.shot-btn,.var-card{background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:var(--os);font-size:16px;padding:12px 8px;cursor:pointer;transition:all .15s;min-height:52px}
+.rps-btn:hover,.shot-btn:hover,.var-card:hover{border-color:var(--muted)}
+.rps-btn.selected,.shot-btn.selected,.var-card.revealed{background:rgba(255,230,0,.12);border-color:var(--yellow);color:var(--yellow)}
+.offside-track,.meters-track{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}
+.offside-step,.meters-step{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 6px;text-align:center;font-family:var(--os);font-size:12px;color:var(--muted)}
+.offside-step.active,.meters-step.active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,230,0,.08)}
+.offside-step.done,.meters-step.done{border-color:var(--green);color:var(--green);background:rgba(0,176,80,.08)}
+.var-card.revealed.bad{border-color:var(--red);color:#ff6b6b;background:rgba(232,0,42,.10)}
+.var-card.revealed.good{border-color:var(--green);color:var(--green);background:rgba(0,176,80,.10)}
 
 /* PLAYOFF */
 .playoff-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
@@ -1082,7 +1101,7 @@ try{
     <!-- CASINO HEADER -->
     <div class="casino-header">
       <div class="casino-title">КАЗИНО <em>ЛУЗБЕТ</em></div>
-      <div class="casino-sub">Семь игр. Один итог. Ты знаешь какой.</div>
+      <div class="casino-sub">Теперь игр ещё больше. Итог по-прежнему подозрительно знакомый.</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0">
         <div class="coins-display">🪙 <span id="casino-coins">1000</span> ЛК</div>
         <div id="vip-badge" style="display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:8px 16px;font-family:var(--os);font-size:14px;font-weight:700;border:2px solid #555;color:#888">👤 НОВИЧОК</div>
@@ -1206,6 +1225,122 @@ try{
     </div>
 
     <div id="casino-games" class="casino-games">
+
+      <!-- KENO -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">🔢 Кено</span><span class="cgc-rtp">Выбери 3 из 12</span></div>
+        <div class="cgc-body">
+          <div style="font-size:11px;color:var(--muted)">Ставка:
+            <select id="keno-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
+              <option value="20">20 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
+            </select>
+          </div>
+          <div id="keno-grid" class="keno-grid"></div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Выпавшие: <span id="keno-draw" style="color:var(--yellow);font-family:var(--os)">—</span></div>
+          <button class="btn btn-yellow btn-full" id="keno-btn" onclick="playKeno()">ТЯНУТЬ ШАРЫ</button>
+          <div id="keno-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- SCRATCH -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">🎟️ Лотерейный билет</span><span class="cgc-rtp">Стереть и пожалеть</span></div>
+        <div class="cgc-body">
+          <div style="font-size:11px;color:var(--muted)">Цена билета:
+            <select id="scratch-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
+              <option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
+            </select>
+          </div>
+          <div id="scratch-board" class="scratch-board"></div>
+          <button class="btn btn-yellow btn-full" id="scratch-btn" onclick="playScratchTicket()">СТЕРЕТЬ БИЛЕТ</button>
+          <div id="scratch-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- RPS -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">✊ Камень-Ножницы-Бумага</span><span class="cgc-rtp">15 ЛК • против киоска</span></div>
+        <div class="cgc-body">
+          <div class="rps-grid">
+            <button class="rps-btn" onclick="playRps('rock',this)">✊<br/>Камень</button>
+            <button class="rps-btn" onclick="playRps('scissors',this)">✌️<br/>Ножницы</button>
+            <button class="rps-btn" onclick="playRps('paper',this)">✋<br/>Бумага</button>
+          </div>
+          <div style="text-align:center;font-size:12px;color:var(--muted)">Ты: <span id="rps-player" style="color:var(--white)">—</span> • Касса: <span id="rps-bot" style="color:var(--white)">—</span></div>
+          <div id="rps-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- PENALTY -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">🥅 Пенальти</span><span class="cgc-rtp">25 ЛК • пробей вратаря</span></div>
+        <div class="cgc-body">
+          <div class="shot-grid">
+            <button class="shot-btn" onclick="playPenalty('left',this)">↙️<br/>Влево</button>
+            <button class="shot-btn" onclick="playPenalty('center',this)">⬆️<br/>По центру</button>
+            <button class="shot-btn" onclick="playPenalty('right',this)">↘️<br/>Вправо</button>
+          </div>
+          <div style="text-align:center;font-size:12px;color:var(--muted)">Удар: <span id="penalty-shot" style="color:var(--white)">—</span> • Вратарь: <span id="penalty-keeper" style="color:var(--white)">—</span></div>
+          <div id="penalty-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- OFFSIDE -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">🚩 Оффсайд</span><span class="cgc-rtp">Рискни ещё шаг</span></div>
+        <div class="cgc-body">
+          <div style="font-size:11px;color:var(--muted)">Ставка:
+            <select id="offside-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
+              <option value="20">20 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
+            </select>
+          </div>
+          <div id="offside-track" class="offside-track"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-yellow" id="offside-start-btn" onclick="startOffside()">Старт забега</button>
+            <button class="btn btn-green" id="offside-cash-btn" onclick="cashoutOffside()" disabled>Забрать</button>
+          </div>
+          <button class="btn btn-ghost btn-full" id="offside-next-btn" onclick="advanceOffside()" disabled style="margin-top:8px">СДЕЛАТЬ ЕЩЁ РЫВОК</button>
+          <div id="offside-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- VAR -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">📺 VAR Челлендж</span><span class="cgc-rtp">Открой повтор судьбы</span></div>
+        <div class="cgc-body">
+          <div style="font-size:11px;color:var(--muted)">Ставка:
+            <select id="var-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
+              <option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
+            </select>
+          </div>
+          <div id="var-grid" class="var-grid">
+            <button class="var-card" onclick="pickVarCard(0)">VAR 1</button>
+            <button class="var-card" onclick="pickVarCard(1)">VAR 2</button>
+            <button class="var-card" onclick="pickVarCard(2)">VAR 3</button>
+          </div>
+          <button class="btn btn-yellow btn-full" id="var-start-btn" onclick="startVarChallenge()">ПОДАТЬ НА ПРОСМОТР</button>
+          <div id="var-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
+
+      <!-- ELEVEN METERS -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">⚽ 11 Метров</span><span class="cgc-rtp">Серия под давлением</span></div>
+        <div class="cgc-body">
+          <div style="font-size:11px;color:var(--muted)">Ставка:
+            <select id="meters-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
+              <option value="30">30 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
+            </select>
+          </div>
+          <div id="meters-track" class="meters-track"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-yellow" id="meters-start-btn" onclick="startElevenMeters()">Начать серию</button>
+            <button class="btn btn-green" id="meters-cash-btn" onclick="cashoutElevenMeters()" disabled>Забрать</button>
+          </div>
+          <button class="btn btn-ghost btn-full" id="meters-kick-btn" onclick="takeElevenKick()" disabled style="margin-top:8px">ПРОБИТЬ ЕЩЁ РАЗ</button>
+          <div id="meters-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
+        </div>
+      </div>
 
       <!-- SLOTS -->
       <div class="casino-game-card">
@@ -1666,7 +1801,6 @@ const ALL_ACHIEVEMENTS=[
   {id:"outcome_reader",cat:"contest",icon:"🧠",name:"Читатель исходов",desc:"Набрал 5+ очков только на угадывании исходов матчей.",secret:false},
   {id:"diff_hunter",cat:"contest",icon:"↔️",name:"Охотник за разницей",desc:"Дважды угадал разницу голов. Уже не случайность.",secret:false},
   {id:"points_20",cat:"contest",icon:"🏆",name:"План сработал",desc:"Набрал 20+ очков в групповом этапе. Подозрительно сильно.",secret:true},
-  {id:"early_bird",cat:"contest",icon:"🐦",name:"Ранняя пташка",desc:"Сделал ставку раньше всех в группе.",secret:false},
   {id:"last_second",cat:"contest",icon:"⏱️",name:"До свистка",desc:"Сделал ставку за последние 10 минут до дедлайна.",secret:true},
   {id:"playoff_saved",cat:"contest",icon:"🏟️",name:"Плей-офф живёт в тебе",desc:"Зафиксировал купон плей-офф. Назад дороги нет.",secret:false},
   // КАЗИНО
@@ -1680,6 +1814,28 @@ const ALL_ACHIEVEMENTS=[
   {id:"wheel_zero",cat:"casino",icon:"😭",name:"Ноль удачи",desc:"Колесо остановилось на «0 ЛК». Судьба подписала акт.",secret:true},
   {id:"bankrupt",cat:"casino",icon:"💀",name:"Банкрот",desc:"Потратил все ЛузКоины до нуля. Легендарное достижение.",secret:false},
   {id:"rich",cat:"casino",icon:"🤑",name:"Богач",desc:"Накопил 2000+ ЛузКоинов. На что ты их тратил?",secret:true},
+  {id:"coinflip_first",cat:"casino",icon:"🪙",name:"Последний шанс",desc:"Сыграл в орёл или решку на свой последний грамм достоинства.",secret:false},
+  {id:"earned_10000",cat:"casino",icon:"💵",name:"Первые 10К возврата",desc:"Суммарно заработал 10 000 ЛузКоинов в казино.",secret:false},
+  {id:"earned_25000",cat:"casino",icon:"💵",name:"25К пришли",desc:"Суммарно заработал 25 000 ЛузКоинов в казино.",secret:false},
+  {id:"earned_50000",cat:"casino",icon:"💵",name:"Полтинник в обороте",desc:"Суммарно заработал 50 000 ЛузКоинов в казино.",secret:true},
+  {id:"earned_100000",cat:"casino",icon:"💸",name:"Шестизначный возврат",desc:"Суммарно заработал 100 000 ЛузКоинов в казино.",secret:true},
+  {id:"earned_250000",cat:"casino",icon:"💸",name:"Четверть миллиона",desc:"Суммарно заработал 250 000 ЛузКоинов в казино.",secret:true},
+  {id:"earned_500000",cat:"casino",icon:"🏦",name:"Полмиллиона на входе",desc:"Суммарно заработал 500 000 ЛузКоинов в казино.",secret:true},
+  {id:"earned_1000000",cat:"casino",icon:"👑",name:"Миллион поднят",desc:"Суммарно заработал 1 000 000 ЛузКоинов в казино.",secret:true},
+  {id:"spent_10000",cat:"casino",icon:"🧾",name:"10К в кассу",desc:"Суммарно поставил 10 000 ЛузКоинов.",secret:false},
+  {id:"spent_25000",cat:"casino",icon:"🧾",name:"25К без возврата доверия",desc:"Суммарно поставил 25 000 ЛузКоинов.",secret:false},
+  {id:"spent_50000",cat:"casino",icon:"🧾",name:"50К в обороте",desc:"Суммарно поставил 50 000 ЛузКоинов.",secret:true},
+  {id:"spent_100000",cat:"casino",icon:"🔥",name:"100К в топку",desc:"Суммарно поставил 100 000 ЛузКоинов.",secret:true},
+  {id:"spent_250000",cat:"casino",icon:"🔥",name:"Четверть миллиона в кассе",desc:"Суммарно поставил 250 000 ЛузКоинов.",secret:true},
+  {id:"spent_500000",cat:"casino",icon:"🏛️",name:"Полмиллиона поставлено",desc:"Суммарно поставил 500 000 ЛузКоинов.",secret:true},
+  {id:"spent_1000000",cat:"casino",icon:"💀",name:"Миллионный клиент",desc:"Суммарно поставил 1 000 000 ЛузКоинов.",secret:true},
+  {id:"balance_10000",cat:"casino",icon:"💰",name:"10К на руках",desc:"Держал на балансе 10 000 ЛузКоинов.",secret:false},
+  {id:"balance_25000",cat:"casino",icon:"💰",name:"25К на руках",desc:"Держал на балансе 25 000 ЛузКоинов.",secret:false},
+  {id:"balance_50000",cat:"casino",icon:"💰",name:"50К на руках",desc:"Держал на балансе 50 000 ЛузКоинов.",secret:true},
+  {id:"balance_100000",cat:"casino",icon:"🏦",name:"Сотка на балансе",desc:"Держал на балансе 100 000 ЛузКоинов.",secret:true},
+  {id:"balance_250000",cat:"casino",icon:"🏦",name:"Четверть миллиона в кармане",desc:"Держал на балансе 250 000 ЛузКоинов.",secret:true},
+  {id:"balance_500000",cat:"casino",icon:"👛",name:"Полмиллиона на счету",desc:"Держал на балансе 500 000 ЛузКоинов.",secret:true},
+  {id:"balance_1000000",cat:"casino",icon:"🚀",name:"Семизначный баланс",desc:"Держал на балансе 1 000 000 ЛузКоинов.",secret:true},
   {id:"win_streak3",cat:"casino",icon:"🔥",name:"В огне",desc:"3 победы подряд в любой игре.",secret:false},
   {id:"win_streak5",cat:"casino",icon:"⚡",name:"Против системы",desc:"5 побед подряд. Система злится. Мы — тоже.",secret:true},
   {id:"daily_bonus",cat:"casino",icon:"🎁",name:"Халявщик",desc:"Забрал ежедневный бонус. Бесплатно — любимый коэффициент.",secret:false},
@@ -1696,6 +1852,13 @@ const ALL_ACHIEVEMENTS=[
   {id:"mines_3safe",cat:"casino",icon:"💎",name:"Стальные нервы",desc:"Открыл 3 безопасные клетки в Минёре за один заход.",secret:true},
   {id:"tower_first",cat:"casino",icon:"🗼",name:"Первый этаж",desc:"Зашёл в Башню и всё равно решил лезть выше.",secret:false},
   {id:"tower_top",cat:"casino",icon:"👑",name:"На самой крыше",desc:"Добрался до вершины Башни и забрал награду.",secret:true},
+  {id:"keno_first",cat:"casino",icon:"🔢",name:"Три числа",desc:"Сыграл в Кено и поверил в математику.",secret:false},
+  {id:"scratch_first",cat:"casino",icon:"🎟️",name:"Счастливый билет",desc:"Стёр первый билет. Счастье не гарантировано.",secret:false},
+  {id:"rps_first",cat:"casino",icon:"✊",name:"Дворовая классика",desc:"Сыграл в камень-ножницы-бумага против автомата.",secret:false},
+  {id:"penalty_goal",cat:"casino",icon:"🥅",name:"Хладнокровный удар",desc:"Забил с пенальти и не дрогнул.",secret:false},
+  {id:"offside_escape",cat:"casino",icon:"🚩",name:"На грани",desc:"Успел забрать выигрыш в оффсайде.",secret:false},
+  {id:"var_goal",cat:"casino",icon:"📺",name:"VAR подтвердил",desc:"Открыл лучший исход в VAR-челлендже.",secret:true},
+  {id:"meters_clean",cat:"casino",icon:"⚽",name:"Серия без нервов",desc:"Прошёл все 5 ударов в режиме «11 метров».",secret:true},
   {id:"cashback_claim",cat:"casino",icon:"♻️",name:"Компенсация страданий",desc:"Забрал ежедневный кешбек казино. Хоть что-то вернулось.",secret:false},
   // ОБЩИЕ
   {id:"page_rules",cat:"general",icon:"📜",name:"Законопослушный",desc:"Прочитал правила. Или открыл вкладку. Считается.",secret:false},
@@ -1723,9 +1886,11 @@ const LS={
 // Старый общий ключ ачивок больше не используем: он путал разных игроков в одном браузере.
 LS.remove('luzbet_ach');
 let coins=parseInt(LS.get('luzbet_coins','1000'));
+let totalEarned=parseInt(LS.get('luzbet_earned','0'));
 let unlockedAch=new Set();
 function isKnownAch(id){return ALL_ACHIEVEMENTS.some(a=>a.id===id);}
 function cleanAchIds(ids){return [...new Set((ids||[]).filter(id=>isKnownAch(id)))];}
+const ECON_ACH_MILESTONES=[10000,25000,50000,100000,250000,500000,1000000];
 function casinoStateStorageKey(code){
   const key=String(code||'').trim().toLowerCase();
   return key ? `luzbet_casino_state_${key}` : '';
@@ -1770,6 +1935,21 @@ function loadAchLocal(code){
   }catch(e){
     return [];
   }
+}
+function syncEarnedLocal(){
+  LS.set('luzbet_earned', parseInt(totalEarned || 0, 10) || 0);
+}
+function applyEarnedTotal(value){
+  const parsed = Math.max(0, parseInt(value || 0, 10) || 0);
+  if(parsed > totalEarned) totalEarned = parsed;
+  else if(value === 0 || value === '0') totalEarned = 0;
+  syncEarnedLocal();
+}
+function addEarnedTotal(amount){
+  const parsed = Math.max(0, parseInt(amount || 0, 10) || 0);
+  if(parsed <= 0) return;
+  totalEarned += parsed;
+  syncEarnedLocal();
 }
 let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRaf=null;
 let loginStartTime=0;
@@ -1993,7 +2173,7 @@ function scorePreds(name,preds,results){
       const ph=preds[`group${g}_m${mi}_h`],pa=preds[`group${g}_m${mi}_a`];
       predScores.push(ph!==undefined&&ph!==''?{h:parseInt(ph),a:parseInt(pa)}:null);
       const as=actScores[mi];
-      if(!ph||ph===''||(as && as.h)===null||(as && as.h)===undefined)return;
+      if(!ph||ph===''||!hasResolvedScore(as))return;
       const predH=parseInt(ph), predA=parseInt(pa);
       const predDiff=predH-predA, actDiff=as.h-as.a;
       const po=predDiff>0?'h':predDiff<0?'a':'d';
@@ -2367,9 +2547,23 @@ function refreshVipAchievements(){
   if(vip.thresh >= 15000) unlockAch('vip_legend', { silent:true });
 }
 
+function refreshEconomyAchievements(){
+  refreshVipAchievements();
+
+  if (coins >= 2000) unlockAch('rich', { silent:true });
+  if (coins <= 0) unlockAch('bankrupt', { silent:true });
+
+  ECON_ACH_MILESTONES.forEach(threshold => {
+    if (totalEarned >= threshold) unlockAch(`earned_${threshold}`, { silent:true });
+    if (totalSpent >= threshold) unlockAch(`spent_${threshold}`, { silent:true });
+    if (coins >= threshold) unlockAch(`balance_${threshold}`, { silent:true });
+  });
+}
+
 function saveCoins(){
   LS.set('luzbet_coins', coins);
   LS.set('luzbet_spent', totalSpent);
+  syncEarnedLocal();
   saveCasinoLocalState(S.code, { dirty:false });
   // Игровые ставки теперь пишет сервер через start/finish-casino-round.
   // Старый save-casino не вызываем, чтобы не откатывать баланс.
@@ -2392,7 +2586,7 @@ function renderCoinsUI(){
     document.getElementById('casino-games').style.display = 'grid';
   }
 
-  if (coins >= 2000) unlockAch('rich', { silent:true });
+  refreshEconomyAchievements();
 }
 
 let casinoStatsReloadTimer = null;
@@ -2513,6 +2707,8 @@ function renderCasinoStats(stats){
   casinoStatsCache = data;
   const today = data.summary || emptyCasinoStats().summary;
   const overall = data.overall || today || emptyCasinoStats().overall;
+  applyEarnedTotal(overall.payout_sum || 0);
+  refreshEconomyAchievements();
   const summary = document.getElementById('casino-stats-summary');
   const daysEl = document.getElementById('casino-stats-days');
   const gamesEl = document.getElementById('casino-stats-games');
@@ -2574,6 +2770,13 @@ function renderCasinoStats(stats){
     slots:'🎰 Слоты',
     blackjack:'🃏 Блэкджек',
     wheel:'🎡 Колесо',
+    keno:'🔢 Кено',
+    scratch:'🎟️ Лотерейный билет',
+    rps:'✊ К-Н-Б',
+    penalty:'🥅 Пенальти',
+    offside:'🚩 Оффсайд',
+    var_challenge:'📺 VAR Челлендж',
+    eleven_meters:'⚽ 11 метров',
     dice:'🎲 Кости',
     crash:'🪃 Краш',
     higher_lower:'🎴 Выше-ниже',
@@ -2666,6 +2869,7 @@ async function claimCasinoCashback(){
   if(amount <= 0){toast('♻️ Сегодня кешбек не положен.','info');return;}
   casinoServerState.last_cashback = r.last_cashback || new Date().toISOString();
   coins += amount;
+  addEarnedTotal(amount);
   saveCoins();
   toast(`♻️ Кешбек: +${amount} ЛК`,'win',3800);
   if(r.logged !== true){
@@ -3022,6 +3226,7 @@ async function doLogout(){
   scores={};
   currentPredictionData={};
   coins=1000;
+  totalEarned=0;
   totalSpent=0;
   unlockedAch=new Set();
   tabsVisited=new Set();
@@ -3037,6 +3242,7 @@ async function doLogout(){
   achSyncTimer=null;
   LS.remove('luzbet_session_code');
   LS.remove('luzbet_coins');
+  LS.remove('luzbet_earned');
   LS.remove('luzbet_spent');
   closeMatchRewardsPopup();
   matchRewardsLastCheckAt=0;
@@ -3159,6 +3365,9 @@ function restorePredictionToForm(pred){
   if(!pred)return;
   pred = normalizePredictionData(pred);
   const results = window._lastResults || {};
+  if(S.code && Object.keys(results).length){
+    recomputeContestAchievements(pred, results);
+  }
 
   for(const[g,d]of Object.entries(GROUPS)){
     const raw=String(pred['group'+g]||'').trim();
@@ -3195,7 +3404,7 @@ function restorePredictionToForm(pred){
         const block=document.getElementById('smb-'+g+'-'+mi);
         const as=actScores[mi];
         const meta=document.getElementById('smm-'+g+'-'+mi);
-        if(block && meta && as && as.h!==null && as.h!==undefined){
+        if(block && meta && hasResolvedScore(as)){
           const info=getMatchPointsInfo(ph, pa, as);
 
           block.classList.remove('score-exact','score-diff','score-outcome','score-miss');
@@ -3238,6 +3447,68 @@ function matchStartDate(m){
 function isMatchLocked(m){
   const d=matchStartDate(m);
   return d ? new Date()>=d : false;
+}
+function hasResolvedScore(score){
+  return !!score && score.h !== null && score.h !== undefined && score.a !== null && score.a !== undefined;
+}
+function recomputeContestAchievements(pred, results=window._lastResults || {}){
+  const normalized = normalizePredictionData(pred || {});
+  if(!normalized || !Object.keys(normalized).length) return;
+
+  let exactCount=0;
+  let tPts=0,oPts=0,dPts=0,sPts=0;
+
+  for(const [g, gd] of Object.entries(GROUPS)){
+    const raw = normalized['group'+g] || '';
+    const predicted = raw ? raw.split('|').map(s=>s.trim()).filter(Boolean) : [];
+    const actual = (results[g] && results[g].teams) || [];
+    const actScores = (results[g] && results[g].scores) || [];
+
+    const allHit = predicted.length === 2 &&
+      actual.length > 0 &&
+      predicted.every(t => actual.some(a => String(a).toLowerCase() === String(t).toLowerCase()));
+    if(allHit) unlockAch('perfect_group');
+
+    predicted.forEach(t => {
+      if(actual.some(a => String(a).toLowerCase() === String(t).toLowerCase())) tPts += 3;
+    });
+
+    gd.matches.forEach((_, mi) => {
+      const ph = parseInt(normalized[`group${g}_m${mi}_h`], 10);
+      const pa = parseInt(normalized[`group${g}_m${mi}_a`], 10);
+      const as = actScores[mi];
+      if(Number.isNaN(ph) || Number.isNaN(pa) || !hasResolvedScore(as)) return;
+
+      const predDiff = ph - pa;
+      const actDiff = as.h - as.a;
+      const po = predDiff > 0 ? 'h' : predDiff < 0 ? 'a' : 'd';
+      const ao = actDiff > 0 ? 'h' : actDiff < 0 ? 'a' : 'd';
+
+      if(ph === as.h && pa === as.a){
+        unlockAch('exact_score');
+        exactCount++;
+        sPts += 3;
+      } else if(predDiff === actDiff){
+        dPts += 2;
+      } else if(po === ao){
+        oPts += 1;
+      }
+    });
+  }
+
+  if(exactCount >= 3) unlockAch('all_exact');
+  if(tPts === 0 && Object.values(results).some(v => (v.teams && v.teams.length) > 0)) unlockAch('zero_pts');
+  const total = tPts + oPts + dPts + sPts;
+  if(oPts >= 5) unlockAch('outcome_reader');
+  if(dPts >= 4) unlockAch('diff_hunter');
+  if(total >= 20) unlockAch('points_20');
+}
+function recomputeCurrentContestAchievements(results=window._lastResults || {}){
+  if(!S.code) return;
+  const source = currentPredictionData && Object.keys(currentPredictionData).length
+    ? currentPredictionData
+    : null;
+  if(source) recomputeContestAchievements(source, results);
 }
 function scorePairComplete(g,mi){
   const h=scores[`${g}_m${mi}_h`], a=scores[`${g}_m${mi}_a`];
@@ -3364,16 +3635,8 @@ async function showVoted(pred){
   document.getElementById('ub-name-p').textContent='👋 '+S.name;
   document.getElementById('save-bar').classList.remove('up');
   let results={};try{const lb=await api({action:'getLeaderboard'});if(lb.ok)results=lb.results;}catch(e){}
-  // Check achievements
-  let exactCount=0;
-  for(const[g,gd]of Object.entries(GROUPS)){
-    const raw=pred['group'+g]||'';const predicted=raw?raw.split('|').map(s=>s.trim()):[];
-    const actual=(results[g] && results[g].teams)||[];const actScores=(results[g] && results[g].scores)||[];
-    const allHit=predicted.length===2&&actual.length>0&&predicted.every(t=>actual.some(a=>a.toLowerCase()===t.toLowerCase()));
-    if(allHit)unlockAch('perfect_group');
-    gd.matches.forEach((_,mi)=>{const ph=parseInt(pred[`group${g}_m${mi}_h`]),pa=parseInt(pred[`group${g}_m${mi}_a`]);const as=actScores[mi];if(!isNaN(ph)&&(as && as.h)!==null&&(as && as.h)!==undefined&&ph===as.h&&pa===as.a){unlockAch('exact_score');exactCount++;}});
-  }
-  if(exactCount>=3)unlockAch('all_exact');
+  if(Object.keys(results).length) window._lastResults = results;
+  recomputeContestAchievements(pred, results);
   let tPts=0,oPts=0,dPts=0,sPts=0;
   for(const[g,gd]of Object.entries(GROUPS)){
     const raw=pred['group'+g]||'';const predicted=raw?raw.split('|').map(s=>s.trim()):[];
@@ -3382,7 +3645,7 @@ async function showVoted(pred){
     gd.matches.forEach((_,mi)=>{
       const ph=parseInt(pred[`group${g}_m${mi}_h`]),pa=parseInt(pred[`group${g}_m${mi}_a`]);
       const as=actScores[mi];
-      if(!isNaN(ph)&&(as && as.h)!==null&&(as && as.h)!==undefined){
+      if(!isNaN(ph)&&!isNaN(pa)&&hasResolvedScore(as)){
         const predDiff=ph-pa, actDiff=as.h-as.a;
         const po=predDiff>0?'h':predDiff<0?'a':'d';
         const ao=actDiff>0?'h':actDiff<0?'a':'d';
@@ -3392,11 +3655,7 @@ async function showVoted(pred){
       }
     });
   }
-  if(tPts===0&&Object.values(results).some(v=>(v.teams && v.teams.length)>0))unlockAch('zero_pts');
   const total=tPts+oPts+dPts+sPts;
-  if(oPts>=5)unlockAch('outcome_reader');
-  if(dPts>=4)unlockAch('diff_hunter');
-  if(total>=20)unlockAch('points_20');
   const grpDone=Object.values(results).filter(v=>(v.teams && v.teams.length)>0).length;
   // Hide expert bot
   const eb2=document.getElementById('expert-bot-wrap');if(eb2)eb2.style.display='none';
@@ -3410,7 +3669,7 @@ async function showVoted(pred){
     html+=`<div class="vg"><div class="vg-label">ГРУППА ${g}</div>`;
     if(!teams.length)html+=`<div class="vg-team" style="font-style:italic;font-size:11px">нет ставки</div>`;
     else teams.forEach(t=>{const flag=(gd.teams.find(x=>x.n===t)||{}).f||'';let cls='';if(hasRes)cls=actual.some(a=>a.toLowerCase()===t.toLowerCase())?' hit':' miss';html+=`<div class="vg-team${cls}">${flag} ${t}</div>`;});
-    if(gd.matches.length){html+=`<div class="vg-scores">`;gd.matches.forEach((m,mi)=>{const ph=pred[`group${g}_m${mi}_h`],pa=pred[`group${g}_m${mi}_a`];const as=actScores[mi];const hasPred=ph!==undefined&&ph!=='';const hasAct=(as && as.h)!==null&&(as && as.h)!==undefined;if(!hasPred&&!hasAct)return;let cls='';let earned='';if(hasPred&&hasAct){const info=getMatchPointsInfo(ph,pa,as);cls=info.points>0?' h':' m';earned=` · ${info.points===0?'0':`+${info.points}`}`;}html+=`<div class="vg-score-row"><span>${m.h.split(' ')[0]}:${m.a.split(' ')[0]}</span><span class="${cls.trim()}">${hasPred?`${ph}:${pa}`:'—'} → ${hasAct?`${as.h}:${as.a}`:'?:?'}${earned}</span></div>`;});html+=`</div>`;}
+    if(gd.matches.length){html+=`<div class="vg-scores">`;gd.matches.forEach((m,mi)=>{const ph=pred[`group${g}_m${mi}_h`],pa=pred[`group${g}_m${mi}_a`];const as=actScores[mi];const hasPred=ph!==undefined&&ph!=='';const hasAct=hasResolvedScore(as);if(!hasPred&&!hasAct)return;let cls='';let earned='';if(hasPred&&hasAct){const info=getMatchPointsInfo(ph,pa,as);cls=info.points>0?' h':' m';earned=` · ${info.points===0?'0':`+${info.points}`}`;}html+=`<div class="vg-score-row"><span>${m.h.split(' ')[0]}:${m.a.split(' ')[0]}</span><span class="${cls.trim()}">${hasPred?`${ph}:${pa}`:'—'} → ${hasAct?`${as.h}:${as.a}`:'?:?'}${earned}</span></div>`;});html+=`</div>`;}
     html+=`</div>`;
   }
   html+='</div>';
@@ -3450,6 +3709,7 @@ async function loadLeaderboard(force=false){
       const r = await api({action:'getLeaderboard'});
       if(!r.ok) throw new Error(r.error || 'leaderboard failed');
       window._lastResults = r.results;
+      recomputeCurrentContestAchievements(window._lastResults);
 
       _lbCache = {
         lb: Array.isArray(r.leaderboard) ? r.leaderboard : [],
@@ -3567,7 +3827,7 @@ function renderLB(lb,results){
           const as=d.actScores[mi];
           let ptsBadge='';
           let rowCls='';
-          if(as && as.h!==null && as.h!==undefined){
+          if(hasResolvedScore(as)){
             const info=getMatchPointsInfo(ps.h, ps.a, as);
             grpPts+=info.points||0;
             if(info.points>0) rowCls='h';
@@ -3579,7 +3839,7 @@ function renderLB(lb,results){
           const an=m.a.split(' ')[0].slice(0,6);
           html+=`<div class="dc-score-row">
             <span style="color:var(--muted)">${hn}–${an}</span>
-            <span class="${rowCls}" style="font-family:var(--os)">${ps.h}:${ps.a}${as&&as.h!==null?` (${as.h}:${as.a})`:''}</span>
+            <span class="${rowCls}" style="font-family:var(--os)">${ps.h}:${ps.a}${hasResolvedScore(as)?` (${as.h}:${as.a})`:''}</span>
             ${ptsBadge}
           </div>`;
         });
@@ -3783,6 +4043,7 @@ function triggerBigWinEffect(){
 }
 
 function onWin(amount=0,game=''){
+  addEarnedTotal(amount);
   winStreak++;
   const isBigWin=Number(amount)>=100;
   if(isBigWin){
@@ -3796,7 +4057,7 @@ function onWin(amount=0,game=''){
   if(amount>0&&game)chatNotifyWin(game,amount);
 }
 function onLose(){winStreak=0;soundLose();}
-function resetCoins(){coins=100;saveCoins();toast('🙏 Получил 100 ЛК милостыни. Не трать сразу.','ok');showBankruptTip();logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:100, delta:100, meta:{ source:'bankrupt_reset' } }).catch(()=>{});}
+function resetCoins(){coins=100;addEarnedTotal(100);saveCoins();toast('🙏 Получил 100 ЛК милостыни. Не трать сразу.','ok');showBankruptTip();logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:100, delta:100, meta:{ source:'bankrupt_reset' } }).catch(()=>{});}
 
 // ══════════════════════════════════════════════
 //  VIP SYSTEM
@@ -3818,7 +4079,7 @@ function getVipForSpent(spent=0){
 function getVip(){return getVipForSpent(totalSpent);}
 function updateVip(){
   const v=getVip(),badge=document.getElementById('vip-badge');
-  refreshVipAchievements();
+  refreshEconomyAchievements();
   if(!badge)return;
   badge.textContent=v.name;badge.style.borderColor=v.color;badge.style.color=v.tc;
   const next=VIP_LEVELS.find(x=>x.thresh>totalSpent);
@@ -3855,7 +4116,7 @@ async function claimDaily(){
   const amount = parseInt(r.amount || 0) || 0;
   if(amount <= 0){toast('🎁 Сегодня бонус уже получен.','info');checkDaily();return;}
   casinoServerState.last_daily = r.last_daily || new Date().toISOString();
-  coins += amount; saveCoins();toast(`🎁 +${amount} ЛК ежедневный бонус!`,'win',4000);checkDaily();
+  coins += amount; addEarnedTotal(amount); saveCoins();toast(`🎁 +${amount} ЛК ежедневный бонус!`,'win',4000);checkDaily();
   unlockAch('daily_bonus');
   if(r.logged !== true){
     logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:amount, delta:amount, meta:{ source:'daily_bonus' } }).catch(()=>{});
@@ -3893,6 +4154,386 @@ function toggleCasinoStats(force){
 }
 
 // ══════════════════════════════════════════════
+//  NEW CASINO GAMES
+// ══════════════════════════════════════════════
+const KENO_NUMBERS=[1,2,3,4,5,6,7,8,9,10,11,12];
+const KENO_PAYOUTS={0:0,1:1,2:3,3:8};
+let kenoSelected=new Set(),kenoBusy=false;
+function renderKenoBoard(drawn=[]){
+  const grid=document.getElementById('keno-grid');
+  if(!grid)return;
+  grid.innerHTML=KENO_NUMBERS.map(n=>{
+    const cls=[
+      'keno-ball',
+      kenoSelected.has(n)?'selected':'',
+      drawn.includes(n)?'drawn':'',
+      drawn.includes(n)&&kenoSelected.has(n)?'hit':'',
+    ].filter(Boolean).join(' ');
+    return `<button class="${cls}" onclick="toggleKenoNumber(${n})">${n}</button>`;
+  }).join('');
+}
+function toggleKenoNumber(n){
+  if(kenoBusy)return;
+  if(kenoSelected.has(n))kenoSelected.delete(n);
+  else{
+    if(kenoSelected.size>=3){toast('🔢 В Кено нужно выбрать ровно 3 числа.','info');return;}
+    kenoSelected.add(n);
+  }
+  renderKenoBoard();
+}
+async function playKeno(){
+  if(kenoBusy)return;
+  const bet=parseInt(document.getElementById('keno-bet').value,10)||20;
+  if(kenoSelected.size!==3){toast('🔢 Сначала выбери 3 числа.','err');return;}
+  if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  kenoBusy=true;
+  document.getElementById('keno-btn').disabled=true;
+  document.getElementById('keno-result').textContent='Барабан крутится...';
+  document.getElementById('keno-draw').textContent='—';
+  const picks=[...kenoSelected].sort((a,b)=>a-b);
+  const roundId=await tryStartCasinoRound('keno', bet, { picks, source:'keno_start' });
+  if(!roundId){kenoBusy=false;document.getElementById('keno-btn').disabled=false;return;}
+  unlockAch('keno_first');
+  const pool=[...KENO_NUMBERS].sort(()=>Math.random()-.5);
+  const drawn=pool.slice(0,4).sort((a,b)=>a-b);
+  renderKenoBoard([]);
+  let revealCount=0;
+  const iv=setInterval(()=>{
+    revealCount++;
+    const visible=drawn.slice(0,revealCount);
+    document.getElementById('keno-draw').textContent=visible.join(' • ');
+    renderKenoBoard(visible);
+    if(revealCount>=drawn.length) clearInterval(iv);
+  },320);
+  setTimeout(async ()=>{
+    const hits=picks.filter(n=>drawn.includes(n)).length;
+    const mult=KENO_PAYOUTS[hits]||0;
+    const payout=hits ? bet*mult : 0;
+    if(payout>0){
+      document.getElementById('keno-result').textContent=`🔢 Совпадений: ${hits}. Выплата +${payout} ЛК`;
+      toast(`🔢 Кено: ${hits} совп. и +${payout} ЛК`,'win');
+      recordWin('🔢 Кено',payout);
+      onWin(payout,'🔢 Кено');
+    }else{
+      document.getElementById('keno-result').textContent=`Совпадений: ${hits}. Барабан тебя не уважает.`;
+      toast('🔢 Кено мимо. Бывает у всех. У тебя чаще.','err');
+      onLose();
+    }
+    await persistCasinoRoundFinish(roundId,'keno',bet,payout,{ picks, drawn, hits, multiplier:mult });
+    kenoBusy=false;
+    document.getElementById('keno-btn').disabled=false;
+  },1550);
+}
+
+const SCRATCH_OUTCOMES=[
+  {symbols:['💸','🧻','😭','🪦','💸','🧻'],mult:0,label:'Пустышка',weight:42},
+  {symbols:['🍀','🍀','💸','🧻','😭','🧻'],mult:1,label:'Возврат',weight:28},
+  {symbols:['⭐','⭐','⭐','💸','🍀','🧻'],mult:2,label:'Тройка',weight:16},
+  {symbols:['💎','💎','💎','⭐','⭐','🍀'],mult:4,label:'Жирный билет',weight:10},
+  {symbols:['👑','👑','👑','💎','💎','⭐'],mult:8,label:'Мифический билет',weight:4},
+];
+let scratchBusy=false;
+function renderScratchBoard(symbols=[],revealed=false){
+  const board=document.getElementById('scratch-board');
+  if(!board)return;
+  board.innerHTML=Array.from({length:6},(_,i)=>{
+    const text=revealed ? (symbols[i]||'❔') : '▒';
+    return `<div class="scratch-cell ${revealed?'revealed':''}">${text}</div>`;
+  }).join('');
+}
+function pickScratchOutcome(){
+  const total=SCRATCH_OUTCOMES.reduce((sum,x)=>sum+x.weight,0);
+  let r=Math.random()*total;
+  for(const row of SCRATCH_OUTCOMES){
+    r-=row.weight;
+    if(r<=0) return row;
+  }
+  return SCRATCH_OUTCOMES[0];
+}
+async function playScratchTicket(){
+  if(scratchBusy)return;
+  const bet=parseInt(document.getElementById('scratch-bet').value,10)||25;
+  if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  scratchBusy=true;
+  document.getElementById('scratch-btn').disabled=true;
+  document.getElementById('scratch-result').textContent='Шуршим монеткой по билету...';
+  const roundId=await tryStartCasinoRound('scratch', bet, { source:'scratch_start' });
+  if(!roundId){scratchBusy=false;document.getElementById('scratch-btn').disabled=false;return;}
+  unlockAch('scratch_first');
+  const outcome=pickScratchOutcome();
+  renderScratchBoard([],false);
+  setTimeout(async ()=>{
+    renderScratchBoard(outcome.symbols,true);
+    const payout=bet*outcome.mult;
+    if(payout>0){
+      document.getElementById('scratch-result').textContent=`🎟️ ${outcome.label}: +${payout} ЛК`;
+      toast(`🎟️ Билет: +${payout} ЛК`,'win');
+      recordWin('🎟️ Лотерейный билет',payout);
+      onWin(payout,'🎟️ Лотерейный билет');
+    }else{
+      document.getElementById('scratch-result').textContent='Пусто. Билет был как надежды: красивый, но бесполезный.';
+      toast('🎟️ Пустой билет. Коллекционная боль.','err');
+      onLose();
+    }
+    await persistCasinoRoundFinish(roundId,'scratch',bet,payout,{ outcome:outcome.label, multiplier:outcome.mult, symbols:outcome.symbols });
+    scratchBusy=false;
+    document.getElementById('scratch-btn').disabled=false;
+  },950);
+}
+
+const RPS_META={
+  rock:{emoji:'✊',label:'Камень'},
+  scissors:{emoji:'✌️',label:'Ножницы'},
+  paper:{emoji:'✋',label:'Бумага'},
+};
+let rpsBusy=false;
+async function playRps(choice,el){
+  if(rpsBusy)return;
+  const bet=15;
+  if(coins<bet){toast('❌ Нужно 15 ЛК','err');return;}
+  rpsBusy=true;
+  document.querySelectorAll('.rps-btn').forEach(b=>b.classList.remove('selected'));
+  if(el)el.classList.add('selected');
+  const roundId=await tryStartCasinoRound('rps', bet, { choice, source:'rps_start' });
+  if(!roundId){rpsBusy=false;document.querySelectorAll('.rps-btn').forEach(b=>b.classList.remove('selected'));return;}
+  unlockAch('rps_first');
+  const variants=['rock','scissors','paper'];
+  const bot=variants[Math.floor(Math.random()*variants.length)];
+  document.getElementById('rps-player').textContent=`${RPS_META[choice].emoji} ${RPS_META[choice].label}`;
+  document.getElementById('rps-bot').textContent=`${RPS_META[bot].emoji} ${RPS_META[bot].label}`;
+  let result='lose', payout=0;
+  if(choice===bot){result='draw'; payout=bet;}
+  else if((choice==='rock'&&bot==='scissors')||(choice==='scissors'&&bot==='paper')||(choice==='paper'&&bot==='rock')){result='win'; payout=bet*2;}
+  if(result==='win'){
+    document.getElementById('rps-result').textContent=`✊ Победа! +${payout} ЛК`;
+    toast(`✊ К-Н-Б: +${payout} ЛК`,'win');
+    recordWin('✊ К-Н-Б',payout);
+    onWin(payout,'✊ Камень-Ножницы-Бумага');
+  }else if(result==='draw'){
+    document.getElementById('rps-result').textContent='Ничья. Всем неловко, но деньги вернулись.';
+    toast('✊ Ничья. Ставка вернулась.','info');
+    onWin(payout,'✊ Камень-Ножницы-Бумага');
+  }else{
+    document.getElementById('rps-result').textContent='Поражение. Двор помнит такие истории.';
+    toast('✊ Проиграл автомату. Классика.','err');
+    onLose();
+  }
+  await persistCasinoRoundFinish(roundId,'rps',bet,payout,{ choice, bot, result });
+  setTimeout(()=>{rpsBusy=false;document.querySelectorAll('.rps-btn').forEach(b=>b.classList.remove('selected'));},350);
+}
+
+let penaltyBusy=false;
+const PENALTY_DIRECTIONS={left:'↙️ Влево',center:'⬆️ Центр',right:'↘️ Вправо'};
+async function playPenalty(direction,el){
+  if(penaltyBusy)return;
+  const bet=25;
+  if(coins<bet){toast('❌ Нужно 25 ЛК','err');return;}
+  penaltyBusy=true;
+  document.querySelectorAll('.shot-btn').forEach(b=>b.classList.remove('selected'));
+  if(el)el.classList.add('selected');
+  const roundId=await tryStartCasinoRound('penalty', bet, { shot:direction, source:'penalty_start' });
+  if(!roundId){penaltyBusy=false;document.querySelectorAll('.shot-btn').forEach(b=>b.classList.remove('selected'));return;}
+  const keeper=['left','center','right'][Math.floor(Math.random()*3)];
+  const goal=keeper!==direction;
+  const payout=goal?55:0;
+  document.getElementById('penalty-shot').textContent=PENALTY_DIRECTIONS[direction];
+  document.getElementById('penalty-keeper').textContent=PENALTY_DIRECTIONS[keeper];
+  if(goal){
+    document.getElementById('penalty-result').textContent=`🥅 Гол! +${payout} ЛК`;
+    toast(`🥅 Пенальти: +${payout} ЛК`,'win');
+    recordWin('🥅 Пенальти',payout);
+    onWin(payout,'🥅 Пенальти');
+    unlockAch('penalty_goal');
+  }else{
+    document.getElementById('penalty-result').textContent='Вратарь прочитал твой взгляд. Без шансов.';
+    toast('🥅 Вратарь потащил. Всё пропало.','err');
+    onLose();
+  }
+  await persistCasinoRoundFinish(roundId,'penalty',bet,payout,{ shot:direction, keeper, goal });
+  setTimeout(()=>{penaltyBusy=false;document.querySelectorAll('.shot-btn').forEach(b=>b.classList.remove('selected'));},350);
+}
+
+let offsideState={running:false,roundId:'',bet:0,step:0,multipliers:[1.2,1.5,1.9,2.4,3.2]};
+function renderOffsideTrack(){
+  const track=document.getElementById('offside-track');
+  if(!track)return;
+  track.innerHTML=offsideState.multipliers.map((mult,idx)=>{
+    const cls=idx<offsideState.step?'done':idx===offsideState.step&&offsideState.running?'active':'';
+    return `<div class="offside-step ${cls}">x${mult.toFixed(2)}</div>`;
+  }).join('');
+}
+async function startOffside(){
+  if(offsideState.running)return;
+  const bet=parseInt(document.getElementById('offside-bet').value,10)||20;
+  if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  const roundId=await tryStartCasinoRound('offside', bet, { source:'offside_start' });
+  if(!roundId)return;
+  offsideState={running:true,roundId,bet,step:0,multipliers:[1.2,1.5,1.9,2.4,3.2]};
+  document.getElementById('offside-start-btn').disabled=true;
+  document.getElementById('offside-cash-btn').disabled=true;
+  document.getElementById('offside-next-btn').disabled=false;
+  document.getElementById('offside-result').textContent='Разбег начался. Можно рисковать дальше.';
+  renderOffsideTrack();
+}
+async function advanceOffside(){
+  if(!offsideState.running)return;
+  const catchChance=[0.25,0.3,0.36,0.42,0.48][offsideState.step] || 0.5;
+  if(Math.random()<catchChance){
+    document.getElementById('offside-result').textContent='🚩 Поднят флажок. Всё сгорело.';
+    document.getElementById('offside-start-btn').disabled=false;
+    document.getElementById('offside-cash-btn').disabled=true;
+    document.getElementById('offside-next-btn').disabled=true;
+    onLose();
+    await persistCasinoRoundFinish(offsideState.roundId,'offside',offsideState.bet,0,{ result:'caught', step:offsideState.step });
+    offsideState.running=false;
+    renderOffsideTrack();
+    return;
+  }
+  offsideState.step++;
+  const mult=offsideState.multipliers[offsideState.step-1];
+  document.getElementById('offside-result').textContent=`Чисто! Сейчас можно забрать x${mult.toFixed(2)}.`;
+  document.getElementById('offside-cash-btn').disabled=false;
+  if(offsideState.step>=offsideState.multipliers.length){
+    await cashoutOffside();
+    return;
+  }
+  renderOffsideTrack();
+}
+async function cashoutOffside(){
+  if(!offsideState.running || offsideState.step===0)return;
+  const mult=offsideState.multipliers[offsideState.step-1];
+  const payout=Math.round(offsideState.bet*mult);
+  document.getElementById('offside-result').textContent=`🚩 Успел отскочить и забрал +${payout} ЛК`;
+  document.getElementById('offside-start-btn').disabled=false;
+  document.getElementById('offside-cash-btn').disabled=true;
+  document.getElementById('offside-next-btn').disabled=true;
+  toast(`🚩 Оффсайд: +${payout} ЛК`,'win');
+  recordWin('🚩 Оффсайд',payout);
+  onWin(payout,'🚩 Оффсайд');
+  unlockAch('offside_escape');
+  await persistCasinoRoundFinish(offsideState.roundId,'offside',offsideState.bet,payout,{ result:'cashout', step:offsideState.step, multiplier:mult });
+  offsideState.running=false;
+  renderOffsideTrack();
+}
+
+let varState={running:false,roundId:'',bet:0,cards:[]};
+function resetVarCards(){
+  document.querySelectorAll('#var-grid .var-card').forEach((card,idx)=>{
+    card.className='var-card';
+    card.disabled=false;
+    card.textContent=`VAR ${idx+1}`;
+  });
+}
+async function startVarChallenge(){
+  if(varState.running){toast('📺 Сначала открой один из текущих повторов.','info');return;}
+  const bet=parseInt(document.getElementById('var-bet').value,10)||25;
+  if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  const roundId=await tryStartCasinoRound('var_challenge', bet, { source:'var_start' });
+  if(!roundId)return;
+  varState={
+    running:true,
+    roundId,
+    bet,
+    cards:[
+      {label:'Оффсайд',mult:0,tone:'bad'},
+      {label:'Пенальти',mult:1.5,tone:'good'},
+      {label:'Гол засчитан',mult:3,tone:'good'},
+    ].sort(()=>Math.random()-.5),
+  };
+  document.getElementById('var-result').textContent='Выбирай один повтор. Остальные потом покажем из вредности.';
+  document.getElementById('var-start-btn').disabled=true;
+  resetVarCards();
+}
+async function pickVarCard(idx){
+  if(!varState.running)return;
+  const picked=varState.cards[idx];
+  document.querySelectorAll('#var-grid .var-card').forEach((card,i)=>{
+    const row=varState.cards[i];
+    card.disabled=true;
+    card.className=`var-card revealed ${row.tone}`;
+    card.textContent=`${row.label} • x${row.mult}`;
+  });
+  const payout=Math.round(varState.bet*picked.mult);
+  if(payout>0){
+    document.getElementById('var-result').textContent=`📺 VAR решил: ${picked.label}. Выплата +${payout} ЛК`;
+    toast(`📺 VAR: +${payout} ЛК`,'win');
+    recordWin('📺 VAR Челлендж',payout);
+    onWin(payout,'📺 VAR Челлендж');
+    if(picked.mult>=3)unlockAch('var_goal');
+  }else{
+    document.getElementById('var-result').textContent='📺 После просмотра: оффсайд. Отменяем радость и деньги.';
+    toast('📺 VAR отменил всё. Как всегда.','err');
+    onLose();
+  }
+  await persistCasinoRoundFinish(varState.roundId,'var_challenge',varState.bet,payout,{ picked_index:idx, picked_label:picked.label, multiplier:picked.mult, cards:varState.cards });
+  varState.running=false;
+  document.getElementById('var-start-btn').disabled=false;
+}
+
+let metersState={running:false,roundId:'',bet:0,step:0,multipliers:[1.3,1.7,2.2,2.8,3.6]};
+function renderMetersTrack(){
+  const track=document.getElementById('meters-track');
+  if(!track)return;
+  track.innerHTML=metersState.multipliers.map((mult,idx)=>{
+    const cls=idx<metersState.step?'done':idx===metersState.step&&metersState.running?'active':'';
+    return `<div class="meters-step ${cls}">x${mult.toFixed(2)}</div>`;
+  }).join('');
+}
+async function startElevenMeters(){
+  if(metersState.running)return;
+  const bet=parseInt(document.getElementById('meters-bet').value,10)||30;
+  if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
+  const roundId=await tryStartCasinoRound('eleven_meters', bet, { source:'eleven_start' });
+  if(!roundId)return;
+  metersState={running:true,roundId,bet,step:0,multipliers:[1.3,1.7,2.2,2.8,3.6]};
+  document.getElementById('meters-start-btn').disabled=true;
+  document.getElementById('meters-cash-btn').disabled=true;
+  document.getElementById('meters-kick-btn').disabled=false;
+  document.getElementById('meters-result').textContent='Серия началась. Каждый следующий удар нервнее.';
+  renderMetersTrack();
+}
+async function takeElevenKick(){
+  if(!metersState.running)return;
+  const saveChance=[0.22,0.28,0.34,0.4,0.46][metersState.step] || 0.5;
+  if(Math.random()<saveChance){
+    document.getElementById('meters-result').textContent='🧤 Вратарь потащил. Серия умерла.';
+    document.getElementById('meters-start-btn').disabled=false;
+    document.getElementById('meters-cash-btn').disabled=true;
+    document.getElementById('meters-kick-btn').disabled=true;
+    onLose();
+    await persistCasinoRoundFinish(metersState.roundId,'eleven_meters',metersState.bet,0,{ result:'saved', step:metersState.step });
+    metersState.running=false;
+    renderMetersTrack();
+    return;
+  }
+  metersState.step++;
+  const mult=metersState.multipliers[metersState.step-1];
+  document.getElementById('meters-result').textContent=`⚽ Гол! Сейчас доступно x${mult.toFixed(2)}.`;
+  document.getElementById('meters-cash-btn').disabled=false;
+  if(metersState.step>=metersState.multipliers.length){
+    unlockAch('meters_clean');
+    await cashoutElevenMeters();
+    return;
+  }
+  renderMetersTrack();
+}
+async function cashoutElevenMeters(){
+  if(!metersState.running || metersState.step===0)return;
+  const mult=metersState.multipliers[metersState.step-1];
+  const payout=Math.round(metersState.bet*mult);
+  document.getElementById('meters-result').textContent=`⚽ Серия закончилась в твою пользу: +${payout} ЛК`;
+  document.getElementById('meters-start-btn').disabled=false;
+  document.getElementById('meters-cash-btn').disabled=true;
+  document.getElementById('meters-kick-btn').disabled=true;
+  toast(`⚽ 11 метров: +${payout} ЛК`,'win');
+  recordWin('⚽ 11 метров',payout);
+  onWin(payout,'⚽ 11 метров');
+  await persistCasinoRoundFinish(metersState.roundId,'eleven_meters',metersState.bet,payout,{ result:'cashout', step:metersState.step, multiplier:mult });
+  metersState.running=false;
+  renderMetersTrack();
+}
+
+// ══════════════════════════════════════════════
 //  DICE
 // ══════════════════════════════════════════════
 let lastChanceBusy=false;
@@ -3915,6 +4556,7 @@ async function playLastChance(side){
     tailBtn.disabled=false;
     return;
   }
+  unlockAch('coinflip_first');
   
   resultEl.textContent='Монетка крутится...';
   const faces=['🪙','💿','🟡','⚪'];
@@ -4114,7 +4756,7 @@ async function crashCash(){
   renderCrashScene(crashState.mult);
   document.getElementById('crash-result').textContent=`Забрал на ${crashState.mult}×! +${payout} ЛК`;
   toast(`🪃 Забрал ${payout} ЛК на ${crashState.mult}×!`,'win');
-  recordWin('🪃 Краш',payout);onWin();
+  recordWin('🪃 Краш',payout);onWin(payout,'🪃 Краш');
   unlockAch('crash_first');
   if(crashState.mult>=5)unlockAch('crash_5x');
   await persistCasinoRoundFinish(crashState.roundId, 'crash', crashState.bet, payout, { result:'cashout', multiplier:crashState.mult, crash_at:crashState.crashAt });
@@ -5395,6 +6037,7 @@ async function loadCasinoFromSheets(code) {
       // Не смешиваем их с localStorage прошлого пользователя в этом же браузере.
       coins = shouldPreferLocal ? (parseInt(localState.coins, 10) || 1000) : (parseInt(r.coins, 10) || 1000);
       totalSpent = shouldPreferLocal ? (parseInt(localState.spent, 10) || 0) : (parseInt(r.spent, 10) || 0);
+      applyEarnedTotal(r.earned || 0);
       casinoServerState.last_daily = r.last_daily || '';
       casinoServerState.last_cashback = r.last_cashback || '';
       LS.set('luzbet_coins', coins);
@@ -6189,6 +6832,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if(modal) modal.classList.add('hidden');
   }
   renderPlinkoBoard();
+  renderKenoBoard();
+  renderScratchBoard();
+  renderOffsideTrack();
+  renderMetersTrack();
+  resetVarCards();
   renderMinesBoard(false);
   renderTower();
   updateCashbackUI();
