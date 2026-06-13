@@ -24,7 +24,6 @@ const ALLOWED_GAMES = new Set([
   "penalty",
   "offside",
   "var_challenge",
-  "eleven_meters",
   "system",
   "dice",
   "crash",

@@ -492,25 +492,47 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .tower-cell.safe{background:rgba(0,176,80,.12);border-color:rgba(0,176,80,.35);color:var(--green)}
 .tower-cell.bomb{background:rgba(232,0,42,.12);border-color:rgba(232,0,42,.35);color:#ff6b6b}
 .tower-row.locked .tower-cell{opacity:.45;cursor:not-allowed}
+.mini-game-panel{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;margin:10px 0}
+.mini-game-hint{font-size:11px;line-height:1.45;color:var(--muted);margin-bottom:8px}
+.mini-game-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.mini-stat{background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.mini-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.mini-stat-value{font-family:var(--os);font-size:14px;color:var(--white)}
+.mini-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.mini-pill{background:rgba(255,230,0,.08);border:1px solid rgba(255,230,0,.24);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--yellow);font-family:var(--os)}
 .keno-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
-.keno-ball{background:var(--dark);border:1px solid var(--border);border-radius:999px;color:var(--white);font-family:var(--os);font-size:15px;padding:10px 0;cursor:pointer;transition:all .15s}
+.keno-ball{background:linear-gradient(180deg,#151515,#0f0f0f);border:1px solid var(--border);border-radius:999px;color:var(--white);font-family:var(--os);font-size:15px;padding:10px 0;cursor:pointer;transition:all .15s}
 .keno-ball:hover{border-color:var(--muted)}
 .keno-ball.selected{background:rgba(255,230,0,.12);border-color:var(--yellow);color:var(--yellow)}
 .keno-ball.drawn{background:rgba(0,176,80,.12);border-color:var(--green);color:var(--green)}
-.keno-ball.hit{box-shadow:0 0 0 2px rgba(255,230,0,.22) inset}
+.keno-ball.hit{box-shadow:0 0 0 2px rgba(255,230,0,.22) inset,0 0 18px rgba(255,230,0,.16)}
 .scratch-board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
 .scratch-cell{background:linear-gradient(135deg,#bcbcbc,#ececec,#b8b8b8);border:1px solid #9a9a9a;border-radius:10px;color:#444;font-family:var(--os);font-size:24px;min-height:68px;display:flex;align-items:center;justify-content:center}
 .scratch-cell.revealed{background:var(--dark);border-color:var(--border);color:var(--yellow)}
+.scratch-cell.revealed.win{color:var(--green);border-color:rgba(0,176,80,.35);background:rgba(0,176,80,.08)}
+.scratch-prizes{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0}
+.scratch-prize{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;color:var(--muted)}
+.scratch-prize strong{display:block;color:var(--white);font-family:var(--os);margin-top:4px}
 .rps-grid,.shot-grid,.var-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
 .rps-btn,.shot-btn,.var-card{background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:var(--os);font-size:16px;padding:12px 8px;cursor:pointer;transition:all .15s;min-height:52px}
 .rps-btn:hover,.shot-btn:hover,.var-card:hover{border-color:var(--muted)}
 .rps-btn.selected,.shot-btn.selected,.var-card.revealed{background:rgba(255,230,0,.12);border-color:var(--yellow);color:var(--yellow)}
-.offside-track,.meters-track{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}
-.offside-step,.meters-step{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 6px;text-align:center;font-family:var(--os);font-size:12px;color:var(--muted)}
-.offside-step.active,.meters-step.active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,230,0,.08)}
-.offside-step.done,.meters-step.done{border-color:var(--green);color:var(--green);background:rgba(0,176,80,.08)}
+.duel-board{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:10px 0}
+.duel-side{background:linear-gradient(180deg,#171717,#101010);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;min-height:90px;display:flex;flex-direction:column;justify-content:center}
+.duel-emoji{font-size:28px;line-height:1;margin-bottom:6px}
+.duel-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.duel-value{font-family:var(--os);font-size:14px;color:var(--white)}
+.duel-vs{font-family:var(--os);font-size:18px;color:var(--yellow)}
+.offside-track{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:12px 0}
+.offside-step{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 6px;text-align:center;font-family:var(--os);font-size:12px;color:var(--muted);transition:all .16s}
+.offside-step.start{border-style:dashed}
+.offside-step.active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,230,0,.08)}
+.offside-step.done{border-color:var(--green);color:var(--green);background:rgba(0,176,80,.08)}
+.offside-step.busted{border-color:var(--red);color:#ff6b6b;background:rgba(232,0,42,.10)}
+.offside-stage{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .var-card.revealed.bad{border-color:var(--red);color:#ff6b6b;background:rgba(232,0,42,.10)}
 .var-card.revealed.good{border-color:var(--green);color:var(--green);background:rgba(0,176,80,.10)}
+.var-card small{display:block;font-size:10px;color:var(--muted);margin-top:4px}
 
 /* PLAYOFF */
 .playoff-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
@@ -1230,13 +1252,24 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🔢 Кено</span><span class="cgc-rtp">Выбери 3 из 12</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Отмечаешь 3 шара, автомат тянет 4. Чем больше совпадений, тем жирнее выплата.</div>
+            <div class="mini-pill-row">
+              <span class="mini-pill">1 совп. = x1</span>
+              <span class="mini-pill">2 совп. = x3</span>
+              <span class="mini-pill">3 совп. = x8</span>
+            </div>
+          </div>
           <div style="font-size:11px;color:var(--muted)">Ставка:
             <select id="keno-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
               <option value="20">20 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
             </select>
           </div>
           <div id="keno-grid" class="keno-grid"></div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Выпавшие: <span id="keno-draw" style="color:var(--yellow);font-family:var(--os)">—</span></div>
+          <div class="mini-game-stats">
+            <div class="mini-stat"><div class="mini-stat-label">Твои числа</div><div class="mini-stat-value" id="keno-picked">—</div></div>
+            <div class="mini-stat"><div class="mini-stat-label">Выпавшие</div><div class="mini-stat-value" id="keno-draw">—</div></div>
+          </div>
           <button class="btn btn-yellow btn-full" id="keno-btn" onclick="playKeno()">ТЯНУТЬ ШАРЫ</button>
           <div id="keno-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
         </div>
@@ -1246,6 +1279,15 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🎟️ Лотерейный билет</span><span class="cgc-rtp">Стереть и пожалеть</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Покупаешь билет и вскрываешь 6 ячеек. Иногда там деньги. Чаще философия.</div>
+            <div class="scratch-prizes">
+              <div class="scratch-prize">Возврат<strong>x1</strong></div>
+              <div class="scratch-prize">Тройка<strong>x2</strong></div>
+              <div class="scratch-prize">Жирный билет<strong>x4</strong></div>
+              <div class="scratch-prize">Мифический<strong>x8</strong></div>
+            </div>
+          </div>
           <div style="font-size:11px;color:var(--muted)">Цена билета:
             <select id="scratch-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
               <option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
@@ -1261,12 +1303,19 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">✊ Камень-Ножницы-Бумага</span><span class="cgc-rtp">15 ЛК • против киоска</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Выбираешь знак, автомат отвечает сразу. Победа платит x2, ничья возвращает ставку.</div>
+          </div>
           <div class="rps-grid">
             <button class="rps-btn" onclick="playRps('rock',this)">✊<br/>Камень</button>
             <button class="rps-btn" onclick="playRps('scissors',this)">✌️<br/>Ножницы</button>
             <button class="rps-btn" onclick="playRps('paper',this)">✋<br/>Бумага</button>
           </div>
-          <div style="text-align:center;font-size:12px;color:var(--muted)">Ты: <span id="rps-player" style="color:var(--white)">—</span> • Касса: <span id="rps-bot" style="color:var(--white)">—</span></div>
+          <div class="duel-board">
+            <div class="duel-side"><div class="duel-label">Ты</div><div class="duel-emoji" id="rps-player-emoji">❔</div><div class="duel-value" id="rps-player">—</div></div>
+            <div class="duel-vs">VS</div>
+            <div class="duel-side"><div class="duel-label">Касса</div><div class="duel-emoji" id="rps-bot-emoji">🎰</div><div class="duel-value" id="rps-bot">—</div></div>
+          </div>
           <div id="rps-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
         </div>
       </div>
@@ -1275,12 +1324,19 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🥅 Пенальти</span><span class="cgc-rtp">25 ЛК • пробей вратаря</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Бьёшь в один из трёх углов. Если кипер не угадает направление, мяч в сетке и касса платит.</div>
+          </div>
           <div class="shot-grid">
             <button class="shot-btn" onclick="playPenalty('left',this)">↙️<br/>Влево</button>
             <button class="shot-btn" onclick="playPenalty('center',this)">⬆️<br/>По центру</button>
             <button class="shot-btn" onclick="playPenalty('right',this)">↘️<br/>Вправо</button>
           </div>
-          <div style="text-align:center;font-size:12px;color:var(--muted)">Удар: <span id="penalty-shot" style="color:var(--white)">—</span> • Вратарь: <span id="penalty-keeper" style="color:var(--white)">—</span></div>
+          <div class="duel-board">
+            <div class="duel-side"><div class="duel-label">Твой удар</div><div class="duel-emoji" id="penalty-shot-emoji">⚽</div><div class="duel-value" id="penalty-shot">—</div></div>
+            <div class="duel-vs">VS</div>
+            <div class="duel-side"><div class="duel-label">Вратарь</div><div class="duel-emoji" id="penalty-keeper-emoji">🧤</div><div class="duel-value" id="penalty-keeper">—</div></div>
+          </div>
           <div id="penalty-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
         </div>
       </div>
@@ -1289,10 +1345,17 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🚩 Оффсайд</span><span class="cgc-rtp">Рискни ещё шаг</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Старт ничего не даёт. Первый коэффициент открывается только после первого удачного рывка без флажка.</div>
+          </div>
           <div style="font-size:11px;color:var(--muted)">Ставка:
             <select id="offside-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
               <option value="20">20 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
             </select>
+          </div>
+          <div class="offside-stage">
+            <div class="mini-stat"><div class="mini-stat-label">Текущая зона</div><div class="mini-stat-value" id="offside-stage-label">Старт</div></div>
+            <div class="mini-stat"><div class="mini-stat-label">Доступно сейчас</div><div class="mini-stat-value" id="offside-cashout-label">—</div></div>
           </div>
           <div id="offside-track" class="offside-track"></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -1308,37 +1371,21 @@ try{
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">📺 VAR Челлендж</span><span class="cgc-rtp">Открой повтор судьбы</span></div>
         <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">После запуска выбираешь один экран повтора. Внутри либо отмена радости, либо подтверждённый гол.</div>
+          </div>
           <div style="font-size:11px;color:var(--muted)">Ставка:
             <select id="var-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
               <option value="25">25 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
             </select>
           </div>
           <div id="var-grid" class="var-grid">
-            <button class="var-card" onclick="pickVarCard(0)">VAR 1</button>
-            <button class="var-card" onclick="pickVarCard(1)">VAR 2</button>
-            <button class="var-card" onclick="pickVarCard(2)">VAR 3</button>
+            <button class="var-card" onclick="pickVarCard(0)">📺 VAR 1<small>неизвестный повтор</small></button>
+            <button class="var-card" onclick="pickVarCard(1)">📺 VAR 2<small>неизвестный повтор</small></button>
+            <button class="var-card" onclick="pickVarCard(2)">📺 VAR 3<small>неизвестный повтор</small></button>
           </div>
           <button class="btn btn-yellow btn-full" id="var-start-btn" onclick="startVarChallenge()">ПОДАТЬ НА ПРОСМОТР</button>
           <div id="var-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
-        </div>
-      </div>
-
-      <!-- ELEVEN METERS -->
-      <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title">⚽ 11 Метров</span><span class="cgc-rtp">Серия под давлением</span></div>
-        <div class="cgc-body">
-          <div style="font-size:11px;color:var(--muted)">Ставка:
-            <select id="meters-bet" style="width:auto;display:inline-block;padding:4px 8px;font-size:13px;height:32px;margin-left:6px">
-              <option value="30">30 ЛК</option><option value="50">50 ЛК</option><option value="100">100 ЛК</option>
-            </select>
-          </div>
-          <div id="meters-track" class="meters-track"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button class="btn btn-yellow" id="meters-start-btn" onclick="startElevenMeters()">Начать серию</button>
-            <button class="btn btn-green" id="meters-cash-btn" onclick="cashoutElevenMeters()" disabled>Забрать</button>
-          </div>
-          <button class="btn btn-ghost btn-full" id="meters-kick-btn" onclick="takeElevenKick()" disabled style="margin-top:8px">ПРОБИТЬ ЕЩЁ РАЗ</button>
-          <div id="meters-result" style="text-align:center;font-family:var(--os);font-size:15px;min-height:28px;margin-top:10px;color:var(--yellow)"></div>
         </div>
       </div>
 
@@ -2776,7 +2823,6 @@ function renderCasinoStats(stats){
     penalty:'🥅 Пенальти',
     offside:'🚩 Оффсайд',
     var_challenge:'📺 VAR Челлендж',
-    eleven_meters:'⚽ 11 метров',
     dice:'🎲 Кости',
     crash:'🪃 Краш',
     higher_lower:'🎴 Выше-ниже',
@@ -4162,6 +4208,11 @@ let kenoSelected=new Set(),kenoBusy=false;
 function renderKenoBoard(drawn=[]){
   const grid=document.getElementById('keno-grid');
   if(!grid)return;
+  const pickedEl=document.getElementById('keno-picked');
+  if(pickedEl){
+    const picks=[...kenoSelected].sort((a,b)=>a-b);
+    pickedEl.textContent=picks.length ? picks.join(' • ') : '—';
+  }
   grid.innerHTML=KENO_NUMBERS.map(n=>{
     const cls=[
       'keno-ball',
@@ -4233,12 +4284,12 @@ const SCRATCH_OUTCOMES=[
   {symbols:['👑','👑','👑','💎','💎','⭐'],mult:8,label:'Мифический билет',weight:4},
 ];
 let scratchBusy=false;
-function renderScratchBoard(symbols=[],revealed=false){
+function renderScratchBoard(symbols=[],revealed=false,win=false){
   const board=document.getElementById('scratch-board');
   if(!board)return;
   board.innerHTML=Array.from({length:6},(_,i)=>{
     const text=revealed ? (symbols[i]||'❔') : '▒';
-    return `<div class="scratch-cell ${revealed?'revealed':''}">${text}</div>`;
+    return `<div class="scratch-cell ${revealed?'revealed':''} ${revealed&&win?'win':''}">${text}</div>`;
   }).join('');
 }
 function pickScratchOutcome(){
@@ -4263,7 +4314,7 @@ async function playScratchTicket(){
   const outcome=pickScratchOutcome();
   renderScratchBoard([],false);
   setTimeout(async ()=>{
-    renderScratchBoard(outcome.symbols,true);
+    renderScratchBoard(outcome.symbols,true,outcome.mult>0);
     const payout=bet*outcome.mult;
     if(payout>0){
       document.getElementById('scratch-result').textContent=`🎟️ ${outcome.label}: +${payout} ЛК`;
@@ -4299,6 +4350,8 @@ async function playRps(choice,el){
   unlockAch('rps_first');
   const variants=['rock','scissors','paper'];
   const bot=variants[Math.floor(Math.random()*variants.length)];
+  document.getElementById('rps-player-emoji').textContent=RPS_META[choice].emoji;
+  document.getElementById('rps-bot-emoji').textContent=RPS_META[bot].emoji;
   document.getElementById('rps-player').textContent=`${RPS_META[choice].emoji} ${RPS_META[choice].label}`;
   document.getElementById('rps-bot').textContent=`${RPS_META[bot].emoji} ${RPS_META[bot].label}`;
   let result='lose', payout=0;
@@ -4323,7 +4376,7 @@ async function playRps(choice,el){
 }
 
 let penaltyBusy=false;
-const PENALTY_DIRECTIONS={left:'↙️ Влево',center:'⬆️ Центр',right:'↘️ Вправо'};
+const PENALTY_DIRECTIONS={left:{label:'↙️ Влево',emoji:'↙️'},center:{label:'⬆️ Центр',emoji:'⬆️'},right:{label:'↘️ Вправо',emoji:'↘️'}};
 async function playPenalty(direction,el){
   if(penaltyBusy)return;
   const bet=25;
@@ -4336,8 +4389,10 @@ async function playPenalty(direction,el){
   const keeper=['left','center','right'][Math.floor(Math.random()*3)];
   const goal=keeper!==direction;
   const payout=goal?55:0;
-  document.getElementById('penalty-shot').textContent=PENALTY_DIRECTIONS[direction];
-  document.getElementById('penalty-keeper').textContent=PENALTY_DIRECTIONS[keeper];
+  document.getElementById('penalty-shot-emoji').textContent=PENALTY_DIRECTIONS[direction].emoji;
+  document.getElementById('penalty-keeper-emoji').textContent=PENALTY_DIRECTIONS[keeper].emoji;
+  document.getElementById('penalty-shot').textContent=PENALTY_DIRECTIONS[direction].label;
+  document.getElementById('penalty-keeper').textContent=PENALTY_DIRECTIONS[keeper].label;
   if(goal){
     document.getElementById('penalty-result').textContent=`🥅 Гол! +${payout} ЛК`;
     toast(`🥅 Пенальти: +${payout} ЛК`,'win');
@@ -4353,14 +4408,34 @@ async function playPenalty(direction,el){
   setTimeout(()=>{penaltyBusy=false;document.querySelectorAll('.shot-btn').forEach(b=>b.classList.remove('selected'));},350);
 }
 
-let offsideState={running:false,roundId:'',bet:0,step:0,multipliers:[1.2,1.5,1.9,2.4,3.2]};
+let offsideState={running:false,roundId:'',bet:0,step:0,busted:false,multipliers:[1.2,1.5,1.9,2.4,3.2]};
 function renderOffsideTrack(){
   const track=document.getElementById('offside-track');
   if(!track)return;
-  track.innerHTML=offsideState.multipliers.map((mult,idx)=>{
-    const cls=idx<offsideState.step?'done':idx===offsideState.step&&offsideState.running?'active':'';
-    return `<div class="offside-step ${cls}">x${mult.toFixed(2)}</div>`;
-  }).join('');
+  const stageEl=document.getElementById('offside-stage-label');
+  const cashoutEl=document.getElementById('offside-cashout-label');
+  if(stageEl){
+    stageEl.textContent = offsideState.busted
+      ? 'Флажок'
+      : !offsideState.running && offsideState.step > 0
+        ? 'Финиш'
+        : !offsideState.running
+        ? 'Старт'
+        : offsideState.step === 0
+          ? 'Разбег'
+          : `Шаг ${offsideState.step}`;
+  }
+  if(cashoutEl){
+    cashoutEl.textContent = offsideState.step > 0
+      ? `x${offsideState.multipliers[offsideState.step-1].toFixed(2)}`
+      : '—';
+  }
+  const cells=[`<div class="offside-step start ${offsideState.running&&offsideState.step===0?'active':''} ${offsideState.step>0?'done':''}">СТАРТ</div>`];
+  offsideState.multipliers.forEach((mult,idx)=>{
+    const cls=offsideState.busted&&idx===offsideState.step?'busted':idx<offsideState.step?'done':idx===offsideState.step&&offsideState.running&&offsideState.step>0?'active':'';
+    cells.push(`<div class="offside-step ${cls}">x${mult.toFixed(2)}</div>`);
+  });
+  track.innerHTML=cells.join('');
 }
 async function startOffside(){
   if(offsideState.running)return;
@@ -4368,17 +4443,18 @@ async function startOffside(){
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   const roundId=await tryStartCasinoRound('offside', bet, { source:'offside_start' });
   if(!roundId)return;
-  offsideState={running:true,roundId,bet,step:0,multipliers:[1.2,1.5,1.9,2.4,3.2]};
+  offsideState={running:true,roundId,bet,step:0,busted:false,multipliers:[1.2,1.5,1.9,2.4,3.2]};
   document.getElementById('offside-start-btn').disabled=true;
   document.getElementById('offside-cash-btn').disabled=true;
   document.getElementById('offside-next-btn').disabled=false;
-  document.getElementById('offside-result').textContent='Разбег начался. Можно рисковать дальше.';
+  document.getElementById('offside-result').textContent='Разбег начался. Первый коэффициент откроется только после удачного рывка.';
   renderOffsideTrack();
 }
 async function advanceOffside(){
   if(!offsideState.running)return;
   const catchChance=[0.25,0.3,0.36,0.42,0.48][offsideState.step] || 0.5;
   if(Math.random()<catchChance){
+    offsideState.busted=true;
     document.getElementById('offside-result').textContent='🚩 Поднят флажок. Всё сгорело.';
     document.getElementById('offside-start-btn').disabled=false;
     document.getElementById('offside-cash-btn').disabled=true;
@@ -4421,7 +4497,7 @@ function resetVarCards(){
   document.querySelectorAll('#var-grid .var-card').forEach((card,idx)=>{
     card.className='var-card';
     card.disabled=false;
-    card.textContent=`VAR ${idx+1}`;
+    card.innerHTML=`📺 VAR ${idx+1}<small>неизвестный повтор</small>`;
   });
 }
 async function startVarChallenge(){
@@ -4451,7 +4527,7 @@ async function pickVarCard(idx){
     const row=varState.cards[i];
     card.disabled=true;
     card.className=`var-card revealed ${row.tone}`;
-    card.textContent=`${row.label} • x${row.mult}`;
+    card.innerHTML=`${row.label}<small>x${row.mult}</small>`;
   });
   const payout=Math.round(varState.bet*picked.mult);
   if(payout>0){
@@ -4468,69 +4544,6 @@ async function pickVarCard(idx){
   await persistCasinoRoundFinish(varState.roundId,'var_challenge',varState.bet,payout,{ picked_index:idx, picked_label:picked.label, multiplier:picked.mult, cards:varState.cards });
   varState.running=false;
   document.getElementById('var-start-btn').disabled=false;
-}
-
-let metersState={running:false,roundId:'',bet:0,step:0,multipliers:[1.3,1.7,2.2,2.8,3.6]};
-function renderMetersTrack(){
-  const track=document.getElementById('meters-track');
-  if(!track)return;
-  track.innerHTML=metersState.multipliers.map((mult,idx)=>{
-    const cls=idx<metersState.step?'done':idx===metersState.step&&metersState.running?'active':'';
-    return `<div class="meters-step ${cls}">x${mult.toFixed(2)}</div>`;
-  }).join('');
-}
-async function startElevenMeters(){
-  if(metersState.running)return;
-  const bet=parseInt(document.getElementById('meters-bet').value,10)||30;
-  if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
-  const roundId=await tryStartCasinoRound('eleven_meters', bet, { source:'eleven_start' });
-  if(!roundId)return;
-  metersState={running:true,roundId,bet,step:0,multipliers:[1.3,1.7,2.2,2.8,3.6]};
-  document.getElementById('meters-start-btn').disabled=true;
-  document.getElementById('meters-cash-btn').disabled=true;
-  document.getElementById('meters-kick-btn').disabled=false;
-  document.getElementById('meters-result').textContent='Серия началась. Каждый следующий удар нервнее.';
-  renderMetersTrack();
-}
-async function takeElevenKick(){
-  if(!metersState.running)return;
-  const saveChance=[0.22,0.28,0.34,0.4,0.46][metersState.step] || 0.5;
-  if(Math.random()<saveChance){
-    document.getElementById('meters-result').textContent='🧤 Вратарь потащил. Серия умерла.';
-    document.getElementById('meters-start-btn').disabled=false;
-    document.getElementById('meters-cash-btn').disabled=true;
-    document.getElementById('meters-kick-btn').disabled=true;
-    onLose();
-    await persistCasinoRoundFinish(metersState.roundId,'eleven_meters',metersState.bet,0,{ result:'saved', step:metersState.step });
-    metersState.running=false;
-    renderMetersTrack();
-    return;
-  }
-  metersState.step++;
-  const mult=metersState.multipliers[metersState.step-1];
-  document.getElementById('meters-result').textContent=`⚽ Гол! Сейчас доступно x${mult.toFixed(2)}.`;
-  document.getElementById('meters-cash-btn').disabled=false;
-  if(metersState.step>=metersState.multipliers.length){
-    unlockAch('meters_clean');
-    await cashoutElevenMeters();
-    return;
-  }
-  renderMetersTrack();
-}
-async function cashoutElevenMeters(){
-  if(!metersState.running || metersState.step===0)return;
-  const mult=metersState.multipliers[metersState.step-1];
-  const payout=Math.round(metersState.bet*mult);
-  document.getElementById('meters-result').textContent=`⚽ Серия закончилась в твою пользу: +${payout} ЛК`;
-  document.getElementById('meters-start-btn').disabled=false;
-  document.getElementById('meters-cash-btn').disabled=true;
-  document.getElementById('meters-kick-btn').disabled=true;
-  toast(`⚽ 11 метров: +${payout} ЛК`,'win');
-  recordWin('⚽ 11 метров',payout);
-  onWin(payout,'⚽ 11 метров');
-  await persistCasinoRoundFinish(metersState.roundId,'eleven_meters',metersState.bet,payout,{ result:'cashout', step:metersState.step, multiplier:mult });
-  metersState.running=false;
-  renderMetersTrack();
 }
 
 // ══════════════════════════════════════════════
@@ -6835,7 +6848,6 @@ document.addEventListener('DOMContentLoaded', function() {
   renderKenoBoard();
   renderScratchBoard();
   renderOffsideTrack();
-  renderMetersTrack();
   resetVarCards();
   renderMinesBoard(false);
   renderTower();

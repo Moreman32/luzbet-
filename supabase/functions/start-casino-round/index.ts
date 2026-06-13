@@ -63,7 +63,6 @@ Deno.serve(async (req) => {
       "penalty",
       "offside",
       "var_challenge",
-      "eleven_meters",
       "dice",
       "crash",
       "higher_lower",
