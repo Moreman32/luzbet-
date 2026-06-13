@@ -33,6 +33,7 @@ const ALLOWED_GAMES = new Set([
   "mines",
   "tower",
   "coinflip",
+  "durak",
 ]);
 
 const ALLOWED_EVENT_TYPES = new Set(["round", "bonus"]);

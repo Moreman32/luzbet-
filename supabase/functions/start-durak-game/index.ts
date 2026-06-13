@@ -1,4 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  dealInitialDurakGame,
+  hydrateDurakGame,
+  isDurakDifficulty,
+  maybeOpenBotAttack,
+  toPublicDurakGame,
+} from "../_shared/durak.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,41 +48,19 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-
     const code = String(body?.code || "").trim();
     const round_id = String(body?.round_id || crypto.randomUUID()).trim();
-    const game = String(body?.game || "").trim();
+    const game_id = String(body?.game_id || crypto.randomUUID()).trim();
     const bet = Math.max(0, toInt(body?.bet, 0));
+    const difficulty = String(body?.difficulty || "regular").trim();
     const meta = isPlainObject(body?.meta) ? body.meta : {};
 
     if (!code) return json({ ok: false, error: "code is required" }, 400);
     if (!round_id) return json({ ok: false, error: "round_id is required" }, 400);
-    if (!game) return json({ ok: false, error: "game is required" }, 400);
+    if (!game_id) return json({ ok: false, error: "game_id is required" }, 400);
     if (bet <= 0 || bet > 500) return json({ ok: false, error: "bad bet" }, 400);
-
-    const allowedGames = new Set([
-      "slots",
-      "blackjack",
-      "wheel",
-      "keno",
-      "scratch",
-      "rps",
-      "penalty",
-      "offside",
-      "var_challenge",
-      "dice",
-      "crash",
-      "higher_lower",
-      "horse",
-      "plinko",
-      "mines",
-      "tower",
-      "coinflip",
-      "durak",
-    ]);
-
-    if (!allowedGames.has(game)) {
-      return json({ ok: false, error: "unknown casino game" }, 400);
+    if (!isDurakDifficulty(difficulty)) {
+      return json({ ok: false, error: "bad difficulty" }, 400);
     }
 
     const { data: participant, error: participantError } = await sb
@@ -87,16 +72,38 @@ Deno.serve(async (req) => {
     if (participantError) return json({ ok: false, error: participantError.message }, 500);
     if (!participant) return json({ ok: false, error: "participant not found" }, 404);
 
-    const { data: casinoRow, error: casinoError } = await sb
-      .from("casino")
-      .select("code, name, coins, spent, last_daily, last_cashback")
-      .eq("code", code)
-      .maybeSingle();
+    const [{ data: casinoRow, error: casinoError }, { data: activeRow, error: activeError }] = await Promise.all([
+      sb
+        .from("casino")
+        .select("code, name, coins, spent, last_daily, last_cashback")
+        .eq("code", code)
+        .maybeSingle(),
+      sb
+        .from("casino_durak_games")
+        .select("*")
+        .eq("code", code)
+        .eq("status", "active")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
     if (casinoError) return json({ ok: false, error: casinoError.message }, 500);
+    if (activeError) return json({ ok: false, error: activeError.message }, 500);
 
     const currentCoins = Math.max(0, Number(casinoRow?.coins ?? 1000));
     const currentSpent = Math.max(0, Number(casinoRow?.spent ?? 0));
+
+    if (activeRow) {
+      const activeGame = hydrateDurakGame(activeRow as Record<string, unknown>);
+      return json({
+        ok: true,
+        duplicate: true,
+        game: toPublicDurakGame(activeGame),
+        coins: currentCoins,
+        spent: currentSpent,
+      });
+    }
 
     if (currentCoins < bet) {
       return json({
@@ -128,15 +135,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Надёжная защита от параллельных автокликов.
-    // Внутри Postgres используется pg_advisory_xact_lock по code.
-    const { data: rateOk, error: rateError } = await sb.rpc(
-      "try_casino_rate_limit",
-      {
-        p_code: code,
-        p_interval_ms: MIN_ROUND_INTERVAL_MS,
-      },
-    );
+    const { data: rateOk, error: rateError } = await sb.rpc("try_casino_rate_limit", {
+      p_code: code,
+      p_interval_ms: MIN_ROUND_INTERVAL_MS,
+    });
 
     if (rateError) {
       return json({ ok: false, error: rateError.message }, 500);
@@ -173,42 +175,79 @@ Deno.serve(async (req) => {
       return json({ ok: false, error: upsertCasinoError.message }, 500);
     }
 
+    const roundMeta = {
+      ...meta,
+      difficulty,
+      mode: "durak",
+    };
+
     const { error: roundError } = await sb
       .from("casino_rounds")
       .insert({
         round_id,
         code,
-        game,
+        game: "durak",
         bet,
         status: "started",
         payout: 0,
-        meta,
+        meta: roundMeta,
       });
 
     if (roundError) {
       await sb
         .from("casino")
-        .upsert({
-          ...casinoPayload,
-          coins: currentCoins,
-          spent: currentSpent,
-        }, { onConflict: "code" });
+        .upsert({ ...casinoPayload, coins: currentCoins, spent: currentSpent }, { onConflict: "code" });
 
       return json({ ok: false, error: roundError.message }, 500);
     }
 
+    const initialGame = maybeOpenBotAttack(dealInitialDurakGame({
+      gameId: game_id,
+      roundId: round_id,
+      code,
+      bet,
+      difficulty,
+    }));
+
+    const { error: gameError } = await sb
+      .from("casino_durak_games")
+      .insert({
+        game_id: initialGame.game_id,
+        round_id: initialGame.round_id,
+        code: initialGame.code,
+        status: initialGame.status,
+        difficulty: initialGame.difficulty,
+        bet: initialGame.bet,
+        winner: initialGame.winner,
+        trump_suit: initialGame.trump_suit,
+        attacker: initialGame.attacker,
+        defender: initialGame.defender,
+        talon: initialGame.talon,
+        player_hand: initialGame.player_hand,
+        bot_hand: initialGame.bot_hand,
+        table_pairs: initialGame.table_pairs,
+        discard_pile: initialGame.discard_pile,
+        turn_state: initialGame.turn_state,
+      });
+
+    if (gameError) {
+      await sb.from("casino_rounds").delete().eq("round_id", round_id);
+      await sb
+        .from("casino")
+        .upsert({ ...casinoPayload, coins: currentCoins, spent: currentSpent }, { onConflict: "code" });
+
+      return json({ ok: false, error: gameError.message }, 500);
+    }
+
     return json({
       ok: true,
-      round_id,
-      code,
-      game,
-      bet,
+      game: toPublicDurakGame(initialGame),
       coins: nextCoins,
       spent: nextSpent,
     });
   } catch (e) {
     return json(
-      { ok: false, error: e instanceof Error ? e.message : "start-casino-round failed" },
+      { ok: false, error: e instanceof Error ? e.message : "start-durak-game failed" },
       500,
     );
   }

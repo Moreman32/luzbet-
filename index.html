@@ -232,6 +232,59 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
   .cashback-meta{grid-template-columns:1fr}
 }
 
+.durak-card{grid-column:1/-1;background:
+  radial-gradient(circle at top left, rgba(255,230,0,.12), transparent 34%),
+  radial-gradient(circle at top right, rgba(79,195,247,.1), transparent 28%),
+  linear-gradient(145deg, #171109, #1d1710 35%, #111 100%);
+  border-color:rgba(255,230,0,.18)}
+.durak-status-line{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.durak-status-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--border);font-size:12px;color:var(--muted)}
+.durak-mode-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
+.durak-mode-btn{flex:1;min-width:150px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--white);cursor:pointer;text-align:left;transition:all .15s}
+.durak-mode-btn.active{border-color:rgba(255,230,0,.45);background:rgba(255,230,0,.08)}
+.durak-mode-btn strong{display:block;font-family:var(--os);font-size:15px;color:var(--yellow)}
+.durak-mode-btn small{display:block;color:var(--muted);line-height:1.35;margin-top:4px}
+.durak-board{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start}
+.durak-table{background:linear-gradient(145deg, rgba(0,90,40,.22), rgba(0,50,20,.4));border:1px solid rgba(0,176,80,.18);border-radius:18px;padding:14px}
+.durak-side-title{display:flex;justify-content:space-between;gap:8px;align-items:center;font-family:var(--os);font-size:13px;letter-spacing:1px;color:var(--white);margin-bottom:10px}
+.durak-count-badge{font-size:11px;color:var(--muted)}
+.durak-bot-row,.durak-hand{display:flex;flex-wrap:wrap;gap:8px}
+.durak-bot-card,.durak-card-btn,.durak-card-face{width:64px;height:92px;border-radius:14px;border:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;padding:8px;position:relative}
+.durak-bot-card{background:linear-gradient(155deg,#2c0c16,#4a1522);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+.durak-bot-card::before{content:'ЛБ';font-family:var(--os);font-size:18px;color:rgba(255,230,0,.7);align-self:flex-end}
+.durak-bot-card::after{content:'🂠';font-size:26px;color:rgba(255,255,255,.16)}
+.durak-card-btn,.durak-card-face{background:linear-gradient(160deg,#f9f7f1,#efebe0);color:#181818;box-shadow:0 8px 20px rgba(0,0,0,.22)}
+.durak-card-btn{cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.durak-card-btn:hover{transform:translateY(-2px);border-color:#c9ab39}
+.durak-card-btn.selected{transform:translateY(-4px);border-color:#e8c44b;box-shadow:0 12px 24px rgba(255,230,0,.15)}
+.durak-card-btn:disabled{opacity:.58;cursor:not-allowed;transform:none}
+.durak-card-rank{font-family:var(--os);font-size:24px;line-height:1}
+.durak-card-suit{font-size:20px;line-height:1}
+.durak-card-note{font-size:10px;color:#555;font-family:var(--os);letter-spacing:.6px}
+.durak-red{color:#bc1f2d}
+.durak-table-pairs{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;min-height:110px}
+.durak-pair{display:flex;gap:8px;align-items:center;background:rgba(0,0,0,.18);border:1px dashed rgba(255,255,255,.1);border-radius:16px;padding:10px}
+.durak-pair.open{box-shadow:0 0 0 1px rgba(255,230,0,.18) inset}
+.durak-pair-arrow{font-size:20px;color:var(--yellow)}
+.durak-info-stack{display:flex;flex-direction:column;gap:10px}
+.durak-info-panel{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:12px}
+.durak-info-panel strong{display:block;font-family:var(--os);font-size:13px;color:var(--yellow);margin-bottom:6px;letter-spacing:1px}
+.durak-meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.durak-meta-item{background:rgba(0,0,0,.18);border-radius:10px;padding:10px}
+.durak-meta-item span{display:block;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.durak-meta-item b{display:block;font-family:var(--os);font-size:17px;color:var(--white);margin-top:4px}
+.durak-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.durak-actions .btn:last-child{grid-column:1/-1}
+.durak-result{min-height:28px;margin-top:10px;text-align:center;font-family:var(--os);font-size:15px;color:var(--yellow)}
+@media(max-width:820px){
+  .durak-board{grid-template-columns:1fr}
+}
+@media(max-width:440px){
+  .durak-bot-card,.durak-card-btn,.durak-card-face{width:56px;height:84px;padding:7px}
+  .durak-card-rank{font-size:21px}
+  .durak-card-suit{font-size:18px}
+}
+
 /* SLOTS */
 .slot-machine{text-align:center}
 .slot-reels{display:flex;justify-content:center;gap:8px;margin:12px 0}
@@ -1249,6 +1302,76 @@ try{
 
     <div id="casino-games" class="casino-games">
 
+      <!-- DURAK -->
+      <div class="casino-game-card durak-card">
+        <div class="cgc-head"><span class="cgc-title">🃏 Дурак</span><span class="cgc-rtp">полная партия с сохранением</span></div>
+        <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Это серверная карточная партия против автомата. Игра сохраняется: можно обновить страницу и продолжить с того же места.</div>
+          </div>
+          <div class="durak-status-line">
+            <div class="durak-status-pill">Козырь: <strong id="durak-trump-label" style="color:var(--white)">—</strong></div>
+            <div class="durak-status-pill">Состояние: <strong id="durak-phase-label" style="color:var(--white)">Новая партия</strong></div>
+            <div class="durak-status-pill">Раунд: <strong id="durak-round-label" style="color:var(--white)">не начат</strong></div>
+          </div>
+          <div class="durak-mode-row">
+            <button class="durak-mode-btn active" id="durak-mode-regular" onclick="selectDurakDifficulty('regular',this)">
+              <strong>Обычный бот</strong>
+              <small>Играет прямолинейно и чаще отдаёт удобные карты.</small>
+            </button>
+            <button class="durak-mode-btn" id="durak-mode-pro" onclick="selectDurakDifficulty('pro',this)">
+              <strong>Про-бот</strong>
+              <small>Аккуратнее распоряжается козырями и больнее наказывает ошибки.</small>
+            </button>
+          </div>
+          <div class="bet-chip-row">
+            <span style="font-size:11px;color:var(--muted)">Ставка:</span>
+            <div class="bet-chip active" onclick="selectCasinoBet('durak',25,this)">25</div>
+            <div class="bet-chip" onclick="selectCasinoBet('durak',50,this)">50</div>
+            <div class="bet-chip" onclick="selectCasinoBet('durak',100,this)">100</div>
+            <div class="bet-chip" onclick="selectCasinoBet('durak',150,this)">150</div>
+            <div class="bet-chip" onclick="selectCasinoBet('durak',250,this)">250</div>
+          </div>
+          <div class="durak-board">
+            <div class="durak-table">
+              <div class="durak-side-title">
+                <span>🤖 Казино</span>
+                <span class="durak-count-badge" id="durak-bot-count">0 карт</span>
+              </div>
+              <div class="durak-bot-row" id="durak-bot-row"></div>
+              <div class="durak-table-pairs" id="durak-table-pairs"></div>
+              <div class="durak-side-title" style="margin-top:12px">
+                <span>🫵 Твоя рука</span>
+                <span class="durak-count-badge" id="durak-player-count">0 карт</span>
+              </div>
+              <div class="durak-hand" id="durak-player-hand"></div>
+            </div>
+            <div class="durak-info-stack">
+              <div class="durak-info-panel">
+                <strong>Ход партии</strong>
+                <div class="durak-meta-grid">
+                  <div class="durak-meta-item"><span>Колодa</span><b id="durak-talon-count">24</b></div>
+                  <div class="durak-meta-item"><span>Ставка</span><b id="durak-bet-view">25 ЛК</b></div>
+                  <div class="durak-meta-item"><span>Атакует</span><b id="durak-attacker-view">—</b></div>
+                  <div class="durak-meta-item"><span>Защищается</span><b id="durak-defender-view">—</b></div>
+                </div>
+              </div>
+              <div class="durak-info-panel">
+                <strong>Подсказка</strong>
+                <div id="durak-notes" style="font-size:12px;color:var(--muted);line-height:1.55">Нажми «Начать партию», и сервер раздаст карты с сохранением состояния.</div>
+              </div>
+              <div class="durak-actions">
+                <button class="btn btn-yellow" id="durak-start-btn" onclick="startDurakGame()">Начать партию</button>
+                <button class="btn btn-ghost" id="durak-refresh-btn" onclick="refreshDurakGame(false)">Обновить стол</button>
+                <button class="btn btn-red" id="durak-take-btn" onclick="durakTake()" disabled>Забрать карты</button>
+                <button class="btn btn-ghost" id="durak-surrender-btn" onclick="durakSurrender()" disabled>Сдаться</button>
+              </div>
+              <div id="durak-result" class="durak-result">Серверная игра готова. Состояние хранится в Supabase.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- KENO -->
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🔢 Кено</span><span class="cgc-rtp">Выбери 3 из 12</span></div>
@@ -1917,6 +2040,8 @@ const ALL_ACHIEVEMENTS=[
   {id:"keno_first",cat:"casino",icon:"🔢",name:"Три числа",desc:"Сыграл в Кено и поверил в математику.",secret:false},
   {id:"scratch_first",cat:"casino",icon:"🎟️",name:"Счастливый билет",desc:"Стёр первый билет. Счастье не гарантировано.",secret:false},
   {id:"rps_first",cat:"casino",icon:"✊",name:"Дворовая классика",desc:"Сыграл в камень-ножницы-бумага против автомата.",secret:false},
+  {id:"durak_first",cat:"casino",icon:"🃏",name:"Карточный стол",desc:"Запустил первую партию в Дурака против казино.",secret:false},
+  {id:"durak_win",cat:"casino",icon:"🏅",name:"Не остался дураком",desc:"Выиграл партию в Дурака у автомата.",secret:true},
   {id:"penalty_goal",cat:"casino",icon:"🥅",name:"Хладнокровный удар",desc:"Забил с пенальти и не дрогнул.",secret:false},
   {id:"offside_escape",cat:"casino",icon:"🚩",name:"На грани",desc:"Успел забрать выигрыш в оффсайде.",secret:false},
   {id:"var_goal",cat:"casino",icon:"📺",name:"VAR подтвердил",desc:"Открыл лучший исход в VAR-челлендже.",secret:true},
@@ -2015,6 +2140,7 @@ function addEarnedTotal(amount){
 }
 let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRaf=null;
 const CASINO_BET_DEFAULTS={
+  durak:25,
   slots:10,
   blackjack:10,
   wheel:30,
@@ -2185,6 +2311,36 @@ if (action === 'getAchAll') {
         game: params.game || '',
         bet: parseInt(params.bet || 0),
         meta: params.meta || {}
+      });
+    }
+
+    if (action === 'startDurakGame') {
+      return await sbFunction('start-durak-game', {
+        code,
+        round_id: params.round_id || '',
+        game_id: params.game_id || '',
+        bet: parseInt(params.bet || 0),
+        difficulty: params.difficulty || 'regular',
+        meta: params.meta || {}
+      });
+    }
+
+    if (action === 'getDurakGame') {
+      return await sbFunction('get-durak-game', {
+        code,
+        round_id: params.round_id || '',
+        game_id: params.game_id || ''
+      });
+    }
+
+    if (action === 'playDurakTurn') {
+      return await sbFunction('play-durak-turn', {
+        code,
+        round_id: params.round_id || '',
+        game_id: params.game_id || '',
+        action: params.turnAction || params.action_type || '',
+        card_id: params.card_id || '',
+        target_attack_id: params.target_attack_id || ''
       });
     }
 
@@ -2864,6 +3020,7 @@ function renderCasinoStats(stats){
     plinko:'🟡 Плинко',
     mines:'💣 Минёр',
     tower:'🗼 Башня',
+    durak:'🃏 Дурак',
     system:'⚙️ Система',
   };
   const perGame = Array.isArray(data.per_game) ? data.per_game : [];
@@ -3225,7 +3382,7 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();refreshDurakGame();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
@@ -3320,6 +3477,7 @@ async function doLogout(){
   achDirty=false;
   casinoSyncTimer=null;
   achSyncTimer=null;
+  durakState={busy:false,loading:false,game:null,round:null,difficulty:'regular',selectedCardId:'',selectedTargetId:''};
   LS.remove('luzbet_session_code');
   LS.remove('luzbet_coins');
   LS.remove('luzbet_earned');
@@ -3333,6 +3491,7 @@ async function doLogout(){
   renderCoinsUI();
   updateVip();
   renderAchievements();
+  resetDurakView();
   updateNavAfterLogin();toast('Сессия завершена. Данные забыты. Как и твои прогнозы.','info');
   showPage('login');
 }
@@ -3960,6 +4119,337 @@ function selectCasinoBet(game,val,el){
     el.classList.add('active');
   }
   updateCasinoBetLabel(game);
+}
+
+let durakState={
+  busy:false,
+  loading:false,
+  game:null,
+  round:null,
+  difficulty:'regular',
+  selectedCardId:'',
+  selectedTargetId:'',
+};
+
+const DURAK_SUIT_META={
+  clubs:{icon:'♣',label:'Трефы',red:false},
+  diamonds:{icon:'♦',label:'Бубны',red:true},
+  hearts:{icon:'♥',label:'Червы',red:true},
+  spades:{icon:'♠',label:'Пики',red:false},
+};
+
+function durakSideLabel(side){
+  return side==='player' ? 'Игрок' : side==='bot' ? 'Казино' : '—';
+}
+
+function durakRoundShort(id){
+  const value=String(id||'').trim();
+  if(!value) return 'не начат';
+  return value.length > 10 ? `${value.slice(0,6)}…${value.slice(-4)}` : value;
+}
+
+function syncCasinoEconomyFromResponse(r){
+  if(!r) return;
+  if(r.coins !== undefined) coins=parseInt(r.coins ?? coins,10);
+  if(r.spent !== undefined) totalSpent=parseInt(r.spent ?? totalSpent,10);
+  LS.set('luzbet_coins', coins);
+  LS.set('luzbet_spent', totalSpent);
+  renderCoinsUI();
+  updateVip();
+  updateCashbackUI();
+}
+
+function selectDurakDifficulty(mode,el){
+  durakState.difficulty = mode === 'pro' ? 'pro' : 'regular';
+  document.querySelectorAll('.durak-mode-btn').forEach(btn=>btn.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+function getDurakOpenAttackId(game){
+  const pair=(game?.table_pairs||[]).find(item=>item && item.attack && !item.defense);
+  return pair?.attack?.id || '';
+}
+
+function durakCardHtml(card,{playable=false,selected=false}={}){
+  if(!card) return '';
+  const suit=DURAK_SUIT_META[card.suit] || DURAK_SUIT_META.spades;
+  return `<button class="durak-card-btn ${selected?'selected':''} ${suit.red?'durak-red':''}" ${playable?'':'disabled'} onclick="onDurakCardClick('${card.id}')">
+    <div class="durak-card-rank">${card.rank}</div>
+    <div class="durak-card-suit">${suit.icon}</div>
+    <div class="durak-card-note">${escapeHtml(suit.label)}</div>
+  </button>`;
+}
+
+function durakFaceHtml(card){
+  if(!card) return '';
+  const suit=DURAK_SUIT_META[card.suit] || DURAK_SUIT_META.spades;
+  return `<div class="durak-card-face ${suit.red?'durak-red':''}">
+    <div class="durak-card-rank">${card.rank}</div>
+    <div class="durak-card-suit">${suit.icon}</div>
+    <div class="durak-card-note">${escapeHtml(suit.label)}</div>
+  </div>`;
+}
+
+function resetDurakView(message='Серверная игра готова. Состояние хранится в Supabase.'){
+  durakState.game=null;
+  durakState.round=null;
+  durakState.selectedCardId='';
+  durakState.selectedTargetId='';
+  const botRow=document.getElementById('durak-bot-row');
+  const table=document.getElementById('durak-table-pairs');
+  const hand=document.getElementById('durak-player-hand');
+  if(botRow) botRow.innerHTML=Array.from({length:6},()=>'<div class="durak-bot-card"></div>').join('');
+  if(table) table.innerHTML='<div style="font-size:12px;color:var(--muted)">На столе пока пусто. Первый ход покажет сервер.</div>';
+  if(hand) hand.innerHTML='<div style="font-size:12px;color:var(--muted)">Сначала начни партию или дождись восстановления активной игры.</div>';
+  const result=document.getElementById('durak-result');
+  if(result) result.textContent=message;
+  renderDurakState();
+}
+
+function renderDurakState(){
+  const game=durakState.game;
+  if(game?.difficulty) durakState.difficulty=game.difficulty === 'pro' ? 'pro' : 'regular';
+  const active=!!game && game.status==='active';
+  const playerCanAttack=active && game.attacker==='player' && game.turn_state?.phase==='attack' && (!game.table_pairs || !game.table_pairs.length);
+  const playerCanDefend=active && game.defender==='player' && game.turn_state?.phase==='defense';
+  const openAttackId=getDurakOpenAttackId(game);
+  if(playerCanDefend && !durakState.selectedTargetId) durakState.selectedTargetId=openAttackId;
+  if(!playerCanDefend) durakState.selectedTargetId='';
+
+  const suit=DURAK_SUIT_META[game?.trump_suit] || null;
+  const trumpEl=document.getElementById('durak-trump-label');
+  const phaseEl=document.getElementById('durak-phase-label');
+  const roundEl=document.getElementById('durak-round-label');
+  const botCountEl=document.getElementById('durak-bot-count');
+  const playerCountEl=document.getElementById('durak-player-count');
+  const talonEl=document.getElementById('durak-talon-count');
+  const betEl=document.getElementById('durak-bet-view');
+  const attEl=document.getElementById('durak-attacker-view');
+  const defEl=document.getElementById('durak-defender-view');
+  const notesEl=document.getElementById('durak-notes');
+  const resultEl=document.getElementById('durak-result');
+  const botRow=document.getElementById('durak-bot-row');
+  const tableEl=document.getElementById('durak-table-pairs');
+  const handEl=document.getElementById('durak-player-hand');
+  const startBtn=document.getElementById('durak-start-btn');
+  const takeBtn=document.getElementById('durak-take-btn');
+  const surrenderBtn=document.getElementById('durak-surrender-btn');
+  const refreshBtn=document.getElementById('durak-refresh-btn');
+  const modeRegular=document.getElementById('durak-mode-regular');
+  const modePro=document.getElementById('durak-mode-pro');
+
+  if(trumpEl) trumpEl.textContent=game && suit ? `${suit.icon} ${suit.label}` : '—';
+  if(phaseEl) phaseEl.textContent=active ? (playerCanAttack ? 'Твой ход в атаку' : playerCanDefend ? 'Нужно отбиться' : 'Ход казино') : game?.status==='finished' ? 'Партия окончена' : 'Новая партия';
+  if(roundEl) roundEl.textContent=durakRoundShort(game?.round_id || '');
+  if(botCountEl) botCountEl.textContent=`${game?.bot_hand_count || 0} карт`;
+  if(playerCountEl) playerCountEl.textContent=`${(game?.player_hand||[]).length || 0} карт`;
+  if(talonEl) talonEl.textContent=String(game?.talon_count ?? 24);
+  if(betEl) betEl.textContent=`${game?.bet || getCasinoBet('durak')} ЛК`;
+  if(attEl) attEl.textContent=durakSideLabel(game?.attacker);
+  if(defEl) defEl.textContent=durakSideLabel(game?.defender);
+  if(notesEl) notesEl.textContent=game?.turn_state?.notes || 'Нажми «Начать партию», и сервер раздаст карты с сохранением состояния.';
+  if(refreshBtn) refreshBtn.disabled=durakState.loading || durakState.busy;
+  if(modeRegular) modeRegular.classList.toggle('active', durakState.difficulty !== 'pro');
+  if(modePro) modePro.classList.toggle('active', durakState.difficulty === 'pro');
+
+  if(startBtn){
+    startBtn.disabled=durakState.loading || durakState.busy;
+    startBtn.textContent = active ? 'Активная партия' : game?.status==='finished' ? 'Новая партия' : 'Начать партию';
+  }
+  if(takeBtn) takeBtn.disabled=!(playerCanDefend && openAttackId) || durakState.busy;
+  if(surrenderBtn) surrenderBtn.disabled=!active || durakState.busy;
+
+  if(botRow){
+    const count=Math.max(0, game?.bot_hand_count || 0);
+    botRow.innerHTML=count ? Array.from({length:count},()=>'<div class="durak-bot-card"></div>').join('') : '<div style="font-size:12px;color:var(--muted)">У казино закончились карты.</div>';
+  }
+
+  if(tableEl){
+    const pairs=Array.isArray(game?.table_pairs) ? game.table_pairs : [];
+    tableEl.innerHTML = pairs.length
+      ? pairs.map(pair=>{
+        const isOpen=pair?.attack?.id && !pair?.defense;
+        const selected=durakState.selectedTargetId===pair.attack.id;
+        return `<div class="durak-pair ${isOpen?'open':''}" ${isOpen?'onclick="selectDurakTarget(\''+pair.attack.id+'\')"':''} style="${selected?'box-shadow:0 0 0 1px rgba(255,230,0,.45) inset':''}">
+          ${durakFaceHtml(pair.attack)}
+          <div class="durak-pair-arrow">${pair.defense ? '✓' : '→'}</div>
+          ${pair.defense ? durakFaceHtml(pair.defense) : '<div class="durak-card-face" style="opacity:.45;justify-content:center;align-items:center;font-family:var(--os);font-size:12px;color:#666">Отбить</div>'}
+        </div>`;
+      }).join('')
+      : '<div style="font-size:12px;color:var(--muted)">На столе пусто. После первого хода карты появятся здесь.</div>';
+  }
+
+  if(handEl){
+    const hand=Array.isArray(game?.player_hand) ? game.player_hand : [];
+    handEl.innerHTML = hand.length
+      ? hand.map(card=>durakCardHtml(card,{
+        playable: playerCanAttack || playerCanDefend,
+        selected: durakState.selectedCardId===card.id,
+      })).join('')
+      : '<div style="font-size:12px;color:var(--muted)">В руке пусто. Это хороший знак.</div>';
+  }
+
+  if(resultEl && !durakState.busy && !durakState.loading && game?.status==='finished'){
+    resultEl.textContent = game.winner === 'player'
+      ? `🏆 Победа. Партия закрыта, выплата уже начислена.`
+      : '💀 Партия закончена поражением. Касса довольна.';
+  }
+}
+
+function selectDurakTarget(attackId){
+  durakState.selectedTargetId=String(attackId||'');
+  renderDurakState();
+}
+
+async function refreshDurakGame(silent=true){
+  if(!S.code || durakState.loading) return;
+  durakState.loading=true;
+  renderDurakState();
+  try{
+    const r=await api({ action:'getDurakGame', code:S.code });
+    if(r && r.ok && r.game){
+      durakState.game=r.game;
+      durakState.round=r.round || null;
+      syncCasinoEconomyFromResponse(r);
+      if(!silent){
+        const result=document.getElementById('durak-result');
+        if(result) result.textContent='Стол синхронизирован с сервером.';
+      }
+    }else{
+      durakState.game=null;
+      durakState.round=null;
+      const result=document.getElementById('durak-result');
+      if(result) result.textContent='Активной партии сейчас нет. Можно начинать новую.';
+      if(!silent && r && r.error && !String(r.error).includes('not found')){
+        toast(`🃏 ${r.error}`,'err');
+      }
+    }
+  }catch(e){
+    if(!silent) toast(`🃏 Не удалось обновить партию: ${e.message||e}`,'err');
+  }finally{
+    durakState.loading=false;
+    renderDurakState();
+  }
+}
+
+async function startDurakGame(){
+  if(durakState.busy || durakState.loading) return;
+  if(durakState.game && durakState.game.status==='active'){
+    toast('🃏 Активная партия уже открыта. Продолжай играть.','info');
+    renderDurakState();
+    return;
+  }
+  const bet=getCasinoBet('durak');
+  if(coins<bet){toast(`❌ Нужно ${bet} ЛК`,'err');return;}
+  durakState.busy=true;
+  const result=document.getElementById('durak-result');
+  if(result) result.textContent='Раздаём карты и фиксируем ставку на сервере...';
+  renderDurakState();
+  try{
+    const r=await api({
+      action:'startDurakGame',
+      code:S.code,
+      game_id:`durak_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+      round_id:makeCasinoRoundId('durak'),
+      bet,
+      difficulty:durakState.difficulty,
+      meta:{ source:'durak_start', difficulty:durakState.difficulty }
+    });
+    if(!r || r.ok!==true) throw new Error((r && (r.error||r.message)) || 'startDurakGame failed');
+    syncCasinoEconomyFromResponse(r);
+    durakState.game=r.game || null;
+    durakState.round=r.round || null;
+    durakState.selectedCardId='';
+    durakState.selectedTargetId='';
+    unlockAch('durak_first');
+    if(result) result.textContent=r.duplicate ? 'Восстановили уже идущую партию.' : '🃏 Карты розданы. Партия пошла.';
+  }catch(e){
+    toast(`⚠️ Партия не стартовала: ${e.message||e}`,'err',6500);
+    if(result) result.textContent='Не удалось начать партию.';
+  }finally{
+    durakState.busy=false;
+    renderDurakState();
+  }
+}
+
+async function onDurakCardClick(cardId){
+  if(durakState.busy || !durakState.game || durakState.game.status!=='active') return;
+  const game=durakState.game;
+  const playerCanAttack=game.attacker==='player' && game.turn_state?.phase==='attack' && (!game.table_pairs || !game.table_pairs.length);
+  const playerCanDefend=game.defender==='player' && game.turn_state?.phase==='defense';
+
+  if(playerCanAttack){
+    await playDurakTurnRequest({ turnAction:'attack', card_id:cardId }, { startMessage:'Атакуем...', winGame:'🃏 Дурак', loseMessage:'🃏 Атака прошла неудачно.' });
+    return;
+  }
+
+  if(playerCanDefend){
+    durakState.selectedCardId=String(cardId||'');
+    const targetId=durakState.selectedTargetId || getDurakOpenAttackId(game);
+    if(!targetId){
+      renderDurakState();
+      toast('🃏 На столе нет карты для отбоя.','info');
+      return;
+    }
+    await playDurakTurnRequest({ turnAction:'defend', card_id:cardId, target_attack_id:targetId }, { startMessage:'Пробуем отбиться...', winGame:'🃏 Дурак', loseMessage:'🃏 Отбой не сработал.' });
+  }
+}
+
+async function durakTake(){
+  await playDurakTurnRequest({ turnAction:'take' }, { startMessage:'Забираем карты со стола...', winGame:'🃏 Дурак', loseMessage:'🃏 Карты забраны.' });
+}
+
+async function durakSurrender(){
+  const ok=confirm('Сдаться и сразу закрыть партию поражением?');
+  if(!ok) return;
+  await playDurakTurnRequest({ turnAction:'surrender' }, { startMessage:'Фиксируем сдачу...', winGame:'🃏 Дурак', loseMessage:'🃏 Партия сдана.' });
+}
+
+async function playDurakTurnRequest(payload,uiMeta={}){
+  if(durakState.busy || !durakState.game) return;
+  durakState.busy=true;
+  const result=document.getElementById('durak-result');
+  if(result) result.textContent=uiMeta.startMessage || 'Сохраняем ход...';
+  renderDurakState();
+  try{
+    const r=await api({
+      action:'playDurakTurn',
+      code:S.code,
+      game_id:durakState.game.game_id,
+      round_id:durakState.game.round_id,
+      turnAction:payload.turnAction,
+      card_id:payload.card_id || '',
+      target_attack_id:payload.target_attack_id || '',
+    });
+    if(!r || r.ok!==true) throw new Error((r && (r.error||r.message)) || 'playDurakTurn failed');
+    syncCasinoEconomyFromResponse(r);
+    durakState.game=r.game || durakState.game;
+    durakState.round=r.round || durakState.round;
+    durakState.selectedCardId='';
+    durakState.selectedTargetId='';
+    if(r.finished && durakState.game?.status==='finished'){
+      if(durakState.game.winner==='player'){
+        recordWin(uiMeta.winGame || '🃏 Дурак', r.payout || 0);
+        onWin(r.payout || 0, uiMeta.winGame || '🃏 Дурак');
+        unlockAch('durak_win');
+        if(result) result.textContent=`🏆 Победа в партии. Выплата: ${r.payout || 0} ЛК`;
+        toast(`🃏 Победа в Дурака: ${r.payout || 0} ЛК`,'win');
+      }else{
+        onLose();
+        if(result) result.textContent='💀 Партия проиграна. Касса остаётся при своих.';
+        toast(uiMeta.loseMessage || '🃏 Партия окончена поражением.','err');
+      }
+      scheduleCasinoStatsReload();
+    }else if(result){
+      result.textContent='Ход принят сервером. Партия продолжается.';
+    }
+  }catch(e){
+    toast(`⚠️ Ход не сохранился: ${e.message||e}`,'err',6500);
+    if(result) result.textContent='Сервер не принял ход. Попробуй обновить стол.';
+  }finally{
+    durakState.busy=false;
+    renderDurakState();
+  }
 }
 
 async function spinSlots(){
@@ -6969,6 +7459,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderScratchBoard();
   renderOffsideTrack();
   resetVarCards();
+  resetDurakView();
   Object.keys(casinoBetState).forEach(updateCasinoBetLabel);
   renderMinesBoard(false);
   renderTower();
