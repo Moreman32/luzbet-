@@ -2751,7 +2751,14 @@ async function tryStartCasinoRound(game, bet, meta = {}) {
     return await startCasinoRound(game, bet, meta);
   } catch(e) {
     console.error('startCasinoRound failed', game, e);
+
     const msg = e && e.message ? e.message : String(e || 'неизвестная ошибка');
+
+    if (msg.includes('too_fast')) {
+      toast('⚠️ Не используй автокликеры 🙂', 'err', 4000);
+      return '';
+    }
+
     toast(`⚠️ Ставка не сохранилась: ${msg}`, 'err', 7000);
     return '';
   }
