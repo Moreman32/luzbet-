@@ -31,6 +31,23 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders });
 }
 
+function getTableRanks(state: ReturnType<typeof hydrateDurakGame>): Set<string> {
+  const ranks = new Set<string>();
+  for (const pair of state.table_pairs) {
+    if (pair.attack?.rank) ranks.add(pair.attack.rank);
+    if (pair.defense?.rank) ranks.add(pair.defense.rank);
+  }
+  return ranks;
+}
+
+function allPairsDefended(state: ReturnType<typeof hydrateDurakGame>): boolean {
+  return state.table_pairs.length > 0 && state.table_pairs.every((pair) => !!pair.defense);
+}
+
+function maxAttackCards(state: ReturnType<typeof hydrateDurakGame>): number {
+  return Math.max(1, Math.min(6, state.bot_hand.length + state.table_pairs.filter((pair) => !!pair.defense).length));
+}
+
 async function persistGame(state: ReturnType<typeof hydrateDurakGame>) {
   const payload = {
     status: state.status,
@@ -188,7 +205,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === "attack") {
-      if (state.attacker !== "player" || state.turn_state.phase !== "attack" || state.table_pairs.length) {
+      if (state.attacker !== "player" || state.turn_state.phase !== "attack") {
         return json({ ok: false, error: "player cannot attack now", game: toPublicDurakGame(state) }, 400);
       }
 
@@ -197,25 +214,43 @@ Deno.serve(async (req) => {
         return json({ ok: false, error: "card not found in hand", game: toPublicDurakGame(state) }, 400);
       }
 
+      const isThrowIn = state.table_pairs.length > 0;
+      const ranksOnTable = getTableRanks(state);
+
+      if (isThrowIn) {
+        if (!allPairsDefended(state)) {
+          return json({ ok: false, error: "cannot throw in before defense is complete", game: toPublicDurakGame(state) }, 400);
+        }
+        if (!ranksOnTable.has(removed.card.rank)) {
+          return json({ ok: false, error: "thrown card must match ranks on table", game: toPublicDurakGame(state) }, 400);
+        }
+        if (state.table_pairs.length >= maxAttackCards(state)) {
+          return json({ ok: false, error: "attack limit reached", game: toPublicDurakGame(state) }, 400);
+        }
+      }
+
       state = {
         ...state,
         player_hand: sortDurakHand(removed.hand, state.trump_suit),
-        table_pairs: [{ attack: removed.card, defense: null }],
+        table_pairs: [...state.table_pairs, { attack: removed.card, defense: null }],
         turn_state: {
           phase: "defense",
           can_take: false,
           can_pass: false,
-          attack_count: 1,
-          notes: "Игрок атаковал. Бот отвечает автоматически.",
+          attack_count: state.table_pairs.length + 1,
+          notes: isThrowIn
+            ? "Подкинута ещё одна карта. Казино отвечает автоматически."
+            : "Игрок атаковал. Казино отвечает автоматически.",
         },
       };
 
       const defenseCard = pickBotDefenseCard(removed.card, state.bot_hand, state.trump_suit);
 
       if (!defenseCard) {
+        const tableCards = state.table_pairs.flatMap((pair) => pair.defense ? [pair.attack, pair.defense] : [pair.attack]);
         state = refillDurakHands({
           ...state,
-          bot_hand: sortDurakHand([...state.bot_hand, removed.card], state.trump_suit),
+          bot_hand: sortDurakHand([...state.bot_hand, ...tableCards], state.trump_suit),
           table_pairs: [],
           attacker: "player",
           defender: "bot",
@@ -224,27 +259,25 @@ Deno.serve(async (req) => {
             can_take: false,
             can_pass: false,
             attack_count: 0,
-            notes: "Бот забрал карту. Игрок снова атакует.",
+            notes: "Казино не смогло отбиться и забрало карты. Можно атаковать снова.",
           },
         });
       } else {
         const nextBot = removeDurakCard(state.bot_hand, defenseCard.id).hand;
-        state = refillDurakHands({
+        state = {
           ...state,
-          attacker: "bot",
-          defender: "player",
           bot_hand: sortDurakHand(nextBot, state.trump_suit),
-          discard_pile: [...state.discard_pile, removed.card, defenseCard],
-          table_pairs: [],
+          table_pairs: state.table_pairs.map((pair) =>
+            pair.attack.id === removed.card.id ? { ...pair, defense: defenseCard } : pair
+          ),
           turn_state: {
             phase: "attack",
             can_take: false,
-            can_pass: false,
-            attack_count: 0,
-            notes: "Бот отбился. Следующая атака за ботом.",
+            can_pass: true,
+            attack_count: state.table_pairs.length,
+            notes: "Казино отбилось. Можно подкинуть карту того же ранга или завершить атаку.",
           },
-        });
-        state = maybeOpenBotAttack(maybeFinishDurakGame(state));
+        };
       }
     } else if (action === "defend") {
       const openPair = state.table_pairs.find((pair) => pair.attack.id === target_attack_id && !pair.defense);
@@ -262,22 +295,20 @@ Deno.serve(async (req) => {
         return json({ ok: false, error: "selected card cannot beat attack", game: toPublicDurakGame(state) }, 400);
       }
 
-      state = refillDurakHands({
+      state = {
         ...state,
-        attacker: "player",
-        defender: "bot",
         player_hand: sortDurakHand(removed.hand, state.trump_suit),
-        discard_pile: [...state.discard_pile, openPair.attack, removed.card],
-        table_pairs: [],
+        table_pairs: state.table_pairs.map((pair) =>
+          pair.attack.id === target_attack_id ? { ...pair, defense: removed.card } : pair
+        ),
         turn_state: {
-          phase: "attack",
+          phase: "resolve",
           can_take: false,
-          can_pass: false,
-          attack_count: 0,
-          notes: "Игрок отбился и теперь атакует.",
+          can_pass: true,
+          attack_count: state.table_pairs.length,
+          notes: "Ты отбился. Карты лежат на столе: можно завершить розыгрыш.",
         },
-      });
-      state = maybeFinishDurakGame(state);
+      };
     } else if (action === "take") {
       const openCards = state.table_pairs.flatMap((pair) => pair.defense ? [pair.attack, pair.defense] : [pair.attack]);
 
@@ -300,6 +331,44 @@ Deno.serve(async (req) => {
         },
       });
       state = maybeOpenBotAttack(maybeFinishDurakGame(state));
+    } else if (action === "pass") {
+      if (state.attacker === "player" && state.turn_state.phase === "attack" && allPairsDefended(state)) {
+        const tableCards = state.table_pairs.flatMap((pair) => [pair.attack, pair.defense!]);
+        state = refillDurakHands({
+          ...state,
+          attacker: "bot",
+          defender: "player",
+          discard_pile: [...state.discard_pile, ...tableCards],
+          table_pairs: [],
+          turn_state: {
+            phase: "attack",
+            can_take: false,
+            can_pass: false,
+            attack_count: 0,
+            notes: "Атака завершена. Ход переходит к казино.",
+          },
+        });
+        state = maybeOpenBotAttack(maybeFinishDurakGame(state));
+      } else if (state.defender === "player" && state.turn_state.phase === "resolve" && allPairsDefended(state)) {
+        const tableCards = state.table_pairs.flatMap((pair) => [pair.attack, pair.defense!]);
+        state = refillDurakHands({
+          ...state,
+          attacker: "player",
+          defender: "bot",
+          discard_pile: [...state.discard_pile, ...tableCards],
+          table_pairs: [],
+          turn_state: {
+            phase: "attack",
+            can_take: false,
+            can_pass: false,
+            attack_count: 0,
+            notes: "Розыгрыш завершён. Теперь ты атакуешь.",
+          },
+        });
+        state = maybeFinishDurakGame(state);
+      } else {
+        return json({ ok: false, error: "cannot pass now", game: toPublicDurakGame(state) }, 400);
+      }
     } else if (action === "surrender") {
       state = {
         ...state,

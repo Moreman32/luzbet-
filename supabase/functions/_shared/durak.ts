@@ -55,6 +55,7 @@ export interface PublicDurakGameState {
   bet: number;
   winner: DurakSide | null;
   trump_suit: DurakSuit;
+  trump_card: DurakCard | null;
   attacker: DurakSide;
   defender: DurakSide;
   talon_count: number;
@@ -447,6 +448,7 @@ export function hydrateDurakGame(row: Record<string, unknown>): DurakGameState {
 
 export function toPublicDurakGame(state: DurakGameState): PublicDurakGameState {
   const revealBotHand = state.status !== "active";
+  const trumpCard = state.talon[state.talon.length - 1] ?? null;
 
   return {
     game_id: state.game_id,
@@ -457,6 +459,7 @@ export function toPublicDurakGame(state: DurakGameState): PublicDurakGameState {
     bet: state.bet,
     winner: state.winner,
     trump_suit: state.trump_suit,
+    trump_card: trumpCard,
     attacker: state.attacker,
     defender: state.defender,
     talon_count: state.talon.length,
