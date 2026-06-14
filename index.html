@@ -357,7 +357,11 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .bet-chip.locked{opacity:.38;filter:grayscale(1);cursor:not-allowed;border-style:dashed}
 .bet-chip.vip-generated{border-color:rgba(255,230,0,.45);box-shadow:0 0 0 1px rgba(255,230,0,.08) inset}
 .bet-chip-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 10px}
+.bet-chip-note{display:block;font-size:9px;line-height:1.15;letter-spacing:.2px;margin-top:2px;color:var(--muted2)}
 .vip-rank-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid currentColor;font-family:var(--os);font-size:10px;letter-spacing:.5px;line-height:1}
+.cashback-vip-ladder{display:grid;grid-template-columns:repeat(auto-fit,minmax(136px,1fr));gap:8px;margin-top:10px}
+.cashback-vip-tier{padding:9px 10px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.025);font-size:10px;line-height:1.45;color:var(--muted)}
+.cashback-vip-tier.active{box-shadow:0 0 0 1px rgba(255,230,0,.18) inset;background:rgba(255,230,0,.08)}
 .slot-result-text{min-height:28px;font-family:var(--os);font-size:16px;color:var(--yellow);margin-bottom:8px}
 
 
@@ -1276,6 +1280,7 @@ try{
         </div>
         <button id="cashback-btn" class="btn btn-yellow btn-full" onclick="claimCasinoCashback()">Забрать кешбек</button>
         <div class="cashback-note" id="cashback-note" style="margin-top:8px">Сначала надо немного пострадать.</div>
+        <div id="cashback-vip-ladder" class="cashback-vip-ladder"></div>
       </div>
       <button id="daily-btn" class="btn btn-green" onclick="claimDaily()" style="margin-bottom:8px">🎁 Ежедневный бонус +200 ЛК</button>
       <div id="daily-timer" style="font-size:11px;color:var(--muted);margin-bottom:4px;display:none"></div>
@@ -3011,6 +3016,16 @@ function getVipBetCap(spent=totalSpent, game=''){
   return Math.max(1, Math.min(vipCap, hardCap));
 }
 
+function getVipUnlockLevelForBet(game, amount){
+  const target=Math.max(1, parseInt(amount,10)||0);
+  return VIP_LEVELS.find(level=>getVipBetCap(level.thresh, game) >= target) || null;
+}
+
+function getVipShortName(level){
+  if(!level) return 'VIP';
+  return String(level.name || 'VIP').replace(/^[^A-ZА-ЯЁ0-9]+/iu,'').trim() || String(level.name || 'VIP');
+}
+
 function getClosestAllowedBet(game, requested){
   const options=(CASINO_BET_OPTIONS[game] || []).slice().sort((a,b)=>a-b);
   const cap=getVipBetCap(totalSpent, game);
@@ -3029,11 +3044,16 @@ function refreshCasinoBetControls(){
     const chips=Array.from(document.querySelectorAll(selector));
     const row=chips[0]?.parentElement || null;
     chips.forEach(chip=>{
-      const value=parseInt(chip.textContent,10)||0;
+      const value=parseInt(chip.dataset.betValue || chip.textContent,10)||0;
+      chip.dataset.betValue=String(value);
       const locked=value>cap;
+      const unlockLevel=locked ? getVipUnlockLevelForBet(game, value) : null;
       chip.classList.toggle('locked', locked);
       chip.style.pointerEvents=locked?'none':'';
-      chip.title=locked ? `Откроется на более высоком VIP. Твой лимит: ${cap} ЛК.` : '';
+      chip.title=locked ? `Откроется на уровне ${getVipShortName(unlockLevel)}. Твой лимит: ${cap} ЛК.` : '';
+      chip.innerHTML = locked
+        ? `${value}<span class="bet-chip-note">с ${escapeHtml(getVipShortName(unlockLevel))}</span>`
+        : `${value}`;
     });
     if(row){
       row.querySelectorAll(`.bet-chip.vip-generated[data-game="${game}"]`).forEach(el=>el.remove());
@@ -3055,7 +3075,7 @@ function refreshCasinoBetControls(){
     if(game==='plinko') plinkoBet=nextBet;
     const chipList=row ? Array.from(row.querySelectorAll('.bet-chip')) : [];
     chipList.forEach(chip=>{
-      const value=parseInt(chip.textContent,10)||0;
+      const value=parseInt(chip.dataset.betValue || chip.textContent,10)||0;
       chip.classList.toggle('active', value===nextBet);
     });
     updateCasinoBetLabel(game);
@@ -3066,6 +3086,23 @@ function formatVipBadge(spent){
   const vip=getVipForSpent(spent);
   const label=vip.thresh>0 ? vip.name : '👤 НОВИЧОК';
   return `<span class="vip-rank-chip" style="color:${vip.tc};border-color:${vip.color}">${escapeHtml(label)}</span>`;
+}
+
+function renderCashbackVipLadder(){
+  const wrap=document.getElementById('cashback-vip-ladder');
+  if(!wrap) return;
+  const current=getVip();
+  wrap.innerHTML=VIP_LEVELS.map(level=>{
+    const isActive=level.thresh===current.thresh;
+    const nextText=level.next ? `от ${level.thresh.toLocaleString('ru-RU')} ЛК` : `финальный ранг`;
+    return `<div class="cashback-vip-tier ${isActive?'active':''}" style="border-color:${isActive?level.color:'var(--border)'}">
+      <div style="font-family:var(--os);font-size:11px;color:${level.tc}">${escapeHtml(level.name)}</div>
+      <div>${nextText}</div>
+      <div>Кешбек: <b>${level.cashback_pct}%</b> до <b>${level.cashback_cap} ЛК</b></div>
+      <div>Daily: <b>${level.daily_bonus} ЛК</b></div>
+      <div>VIP-ставка: <b>${level.bet_cap || 250} ЛК</b></div>
+    </div>`;
+  }).join('');
 }
 
 function getCashbackState(stats=casinoCashbackStatsCache){
@@ -5035,6 +5072,7 @@ function updateVip(){
     document.getElementById('vip-spent-label').textContent='Потрачено: '+totalSpent+' ЛК';
   }
   updateCashbackUI();
+  renderCashbackVipLadder();
   refreshCasinoBetControls();
 }
 function spendCoins(n){totalSpent+=n;LS.set('luzbet_spent',totalSpent);updateVip();}
