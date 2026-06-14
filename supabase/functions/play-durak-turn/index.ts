@@ -5,6 +5,7 @@ import {
   maybeFinishDurakGame,
   maybeOpenBotAttack,
   pickBotDefenseCard,
+  pickBotThrowInCard,
   refillDurakHands,
   removeDurakCard,
   sortDurakHand,
@@ -25,7 +26,10 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const DURAK_PAYOUT_MULTIPLIER = 2;
+const DURAK_PAYOUT_MULTIPLIERS = {
+  regular: 2.1,
+  pro: 3.1,
+} as const;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders });
@@ -46,6 +50,57 @@ function allPairsDefended(state: ReturnType<typeof hydrateDurakGame>): boolean {
 
 function maxAttackCards(state: ReturnType<typeof hydrateDurakGame>): number {
   return Math.max(1, Math.min(6, state.bot_hand.length + state.table_pairs.filter((pair) => !!pair.defense).length));
+}
+
+function getPayoutMultiplier(state: ReturnType<typeof hydrateDurakGame>): number {
+  return DURAK_PAYOUT_MULTIPLIERS[state.difficulty] ?? DURAK_PAYOUT_MULTIPLIERS.regular;
+}
+
+function maybeBotThrowInAfterPlayerDefense(state: ReturnType<typeof hydrateDurakGame>) {
+  if (state.status !== "active") return state;
+  if (state.attacker !== "bot") return state;
+  if (!allPairsDefended(state)) return state;
+  if (state.table_pairs.length >= maxAttackCards(state)) return state;
+
+  const ranksOnTable = getTableRanks(state);
+  const maxValue = undefined;
+  const throwCard = pickBotThrowInCard({
+    hand: state.bot_hand,
+    trumpSuit: state.trump_suit,
+    ranksOnTable,
+    difficulty: state.difficulty,
+    maxValue,
+  });
+
+  if (!throwCard) {
+    return {
+      ...state,
+      turn_state: {
+        phase: "resolve",
+        can_take: false,
+        can_pass: true,
+        attack_count: state.table_pairs.length,
+        notes: state.difficulty === "pro"
+          ? "Казино пока не нашло добивающую карту. Можно закрыть розыгрыш кнопкой «Бито / завершить»."
+          : "Казино закончило атаку. Можно закрыть розыгрыш кнопкой «Бито / завершить».",
+      },
+    };
+  }
+
+  return {
+    ...state,
+    bot_hand: sortDurakHand(removeDurakCard(state.bot_hand, throwCard.id).hand, state.trump_suit),
+    table_pairs: [...state.table_pairs, { attack: throwCard, defense: null }],
+    turn_state: {
+      phase: "defense",
+      can_take: true,
+      can_pass: false,
+      attack_count: state.table_pairs.length + 1,
+      notes: state.difficulty === "pro"
+        ? `Казино жёстко давит и подкинуло ${throwCard.rank}. Нужно снова отбиться или забрать.`
+        : `Казино подкинуло ${throwCard.rank}. Нужно снова отбиться или забрать.`,
+    },
+  };
 }
 
 async function persistGame(state: ReturnType<typeof hydrateDurakGame>) {
@@ -72,7 +127,7 @@ async function persistGame(state: ReturnType<typeof hydrateDurakGame>) {
 }
 
 async function settleFinishedGame(state: ReturnType<typeof hydrateDurakGame>) {
-  const payout = state.winner === "player" ? Math.round(state.bet * DURAK_PAYOUT_MULTIPLIER) : 0;
+  const payout = state.winner === "player" ? Math.round(state.bet * getPayoutMultiplier(state)) : 0;
 
   const { data: round, error: roundError } = await sb
     .from("casino_rounds")
@@ -102,6 +157,7 @@ async function settleFinishedGame(state: ReturnType<typeof hydrateDurakGame>) {
       result,
       winner: state.winner,
       difficulty: state.difficulty,
+      payout_multiplier: getPayoutMultiplier(state),
       durak_game_id: state.game_id,
     };
 
@@ -306,9 +362,10 @@ Deno.serve(async (req) => {
           can_take: false,
           can_pass: true,
           attack_count: state.table_pairs.length,
-          notes: "Ты отбился. Карты лежат на столе: можно завершить розыгрыш.",
+          notes: "Ты отбился. Казино решает, подкинуть ещё или закончить атаку.",
         },
       };
+      state = maybeBotThrowInAfterPlayerDefense(state);
     } else if (action === "take") {
       const openCards = state.table_pairs.flatMap((pair) => pair.defense ? [pair.attack, pair.defense] : [pair.attack]);
 
@@ -362,7 +419,7 @@ Deno.serve(async (req) => {
             can_take: false,
             can_pass: false,
             attack_count: 0,
-            notes: "Розыгрыш завершён. Теперь ты атакуешь.",
+            notes: "Казино закончило давление. Теперь ты атакуешь.",
           },
         });
         state = maybeFinishDurakGame(state);

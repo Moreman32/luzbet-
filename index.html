@@ -1375,11 +1375,11 @@ try{
           <div class="durak-mode-row">
             <button class="durak-mode-btn active" id="durak-mode-regular" onclick="selectDurakDifficulty('regular',this)">
               <strong>Обычный бот</strong>
-              <small>Играет прямолинейно и чаще отдаёт удобные карты.</small>
+              <small>Теперь играет злее и чаще душит стол. Победа платит x2.10.</small>
             </button>
             <button class="durak-mode-btn" id="durak-mode-pro" onclick="selectDurakDifficulty('pro',this)">
               <strong>Про-бот</strong>
-              <small>Аккуратнее распоряжается козырями и больнее наказывает ошибки.</small>
+              <small>Давит до конца, чаще подкидывает и наказывает ошибки. Победа платит x3.10.</small>
             </button>
           </div>
           <div class="bet-chip-row">
@@ -4218,6 +4218,10 @@ function durakSideLabel(side){
   return side==='player' ? 'Игрок' : side==='bot' ? 'Казино' : '—';
 }
 
+function durakPayoutMultiplier(mode){
+  return mode === 'pro' ? 3.1 : 2.1;
+}
+
 function durakRoundShort(id){
   const value=String(id||'').trim();
   if(!value) return 'не начат';
@@ -4346,7 +4350,7 @@ function renderDurakState(){
   if(botCountEl) botCountEl.textContent=`${game?.bot_hand_count || 0} карт`;
   if(playerCountEl) playerCountEl.textContent=`${(game?.player_hand||[]).length || 0} карт`;
   if(talonEl) talonEl.textContent=String(game?.talon_count ?? 24);
-  if(betEl) betEl.textContent=`${game?.bet || getCasinoBet('durak')} ЛК`;
+  if(betEl) betEl.textContent=`${game?.bet || getCasinoBet('durak')} ЛК • x${durakPayoutMultiplier(game?.difficulty || durakState.difficulty).toFixed(2)}`;
   if(attEl) attEl.textContent=durakSideLabel(game?.attacker);
   if(defEl) defEl.textContent=durakSideLabel(game?.defender);
   if(notesEl) notesEl.textContent=game?.turn_state?.notes || 'Нажми «Начать партию», и сервер раздаст карты с сохранением состояния.';

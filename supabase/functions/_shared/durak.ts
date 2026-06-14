@@ -193,12 +193,19 @@ export function pickBotAttackCard(
   if (!hand.length) return null;
 
   const sorted = sortDurakHand(hand, trumpSuit);
-
-  if (difficulty === "pro") {
-    return sorted.find((card) => card.suit !== trumpSuit) ?? sorted[0];
+  const rankCounts = new Map<DurakRank, number>();
+  for (const card of sorted) {
+    rankCounts.set(card.rank, (rankCounts.get(card.rank) || 0) + 1);
   }
 
-  return sorted[0];
+  if (difficulty === "pro") {
+    return sorted.find((card) => card.suit !== trumpSuit && (rankCounts.get(card.rank) || 0) > 1) ??
+      sorted.find((card) => (rankCounts.get(card.rank) || 0) > 1) ??
+      sorted.find((card) => card.suit !== trumpSuit) ??
+      sorted[0];
+  }
+
+  return sorted.find((card) => card.suit !== trumpSuit) ?? sorted[0];
 }
 
 export function pickBotDefenseCard(
@@ -219,6 +226,38 @@ export function pickBotDefenseCard(
     .sort((a, b) => a.value - b.value);
 
   return trumps[0] ?? null;
+}
+
+export function pickBotThrowInCard(params: {
+  hand: DurakCard[];
+  trumpSuit: DurakSuit;
+  ranksOnTable: Set<string>;
+  difficulty: DurakDifficulty;
+  maxValue?: number;
+}): DurakCard | null {
+  const candidates = sortDurakHand(
+    params.hand.filter((card) =>
+      params.ranksOnTable.has(card.rank) &&
+      (params.maxValue == null || card.value <= params.maxValue)
+    ),
+    params.trumpSuit,
+  );
+
+  if (!candidates.length) return null;
+
+  if (params.difficulty === "pro") {
+    return candidates.find((card) => card.suit !== params.trumpSuit && card.value >= 9) ??
+      candidates.find((card) => card.value >= 10) ??
+      candidates.find((card) => card.suit !== params.trumpSuit) ??
+      candidates[0];
+  }
+
+  if (params.difficulty === "regular") {
+    return candidates.find((card) => card.suit !== params.trumpSuit) ??
+      candidates[0];
+  }
+
+  return candidates[0];
 }
 
 export function removeDurakCard(hand: DurakCard[], cardId: string): {
