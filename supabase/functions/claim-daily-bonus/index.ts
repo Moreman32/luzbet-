@@ -14,7 +14,17 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const DAILY_BONUS_AMOUNT = 200;
+const VIP_DAILY_BONUS_LEVELS = [
+  { thresh: 2500000, amount: 900 },
+  { thresh: 1000000, amount: 700 },
+  { thresh: 500000, amount: 550 },
+  { thresh: 200000, amount: 450 },
+  { thresh: 80000, amount: 375 },
+  { thresh: 25000, amount: 300 },
+  { thresh: 7500, amount: 250 },
+  { thresh: 2000, amount: 225 },
+  { thresh: 0, amount: 200 },
+];
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders });
@@ -28,6 +38,10 @@ function sameUtcDay(a: string | null | undefined, b: Date) {
     d.getUTCMonth() === b.getUTCMonth() &&
     d.getUTCDate() === b.getUTCDate()
   );
+}
+
+function getDailyBonusAmount(spent: number) {
+  return (VIP_DAILY_BONUS_LEVELS.find((x) => spent >= x.thresh) || VIP_DAILY_BONUS_LEVELS[VIP_DAILY_BONUS_LEVELS.length - 1]).amount;
 }
 
 async function restoreCasinoRow(
@@ -100,8 +114,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const nextCoins = (Number(casinoRow?.coins || 1000) || 1000) + DAILY_BONUS_AMOUNT;
     const nextSpent = Number(casinoRow?.spent || 0) || 0;
+    const dailyBonusAmount = getDailyBonusAmount(nextSpent);
+    const nextCoins = (Number(casinoRow?.coins || 1000) || 1000) + dailyBonusAmount;
     const last_cashback = casinoRow?.last_cashback || null;
     const last_daily = now.toISOString();
 
@@ -121,9 +136,9 @@ Deno.serve(async (req) => {
       game: "system",
       event_type: "bonus",
       bet: 0,
-      payout: DAILY_BONUS_AMOUNT,
-      delta: DAILY_BONUS_AMOUNT,
-      meta: { source: "daily_bonus" },
+      payout: dailyBonusAmount,
+      delta: dailyBonusAmount,
+      meta: { source: "daily_bonus", vip_daily_bonus: dailyBonusAmount },
     });
 
     if (logError) {
@@ -133,7 +148,7 @@ Deno.serve(async (req) => {
 
     return json({
       ok: true,
-      amount: DAILY_BONUS_AMOUNT,
+      amount: dailyBonusAmount,
       last_daily,
       logged: true,
     });

@@ -18,16 +18,16 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const CASHBACK_DAILY_CAP = 300;
-
 const VIP_CASHBACK_LEVELS = [
-  { thresh: 75000, pct: 15 },
-  { thresh: 35000, pct: 12 },
-  { thresh: 15000, pct: 10 },
-  { thresh: 5000, pct: 7 },
-  { thresh: 2000, pct: 5 },
-  { thresh: 500, pct: 3 },
-  { thresh: 0, pct: 2 },
+  { thresh: 2500000, pct: 25, cap: 4500 },
+  { thresh: 1000000, pct: 22, cap: 3200 },
+  { thresh: 500000, pct: 18, cap: 2400 },
+  { thresh: 200000, pct: 15, cap: 1800 },
+  { thresh: 80000, pct: 12, cap: 1300 },
+  { thresh: 25000, pct: 9, cap: 900 },
+  { thresh: 7500, pct: 6, cap: 650 },
+  { thresh: 2000, pct: 4, cap: 450 },
+  { thresh: 0, pct: 2, cap: 300 },
 ];
 
 function json(body: unknown, status = 200) {
@@ -44,8 +44,8 @@ function sameUtcDay(a: string | null | undefined, b: Date) {
   );
 }
 
-function getCashbackPct(spent: number) {
-  return (VIP_CASHBACK_LEVELS.find((x) => spent >= x.thresh) || VIP_CASHBACK_LEVELS[VIP_CASHBACK_LEVELS.length - 1]).pct;
+function getCashbackLevel(spent: number) {
+  return VIP_CASHBACK_LEVELS.find((x) => spent >= x.thresh) || VIP_CASHBACK_LEVELS[VIP_CASHBACK_LEVELS.length - 1];
 }
 
 async function restoreCasinoRow(
@@ -136,8 +136,10 @@ Deno.serve(async (req) => {
       .reduce((sum, row) => sum + (Number(row.delta || 0) || 0), 0);
     const rawLoss = Math.max(0, -Math.round(net));
     const spent = Number(casinoRow?.spent || 0) || 0;
-    const cashbackPct = getCashbackPct(spent);
-    const amount = Math.min(CASHBACK_DAILY_CAP, Math.floor(rawLoss * cashbackPct / 100));
+    const cashbackLevel = getCashbackLevel(spent);
+    const cashbackPct = cashbackLevel.pct;
+    const cashbackCap = cashbackLevel.cap;
+    const amount = Math.min(cashbackCap, Math.floor(rawLoss * cashbackPct / 100));
 
     if (amount <= 0) {
       return json({
@@ -175,7 +177,7 @@ Deno.serve(async (req) => {
         source: "daily_cashback",
         cashback_percent: cashbackPct,
         based_on_loss: rawLoss,
-        capped_at: CASHBACK_DAILY_CAP,
+        capped_at: cashbackCap,
       },
     });
 

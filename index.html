@@ -1175,6 +1175,8 @@ try{
         <div id="profile-vip-wrap" style="background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:20px;text-align:center">
           <div style="font-size:11px;color:var(--muted);margin-bottom:6px">VIP СТАТУС</div>
           <div style="font-family:var(--os);font-size:20px;font-weight:700" id="profile-vip">—</div>
+          <div style="font-size:12px;color:var(--yellow);margin-top:6px;font-family:var(--os);letter-spacing:.6px" id="profile-vip-title">—</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px" id="profile-vip-perks">Перки появятся вместе со статусом.</div>
         </div>
         <div style="background:rgba(232,0,42,.06);border:1px solid rgba(232,0,42,.2);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.7">
           ⚠️ После выхода твой прогноз сохраняется.<br/>
@@ -1240,10 +1242,13 @@ try{
         <div class="coins-display">🪙 <span id="casino-coins">1000</span> ЛК</div>
         <div id="vip-badge" style="display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:8px 16px;font-family:var(--os);font-size:14px;font-weight:700;border:2px solid #555;color:#888">👤 НОВИЧОК</div>
       </div>
+      <div id="vip-title-line" style="font-family:var(--os);font-size:12px;color:var(--yellow);letter-spacing:1px;margin:0 auto 8px">Титул и бонусы обновляются по VIP-рангу</div>
       <div style="max-width:340px;margin:0 auto 10px">
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px"><span id="vip-label">До Бронзы</span><span id="vip-spent-label">0 / 500 ЛК потрачено</span></div>
         <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div id="vip-bar" style="height:100%;background:var(--yellow);border-radius:3px;transition:width .5s;width:0%"></div></div>
       </div>
+      <div id="vip-perks-line" style="max-width:520px;margin:0 auto 12px;font-size:11px;line-height:1.6;color:var(--muted)">VIP даёт кешбек, буст ежедневного бонуса, усиленное спасение банкрота и повышенный лимит возврата.</div>
+      <div id="vip-feature-chips" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;max-width:620px;margin:0 auto 14px"></div>
       <div class="cashback-panel">
         <div class="cashback-top">
           <div>
@@ -1355,7 +1360,7 @@ try{
       <span class="bankrupt-emoji">💀</span>
       <div class="bankrupt-title">БАНКРОТ</div>
       <div class="bankrupt-sub" id="bankrupt-tip">Поздравляем! Вы достигли дна.<br/>Ачивка «Банкрот» разблокирована. Это утешение.</div>
-      <button class="btn btn-yellow" onclick="resetCoins()">Получить 100 ЛК милостыни 🙏</button>
+      <button class="btn btn-yellow" id="bankrupt-reset-btn" onclick="resetCoins()">Получить VIP-милостыню 🙏</button>
     </div>
 
     <div id="casino-games" class="casino-games">
@@ -1861,7 +1866,7 @@ try{
     <div class="rules-block"><div class="rules-num">01</div><div class="rules-title">Участие</div><div class="rules-text">К участию допускаются все сотрудники с кодом. Один код — один прогноз. <b>Изменить нельзя.</b> Как ипотека.</div></div>
     <div class="rules-block"><div class="rules-num">02</div><div class="rules-title">Дедлайны</div><div class="rules-text">Ставки принимаются до начала первого матча группы. После — форма блокируется. Жалобы: <b>/dev/null</b>.</div></div>
     <div class="rules-block"><div class="rules-num">03</div><div class="rules-title">Очки</div><div class="rules-text"><b>+3</b> — команда вышла из группы. <b>0</b> — мимо исхода матча. <b>+1</b> — угадал исход. <b>+2</b> — угадал разницу мячей. <b>+3</b> — угадал исход и точный счёт. Всё логично, но всё равно проиграешь.</div></div>
-    <div class="rules-block"><div class="rules-num">04</div><div class="rules-title">Казино</div><div class="rules-text">Казино работает на <b>ЛузКоины</b> — виртуальная валюта без реальной стоимости. Стартовый баланс: 1000 ЛК. Пополнить нельзя. При банкротстве — 100 ЛК милостыни раз в сессию.</div></div>
+    <div class="rules-block"><div class="rules-num">04</div><div class="rules-title">Казино</div><div class="rules-text">Казино работает на <b>ЛузКоины</b> — виртуальная валюта без реальной стоимости. Стартовый баланс: 1000 ЛК. Пополнить нельзя. При банкротстве выдаётся VIP-милостыня: чем выше статус, тем сильнее спасательный круг.</div></div>
     <div class="rules-block"><div class="rules-num">05</div><div class="rules-title">Достижения</div><div class="rules-text">Ачивки разблокируются автоматически по действиям. <b>Некоторые постыдны.</b> Все видны в рейтинге. Скрыть нельзя.</div></div>
     <div class="rules-block"><div class="rules-num">06</div><div class="rules-title">Призы</div><div class="rules-text">Победитель получает уважение (временное) и что-то материальное по усмотрению организатора. Последние места получают ачивки «Дно» и сочувствие.</div></div>
     <div class="rules-block"><div class="rules-num">07</div><div class="rules-title">Форс-мажор</div><div class="rules-text">Отмена матча, перенос, ретроградный Меркурий — организатор решает сам. ЛузБет не отвечает за FIFA, погоду и экзистенциальный кризис.</div></div>
@@ -2854,9 +2859,9 @@ function unlockAch(id, opts={}){
 
 function refreshVipAchievements(){
   const vip = getVipForSpent(totalSpent);
-  if(vip.thresh >= 500) unlockAch('vip_bronze', { silent:true });
-  if(vip.thresh >= 5000) unlockAch('vip_gold', { silent:true });
-  if(vip.thresh >= 15000) unlockAch('vip_legend', { silent:true });
+  if(vip.thresh >= 2000) unlockAch('vip_bronze', { silent:true });
+  if(vip.thresh >= 25000) unlockAch('vip_gold', { silent:true });
+  if(vip.thresh >= 80000) unlockAch('vip_legend', { silent:true });
 }
 
 function refreshEconomyAchievements(){
@@ -2905,7 +2910,6 @@ let casinoStatsReloadTimer = null;
 let casinoStatsLastLoadedCode = '';
 let casinoStatsCache = emptyCasinoStats();
 let casinoCashbackStatsCache = emptyCasinoStats();
-const CASHBACK_DAILY_CAP = 300;
 
 function getTodayKey(){
   const now = new Date();
@@ -2930,14 +2934,43 @@ function getVipCashbackPct(spent=totalSpent){
   return Number(level.cashback_pct || 0);
 }
 
+function getVipCashbackCap(spent=totalSpent){
+  const level = getVipForSpent(spent);
+  return Number(level.cashback_cap || 300);
+}
+
+function getVipDailyBonusAmount(spent=totalSpent){
+  const level = getVipForSpent(spent);
+  return Number(level.daily_bonus || 200);
+}
+
+function getVipBankruptRescueAmount(spent=totalSpent){
+  const level = getVipForSpent(spent);
+  return Number(level.bankrupt_rescue || 100);
+}
+
+function getVipTitle(level=getVip()){
+  return level.vip_title || 'Стажёр по надеждам';
+}
+
+function getVipFeatureList(level=getVip()){
+  return [
+    `♻️ ${level.cashback_pct}% кешбек`,
+    `🎁 ${level.daily_bonus} ЛК daily`,
+    `🛟 ${level.bankrupt_rescue || 100} ЛК спасение`,
+    `🧱 Лимит ${level.cashback_cap} ЛК`,
+  ];
+}
+
 function getCashbackState(stats=casinoCashbackStatsCache){
   const sum = stats && stats.summary ? stats.summary : emptyCasinoStats().summary;
   const today = getTodayKey();
   const rawLoss = Math.max(0, -Math.round(Number(sum.net_sum || 0)));
   const pct = getVipCashbackPct();
-  const available = Math.min(CASHBACK_DAILY_CAP, Math.floor(rawLoss * pct / 100));
+  const cap = getVipCashbackCap();
+  const available = Math.min(cap, Math.floor(rawLoss * pct / 100));
   const claimed = dayKeyFromTimestamp(casinoServerState.last_cashback) === today;
-  return { rawLoss, pct, available, claimed, today };
+  return { rawLoss, pct, cap, available, claimed, today };
 }
 
 function updateCashbackUI(stats=casinoCashbackStatsCache){
@@ -2952,13 +2985,13 @@ function updateCashbackUI(stats=casinoCashbackStatsCache){
   amountEl.textContent = formatCoins(state.available);
   pctEl.textContent = `${state.pct.toFixed(1)}%`;
   lossEl.textContent = formatCoins(state.rawLoss);
-  limitEl.textContent = formatCoins(CASHBACK_DAILY_CAP);
+  limitEl.textContent = formatCoins(state.cap);
   btn.disabled = !S.code || state.claimed || state.available <= 0;
   if(!S.code) note.textContent = 'Кешбек доступен только после входа.';
   else if(state.claimed) note.textContent = 'Сегодня уже забрал. Возвращайся завтра за новой компенсацией страданий.';
   else if(state.rawLoss <= 0) note.textContent = 'Сегодня минуса нет. Красавчик, но кешбек тогда не положен.';
   else if(state.available <= 0) note.textContent = 'Минус слишком маленький, кешбек пока округляется в ноль.';
-  else note.textContent = `Сегодня можешь вернуть ${formatCoins(state.available)} из минуса ${formatCoins(state.rawLoss)} по VIP ставке ${state.pct.toFixed(1)}%.`;
+  else note.textContent = `Сегодня можешь вернуть ${formatCoins(state.available)} из минуса ${formatCoins(state.rawLoss)} по VIP ставке ${state.pct.toFixed(1)}% с лимитом ${formatCoins(state.cap)}.`;
 }
 
 function emptyCasinoStats(){
@@ -3196,7 +3229,7 @@ async function claimCasinoCashback(){
         vip: getVip().name,
         cashback_percent: state.pct,
         based_on_loss: state.rawLoss,
-        capped_at: CASHBACK_DAILY_CAP,
+        capped_at: state.cap,
       }
     }).catch(()=>{});
   } else {
@@ -3419,6 +3452,8 @@ function updateProfilePage(){
   if(el('profile-ach-count')) el('profile-ach-count').textContent=unlockedAch.size;
   const v=getVip();
   if(el('profile-vip')){el('profile-vip').textContent=v.name;el('profile-vip').style.color=v.tc;}
+  if(el('profile-vip-title')) el('profile-vip-title').textContent=getVipTitle(v);
+  if(el('profile-vip-perks')) el('profile-vip-perks').textContent=`Кешбек ${v.cashback_pct}% • ежедневный бонус ${v.daily_bonus} ЛК • спасение ${v.bankrupt_rescue || 100} ЛК • лимит возврата ${v.cashback_cap} ЛК. ${v.perk}`;
 }
 
 function showPage(id){
@@ -4820,20 +4855,30 @@ function onPartialReturn(amount=0){
   soundTick();
 }
 function onLose(){winStreak=0;soundLose();}
-function resetCoins(){coins=100;addEarnedTotal(100);saveCoins();toast('🙏 Получил 100 ЛК милостыни. Не трать сразу.','ok');showBankruptTip();logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:100, delta:100, meta:{ source:'bankrupt_reset' } }).catch(()=>{});}
+function resetCoins(){
+  const amount=getVipBankruptRescueAmount();
+  coins=amount;
+  addEarnedTotal(amount);
+  saveCoins();
+  toast(`🙏 Получил ${amount} ЛК милостыни. Не трать сразу.`,'ok');
+  showBankruptTip();
+  logCasinoEvent({ game:'system', event_type:'bonus', bet:0, payout:amount, delta:amount, meta:{ source:'bankrupt_reset', vip:getVip().name } }).catch(()=>{});
+}
 
 // ══════════════════════════════════════════════
 //  VIP SYSTEM
 // ══════════════════════════════════════════════
 let totalSpent = parseInt(LS.get('luzbet_spent','0'));
 const VIP_LEVELS=[
-  {name:'НОВИЧОК',thresh:0,color:'#555',tc:'#888',next:500,cashback_pct:2},
-  {name:'🥉 БРОНЗА',thresh:500,color:'#cd7f32',tc:'#cd7f32',next:2000,cashback_pct:3},
-  {name:'🥈 СЕРЕБРО',thresh:2000,color:'silver',tc:'silver',next:5000,cashback_pct:5},
-  {name:'🥇 ЗОЛОТО',thresh:5000,color:'#ffd700',tc:'#ffd700',next:15000,cashback_pct:7},
-  {name:'💎 ЛЕГЕНДА',thresh:15000,color:'#00d084',tc:'#00ffb3',next:35000,cashback_pct:10},
-  {name:'👑 МИФИК',thresh:35000,color:'#8e44ad',tc:'#d6a2ff',next:75000,cashback_pct:12},
-  {name:'🔥 ИМПЕРАТОР',thresh:75000,color:'#ff6b35',tc:'#ffd1b8',next:null,cashback_pct:15},
+  {name:'НОВИЧОК',thresh:0,color:'#555',tc:'#888',next:2000,cashback_pct:2,daily_bonus:200,cashback_cap:300,bankrupt_rescue:100,vip_title:'Стажёр по надеждам',perk:'База: стандартный бонус и минимальный кешбек.'},
+  {name:'🥉 БРОНЗА',thresh:2000,color:'#cd7f32',tc:'#cd7f32',next:7500,cashback_pct:4,daily_bonus:225,cashback_cap:450,bankrupt_rescue:125,vip_title:'Бронзовый выживший',perk:'Чуть больше ежедневки и кешбек уже заметный.'},
+  {name:'🥈 СЕРЕБРО',thresh:7500,color:'silver',tc:'silver',next:25000,cashback_pct:6,daily_bonus:250,cashback_cap:650,bankrupt_rescue:150,vip_title:'Серебряный катала',perk:'Стабильный бонус, нормальный возврат плохого дня.'},
+  {name:'🥇 ЗОЛОТО',thresh:25000,color:'#ffd700',tc:'#ffd700',next:80000,cashback_pct:9,daily_bonus:300,cashback_cap:900,bankrupt_rescue:200,vip_title:'Золотой шторм',perk:'Здесь кешбек уже реально помогает пережить тильт.'},
+  {name:'💎 ЛЕГЕНДА',thresh:80000,color:'#00d084',tc:'#00ffb3',next:200000,cashback_pct:12,daily_bonus:375,cashback_cap:1300,bankrupt_rescue:275,vip_title:'Легенда кассы',perk:'Крупный дневной бонус и жирный лимит возврата.'},
+  {name:'👑 МИФИК',thresh:200000,color:'#8e44ad',tc:'#d6a2ff',next:500000,cashback_pct:15,daily_bonus:450,cashback_cap:1800,bankrupt_rescue:350,vip_title:'Мифический хайроллер',perk:'Очень мощный кешбек для серьёзных оборотов.'},
+  {name:'🔥 ИМПЕРАТОР',thresh:500000,color:'#ff6b35',tc:'#ffd1b8',next:1000000,cashback_pct:18,daily_bonus:550,cashback_cap:2400,bankrupt_rescue:450,vip_title:'Император стриков',perk:'Касса уже знает тебя по имени и боится по-своему.'},
+  {name:'🪐 TITAN',thresh:1000000,color:'#4fc3f7',tc:'#bfeeff',next:2500000,cashback_pct:22,daily_bonus:700,cashback_cap:3200,bankrupt_rescue:600,vip_title:'Титан оборота',perk:'Потолок для тех, кто слишком долго не выходит из казино.'},
+  {name:'☄️ OMEGA',thresh:2500000,color:'#ff4d94',tc:'#ffd0e4',next:null,cashback_pct:25,daily_bonus:900,cashback_cap:4500,bankrupt_rescue:850,vip_title:'Омега без тормозов',perk:'Финальный статус. Дальше только легенды и психотерапия.'},
 ];
 function getVipForSpent(spent=0){
   const spentNum=Math.max(0, parseInt(spent,10) || 0);
@@ -4842,9 +4887,19 @@ function getVipForSpent(spent=0){
 function getVip(){return getVipForSpent(totalSpent);}
 function updateVip(){
   const v=getVip(),badge=document.getElementById('vip-badge');
+  const perksLine=document.getElementById('vip-perks-line');
+  const titleLine=document.getElementById('vip-title-line');
+  const featureChips=document.getElementById('vip-feature-chips');
+  const bankruptBtn=document.getElementById('bankrupt-reset-btn');
   refreshEconomyAchievements();
   if(!badge)return;
   badge.textContent=v.name;badge.style.borderColor=v.color;badge.style.color=v.tc;
+  if(perksLine) perksLine.textContent=`Перки: кешбек ${v.cashback_pct}% • ежедневный бонус ${v.daily_bonus} ЛК • спасение ${v.bankrupt_rescue || 100} ЛК • лимит кешбека ${v.cashback_cap} ЛК. ${v.perk}`;
+  if(titleLine) titleLine.textContent=`Титул: ${getVipTitle(v)}`;
+  if(featureChips){
+    featureChips.innerHTML = getVipFeatureList(v).map(item=>`<span style="padding:7px 12px;border-radius:999px;border:1px solid ${v.color};background:rgba(255,255,255,.03);font-size:11px;color:${v.tc};font-family:var(--os);letter-spacing:.4px">${item}</span>`).join('');
+  }
+  if(bankruptBtn) bankruptBtn.textContent=`Получить ${v.bankrupt_rescue || 100} ЛК милостыни 🙏`;
   const next=VIP_LEVELS.find(x=>x.thresh>totalSpent);
   if(next){
     const prev=VIP_LEVELS[VIP_LEVELS.indexOf(next)-1];
@@ -4868,8 +4923,9 @@ function checkDaily(){
   const lastRaw=casinoServerState.last_daily || '';
   const lastTs=lastRaw ? new Date(lastRaw).getTime() : 0;
   const now=Date.now(),diff=now-lastTs,btn=document.getElementById('daily-btn'),timer=document.getElementById('daily-timer');
+  const amount = getVipDailyBonusAmount();
   if(!btn)return;
-  if(!lastTs || diff>=86400000){btn.disabled=false;btn.textContent='🎁 Ежедневный бонус +200 ЛК';if(timer)timer.style.display='none';}
+  if(!lastTs || diff>=86400000){btn.disabled=false;btn.textContent=`🎁 Ежедневный бонус +${amount} ЛК`;if(timer)timer.style.display='none';}
   else{btn.disabled=true;btn.textContent='🎁 Бонус получен';const left=86400000-diff;const h=Math.floor(left/3600000),m=Math.floor((left%3600000)/60000);if(timer){timer.style.display='block';timer.textContent='Следующий бонус через '+h+'ч '+m+'м';}}
 }
 async function claimDaily(){
