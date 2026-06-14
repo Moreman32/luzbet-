@@ -718,8 +718,10 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   top:50%;
   transform:translate(-50%,-50%) scale(.96);
   width:min(760px,92vw);
-  max-height:min(78vh,720px);
+  max-height:min(90vh,720px);
   overflow:hidden;
+  display:flex;
+  flex-direction:column;
   background:
     radial-gradient(circle at top,rgba(255,240,120,.2),transparent 34%),
     linear-gradient(180deg,#3a0505,#220909 48%,#14070f 100%);
@@ -853,8 +855,10 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-rewards-list{
   padding:14px 16px 10px;
-  max-height:calc(78vh - 182px);
+  flex:1 1 auto;
+  min-height:0;
   overflow:auto;
+  -webkit-overflow-scrolling:touch;
 }
 .match-reward-row{
   background:rgba(255,255,255,.055);
@@ -911,6 +915,10 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   padding:14px 16px 18px;
   border-top:1px solid rgba(255,255,255,.1);
   background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.07));
+  flex:0 0 auto;
+  position:sticky;
+  bottom:0;
+  z-index:2;
 }
 .match-rewards-lock{
   font-family:var(--os);
@@ -2689,6 +2697,13 @@ async function showMatchRewardsPopup(rows){
   if(backdrop) backdrop.classList.add('show');
   document.body.classList.add('match-rewards-locked');
   matchRewardsPopupActive=true;
+
+  // На небольших экранах список наград мог съедать нижнюю кнопку.
+  // Сбрасываем скролл списка и футера, чтобы кнопка закрытия всегда была доступна.
+  try {
+    list.scrollTop = 0;
+    popup.scrollTop = 0;
+  } catch(e) {}
 
   if(matchRewardsPopupTimer) clearTimeout(matchRewardsPopupTimer);
   updateMatchRewardsLockUI();
