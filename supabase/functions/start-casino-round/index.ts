@@ -15,6 +15,26 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 });
 
 const MIN_ROUND_INTERVAL_MS = 1000;
+const GAME_BET_LIMITS: Record<string, number> = {
+  slots: 3000,
+  blackjack: 3000,
+  wheel: 2000,
+  keno: 1000,
+  scratch: 1000,
+  rps: 1000,
+  penalty: 1500,
+  offside: 1500,
+  var_challenge: 1500,
+  dice: 2000,
+  crash: 3000,
+  higher_lower: 2000,
+  horse: 2000,
+  plinko: 3000,
+  mines: 3000,
+  tower: 3000,
+  coinflip: 1,
+  durak: 500,
+};
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders });
@@ -51,7 +71,6 @@ Deno.serve(async (req) => {
     if (!code) return json({ ok: false, error: "code is required" }, 400);
     if (!round_id) return json({ ok: false, error: "round_id is required" }, 400);
     if (!game) return json({ ok: false, error: "game is required" }, 400);
-    if (bet <= 0 || bet > 500) return json({ ok: false, error: "bad bet" }, 400);
 
     const allowedGames = new Set([
       "slots",
@@ -76,6 +95,10 @@ Deno.serve(async (req) => {
 
     if (!allowedGames.has(game)) {
       return json({ ok: false, error: "unknown casino game" }, 400);
+    }
+    const maxBet = GAME_BET_LIMITS[game] ?? 500;
+    if (bet <= 0 || bet > maxBet) {
+      return json({ ok: false, error: "bad bet", max_bet: maxBet }, 400);
     }
 
     const { data: participant, error: participantError } = await sb
