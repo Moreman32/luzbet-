@@ -22,6 +22,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 });
 
 const MIN_ROUND_INTERVAL_MS = 1000;
+const DURAK_MAX_BET = 3000;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders });
@@ -58,7 +59,7 @@ Deno.serve(async (req) => {
     if (!code) return json({ ok: false, error: "code is required" }, 400);
     if (!round_id) return json({ ok: false, error: "round_id is required" }, 400);
     if (!game_id) return json({ ok: false, error: "game_id is required" }, 400);
-    if (bet <= 0 || bet > 500) return json({ ok: false, error: "bad bet" }, 400);
+    if (bet <= 0 || bet > DURAK_MAX_BET) return json({ ok: false, error: "bad bet", max_bet: DURAK_MAX_BET }, 400);
     if (!isDurakDifficulty(difficulty)) {
       return json({ ok: false, error: "bad difficulty" }, 400);
     }
