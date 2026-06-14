@@ -3027,8 +3027,8 @@ function getVipShortName(level){
 }
 
 function getClosestAllowedBet(game, requested){
-  const options=(CASINO_BET_OPTIONS[game] || []).slice().sort((a,b)=>a-b);
   const cap=getVipBetCap(totalSpent, game);
+  const options=[...(CASINO_BET_OPTIONS[game] || []), cap].filter((v,i,arr)=>arr.indexOf(v)===i).sort((a,b)=>a-b);
   const allowed=options.filter(v=>v<=cap);
   if(allowed.length){
     const numeric=parseInt(requested,10)||allowed[0];
