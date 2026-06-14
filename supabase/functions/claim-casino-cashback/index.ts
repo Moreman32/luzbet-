@@ -19,8 +19,10 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 });
 
 const VIP_CASHBACK_LEVELS = [
-  { thresh: 2500000, pct: 25, cap: 4500 },
-  { thresh: 1000000, pct: 22, cap: 3200 },
+  { thresh: 10000000, pct: 30, cap: 8000 },
+  { thresh: 5000000, pct: 27, cap: 6000 },
+  { thresh: 2500000, pct: 24, cap: 4500 },
+  { thresh: 1000000, pct: 21, cap: 3200 },
   { thresh: 500000, pct: 18, cap: 2400 },
   { thresh: 200000, pct: 15, cap: 1800 },
   { thresh: 80000, pct: 12, cap: 1300 },

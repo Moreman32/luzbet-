@@ -15,6 +15,8 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 });
 
 const VIP_DAILY_BONUS_LEVELS = [
+  { thresh: 10000000, amount: 1400 },
+  { thresh: 5000000, amount: 1150 },
   { thresh: 2500000, amount: 900 },
   { thresh: 1000000, amount: 700 },
   { thresh: 500000, amount: 550 },

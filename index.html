@@ -354,7 +354,10 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .slot-bet-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .bet-chip{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-family:var(--os);font-size:13px;cursor:pointer;color:var(--muted);transition:all .15s}
 .bet-chip.active{background:var(--yellow);color:#000;border-color:var(--yellow)}
+.bet-chip.locked{opacity:.38;filter:grayscale(1);cursor:not-allowed;border-style:dashed}
+.bet-chip.vip-generated{border-color:rgba(255,230,0,.45);box-shadow:0 0 0 1px rgba(255,230,0,.08) inset}
 .bet-chip-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 10px}
+.vip-rank-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid currentColor;font-family:var(--os);font-size:10px;letter-spacing:.5px;line-height:1}
 .slot-result-text{min-height:28px;font-family:var(--os);font-size:16px;color:var(--yellow);margin-bottom:8px}
 
 
@@ -1244,7 +1247,7 @@ try{
       </div>
       <div id="vip-title-line" style="font-family:var(--os);font-size:12px;color:var(--yellow);letter-spacing:1px;margin:0 auto 8px">Титул и бонусы обновляются по VIP-рангу</div>
       <div style="max-width:340px;margin:0 auto 10px">
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px"><span id="vip-label">До Бронзы</span><span id="vip-spent-label">0 / 500 ЛК потрачено</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px"><span id="vip-label">До Бронзы</span><span id="vip-spent-label">0 / 2000 ЛК потрачено</span></div>
         <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div id="vip-bar" style="height:100%;background:var(--yellow);border-radius:3px;transition:width .5s;width:0%"></div></div>
       </div>
       <div id="vip-perks-line" style="max-width:520px;margin:0 auto 12px;font-size:11px;line-height:1.6;color:var(--muted)">VIP даёт кешбек, буст ежедневного бонуса, усиленное спасение банкрота и повышенный лимит возврата.</div>
@@ -2238,6 +2241,44 @@ const CASINO_BET_DEFAULTS={
   offside:20,
   var_challenge:25,
 };
+const CASINO_BET_OPTIONS={
+  durak:[25,50,100,150,250],
+  slots:[10,25,50,100,150,250,500],
+  blackjack:[10,25,50,100,150,250,500],
+  wheel:[30,50,100,150],
+  dice:[20,50,100,150],
+  crash:[10,25,50,100,150,250,500],
+  higher_lower:[15,25,50,100],
+  horse:[30,50,100,150],
+  plinko:[10,25,50,100,150,250,500],
+  mines:[10,25,50,100,150,250,500],
+  tower:[10,25,50,100,150,250,500],
+  keno:[20,50,100],
+  scratch:[25,50,100],
+  rps:[15,25,50,100],
+  penalty:[25,50,100,150],
+  offside:[20,50,100,150],
+  var_challenge:[25,50,100,150],
+};
+const CASINO_BET_HARD_CAPS={
+  durak:500,
+  keno:1000,
+  scratch:1000,
+  rps:1000,
+  penalty:1500,
+  offside:1500,
+  var_challenge:1500,
+  wheel:2000,
+  dice:2000,
+  higher_lower:2000,
+  horse:2000,
+  slots:3000,
+  blackjack:3000,
+  crash:3000,
+  plinko:3000,
+  mines:3000,
+  tower:3000,
+};
 const casinoBetState={...CASINO_BET_DEFAULTS};
 let loginStartTime=0;
 let tabsVisited=new Set();
@@ -2959,7 +3000,72 @@ function getVipFeatureList(level=getVip()){
     `🎁 ${level.daily_bonus} ЛК daily`,
     `🛟 ${level.bankrupt_rescue || 100} ЛК спасение`,
     `🧱 Лимит ${level.cashback_cap} ЛК`,
+    `🎯 VIP-ставка до ${level.bet_cap || 250} ЛК`,
   ];
+}
+
+function getVipBetCap(spent=totalSpent, game=''){
+  const level=getVipForSpent(spent);
+  const vipCap=Number(level.bet_cap || 250);
+  const hardCap=Number(CASINO_BET_HARD_CAPS[game] || vipCap);
+  return Math.max(1, Math.min(vipCap, hardCap));
+}
+
+function getClosestAllowedBet(game, requested){
+  const options=(CASINO_BET_OPTIONS[game] || []).slice().sort((a,b)=>a-b);
+  const cap=getVipBetCap(totalSpent, game);
+  const allowed=options.filter(v=>v<=cap);
+  if(allowed.length){
+    const numeric=parseInt(requested,10)||allowed[0];
+    return allowed.reduce((best,val)=>Math.abs(val-numeric)<Math.abs(best-numeric)?val:best, allowed[0]);
+  }
+  return Math.max(1, Math.min(parseInt(requested,10)||1, cap));
+}
+
+function refreshCasinoBetControls(){
+  Object.keys(CASINO_BET_OPTIONS).forEach(game=>{
+    const cap=getVipBetCap(totalSpent, game);
+    const selector=`.bet-chip[onclick*="selectCasinoBet('${game}'"]`;
+    const chips=Array.from(document.querySelectorAll(selector));
+    const row=chips[0]?.parentElement || null;
+    chips.forEach(chip=>{
+      const value=parseInt(chip.textContent,10)||0;
+      const locked=value>cap;
+      chip.classList.toggle('locked', locked);
+      chip.style.pointerEvents=locked?'none':'';
+      chip.title=locked ? `Откроется на более высоком VIP. Твой лимит: ${cap} ЛК.` : '';
+    });
+    if(row){
+      row.querySelectorAll(`.bet-chip.vip-generated[data-game="${game}"]`).forEach(el=>el.remove());
+      const baseOptions=CASINO_BET_OPTIONS[game] || [];
+      const maxBase=baseOptions.length ? Math.max(...baseOptions) : 0;
+      if(cap>maxBase){
+        const extra=document.createElement('div');
+        extra.className='bet-chip vip-generated';
+        extra.dataset.game=game;
+        extra.textContent=String(cap);
+        extra.title=`VIP-ставка ${cap} ЛК`;
+        extra.onclick=function(){selectCasinoBet(game, cap, extra);};
+        row.appendChild(extra);
+      }
+    }
+    const nextBet=getClosestAllowedBet(game, casinoBetState[game]);
+    casinoBetState[game]=nextBet;
+    if(game==='slots') slotBet=nextBet;
+    if(game==='plinko') plinkoBet=nextBet;
+    const chipList=row ? Array.from(row.querySelectorAll('.bet-chip')) : [];
+    chipList.forEach(chip=>{
+      const value=parseInt(chip.textContent,10)||0;
+      chip.classList.toggle('active', value===nextBet);
+    });
+    updateCasinoBetLabel(game);
+  });
+}
+
+function formatVipBadge(spent){
+  const vip=getVipForSpent(spent);
+  const label=vip.thresh>0 ? vip.name : '👤 НОВИЧОК';
+  return `<span class="vip-rank-chip" style="color:${vip.tc};border-color:${vip.color}">${escapeHtml(label)}</span>`;
 }
 
 function getCashbackState(stats=casinoCashbackStatsCache){
@@ -3453,7 +3559,7 @@ function updateProfilePage(){
   const v=getVip();
   if(el('profile-vip')){el('profile-vip').textContent=v.name;el('profile-vip').style.color=v.tc;}
   if(el('profile-vip-title')) el('profile-vip-title').textContent=getVipTitle(v);
-  if(el('profile-vip-perks')) el('profile-vip-perks').textContent=`Кешбек ${v.cashback_pct}% • ежедневный бонус ${v.daily_bonus} ЛК • спасение ${v.bankrupt_rescue || 100} ЛК • лимит возврата ${v.cashback_cap} ЛК. ${v.perk}`;
+  if(el('profile-vip-perks')) el('profile-vip-perks').textContent=`Кешбек ${v.cashback_pct}% • ежедневный бонус ${v.daily_bonus} ЛК • спасение ${v.bankrupt_rescue || 100} ЛК • лимит возврата ${v.cashback_cap} ЛК • VIP-ставка до ${v.bet_cap || 250} ЛК. ${v.perk}`;
 }
 
 function showPage(id){
@@ -4141,6 +4247,12 @@ function renderLB(lb,results){
   window._lastResults=results;
   // Обновляем кэш если данные новее
   if(_lbCache && lb) _lbCache.lb=lb;
+  const spentMap={};
+  if(_lbCache && Array.isArray(_lbCache.casinoRows)){
+    _lbCache.casinoRows.forEach(row=>{
+      if(row && row.code) spentMap[String(row.code).toLowerCase()]=parseInt(row.spent,10)||0;
+    });
+  }
   const grpDone=Object.values(results).filter(v=>(v.teams && v.teams.length)>0).length;
   const funTitle=n=>FUN_TITLES[Math.abs(n.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%FUN_TITLES.length];
   const comment=(i,n)=>{const arr=i===0?LB_COMMENTS.first:i>=n-1?LB_COMMENTS.last:LB_COMMENTS.mid;return arr[Math.abs(i*7+n)%arr.length];};
@@ -4150,7 +4262,9 @@ function renderLB(lb,results){
   html+=`<div class="lb-list">`;
   lb.forEach((p,i)=>{
     const safeName = escapeHtml(p.name);
-    html+=`<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${safeName}</div><div class="lb-fun">${escapeHtml(funTitle(p.name))}</div><div class="lb-comment">${escapeHtml(comment(i,lb.length))}</div></div><div class="lb-right"><div class="lb-pts">${p.total}</div><div class="lb-pts-label">очков</div>${grpDone?`<div class="lb-breakdown">⚽${p.teamPts} 🎯${p.outPts} ↔️${p.diffPts||0} 💥${p.scPts}</div>`:''}</div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div class="detail-grid">`;
+    const spent=(spentMap[String(p.code||'').toLowerCase()] ?? (parseInt(p.spent,10) || 0));
+    const vipBadge=formatVipBadge(spent);
+    html+=`<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${safeName} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div><div class="lb-fun">${escapeHtml(funTitle(p.name))}</div><div class="lb-comment">${escapeHtml(comment(i,lb.length))}</div></div><div class="lb-right"><div class="lb-pts">${p.total}</div><div class="lb-pts-label">очков</div>${grpDone?`<div class="lb-breakdown">⚽${p.teamPts} 🎯${p.outPts} ↔️${p.diffPts||0} 💥${p.scPts}</div>`:''}</div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${vipBadge}<span style="font-size:11px;color:var(--muted)">Потрачено в казино: ${spent.toLocaleString('ru-RU')} ЛК</span></div><div class="detail-grid">`;
     for(const[g,d]of Object.entries(p.detail)){
       if(!d.predicted.length)continue;
       // Считаем очки для этой группы
@@ -4212,7 +4326,7 @@ function selectBet(val,el){
 }
 
 function getCasinoBet(game){
-  return Math.max(1, parseInt(casinoBetState[game] ?? CASINO_BET_DEFAULTS[game] ?? 10, 10) || 10);
+  return getClosestAllowedBet(game, casinoBetState[game] ?? CASINO_BET_DEFAULTS[game] ?? 10);
 }
 
 function updateCasinoBetLabel(game){
@@ -4221,12 +4335,18 @@ function updateCasinoBetLabel(game){
 }
 
 function selectCasinoBet(game,val,el){
-  casinoBetState[game]=parseInt(val,10)||CASINO_BET_DEFAULTS[game]||10;
+  const requested=parseInt(val,10)||CASINO_BET_DEFAULTS[game]||10;
+  const cap=getVipBetCap(totalSpent, game);
+  if(requested>cap){
+    toast(`🔒 Для ${game==='durak'?'дурака':'этой игры'} твой VIP-лимит сейчас ${cap} ЛК.`,'info',3200);
+  }
+  casinoBetState[game]=getClosestAllowedBet(game, requested);
   if(game==='slots') slotBet=casinoBetState[game];
   if(game==='plinko') plinkoBet=casinoBetState[game];
   if(el && el.parentElement){
     el.parentElement.querySelectorAll('.bet-chip').forEach(c=>c.classList.remove('active'));
-    el.classList.add('active');
+    const activeTarget=Array.from(el.parentElement.querySelectorAll('.bet-chip')).find(chip=>(parseInt(chip.textContent,10)||0)===casinoBetState[game]);
+    if(activeTarget) activeTarget.classList.add('active');
   }
   updateCasinoBetLabel(game);
 }
@@ -4870,15 +4990,17 @@ function resetCoins(){
 // ══════════════════════════════════════════════
 let totalSpent = parseInt(LS.get('luzbet_spent','0'));
 const VIP_LEVELS=[
-  {name:'НОВИЧОК',thresh:0,color:'#555',tc:'#888',next:2000,cashback_pct:2,daily_bonus:200,cashback_cap:300,bankrupt_rescue:100,vip_title:'Стажёр по надеждам',perk:'База: стандартный бонус и минимальный кешбек.'},
-  {name:'🥉 БРОНЗА',thresh:2000,color:'#cd7f32',tc:'#cd7f32',next:7500,cashback_pct:4,daily_bonus:225,cashback_cap:450,bankrupt_rescue:125,vip_title:'Бронзовый выживший',perk:'Чуть больше ежедневки и кешбек уже заметный.'},
-  {name:'🥈 СЕРЕБРО',thresh:7500,color:'silver',tc:'silver',next:25000,cashback_pct:6,daily_bonus:250,cashback_cap:650,bankrupt_rescue:150,vip_title:'Серебряный катала',perk:'Стабильный бонус, нормальный возврат плохого дня.'},
-  {name:'🥇 ЗОЛОТО',thresh:25000,color:'#ffd700',tc:'#ffd700',next:80000,cashback_pct:9,daily_bonus:300,cashback_cap:900,bankrupt_rescue:200,vip_title:'Золотой шторм',perk:'Здесь кешбек уже реально помогает пережить тильт.'},
-  {name:'💎 ЛЕГЕНДА',thresh:80000,color:'#00d084',tc:'#00ffb3',next:200000,cashback_pct:12,daily_bonus:375,cashback_cap:1300,bankrupt_rescue:275,vip_title:'Легенда кассы',perk:'Крупный дневной бонус и жирный лимит возврата.'},
-  {name:'👑 МИФИК',thresh:200000,color:'#8e44ad',tc:'#d6a2ff',next:500000,cashback_pct:15,daily_bonus:450,cashback_cap:1800,bankrupt_rescue:350,vip_title:'Мифический хайроллер',perk:'Очень мощный кешбек для серьёзных оборотов.'},
-  {name:'🔥 ИМПЕРАТОР',thresh:500000,color:'#ff6b35',tc:'#ffd1b8',next:1000000,cashback_pct:18,daily_bonus:550,cashback_cap:2400,bankrupt_rescue:450,vip_title:'Император стриков',perk:'Касса уже знает тебя по имени и боится по-своему.'},
-  {name:'🪐 TITAN',thresh:1000000,color:'#4fc3f7',tc:'#bfeeff',next:2500000,cashback_pct:22,daily_bonus:700,cashback_cap:3200,bankrupt_rescue:600,vip_title:'Титан оборота',perk:'Потолок для тех, кто слишком долго не выходит из казино.'},
-  {name:'☄️ OMEGA',thresh:2500000,color:'#ff4d94',tc:'#ffd0e4',next:null,cashback_pct:25,daily_bonus:900,cashback_cap:4500,bankrupt_rescue:850,vip_title:'Омега без тормозов',perk:'Финальный статус. Дальше только легенды и психотерапия.'},
+  {name:'НОВИЧОК',thresh:0,color:'#555',tc:'#888',next:2000,cashback_pct:2,daily_bonus:200,cashback_cap:300,bankrupt_rescue:100,bet_cap:250,vip_title:'Стажёр по надеждам',perk:'База: стандартный бонус и минимальный кешбек.'},
+  {name:'🥉 БРОНЗА',thresh:2000,color:'#cd7f32',tc:'#cd7f32',next:7500,cashback_pct:4,daily_bonus:225,cashback_cap:450,bankrupt_rescue:125,bet_cap:350,vip_title:'Бронзовый выживший',perk:'Чуть больше ежедневки и кешбек уже заметный.'},
+  {name:'🥈 СЕРЕБРО',thresh:7500,color:'silver',tc:'silver',next:25000,cashback_pct:6,daily_bonus:250,cashback_cap:650,bankrupt_rescue:150,bet_cap:500,vip_title:'Серебряный катала',perk:'Стабильный бонус, нормальный возврат плохого дня.'},
+  {name:'🥇 ЗОЛОТО',thresh:25000,color:'#ffd700',tc:'#ffd700',next:80000,cashback_pct:9,daily_bonus:300,cashback_cap:900,bankrupt_rescue:200,bet_cap:750,vip_title:'Золотой шторм',perk:'Здесь кешбек уже реально помогает пережить тильт.'},
+  {name:'💎 ЛЕГЕНДА',thresh:80000,color:'#00d084',tc:'#00ffb3',next:200000,cashback_pct:12,daily_bonus:375,cashback_cap:1300,bankrupt_rescue:275,bet_cap:1000,vip_title:'Легенда кассы',perk:'Крупный дневной бонус и жирный лимит возврата.'},
+  {name:'👑 МИФИК',thresh:200000,color:'#8e44ad',tc:'#d6a2ff',next:500000,cashback_pct:15,daily_bonus:450,cashback_cap:1800,bankrupt_rescue:350,bet_cap:1500,vip_title:'Мифический хайроллер',perk:'Очень мощный кешбек для серьёзных оборотов.'},
+  {name:'🔥 ИМПЕРАТОР',thresh:500000,color:'#ff6b35',tc:'#ffd1b8',next:1000000,cashback_pct:18,daily_bonus:550,cashback_cap:2400,bankrupt_rescue:450,bet_cap:2000,vip_title:'Император стриков',perk:'Касса уже знает тебя по имени и боится по-своему.'},
+  {name:'🪐 TITAN',thresh:1000000,color:'#4fc3f7',tc:'#bfeeff',next:2500000,cashback_pct:21,daily_bonus:700,cashback_cap:3200,bankrupt_rescue:600,bet_cap:3000,vip_title:'Титан оборота',perk:'Миллион пройден. Дальше начинается уже отдельная психология.'},
+  {name:'☄️ OMEGA',thresh:2500000,color:'#ff4d94',tc:'#ffd0e4',next:5000000,cashback_pct:24,daily_bonus:900,cashback_cap:4500,bankrupt_rescue:850,bet_cap:4000,vip_title:'Омега без тормозов',perk:'Здесь даже проигрывать получается с размахом.'},
+  {name:'🌌 NEBULA',thresh:5000000,color:'#6c8cff',tc:'#d9e2ff',next:10000000,cashback_pct:27,daily_bonus:1150,cashback_cap:6000,bankrupt_rescue:1100,bet_cap:5000,vip_title:'Повелитель туманности',perk:'Уже не просто VIP, а отдельное явление в отчётах казино.'},
+  {name:'♾️ ETERNAL',thresh:10000000,color:'#7dffb3',tc:'#e7fff1',next:null,cashback_pct:30,daily_bonus:1400,cashback_cap:8000,bankrupt_rescue:1500,bet_cap:7500,vip_title:'Вечный донат судьбе',perk:'Абсолютный ранг. Если дошёл сюда, касса знает тебя лучше семьи.'},
 ];
 function getVipForSpent(spent=0){
   const spentNum=Math.max(0, parseInt(spent,10) || 0);
@@ -4894,7 +5016,7 @@ function updateVip(){
   refreshEconomyAchievements();
   if(!badge)return;
   badge.textContent=v.name;badge.style.borderColor=v.color;badge.style.color=v.tc;
-  if(perksLine) perksLine.textContent=`Перки: кешбек ${v.cashback_pct}% • ежедневный бонус ${v.daily_bonus} ЛК • спасение ${v.bankrupt_rescue || 100} ЛК • лимит кешбека ${v.cashback_cap} ЛК. ${v.perk}`;
+  if(perksLine) perksLine.textContent=`Перки: кешбек ${v.cashback_pct}% • ежедневный бонус ${v.daily_bonus} ЛК • спасение ${v.bankrupt_rescue || 100} ЛК • лимит кешбека ${v.cashback_cap} ЛК • VIP-ставка до ${v.bet_cap || 250} ЛК. ${v.perk}`;
   if(titleLine) titleLine.textContent=`Титул: ${getVipTitle(v)}`;
   if(featureChips){
     featureChips.innerHTML = getVipFeatureList(v).map(item=>`<span style="padding:7px 12px;border-radius:999px;border:1px solid ${v.color};background:rgba(255,255,255,.03);font-size:11px;color:${v.tc};font-family:var(--os);letter-spacing:.4px">${item}</span>`).join('');
@@ -4913,6 +5035,7 @@ function updateVip(){
     document.getElementById('vip-spent-label').textContent='Потрачено: '+totalSpent+' ЛК';
   }
   updateCashbackUI();
+  refreshCasinoBetControls();
 }
 function spendCoins(n){totalSpent+=n;LS.set('luzbet_spent',totalSpent);updateVip();}
 
@@ -7566,10 +7689,11 @@ function renderCasinoLB(casinoRows, lb, mode, participantRows=[]) {
     const val = parseInt(mode==='coins' ? row.coins : row.spent) || 0;
     const name = row.name || nameMap[String(row.code).toLowerCase()] || row.code;
     const vip = getVipLabelForSpent(parseInt(row.spent)||0);
+    const vipBadge = formatVipBadge(parseInt(row.spent)||0);
     html += `<div class="casino-lb-row ${rc(i)}">
       <div class="clb-rank">${medal(i)}</div>
       <div>
-        <div class="clb-name">${escapeHtml(name)}</div>
+        <div class="clb-name">${escapeHtml(name)} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div>
         <div class="clb-sub">${escapeHtml(vip)} • потрачено: ${parseInt(row.spent)||0} ЛК</div>
       </div>
       <div>
@@ -7619,6 +7743,8 @@ function renderAchLB(achRows, lb, participantRows=[]) {
 
   sorted.forEach((row, i) => {
     const name = nameMap[String(row.code).toLowerCase()] || row.code;
+    const spent = getTrustedSpentForCode(row.code) ?? 0;
+    const vipBadge = formatVipBadge(spent);
     // Показываем иконки ачивок
     const icons = row.achs.map(id => {
       const a = ALL_ACHIEVEMENTS.find(x => x.id === id);
@@ -7628,7 +7754,7 @@ function renderAchLB(achRows, lb, participantRows=[]) {
     html += `<div class="casino-lb-row ${rc(i)}">
       <div class="clb-rank">${medal(i)}</div>
       <div style="min-width:0">
-        <div class="clb-name">${escapeHtml(name)}</div>
+        <div class="clb-name">${escapeHtml(name)} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div>
         <div class="clb-sub" style="flex-wrap:wrap">${icons}</div>
       </div>
       <div>
