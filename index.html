@@ -956,6 +956,19 @@ body.match-rewards-locked{
   .match-reward-delta{font-size:20px}
 }
 
+
+
+/* ANTICHEAT MEME POPUP */
+.anticheat-overlay{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:anticheatFade .18s ease}
+.anticheat-card{width:min(520px,94vw);background:linear-gradient(145deg,#220009,#120005 58%,#050505);border:2px solid var(--red);border-radius:18px;padding:24px 20px;text-align:center;box-shadow:0 0 0 1px rgba(255,230,0,.18) inset,0 18px 60px rgba(0,0,0,.65);position:relative;overflow:hidden}
+.anticheat-card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-18deg,transparent,transparent 14px,rgba(255,230,0,.035) 14px,rgba(255,230,0,.035) 16px);pointer-events:none}
+.anticheat-stamp{display:inline-block;font-family:var(--os);font-size:clamp(26px,8vw,52px);font-weight:700;letter-spacing:2px;color:var(--red);border:4px solid var(--red);border-radius:10px;padding:8px 14px;transform:rotate(-7deg);text-shadow:0 0 18px rgba(232,0,42,.35);box-shadow:0 0 18px rgba(232,0,42,.25);margin-bottom:16px;animation:anticheatStamp .28s cubic-bezier(.22,1.4,.36,1)}
+.anticheat-title{font-family:var(--os);font-size:20px;color:var(--yellow);letter-spacing:1px;margin-bottom:8px;position:relative}
+.anticheat-text{font-size:14px;line-height:1.55;color:var(--white);position:relative}
+.anticheat-timer{margin-top:14px;font-family:var(--os);font-size:30px;color:var(--yellow);position:relative}
+@keyframes anticheatFade{from{opacity:0}to{opacity:1}}
+@keyframes anticheatStamp{from{opacity:0;transform:scale(1.8) rotate(-18deg)}to{opacity:1;transform:scale(1) rotate(-7deg)}}
+
 </style>
 </head>
 <body>
@@ -3470,6 +3483,36 @@ async function startCasinoRound(game, bet, meta = {}) {
   return r.round_id || roundId;
 }
 
+
+function showAnticheatMeme(secondsLeft = 0, serverMessage = '') {
+  const phrases = [
+    '🐀 Ставочная крыса замечена в казино.',
+    '🤖 Автокликер плачет в углу.',
+    '🧯 Остуди пальцы, ковбой.',
+    '📉 Биржа доверия к тебе временно закрыта.',
+    '🕵️ Служба безопасности ЛузБета смотрит осуждающе.',
+    '🧘 Пауза. Подумай о своей игровой карме.',
+    '🚓 Античитерский патруль уже выехал.'
+  ];
+  const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+  const old = document.querySelector('.anticheat-overlay');
+  if (old) old.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'anticheat-overlay';
+  overlay.innerHTML = `
+    <div class="anticheat-card">
+      <div class="anticheat-stamp">СТАВКА ОТКЛОНЕНА</div>
+      <div class="anticheat-title">🚨 АНТИЧИТЕРСКАЯ КОМИССИЯ ЛУЗБЕТА</div>
+      <div class="anticheat-text">${phrase}<br>${serverMessage || 'Подозрительно быстрые пальцы обнаружены.'}</div>
+      <div class="anticheat-timer">${secondsLeft > 0 ? `⏳ ${secondsLeft} сек.` : '⏳ подожди немного'}</div>
+    </div>
+  `;
+  overlay.addEventListener('click', () => overlay.remove());
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 5200);
+}
+
 async function tryStartCasinoRound(game, bet, meta = {}) {
   try {
     return await startCasinoRound(game, bet, meta);
@@ -3484,6 +3527,7 @@ async function tryStartCasinoRound(game, bet, meta = {}) {
         ? `⏳ До следующей ставки осталось ${secondsLeft} сек.`
         : `⏳ ${e.data.message || 'Подожди перед следующей ставкой'}`;
       toast(text, 'err', 7000);
+      showAnticheatMeme(secondsLeft, e.data.message || text);
       return '';
     }
 
