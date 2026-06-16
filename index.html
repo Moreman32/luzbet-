@@ -2448,8 +2448,7 @@ if (action === 'getAchAll') {
         round_id: params.round_id || '',
         game: params.game || '',
         bet: parseInt(params.bet || 0),
-        meta: params.meta || {},
-        cooldown_seconds: parseInt(params.cooldown_seconds || 0, 10) || undefined
+        meta: params.meta || {}
       });
     }
 
@@ -3435,13 +3434,6 @@ function makeCasinoRoundId(game){
   return `${S.code || 'guest'}_${game}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
-function getCasinoCooldownSecondsForPlayer(code) {
-  // Тестово: minus1000 тоже попадает под казино-кулдаун.
-  // Когда проверишь — убери minus1000 из списка ниже.
-  const limitedPlayers = new Set(['prodam_prognoz', 'kef_1_01', 'minus1000']);
-  return limitedPlayers.has(String(code || '').trim()) ? 10 : 0; // 10 секунд для теста, максимум на сервере — 3600
-}
-
 async function startCasinoRound(game, bet, meta = {}) {
   if (!S.code) {
     toast('🔐 Сначала войди в аккаунт', 'err');
@@ -3449,15 +3441,13 @@ async function startCasinoRound(game, bet, meta = {}) {
   }
 
   const roundId = makeCasinoRoundId(game);
-  const cooldownSeconds = getCasinoCooldownSecondsForPlayer(S.code);
   const r = await api({
     action: 'startCasinoRound',
     code: S.code,
     round_id: roundId,
     game,
     bet,
-    meta,
-    cooldown_seconds: cooldownSeconds || undefined
+    meta
   });
 
   if (!r || r.ok !== true) {
