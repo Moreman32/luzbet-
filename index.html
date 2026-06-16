@@ -7976,18 +7976,22 @@ function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[], autocl
 
   sorted.forEach((row, i) => {
     const key = getRowLogin(row);
-    const name = row.name || nameMap[key] || row.code;
+    const name = row.name || nameMap[key] || 'Подозрительный игрок';
     const spent = parseInt(row.spent) || 0;
     const coins = parseInt(row.coins) || 0;
-    const achCount = achCountMap[key] ? achCountMap[key].size : 0;
-    const predTotal = predictionMap[key]?.total || 0;
+    const achCount = Number.isFinite(parseInt(row.achCount, 10))
+      ? parseInt(row.achCount, 10)
+      : (achCountMap[key] ? achCountMap[key].size : 0);
+    const predTotal = Number.isFinite(parseInt(row.predTotal, 10))
+      ? parseInt(row.predTotal, 10)
+      : (predictionMap[key]?.total || 0);
     const vipBadge = formatVipBadge(spent);
 
     html += `<div class="casino-lb-row ${rc(i)}">
       <div class="clb-rank">${medal(i)}</div>
       <div>
         <div class="clb-name">${escapeHtml(name)} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div>
-        <div class="clb-sub">логин: ${escapeHtml(key)} • ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
+        <div class="clb-sub">режим: античитерский кулдаун • ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
         <div class="clb-sub" style="margin-top:6px;color:var(--yellow)">Почетный статус: подозрительно дисциплинированный чемпион по нажатию одной и той же кнопки.</div>
       </div>
       <div>
