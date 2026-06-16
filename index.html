@@ -3744,7 +3744,7 @@ async function doLogin(){
     const r=await api({action:'checkCode',code});
     if(!r.ok){setAlert('login-alert','err','❌ '+r.error);toast('Неверный код. Это не ты. Или ты, но не тот.','err');}
     else{
-      S={code:code.trim(),name:r.name,voted:r.hasVoted};
+      S={code:code.trim().toLowerCase(),name:r.name,voted:r.hasVoted};
       LS.set('luzbet_session_code', S.code);
       if(elapsed<3)unlockAch('fast_login');
       toast('👋 Привет, '+r.name+'! Готов проиграть?','ok');updateNavAfterLogin();setTimeout(()=>announcePlayer(r.name),500);
@@ -7663,7 +7663,7 @@ async function restoreSession(){
   try{
     const r=await api({action:'checkCode',code:savedCode});
     if(!r.ok){LS.remove('luzbet_session_code');return;}
-    S={code:savedCode.trim(),name:r.name,voted:r.hasVoted};
+    S={code:savedCode.trim().toLowerCase(),name:r.name,voted:r.hasVoted};
     updateNavAfterLogin();
     loadCasinoFromSheets(S.code);
     loadAchFromSheets(S.code);
@@ -7927,7 +7927,7 @@ function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[]) {
       <div class="clb-rank">${medal(i)}</div>
       <div>
         <div class="clb-name">${escapeHtml(name)} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div>
-        <div class="clb-sub">логин: <strong style="color:var(--yellow)">${escapeHtml(key)}</strong> • ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
+        <div class="clb-sub">логин: ${escapeHtml(key)} • ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
         <div class="clb-sub" style="margin-top:6px;color:var(--yellow)">Почетный статус: подозрительно дисциплинированный чемпион по нажатию одной и той же кнопки.</div>
       </div>
       <div>
