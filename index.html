@@ -4280,10 +4280,10 @@ async function loadLeaderboard(force=false){
         results: r.results || {},
         casinoRows: Array.isArray(r.casinoRows)
           ? r.casinoRows
-          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).map(p=>({code:p.code,name:p.name,coins:p.coins||0,spent:p.spent||0})),
+          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).map(p=>({name:p.name,coins:p.coins||0,spent:p.spent||0})),
         achRows: Array.isArray(r.achRows)
           ? r.achRows
-          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).flatMap(p=>(p.achList||[]).map(a=>({code:p.code,name:p.name,achievement:a}))),
+          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).flatMap(p=>(p.achList||[]).map(a=>({name:p.name,achievement:a}))),
         participantRows: Array.isArray(r.participantRows) ? r.participantRows : [],
       };
 
@@ -4316,11 +4316,13 @@ async function loadLeaderboard(force=false){
 }
 
 function getTrustedSpentForCode(code, cache=_lbCache){
+  // Публичный рейтинг больше не должен содержать реальные code.
+  // Поэтому не ищем игрока по code в общем кэше, чтобы не зависеть от утечки логинов.
   const key=String(code||'').trim().toLowerCase();
-  if(!key || !cache || !Array.isArray(cache.casinoRows)) return null;
-  const row=cache.casinoRows.find(x=>String(x.code||'').trim().toLowerCase()===key);
-  if(!row) return null;
-  const spent=parseInt(row.spent,10);
+  if(!key || !S.code || key !== String(S.code||'').trim().toLowerCase()) return null;
+
+  // Для текущего игрока используем локальное значение/личный запросы, а не общий публичный список.
+  const spent=parseInt(totalSpent,10);
   return Number.isFinite(spent) ? spent : null;
 }
 
@@ -4332,10 +4334,10 @@ async function syncTrustedSpent(code, opts={}){
   let spent = preferCache ? getTrustedSpentForCode(key) : null;
   if(spent === null){
     try{
-      const rowsRes = await api({ action:'getCasinoAll' });
-      if(rowsRes && rowsRes.ok && Array.isArray(rowsRes.rows)){
-        const tempCache = { casinoRows: rowsRes.rows };
-        spent = getTrustedSpentForCode(key, tempCache);
+      const selfRes = await api({ action:'getCasino', code:key });
+      if(selfRes && selfRes.ok && selfRes.row){
+        const selfSpent = parseInt(selfRes.row.spent,10);
+        spent = Number.isFinite(selfSpent) ? selfSpent : null;
       }
     }catch(e){
       spent = null;
@@ -4356,12 +4358,8 @@ function renderLB(lb,results){
   window._lastResults=results;
   // Обновляем кэш если данные новее
   if(_lbCache && lb) _lbCache.lb=lb;
-  const spentMap={};
-  if(_lbCache && Array.isArray(_lbCache.casinoRows)){
-    _lbCache.casinoRows.forEach(row=>{
-      if(row && row.code) spentMap[String(row.code).toLowerCase()]=parseInt(row.spent,10)||0;
-    });
-  }
+  // Реальные code скрыты из публичного рейтинга, поэтому VIP в футбольном рейтинге
+  // считаем из поля spent самой строки, без маппинга по code.
   const grpDone=Object.values(results).filter(v=>(v.teams && v.teams.length)>0).length;
   const funTitle=n=>FUN_TITLES[Math.abs(n.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%FUN_TITLES.length];
   const comment=(i,n)=>{const arr=i===0?LB_COMMENTS.first:i>=n-1?LB_COMMENTS.last:LB_COMMENTS.mid;return arr[Math.abs(i*7+n)%arr.length];};
@@ -4370,8 +4368,8 @@ function renderLB(lb,results){
   let html=grpDone?'':`<div class="lb-note">⚠️ Результаты не введены. Все на нуле — равенство в страдании.</div>`;
   html+=`<div class="lb-list">`;
   lb.forEach((p,i)=>{
-    const safeName = escapeHtml(p.name);
-    const spent=(spentMap[String(p.code||'').toLowerCase()] ?? (parseInt(p.spent,10) || 0));
+    const safeName = escapeHtml(p.name || `Игрок #${i+1}`);
+    const spent=parseInt(p.spent,10) || 0;
     const vipBadge=formatVipBadge(spent);
     html+=`<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${safeName} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div><div class="lb-fun">${escapeHtml(funTitle(p.name))}</div><div class="lb-comment">${escapeHtml(comment(i,lb.length))}</div></div><div class="lb-right"><div class="lb-pts">${p.total}</div><div class="lb-pts-label">очков</div>${grpDone?`<div class="lb-breakdown">⚽${p.teamPts} 🎯${p.outPts} ↔️${p.diffPts||0} 💥${p.scPts}</div>`:''}</div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${vipBadge}<span style="font-size:11px;color:var(--muted)">Потрачено в казино: ${spent.toLocaleString('ru-RU')} ЛК</span></div><div class="detail-grid">`;
     for(const[g,d]of Object.entries(p.detail)){
@@ -7734,7 +7732,7 @@ async function fillLucky(){
 let _lbCache = null; // кэш всех топов рейтинга
 let _lbLoadingPromise = null;
 let _activeLbTab = 'predictions';
-const AUTOCLICKER_CODES = new Set(['kef_1_01', 'prodam_prognoz']);
+const AUTOCLICKER_CODES = new Set();
 
 function normalizeCode(code){
   return String(code || '').trim().toLowerCase();
@@ -7784,18 +7782,6 @@ function renderCasinoLB(casinoRows, lb, mode, participantRows=[]) {
   const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
   const cleanRows = filterOutAutoclickers(casinoRows);
 
-  // Имена берём из participants, потом из футбольного рейтинга, потом из casino.name.
-  const nameMap = {};
-  (participantRows||[]).forEach(p => {
-    if(p && p.code) nameMap[normalizeCode(p.code)] = p.name;
-  });
-  (lb||[]).forEach(p => {
-    if(p && p.code) nameMap[normalizeCode(p.code)] = p.name;
-  });
-  (cleanRows||[]).forEach(r => {
-    if(r && r.code && r.name) nameMap[normalizeCode(r.code)] = r.name;
-  });
-
   const sorted = [...cleanRows].sort((a,b) => {
     const va = parseInt(mode==='coins'?a.coins:a.spent)||0;
     const vb = parseInt(mode==='coins'?b.coins:b.spent)||0;
@@ -7816,7 +7802,7 @@ function renderCasinoLB(casinoRows, lb, mode, participantRows=[]) {
 
   sorted.forEach((row, i) => {
     const val = parseInt(mode==='coins' ? row.coins : row.spent) || 0;
-    const name = row.name || nameMap[normalizeCode(row.code)] || row.code;
+    const name = row.name || row.publicName || `Игрок #${i+1}`;
     const vip = getVipLabelForSpent(parseInt(row.spent)||0);
     const vipBadge = formatVipBadge(parseInt(row.spent)||0);
     html += `<div class="casino-lb-row ${rc(i)}">
@@ -7845,21 +7831,12 @@ function renderAchLB(achRows, lb, participantRows=[]) {
 
   // Считаем только реальные ачивки из ALL_ACHIEVEMENTS и убираем дубли.
   const achMap = {};
-  (cleanAchRows||[]).forEach(r => {
+  (cleanAchRows||[]).forEach((r, idx) => {
     if(!isKnownAch(r.achievement)) return;
-    const k = normalizeCode(r.code);
-    if(!achMap[k]) achMap[k] = { code: r.code, achs: [] };
+    const displayName = r.name || r.publicName || `Игрок #${idx+1}`;
+    const k = normalizeCode(r.publicId || r.id || displayName || idx);
+    if(!achMap[k]) achMap[k] = { name: displayName, spent: parseInt(r.spent,10)||0, achs: [] };
     if(!achMap[k].achs.includes(r.achievement)) achMap[k].achs.push(r.achievement);
-  });
-
-  // Имена берём из participants, потом из футбольного рейтинга.
-  // Так игроки без прогноза, но с ачивками, тоже показываются именами.
-  const nameMap = {};
-  (participantRows||[]).forEach(p => {
-    if(p && p.code) nameMap[normalizeCode(p.code)] = p.name;
-  });
-  (lb||[]).forEach(p => {
-    if(p && p.code) nameMap[normalizeCode(p.code)] = p.name;
   });
 
   const sorted = Object.values(achMap).sort((a,b) => b.achs.length - a.achs.length);
@@ -7872,8 +7849,8 @@ function renderAchLB(achRows, lb, participantRows=[]) {
   let html = `<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Кто собрал больше всего достижений. Некоторые постыдны.</p>`;
 
   sorted.forEach((row, i) => {
-    const name = nameMap[normalizeCode(row.code)] || row.code;
-    const spent = getTrustedSpentForCode(row.code) ?? 0;
+    const name = row.name || `Игрок #${i+1}`;
+    const spent = parseInt(row.spent,10) || 0;
     const vipBadge = formatVipBadge(spent);
     // Показываем иконки ачивок
     const icons = row.achs.map(id => {
@@ -7950,7 +7927,7 @@ function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[]) {
       <div class="clb-rank">${medal(i)}</div>
       <div>
         <div class="clb-name">${escapeHtml(name)} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div>
-        <div class="clb-sub">код: ${escapeHtml(row.code || '')} • ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
+        <div class="clb-sub">ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
         <div class="clb-sub" style="margin-top:6px;color:var(--yellow)">Почетный статус: подозрительно дисциплинированный чемпион по нажатию одной и той же кнопки.</div>
       </div>
       <div>
