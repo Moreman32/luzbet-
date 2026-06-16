@@ -7879,7 +7879,7 @@ function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[]) {
     return;
   }
 
-  let html = `<div class="lb-note">Отдельный рейтинг для игроков с подозрительно механической игрой. Из обычных топов по монетам, тратам и ачивкам они исключены.</div>`;
+  let html = `<div class="lb-note"><strong>Зал сомнительной славы.</strong> Слишком ровный ритм, слишком уверенные серии и слишком много вопросов. Из обычных топов по монетам, тратам и ачивкам эти мастера безупречного нажатия уже вынесены.</div>`;
 
   sorted.forEach((row, i) => {
     const key = normalizeCode(row.code);
@@ -7895,10 +7895,11 @@ function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[]) {
       <div>
         <div class="clb-name">${escapeHtml(name)} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div>
         <div class="clb-sub">код: ${escapeHtml(row.code || '')} • ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
+        <div class="clb-sub" style="margin-top:6px;color:var(--yellow)">Почетный статус: подозрительно дисциплинированный чемпион по нажатию одной и той же кнопки.</div>
       </div>
       <div>
         <div class="clb-val" style="color:var(--red)">${spent.toLocaleString('ru-RU')}</div>
-        <div class="clb-label">потрачено • монет: ${coins.toLocaleString('ru-RU')}</div>
+        <div class="clb-label">списано в бездну • монет осталось: ${coins.toLocaleString('ru-RU')}</div>
       </div>
     </div>`;
   });
