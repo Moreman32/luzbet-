@@ -7835,16 +7835,67 @@ function renderAchLB(achRows, lb, participantRows=[]) {
   const content = document.getElementById('lb-content');
   const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
   const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
-  const cleanAchRows = filterOutAutoclickers(achRows);
 
-  // Считаем только реальные ачивки из ALL_ACHIEVEMENTS и убираем дубли.
+  // Главный фикс: рейтинг ачивок строим по игрокам из leaderboard,
+  // потому что там уже есть нормальное поле name. Заглушки "Игрок #1" больше не используем.
+  const nameMap = {};
+  (participantRows||[]).forEach(p => {
+    const key = getRowLogin(p);
+    if(key && p.name) nameMap[key] = p.name;
+  });
+  (lb||[]).forEach(p => {
+    const key = getRowLogin(p);
+    if(key && p.name) nameMap[key] = p.name;
+  });
+  (achRows||[]).forEach(r => {
+    const key = getRowLogin(r);
+    if(key && (r.name || r.publicName)) nameMap[key] = r.name || r.publicName;
+  });
+
   const achMap = {};
-  (cleanAchRows||[]).forEach((r, idx) => {
+
+  // 1) Берём ачивки из leaderboard — там есть name, achList, achCount.
+  filterOutAutoclickers(lb||[]).forEach((p) => {
+    const achs = (Array.isArray(p.achList) ? p.achList : [])
+      .filter(id => isKnownAch(id));
+    if(!achs.length) return;
+
+    const key = getRowLogin(p) || normalizeCode(p.name || p.publicName);
+    const displayName = p.name || p.publicName || nameMap[key] || '';
+    if(!displayName) return;
+
+    if(!achMap[key]) {
+      achMap[key] = {
+        name: displayName,
+        spent: parseInt(p.spent,10)||0,
+        achs: []
+      };
+    }
+
+    achs.forEach(id => {
+      if(!achMap[key].achs.includes(id)) achMap[key].achs.push(id);
+    });
+  });
+
+  // 2) Добираем из achRows, если сервер прислал отдельные строки ачивок.
+  filterOutAutoclickers(achRows||[]).forEach((r) => {
     if(!isKnownAch(r.achievement)) return;
-    const displayName = r.name || r.publicName || `Игрок #${idx+1}`;
-    const k = normalizeCode(r.publicId || r.id || displayName || idx);
-    if(!achMap[k]) achMap[k] = { name: displayName, spent: parseInt(r.spent,10)||0, achs: [] };
-    if(!achMap[k].achs.includes(r.achievement)) achMap[k].achs.push(r.achievement);
+
+    const key = getRowLogin(r) || normalizeCode(r.name || r.publicName);
+    const displayName = r.name || r.publicName || nameMap[key] || '';
+    if(!displayName) return;
+
+    if(!achMap[key]) {
+      achMap[key] = {
+        name: displayName,
+        spent: parseInt(r.spent,10)||0,
+        achs: []
+      };
+    }
+
+    if(!achMap[key].achs.includes(r.achievement)) {
+      achMap[key].achs.push(r.achievement);
+    }
   });
 
   const sorted = Object.values(achMap).sort((a,b) => b.achs.length - a.achs.length);
@@ -7857,10 +7908,9 @@ function renderAchLB(achRows, lb, participantRows=[]) {
   let html = `<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Кто собрал больше всего достижений. Некоторые постыдны.</p>`;
 
   sorted.forEach((row, i) => {
-    const name = row.name || `Игрок #${i+1}`;
+    const name = row.name;
     const spent = parseInt(row.spent,10) || 0;
     const vipBadge = formatVipBadge(spent);
-    // Показываем иконки ачивок
     const icons = row.achs.map(id => {
       const a = ALL_ACHIEVEMENTS.find(x => x.id === id);
       return a ? `<span title="${escapeAttr(a.name)}">${escapeHtml(a.icon)}</span>` : '';
