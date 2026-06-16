@@ -4285,6 +4285,9 @@ async function loadLeaderboard(force=false){
           ? r.achRows
           : (Array.isArray(r.leaderboard) ? r.leaderboard : []).flatMap(p=>(p.achList||[]).map(a=>({name:p.name,achievement:a}))),
         participantRows: Array.isArray(r.participantRows) ? r.participantRows : [],
+        autoclickerRows: Array.isArray(r.autoclickers)
+          ? r.autoclickers
+          : (Array.isArray(r.autoclickerRows) ? r.autoclickerRows : []),
       };
 
       if(S.code){
@@ -7742,24 +7745,29 @@ function isAutoclickerCode(code){
   return AUTOCLICKER_CODES.has(normalizeCode(code));
 }
 
+function getRowLogin(row){
+  return normalizeCode(row && (row.code || row.login || row.publicId || row.id));
+}
+
 function filterOutAutoclickers(rows){
-  return (rows || []).filter(row => !isAutoclickerCode(row && row.code));
+  return (rows || []).filter(row => !isAutoclickerCode(getRowLogin(row)));
 }
 
 function filterOnlyAutoclickers(rows){
-  return (rows || []).filter(row => isAutoclickerCode(row && row.code));
+  return (rows || []).filter(row => isAutoclickerCode(getRowLogin(row)));
 }
 
 function renderActiveLbTab(){
   if(!_lbCache) return;
 
-  const { lb, results, casinoRows, achRows, participantRows } = _lbCache;
+  const { lb, results, casinoRows, achRows, participantRows, autoclickerRows } = _lbCache;
 
-  if(_activeLbTab === 'predictions')   renderLB(filterOutAutoclickers(lb), results);
+  // В прогнозах автокликеров оставляем, как договаривались.
+  if(_activeLbTab === 'predictions')   renderLB(lb, results);
   if(_activeLbTab === 'casino-coins')  renderCasinoLB(casinoRows, lb, 'coins', participantRows);
   if(_activeLbTab === 'casino-spent')  renderCasinoLB(casinoRows, lb, 'spent', participantRows);
   if(_activeLbTab === 'achievements')  renderAchLB(achRows, lb, participantRows);
-  if(_activeLbTab === 'autoclickers')  renderAutoclickerLB(casinoRows, achRows, lb, participantRows);
+  if(_activeLbTab === 'autoclickers')  renderAutoclickerLB(casinoRows, achRows, lb, participantRows, autoclickerRows);
 }
 
 function switchLbTab(tab) {
@@ -7874,11 +7882,13 @@ function renderAchLB(achRows, lb, participantRows=[]) {
   content.innerHTML = html;
 }
 
-function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[]) {
+function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[], autoclickerRows=[]) {
   const content = document.getElementById('lb-content');
   const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
   const rc = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
-  const flaggedRows = filterOnlyAutoclickers(casinoRows);
+  const flaggedRows = (Array.isArray(autoclickerRows) && autoclickerRows.length)
+    ? autoclickerRows
+    : filterOnlyAutoclickers(casinoRows);
 
   const nameMap = {};
   (participantRows||[]).forEach(p => {
@@ -7915,7 +7925,7 @@ function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[]) {
   let html = `<div class="lb-note"><strong>Зал сомнительной славы.</strong> Слишком ровный ритм, слишком уверенные серии и слишком много вопросов. Из обычных топов по монетам, тратам и ачивкам эти мастера безупречного нажатия уже вынесены.</div>`;
 
   sorted.forEach((row, i) => {
-    const key = normalizeCode(row.code);
+    const key = getRowLogin(row);
     const name = row.name || nameMap[key] || row.code;
     const spent = parseInt(row.spent) || 0;
     const coins = parseInt(row.coins) || 0;
