@@ -2320,8 +2320,11 @@ async function sbFunction(name, payload = {}) {
   const data = text ? JSON.parse(text) : null;
 
   if (!r.ok) {
-    const msg = (data && (data.error || data.message)) || text || `Function error ${r.status}`;
-    throw new Error(msg);
+    const msg = (data && (data.message || data.error)) || text || `Function error ${r.status}`;
+    const err = new Error(msg);
+    err.data = data;
+    err.status = r.status;
+    throw err;
   }
 
   return data;
@@ -2445,7 +2448,8 @@ if (action === 'getAchAll') {
         round_id: params.round_id || '',
         game: params.game || '',
         bet: parseInt(params.bet || 0),
-        meta: params.meta || {}
+        meta: params.meta || {},
+        cooldown_seconds: parseInt(params.cooldown_seconds || 0, 10) || undefined
       });
     }
 
@@ -3431,6 +3435,13 @@ function makeCasinoRoundId(game){
   return `${S.code || 'guest'}_${game}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
+function getCasinoCooldownSecondsForPlayer(code) {
+  // Тестово: minus1000 тоже попадает под казино-кулдаун.
+  // Когда проверишь — убери minus1000 из списка ниже.
+  const limitedPlayers = new Set(['prodam_prognoz', 'kef_1_01', 'minus1000']);
+  return limitedPlayers.has(String(code || '').trim()) ? 10 : 0; // 10 секунд для теста, максимум на сервере — 3600
+}
+
 async function startCasinoRound(game, bet, meta = {}) {
   if (!S.code) {
     toast('🔐 Сначала войди в аккаунт', 'err');
@@ -3438,13 +3449,15 @@ async function startCasinoRound(game, bet, meta = {}) {
   }
 
   const roundId = makeCasinoRoundId(game);
+  const cooldownSeconds = getCasinoCooldownSecondsForPlayer(S.code);
   const r = await api({
     action: 'startCasinoRound',
     code: S.code,
     round_id: roundId,
     game,
     bet,
-    meta
+    meta,
+    cooldown_seconds: cooldownSeconds || undefined
   });
 
   if (!r || r.ok !== true) {
@@ -3474,6 +3487,15 @@ async function tryStartCasinoRound(game, bet, meta = {}) {
     console.error('startCasinoRound failed', game, e);
 
     const msg = e && e.message ? e.message : String(e || 'неизвестная ошибка');
+
+    if (e && e.data && e.data.error === 'cooldown') {
+      const secondsLeft = parseInt(e.data.seconds_left || 0, 10);
+      const text = secondsLeft > 0
+        ? `⏳ До следующей ставки осталось ${secondsLeft} сек.`
+        : `⏳ ${e.data.message || 'Подожди перед следующей ставкой'}`;
+      toast(text, 'err', 7000);
+      return '';
+    }
 
     if (msg.includes('too_fast')) {
       toast('⚠️ Не используй автокликеры 🙂', 'err', 4000);
