@@ -3744,7 +3744,7 @@ async function doLogin(){
     const r=await api({action:'checkCode',code});
     if(!r.ok){setAlert('login-alert','err','❌ '+r.error);toast('Неверный код. Это не ты. Или ты, но не тот.','err');}
     else{
-      S={code:(r.code||code),name:r.name,voted:r.hasVoted};
+      S={code:code.trim(),name:r.name,voted:r.hasVoted};
       LS.set('luzbet_session_code', S.code);
       if(elapsed<3)unlockAch('fast_login');
       toast('👋 Привет, '+r.name+'! Готов проиграть?','ok');updateNavAfterLogin();setTimeout(()=>announcePlayer(r.name),500);
@@ -7663,7 +7663,7 @@ async function restoreSession(){
   try{
     const r=await api({action:'checkCode',code:savedCode});
     if(!r.ok){LS.remove('luzbet_session_code');return;}
-    S={code:r.code||savedCode,name:r.name,voted:r.hasVoted};
+    S={code:savedCode.trim(),name:r.name,voted:r.hasVoted};
     updateNavAfterLogin();
     loadCasinoFromSheets(S.code);
     loadAchFromSheets(S.code);
@@ -7732,7 +7732,7 @@ async function fillLucky(){
 let _lbCache = null; // кэш всех топов рейтинга
 let _lbLoadingPromise = null;
 let _activeLbTab = 'predictions';
-const AUTOCLICKER_CODES = new Set();
+const AUTOCLICKER_CODES = new Set(['kef_1_01','prodam_prognoz']);
 
 function normalizeCode(code){
   return String(code || '').trim().toLowerCase();
@@ -7755,7 +7755,7 @@ function renderActiveLbTab(){
 
   const { lb, results, casinoRows, achRows, participantRows } = _lbCache;
 
-  if(_activeLbTab === 'predictions')   renderLB(lb, results);
+  if(_activeLbTab === 'predictions')   renderLB(filterOutAutoclickers(lb), results);
   if(_activeLbTab === 'casino-coins')  renderCasinoLB(casinoRows, lb, 'coins', participantRows);
   if(_activeLbTab === 'casino-spent')  renderCasinoLB(casinoRows, lb, 'spent', participantRows);
   if(_activeLbTab === 'achievements')  renderAchLB(achRows, lb, participantRows);
@@ -7927,7 +7927,7 @@ function renderAutoclickerLB(casinoRows, achRows, lb, participantRows=[]) {
       <div class="clb-rank">${medal(i)}</div>
       <div>
         <div class="clb-name">${escapeHtml(name)} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div>
-        <div class="clb-sub">ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
+        <div class="clb-sub">логин: <strong style="color:var(--yellow)">${escapeHtml(key)}</strong> • ачивок: ${achCount} • очков в прогнозах: ${predTotal}</div>
         <div class="clb-sub" style="margin-top:6px;color:var(--yellow)">Почетный статус: подозрительно дисциплинированный чемпион по нажатию одной и той же кнопки.</div>
       </div>
       <div>
