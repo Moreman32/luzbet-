@@ -789,12 +789,12 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   align-items:center;
   justify-content:space-between;
   gap:12px;
-  padding:10px 20px 8px;
+  padding:7px 14px 6px;
   background:#21140c;
   color:#f7e7bf;
   font-family:var(--os);
-  font-size:11px;
-  letter-spacing:1.2px;
+  font-size:10px;
+  letter-spacing:1px;
   text-transform:uppercase;
 }
 .match-rewards-paperline-left{
@@ -820,30 +820,30 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   padding:4px 10px;
 }
 .match-rewards-mainbar{
-  padding:18px 20px 14px;
+  padding:10px 14px 8px;
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
-  gap:18px;
-  align-items:end;
+  gap:10px;
+  align-items:center;
 }
 .match-rewards-title{
   font-family:var(--os);
-  font-size:clamp(28px,4.4vw,48px);
-  line-height:.92;
+  font-size:clamp(18px,3vw,30px);
+  line-height:.95;
   color:#17110c;
-  margin-bottom:8px;
+  margin-bottom:4px;
   text-transform:uppercase;
-  letter-spacing:.4px;
+  letter-spacing:.25px;
 }
 .match-rewards-sub{
-  font-size:13px;
+  font-size:11px;
   color:#5e4634;
   max-width:620px;
 }
 .match-rewards-total{
   margin-top:0;
   font-family:var(--os);
-  font-size:30px;
+  font-size:22px;
   color:#10542d;
   text-align:right;
   white-space:nowrap;
@@ -857,24 +857,24 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   text-transform:uppercase;
 }
 .match-rewards-hero{
-  margin:0 16px 0;
-  padding:12px;
-  border-radius:18px;
+  margin:0 14px 0;
+  padding:8px;
+  border-radius:14px;
   border:1px solid rgba(45,28,12,.16);
   background:
     linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.08)),
     linear-gradient(145deg,#fff8ea,#f2dfb7);
   display:grid;
-  grid-template-columns:minmax(0,1fr) 132px;
-  gap:12px;
-  align-items:stretch;
+  grid-template-columns:minmax(0,1fr) 92px;
+  gap:8px;
+  align-items:start;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);
 }
 .match-rewards-hero-copy{
   min-width:0;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:6px;
 }
 .match-rewards-stamp{
   display:inline-flex;
@@ -902,9 +902,9 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .match-rewards-meta{
   display:flex;
   flex-direction:column;
-  gap:6px;
-  padding:10px 12px;
-  border-radius:14px;
+  gap:4px;
+  padding:8px 9px;
+  border-radius:12px;
   border:1px solid rgba(45,28,12,.12);
   background:linear-gradient(180deg,rgba(255,255,255,.46),rgba(255,255,255,.2));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
@@ -912,49 +912,53 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-rewards-kicker{
   font-family:var(--os);
-  font-size:11px;
-  letter-spacing:1px;
+  font-size:9px;
+  letter-spacing:.9px;
   text-transform:uppercase;
   color:#8d2418;
 }
 .match-rewards-article{
-  font-size:11px;
-  line-height:1.35;
+  font-size:10px;
+  line-height:1.25;
+  display:-webkit-box;
+  -webkit-line-clamp:4;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
 }
 .match-rewards-article p + p{
-  margin-top:5px;
+  margin-top:4px;
 }
 .match-rewards-pullquote{
-  padding:7px 9px;
+  padding:5px 7px;
   border-left:3px solid rgba(170,31,25,.55);
   background:rgba(255,248,234,.65);
-  border-radius:10px;
+  border-radius:8px;
   font-family:var(--os);
-  font-size:12px;
-  line-height:1.2;
+  font-size:10px;
+  line-height:1.15;
   color:#20140d;
   text-transform:uppercase;
 }
 .match-rewards-facts{
   display:flex;
   flex-wrap:wrap;
-  gap:6px;
+  gap:4px;
 }
 .match-rewards-fact{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  padding:4px 8px;
+  padding:3px 6px;
   border-radius:999px;
   background:rgba(34,21,11,.08);
-  font-size:10px;
+  font-size:9px;
   letter-spacing:.4px;
   color:#5e4634;
 }
 .match-rewards-reaction{
   width:100%;
-  min-height:132px;
-  border-radius:14px;
+  min-height:92px;
+  border-radius:12px;
   border:1px solid rgba(45,28,12,.16);
   background:
     linear-gradient(145deg,#e8d5ae,#d8bd87);
@@ -973,13 +977,13 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   left:8px;
   right:8px;
   bottom:8px;
-  padding:7px 8px 6px;
-  border-radius:10px;
+  padding:5px 6px 4px;
+  border-radius:8px;
   background:rgba(18,12,8,.82);
   backdrop-filter:blur(6px);
   font-family:var(--os);
-  font-size:11px;
-  letter-spacing:.7px;
+  font-size:9px;
+  letter-spacing:.55px;
   color:#fff9cf;
   text-align:center;
   text-transform:uppercase;
@@ -1152,14 +1156,15 @@ body.match-rewards-locked{
 }
 @media(max-width:480px){
   .big-win-pop{width:min(220px,62vw);max-height:40vh;}
-  .match-rewards-paperline{padding:8px 14px 7px}
-  .match-rewards-mainbar{grid-template-columns:1fr;padding:16px 14px 12px}
-  .match-rewards-title{font-size:22px}
-  .match-rewards-total{text-align:left;font-size:24px}
-  .match-rewards-hero{grid-template-columns:minmax(0,1fr) 92px;gap:10px;margin:0 10px 0;padding:10px}
-  .match-rewards-meta{padding:10px 11px}
-  .match-rewards-article{font-size:11px}
-  .match-rewards-pullquote{font-size:12px}
+  .match-rewards-paperline{padding:6px 10px 5px;font-size:9px}
+  .match-rewards-mainbar{grid-template-columns:1fr;padding:8px 10px 7px;gap:6px}
+  .match-rewards-title{font-size:17px}
+  .match-rewards-sub{font-size:10px}
+  .match-rewards-total{text-align:left;font-size:20px}
+  .match-rewards-hero{grid-template-columns:minmax(0,1fr) 74px;gap:8px;margin:0 10px 0;padding:7px}
+  .match-rewards-meta{padding:7px 8px}
+  .match-rewards-article{-webkit-line-clamp:3;font-size:9.5px}
+  .match-rewards-pullquote{display:none}
   .match-rewards-reaction{min-height:92px}
   .match-rewards-reaction-badge{font-size:9px;left:6px;right:6px;bottom:6px;padding:5px 6px}
   .match-rewards-list-head{padding:8px 10px 0;font-size:12px}
@@ -2837,100 +2842,100 @@ const MATCH_REWARD_POPUP_MOODS = {
     popupClass: 'mood-exact',
     stamp: 'VAR ПОДОЗРЕВАЕТ ИНСАЙД',
     verdicts: [
-      '{name}, точный счёт. Это уже не удача, это уголовно точная интуиция.',
-      '{name}, комиссия в панике: ты реально знал, чем всё кончится.',
-      '{name}, касса нехотя признаёт: тут был прогноз, а не бред.'
+      '{name_nom}, точный счёт. Касса шепчет, что у {name_gen} либо дар, либо знакомый в будке VAR.',
+      '{name_nom}, это уже не прогноз, а подозрительно аккуратный цирк с попаданием в табло.',
+      '{name_nom}, редакция с тоской фиксирует: даже у {name_gen} иногда выходит не каша, а факт.'
     ],
     article: {
-      kicker: 'Экстренный выпуск редакции',
+      kicker: 'Срочная справка о подозрительном везении',
       paragraphs: [
-        'Редакция подтверждает: {name} снова вышел к матчам с лицом обычного человека, а ушёл с ощущением, будто заранее видел табло в подсобке стадиона.',
-        'По предварительным данным, точность прогноза вызвала лёгкую истерику у бухгалтерии: касса скрипела, VAR шептался, а особенно впечатлительные сотрудники просто отвернулись от мониторов.',
-        'Если коротко: {matches} матч(а/ей) разобраны, монеты начислены, а репутация {name} временно переведена из категории "несчастный фантазёр" в категорию "слишком подозрительно собранный персонаж".'
+        '{name_nom} ворвался в тур с лицом человека, который обычно путает интуицию с бытовым шумом, а потом внезапно угодил прямо в счёт и испортил настроение всей кассе.',
+        'По словам очевидцев, после прогноза {name_gen} бухгалтерия трижды пересчитала воздух, а один особенно нервный аналитик назвал {name_acc} "оракулом из маршрутки" и ушёл пить воду.',
+        'Итог простой: {matches} матчей разобраны, монеты улетели к {name_dat}, а легенда о том, что {name_nom} в целом балбес, временно получила неприятную трещину.'
       ],
-      quote: 'Свидетели утверждают, что {name} попал так точно, будто мячи лично согласовали с ним маршрут.',
+      quote: 'Свидетели уверяют, что мячи будто заранее получили от {name_gen} маршрутный лист.',
     },
-    badge: '{name} снова пугает кассу',
+    badge: '{name_nom} нервирует кассу',
     image: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmNmZDd4eGcwMjdhbm42NTdlbHlrand3NDc0MWx5b3oyN3E2Z25sNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26gs6Y4Mke6i0MUi4/giphy.gif',
     rowVerdicts: [
-      '{name}, слишком чистое попадание. Проверь карманы на наличие судьи.',
-      '{name}, это уже не прогноз, а оперативная информация.',
-      '{name}, попал так точно, будто видел табло заранее.'
+      'Даже у {name_gen} иногда срабатывает не паника, а попадание.',
+      '{name_nom} попал так чисто, что это уже выглядит как бытовое колдовство.',
+      'Слишком точно для человека с репутацией {name_gen}.'
     ],
   },
   outcome: {
     popupClass: 'mood-good',
     stamp: 'КАССА НЕХОТЯ ОДОБРЯЕТ',
     verdicts: [
-      '{name}, что-то ты всё-таки понял в этом футболе. Ненадолго, но понял.',
-      '{name}, не позор. Уже праздник по меркам этой конторы.',
-      '{name}, эксперты ЛузБета сдержанно кивают и скрипят зубами.'
+      '{name_nom}, редкий случай: у {name_gen} в голове сегодня был не сквозняк, а мысль.',
+      '{name_nom}, это ещё не триумф, но уже и не привычный фестиваль растерянности.',
+      '{name_nom}, касса морщится, но признаёт: местами {name_acc} несло в правильную сторону.'
     ],
     article: {
-      kicker: 'Панель экспертов ошарашена',
+      kicker: 'Отдел умеренного недоумения',
       paragraphs: [
-        'Сегодня {name} продемонстрировал редкую для этой платформы комбинацию: уверенный взгляд, умеренную логику и отсутствие тотального развала уже после первого свистка.',
-        'Редакционный совет признал, что местами прогноз выглядел даже осмысленно. Да, формулировать это неприятно, но факты упрямы, особенно когда за них уже начислены ЛузКоины.',
-        'В сухом остатке: {good} удачных решений из {matches}, касса недовольна, но придраться сходу не смогла. Для {name} это почти газетный подвиг районного масштаба.'
+        '{name_nom} снова пришёл в раздел прогнозов, и все ожидали привычного фольклора уровня "сейчас опять начнётся". Но внезапно у {name_gen} получилось несколько решений без запаха катастрофы.',
+        'Эксперты долго всматривались в экран, пытаясь понять, не подменили ли {name_acc} на временно собранную версию без лишней суеты и внутренних спецэффектов.',
+        'По итогу у {name_gen} {good} адекватных попаданий из {matches}. Для обычного человека это просто нормальный день. Для {name_gen} это уже документальное чудо местного масштаба.'
       ],
-      quote: 'По версии очевидцев, {name} впервые за день спорил с реальностью и не проиграл ей всухую.',
+      quote: 'Очевидцы клянутся: реальность бодалась с {name_inst}, но сегодня проиграла по очкам.',
     },
-    badge: '{name} поймал волну адекватности',
+    badge: '{name_nom} временно в адеквате',
     image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/D6WuLOKOpR2fK/200w.gif',
     rowVerdicts: [
-      '{name}, не идеально, но хотя бы не полное фиаско.',
-      '{name}, исход пойман. Мозг сработал, хоть и не на максимум.',
-      '{name}, сюда касса ещё готова смотреть без мата.'
+      '{name_nom}, здесь хотя бы без фирменного цирка имени {name_gen}.',
+      'Неидеально, но для {name_gen} уже почти научная сенсация.',
+      'Касса смогла посмотреть на это без желания выключить {name_acc}.'
     ],
   },
   mixed: {
     popupClass: 'mood-mixed',
     stamp: 'КОЛЛЕКТИВНЫЙ РАЗБОР ПОЛЁТОВ',
     verdicts: [
-      '{name}, где-то красавчик, где-то уголовное дело против логики.',
-      '{name}, набор результатов в стиле: один угадал, три придумал.',
-      '{name}, матчи закрыты, твоя репутация открыта для насмешек.'
+      '{name_nom}, классика {name_gen}: один матч как человек, второй как потерянный комментатор.',
+      '{name_nom}, половина прогнозов держится, половина уже просит политического убежища.',
+      '{name_nom}, репутация {name_gen} снова пляшет между "ничего себе" и "что это было".'
     ],
     article: {
-      kicker: 'Спецрепортаж о противоречивой личности',
+      kicker: 'Досье на человека с внутренним бардаком',
       paragraphs: [
-        'Выступление {name} снова разделило экспертов на лагеря. Одни требовали похвалить за отдельные попадания, другие просили немедленно запретить так обращаться с логикой в прямом эфире.',
-        'В одних матчах чувствовалась мысль, в других будто прогноз составлялся на бегу, по шуму холодильника и внутреннему голосу, который сам не до конца понимал, что происходит.',
-        'Официальная формулировка редакции звучит так: {good} раз получилось, {miss} раз стало неловко, а общий результат по-прежнему идеально описывает карьеру {name} как драмеди с элементами спортивного бедлама.'
+        'Выступление {name_gen} опять разделило зал. Одни говорили, что у {name_gen} наконец проснулась мысль. Другие напоминали, что буквально через минуту та же мысль споткнулась о табуретку и потеряла обувь.',
+        'Часть матчей {name_nom} разобрал будто взрослый человек с глазами. Остальные выглядят так, словно прогнозы составлялись в лифте, на коленке и в сопровождении внутреннего клоуна.',
+        'Сухой остаток без жалости: {good} удачных эпизодов, {miss} приступов футбольной дичи и всё тот же уникальный стиль {name_gen} превращать вечер в спортивную мелодраму для бухгалтерии.'
       ],
-      quote: '{name} сумел одновременно обнадёжить кассу и заставить её нервно прикрыть лицо ладонью.',
+      quote: '{name_nom} сумел одновременно порадовать кассу и заставить её уткнуться лицом в папку с валидолом.',
     },
-    badge: '{name} устроил драмеди из прогнозов',
+    badge: '{name_nom} устроил драму кассе',
     image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/vcKEsYOdjoCeJRpn95/200w.gif',
     rowVerdicts: [
-      '{name}, здесь спорно, но бухгалтерия сочла это жизнеспособным.',
-      '{name}, наполовину футболист, наполовину эксперимент.',
-      '{name}, что-то сработало, что-то лучше бы молчало.'
+      'У {name_gen} тут то ли инсайт, то ли очередной приступ импровизации.',
+      '{name_nom} снова играет в смесь эксперта и растерянного туриста.',
+      'Что-то у {name_gen} срослось, что-то упало с лестницы.'
     ],
   },
   miss: {
     popupClass: 'mood-miss',
     stamp: 'ПРОТОКОЛ ПОЗОРА',
     verdicts: [
-      '{name}, реальность и твой прогноз даже не были знакомы.',
-      '{name}, матч закончился, а твоя версия событий так и не началась.',
-      '{name}, комиссия посмотрела на это и выключила свет.'
+      '{name_nom}, прогнозы {name_gen} снова жили в отдельной вселенной без футбола.',
+      '{name_nom}, матч уже закончился, а версия {name_gen} так и не добралась до реальности.',
+      '{name_nom}, редакция посмотрела на это и записала {name_acc} в отдел бытового абсурда.'
     ],
     article: {
-      kicker: 'Чёрная хроника игрового вечера',
+      kicker: 'Криминальная хроника по линии логики',
       paragraphs: [
-        'Вечером {name} уверенно вошёл в раздел прогнозов, а чуть позже столь же уверенно уехал мимо реальности, оставив после себя несколько смелых, но совершенно беспомощных версий того, как должен был закончиться футбол.',
-        'Наблюдатели сообщают, что некоторые исходы промахнулись настолько широко, что мячам пришлось отдельно объяснять, почему их вообще сюда приплели.',
-        'Редакция фиксирует: {miss} эпизодов неловкости из {matches}, ЛузКоинов немного, зато материала для подколов хватит надолго. Имя {name} снова произносится в кулуарах с интонацией "ну конечно".'
+        '{name_nom} снова принёс в прогнозы тот редкий жанр уверенности, который не подкреплён ничем, кроме внутреннего шума, смелого лица и абсолютного разрыва с происходящим на поле.',
+        'Некоторые версии {name_gen} промахнулись так широко, что мячи, табло и здравый смысл на секунду перестали считать {name_acc} своим современником.',
+        'Фиксируем без сочувствия: {miss} промахов из {matches}, немного монет и много материала, чтобы потом ещё долго обсуждать, как {name_nom} снова устроил цирк на выезде для собственной логики.'
       ],
-      quote: 'Очевидцы говорят, что прогноз {name} улетел так далеко, что его пытались вернуть уже из соседнего вида спорта.',
+      quote: 'Очевидцы заявляют, что прогноз {name_gen} пришлось искать уже где-то между киберспортом и погодой на четверг.',
     },
-    badge: '{name} снова спорит с реальностью',
+    badge: '{name_nom} снова мимо кассы',
     image: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3IxeG1hNDdiMWo2MjJ3anliYXMxemNlMHRodHBnbmlnZGloMmJ1diZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9Zchaz9dO1JApPV44G/200w.gif',
     rowVerdicts: [
-      '{name}, это уже не мимо, это в соседний вид спорта.',
-      '{name}, прогноз мёртв, но память о нём останется.',
-      '{name}, промах такой силы, что его слышно в VAR-комнате.'
+      'Это не промах {name_gen}, это побег прогноза с места логики.',
+      '{name_nom} улетел мимо так, будто спорил не с футболом, а с астрологией.',
+      'Промах {name_gen} такой силы, что VAR попросил не звать его к экрану.'
     ],
   }
 };
@@ -2947,8 +2952,75 @@ function getViewerShortName(){
   return base.split(/\s+/)[0] || base;
 }
 
+function inflectViewerName(nameValue, gramCase){
+  const name = String(nameValue || '').trim();
+  if(!name) return 'дружище';
+  const lower = name.toLowerCase();
+  if(lower === 'дружище'){
+    if(gramCase === 'gen') return 'дружища';
+    if(gramCase === 'dat') return 'дружищу';
+    if(gramCase === 'acc') return 'дружище';
+    if(gramCase === 'inst') return 'дружищем';
+    return 'дружище';
+  }
+  const last = lower.slice(-1);
+  const cut = n => name.slice(0, Math.max(0, name.length - n));
+  const husher = /[гкхжчшщц]$/i.test(cut(1));
+
+  if(last === 'а'){
+    const stem = cut(1);
+    if(gramCase === 'gen') return stem + (husher ? 'и' : 'ы');
+    if(gramCase === 'dat') return stem + 'е';
+    if(gramCase === 'acc') return stem + 'у';
+    if(gramCase === 'inst') return stem + 'ой';
+    return stem + 'е';
+  }
+  if(last === 'я'){
+    const stem = cut(1);
+    if(gramCase === 'gen') return stem + 'и';
+    if(gramCase === 'dat') return stem + 'е';
+    if(gramCase === 'acc') return stem + 'ю';
+    if(gramCase === 'inst') return stem + 'ей';
+    return stem + 'е';
+  }
+  if(last === 'й' || last === 'ь'){
+    const stem = cut(1);
+    if(gramCase === 'gen') return stem + 'я';
+    if(gramCase === 'dat') return stem + 'ю';
+    if(gramCase === 'acc') return stem + 'я';
+    if(gramCase === 'inst') return stem + 'ем';
+    return stem + 'е';
+  }
+  if(/[бвгджзклмнпрстфхцчшщ]$/i.test(last)){
+    if(gramCase === 'gen') return name + 'а';
+    if(gramCase === 'dat') return name + 'у';
+    if(gramCase === 'acc') return name + 'а';
+    if(gramCase === 'inst') return name + 'ом';
+    return name + 'е';
+  }
+  return name;
+}
+
+function getViewerNameForms(){
+  const nom = getViewerShortName();
+  return {
+    nom,
+    gen: inflectViewerName(nom, 'gen'),
+    dat: inflectViewerName(nom, 'dat'),
+    acc: inflectViewerName(nom, 'acc'),
+    inst: inflectViewerName(nom, 'inst'),
+  };
+}
+
 function withViewerName(text){
-  return String(text || '').replaceAll('{name}', getViewerShortName());
+  const forms = getViewerNameForms();
+  return String(text || '')
+    .replaceAll('{name}', forms.nom)
+    .replaceAll('{name_nom}', forms.nom)
+    .replaceAll('{name_gen}', forms.gen)
+    .replaceAll('{name_dat}', forms.dat)
+    .replaceAll('{name_acc}', forms.acc)
+    .replaceAll('{name_inst}', forms.inst);
 }
 
 function fillMatchRewardsTemplate(text, stats){
