@@ -767,6 +767,28 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   border-bottom:1px solid rgba(255,255,255,.1);
   background:linear-gradient(90deg,rgba(255,230,0,.22),rgba(255,80,80,.28));
 }
+.match-rewards-pop.mood-exact{
+  background:
+    radial-gradient(circle at top,rgba(150,255,174,.24),transparent 34%),
+    linear-gradient(180deg,#08361d,#101d15 48%,#120710 100%);
+  border-color:rgba(143,255,150,.55);
+}
+.match-rewards-pop.mood-good{
+  background:
+    radial-gradient(circle at top,rgba(255,240,120,.2),transparent 34%),
+    linear-gradient(180deg,#3a2205,#221109 48%,#14070f 100%);
+}
+.match-rewards-pop.mood-mixed{
+  background:
+    radial-gradient(circle at top,rgba(255,167,120,.22),transparent 34%),
+    linear-gradient(180deg,#341406,#24110d 48%,#14070f 100%);
+}
+.match-rewards-pop.mood-miss{
+  background:
+    radial-gradient(circle at top,rgba(255,120,140,.2),transparent 34%),
+    linear-gradient(180deg,#32050d,#1d0912 48%,#12070f 100%);
+  border-color:rgba(255,120,140,.48);
+}
 .match-rewards-title{
   font-family:var(--os);
   font-size:24px;
@@ -785,73 +807,80 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   color:#a8ff8f;
   text-shadow:0 0 18px rgba(168,255,143,.22);
 }
-.match-rewards-ad{
+.match-rewards-hero{
   margin:14px 16px 0;
-  padding:0;
-  border-radius:16px;
-  border:3px solid #fff200;
+  padding:14px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.12);
   background:
-    linear-gradient(135deg,#ff003c 0%,#ff7a00 28%,#fff200 52%,#00e1ff 76%,#ff00b7 100%);
-  box-shadow:0 0 0 2px rgba(255,255,255,.14) inset,0 0 28px rgba(255,230,0,.28);
-  overflow:hidden;
-  animation:matchRewardsAdBlink .7s steps(2,end) infinite;
+    radial-gradient(circle at top left,rgba(255,255,255,.08),transparent 30%),
+    linear-gradient(145deg,rgba(255,255,255,.06),rgba(0,0,0,.22));
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 150px;
+  gap:14px;
+  align-items:center;
 }
-.match-rewards-ad-label{
-  font-family:var(--os);
-  font-size:12px;
-  letter-spacing:1.8px;
-  color:#1d0606;
-  background:#fff200;
-  padding:7px 12px 6px;
-  text-align:center;
+.match-rewards-hero-copy{
+  min-width:0;
 }
-.match-rewards-ad-body{
-  padding:12px 14px 14px;
-  background:rgba(20,0,0,.72);
-}
-.match-rewards-ad-text{
-  font-size:16px;
-  line-height:1.4;
-  color:#fff;
-  font-weight:700;
-  text-shadow:0 0 12px rgba(255,255,255,.14);
-}
-.match-rewards-ad-marquee{
-  margin-top:8px;
+.match-rewards-stamp{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
   font-family:var(--os);
   font-size:11px;
-  color:#fff200;
-  white-space:nowrap;
+  letter-spacing:1px;
+  color:#fff6b8;
+  background:rgba(0,0,0,.24);
+  text-transform:uppercase;
+}
+.match-rewards-verdict{
+  margin-top:10px;
+  font-family:var(--os);
+  font-size:23px;
+  line-height:1.04;
+  color:#fff;
+}
+.match-rewards-meta{
+  margin-top:8px;
+  font-size:12px;
+  line-height:1.55;
+  color:#e8dede;
+}
+.match-rewards-reaction{
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.08),rgba(0,0,0,.22));
   overflow:hidden;
   position:relative;
 }
-.match-rewards-ad-marquee span{
-  display:inline-block;
-  padding-left:100%;
-  animation:matchRewardsAdRun 8s linear infinite;
+.match-rewards-reaction img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
 }
-.match-rewards-ad-cta{
-  margin-top:10px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:40px;
-  border-radius:12px;
-  background:linear-gradient(135deg,#fff200,#ff9d00);
-  color:#290707;
+.match-rewards-reaction-badge{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:8px;
+  padding:7px 8px 6px;
+  border-radius:10px;
+  background:rgba(10,10,10,.78);
+  backdrop-filter:blur(6px);
   font-family:var(--os);
-  font-size:14px;
-  font-weight:700;
-  letter-spacing:.6px;
-  box-shadow:0 8px 18px rgba(255,157,0,.3);
-}
-@keyframes matchRewardsAdBlink{
-  0%, 100%{transform:scale(1);filter:brightness(1)}
-  50%{transform:scale(1.02);filter:brightness(1.32) saturate(1.2)}
-}
-@keyframes matchRewardsAdRun{
-  0%{transform:translateX(0)}
-  100%{transform:translateX(-100%)}
+  font-size:11px;
+  letter-spacing:.7px;
+  color:#fff9cf;
+  text-align:center;
+  text-transform:uppercase;
 }
 .match-rewards-list{
   padding:14px 16px 10px;
@@ -866,6 +895,18 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   border-radius:14px;
   padding:12px 14px;
   margin-bottom:10px;
+}
+.match-reward-row.exact{
+  background:rgba(143,255,150,.08);
+  border-color:rgba(143,255,150,.24);
+}
+.match-reward-row.outcome{
+  background:rgba(255,224,122,.08);
+  border-color:rgba(255,224,122,.22);
+}
+.match-reward-row.miss{
+  background:rgba(255,154,168,.07);
+  border-color:rgba(255,154,168,.2);
 }
 .match-reward-line{
   display:flex;
@@ -888,6 +929,14 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   font-size:13px;
   line-height:1.45;
   color:#ffe1e1;
+}
+.match-reward-verdict{
+  margin-top:8px;
+  font-family:var(--os);
+  font-size:12px;
+  letter-spacing:.6px;
+  color:#fff4a5;
+  text-transform:uppercase;
 }
 .match-reward-delta{
   white-space:nowrap;
@@ -952,6 +1001,7 @@ body.match-rewards-locked{
 @media(max-width:480px){
   .big-win-pop{width:min(220px,62vw);max-height:40vh;}
   .match-rewards-title{font-size:18px}
+  .match-rewards-hero{grid-template-columns:1fr}
   .match-reward-line{flex-direction:column}
   .match-reward-delta{font-size:20px}
 }
@@ -1043,12 +1093,15 @@ try{
     <div class="match-rewards-sub" id="match-rewards-sub">Сейчас тебе напомнят, насколько ты был близок к позору. Или уже в нём.</div>
     <div class="match-rewards-total" id="match-rewards-total">+0 ЛК</div>
   </div>
-  <div class="match-rewards-ad" id="match-rewards-ad">
-    <div class="match-rewards-ad-label">РЕКЛАМА • РЕКЛАМА • РЕКЛАМА</div>
-    <div class="match-rewards-ad-body">
-      <div class="match-rewards-ad-text" id="match-rewards-ad-text">Продаю носки, носил около 12 раз за 2 недели, 800 ЛК — Стас</div>
-      <div class="match-rewards-ad-marquee"><span>СРОЧНО • ВЫГОДНО • НАДО БРАТЬ • ПОКА НЕ ЗАБРАЛИ • СКИДКА МОРАЛЬНАЯ •</span></div>
-      <div class="match-rewards-ad-cta">КУПИТЬ СЕЙЧАС И СОМНЕВАТЬСЯ ПОТОМ</div>
+  <div class="match-rewards-hero">
+    <div class="match-rewards-hero-copy">
+      <div class="match-rewards-stamp" id="match-rewards-stamp">ВЕРДИКТ КАССЫ</div>
+      <div class="match-rewards-verdict" id="match-rewards-verdict">Эксперты ЛузБета нехотя открыли калькулятор.</div>
+      <div class="match-rewards-meta" id="match-rewards-meta">Матчи посчитаны, монеты начислены, самооценка пересмотрена.</div>
+    </div>
+    <div class="match-rewards-reaction">
+      <img id="match-rewards-reaction-img" src="big-win.png" alt="Реакция ЛузБета"/>
+      <div class="match-rewards-reaction-badge" id="match-rewards-reaction-badge">ПРОТОКОЛ ПОЗОРА</div>
     </div>
   </div>
   <div class="match-rewards-list" id="match-rewards-list"></div>
@@ -2596,31 +2649,107 @@ function getMatchRewardTeams(groupCode, matchIndex){
   return `${escapeHtml(match.h)} vs ${escapeHtml(match.a)}`;
 }
 
-const MATCH_REWARD_ADS = [
-  'Продам тень от табуретки. Сам табурет не в курсе. 700 ЛК — Стас',
-  'Куплю один тревожный взгляд. Не для себя, для интерьера. — Дима',
-  'Продам суп. Из жидкости там только воспоминания. 480 ЛК — Стас',
-  'Меняю хруст колена по утрам на попугая с юридическим образованием. — Дима',
-  'Продам запах подъезда после дождя. В банке. 1200 ЛК — Стас',
-  'Куплю крошки со стола, если они с характером. — Дима',
-  'Продам куртку, в которой удобно молчать на семейных праздниках. 860 ЛК — Стас',
-  'Ищу стиралку, которая умеет прощать. — Дима',
-  'Продам дверной глазок с богатым внутренним миром. 530 ЛК — Стас',
-  'Куплю шесть одинаковых носков. Цвет не важен, вера важна. — Дима',
-  'Продам звук, с которым дед садится на диван. Редкий. 1500 ЛК — Стас',
-  'Меняю кабачок на кабачок, но с другим вайбом. — Дима',
-  'Продам недопитый компот. На вкус как август и ошибка. 610 ЛК — Стас',
-  'Ищу человека, который моргает синхронно с холодильником. Срочно. — Дима',
-  'Продам три пуговицы и четвёртое измерение в подарок. 990 ЛК — Стас',
-  'Куплю половину четверга. Весь четверг не потяну. — Дима',
-  'Продам ковёр, который однажды сам выбрал стену. 1300 ЛК — Стас',
-  'Меняю три литра неловкости на один уверенный кивок. — Дима',
-  'Продам банку с эхом. Открывать осторожно, спорит. 845 ЛК — Стас',
-  'Куплю стул, который скрипит осуждающе, но по делу. — Дима',
-];
+const MATCH_REWARD_POPUP_MOODS = {
+  exact: {
+    popupClass: 'mood-exact',
+    stamp: 'VAR ПОДОЗРЕВАЕТ ИНСАЙД',
+    verdicts: [
+      '{name}, точный счёт. Это уже не удача, это уголовно точная интуиция.',
+      '{name}, комиссия в панике: ты реально знал, чем всё кончится.',
+      '{name}, касса нехотя признаёт: тут был прогноз, а не бред.'
+    ],
+    meta: '{name}, сегодня тебе начисляют монеты без уважения, но с явным раздражением.',
+    badge: 'Точный счёт обнаружен',
+    image: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmNmZDd4eGcwMjdhbm42NTdlbHlrand3NDc0MWx5b3oyN3E2Z25sNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26gs6Y4Mke6i0MUi4/giphy.gif',
+    rowVerdicts: [
+      '{name}, слишком чистое попадание. Проверь карманы на наличие судьи.',
+      '{name}, это уже не прогноз, а оперативная информация.',
+      '{name}, попал так точно, будто видел табло заранее.'
+    ],
+  },
+  outcome: {
+    popupClass: 'mood-good',
+    stamp: 'КАССА НЕХОТЯ ОДОБРЯЕТ',
+    verdicts: [
+      '{name}, что-то ты всё-таки понял в этом футболе. Ненадолго, но понял.',
+      '{name}, не позор. Уже праздник по меркам этой конторы.',
+      '{name}, эксперты ЛузБета сдержанно кивают и скрипят зубами.'
+    ],
+    meta: '{name}, монеты начислены за редкий приступ адекватности и умеренной логики.',
+    badge: 'Есть жизнь в прогнозе',
+    image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/D6WuLOKOpR2fK/200w.gif',
+    rowVerdicts: [
+      '{name}, не идеально, но хотя бы не полное фиаско.',
+      '{name}, исход пойман. Мозг сработал, хоть и не на максимум.',
+      '{name}, сюда касса ещё готова смотреть без мата.'
+    ],
+  },
+  mixed: {
+    popupClass: 'mood-mixed',
+    stamp: 'КОЛЛЕКТИВНЫЙ РАЗБОР ПОЛЁТОВ',
+    verdicts: [
+      '{name}, где-то красавчик, где-то уголовное дело против логики.',
+      '{name}, набор результатов в стиле: один угадал, три придумал.',
+      '{name}, матчи закрыты, твоя репутация открыта для насмешек.'
+    ],
+    meta: '{name}, монеты начислены, но честь восстановлению не подлежит.',
+    badge: 'Смешанный уровень стыда',
+    image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/vcKEsYOdjoCeJRpn95/200w.gif',
+    rowVerdicts: [
+      '{name}, здесь спорно, но бухгалтерия сочла это жизнеспособным.',
+      '{name}, наполовину футболист, наполовину эксперимент.',
+      '{name}, что-то сработало, что-то лучше бы молчало.'
+    ],
+  },
+  miss: {
+    popupClass: 'mood-miss',
+    stamp: 'ПРОТОКОЛ ПОЗОРА',
+    verdicts: [
+      '{name}, реальность и твой прогноз даже не были знакомы.',
+      '{name}, матч закончился, а твоя версия событий так и не началась.',
+      '{name}, комиссия посмотрела на это и выключила свет.'
+    ],
+    meta: '{name}, ЛузКоинов немного, зато стыда выдано с запасом и без лимита.',
+    badge: 'Полный мрак',
+    image: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3IxeG1hNDdiMWo2MjJ3anliYXMxemNlMHRodHBnbmlnZGloMmJ1diZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9Zchaz9dO1JApPV44G/200w.gif',
+    rowVerdicts: [
+      '{name}, это уже не мимо, это в соседний вид спорта.',
+      '{name}, прогноз мёртв, но память о нём останется.',
+      '{name}, промах такой силы, что его слышно в VAR-комнате.'
+    ],
+  }
+};
 
-function getRandomMatchRewardAd(){
-  return MATCH_REWARD_ADS[Math.floor(Math.random()*MATCH_REWARD_ADS.length)] || MATCH_REWARD_ADS[0];
+function randomFrom(arr){
+  return (Array.isArray(arr) && arr.length)
+    ? arr[Math.floor(Math.random()*arr.length)]
+    : '';
+}
+
+function getViewerShortName(){
+  const base = String((S && S.name) || '').trim();
+  if(!base) return 'дружище';
+  return base.split(/\s+/)[0] || base;
+}
+
+function withViewerName(text){
+  return String(text || '').replaceAll('{name}', getViewerShortName());
+}
+
+function getMatchRewardsMood(rows){
+  const exactCount = rows.filter(r => String(r.result_type || '') === 'exact').length;
+  const positiveCount = rows.filter(r => (parseInt(r.coins_delta,10) || 0) > 0).length;
+  const total = rows.reduce((sum,row)=>sum + (parseInt(row.coins_delta,10) || 0), 0);
+  if(exactCount > 0) return MATCH_REWARD_POPUP_MOODS.exact;
+  if(positiveCount === rows.length && total > 0) return MATCH_REWARD_POPUP_MOODS.outcome;
+  if(positiveCount > 0) return MATCH_REWARD_POPUP_MOODS.mixed;
+  return MATCH_REWARD_POPUP_MOODS.miss;
+}
+
+function getMatchRewardRowVerdict(type){
+  if(type === 'exact') return withViewerName(randomFrom(MATCH_REWARD_POPUP_MOODS.exact.rowVerdicts));
+  if(type === 'diff' || type === 'outcome') return withViewerName(randomFrom(MATCH_REWARD_POPUP_MOODS.outcome.rowVerdicts));
+  return withViewerName(randomFrom(MATCH_REWARD_POPUP_MOODS.miss.rowVerdicts));
 }
 
 function closeMatchRewardsPopup(){
@@ -2675,34 +2804,48 @@ async function showMatchRewardsPopup(rows){
   const list=document.getElementById('match-rewards-list');
   const totalEl=document.getElementById('match-rewards-total');
   const subEl=document.getElementById('match-rewards-sub');
-  const adText=document.getElementById('match-rewards-ad-text');
+  const stampEl=document.getElementById('match-rewards-stamp');
+  const verdictEl=document.getElementById('match-rewards-verdict');
+  const metaEl=document.getElementById('match-rewards-meta');
+  const reactionImgEl=document.getElementById('match-rewards-reaction-img');
+  const reactionBadgeEl=document.getElementById('match-rewards-reaction-badge');
   const btn=document.getElementById('match-rewards-ack-btn');
   const lockText=document.getElementById('match-rewards-lock-text');
-  if(!popup || !list || !totalEl || !subEl || !adText || !btn || !lockText) return;
+  if(!popup || !list || !totalEl || !subEl || !stampEl || !verdictEl || !metaEl || !reactionImgEl || !reactionBadgeEl || !btn || !lockText) return;
 
   const ids = rows.map(r=>parseInt(r.id,10)).filter(Boolean);
   matchRewardsPendingIds=ids;
   const total = rows.reduce((sum,row)=>sum + (parseInt(row.coins_delta,10) || 0), 0);
+  const mood = getMatchRewardsMood(rows);
   totalEl.textContent = `+${total} ЛК`;
   subEl.textContent = rows.length===1
     ? 'Один матч закончился. И да, тебя по нему уже оценили.'
     : `Матчей закрыто: ${rows.length}. Коллективный разбор твоих решений готов.`;
-  adText.textContent = getRandomMatchRewardAd();
+  popup.className = `match-rewards-pop ${mood.popupClass}`;
+  stampEl.textContent = mood.stamp;
+  verdictEl.textContent = withViewerName(randomFrom(mood.verdicts));
+  metaEl.textContent = withViewerName(mood.meta);
+  reactionImgEl.src = mood.image;
+  reactionImgEl.alt = withViewerName(mood.badge);
+  reactionBadgeEl.textContent = mood.badge;
 
   list.innerHTML = rows.map(row=>{
-    const meta=getMatchRewardLabel(String(row.result_type || 'miss'));
+    const resultType = String(row.result_type || 'miss');
+    const meta=getMatchRewardLabel(resultType);
     const actual=`${parseInt(row.actual_home,10)}:${parseInt(row.actual_away,10)}`;
     const predicted=`${parseInt(row.pred_home,10)}:${parseInt(row.pred_away,10)}`;
-    return `<div class="match-reward-row">
+    const delta = parseInt(row.coins_delta,10) || 0;
+    return `<div class="match-reward-row ${meta.cls}">
       <div class="match-reward-tag ${meta.cls}">${meta.icon} ${meta.text}</div>
       <div class="match-reward-line">
         <div>
           <div class="match-reward-match">${getMatchRewardTeams(row.group_code, parseInt(row.match_index,10))} → ${actual}</div>
           <div class="match-reward-pred">Твой прогноз: ${predicted}</div>
         </div>
-        <div class="match-reward-delta">+${parseInt(row.coins_delta,10) || 0}</div>
+        <div class="match-reward-delta">${delta >= 0 ? '+' : ''}${delta}</div>
       </div>
       <div class="match-reward-comment">${escapeHtml(row.message || '')}</div>
+      <div class="match-reward-verdict">${escapeHtml(getMatchRewardRowVerdict(resultType))}</div>
     </div>`;
   }).join('');
 
