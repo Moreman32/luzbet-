@@ -858,15 +858,15 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-rewards-hero{
   margin:0 16px 0;
-  padding:16px;
-  border-radius:20px;
+  padding:12px;
+  border-radius:18px;
   border:1px solid rgba(45,28,12,.16);
   background:
     linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.08)),
     linear-gradient(145deg,#fff8ea,#f2dfb7);
   display:grid;
-  grid-template-columns:minmax(0,1fr) 200px;
-  gap:16px;
+  grid-template-columns:minmax(0,1fr) 132px;
+  gap:12px;
   align-items:stretch;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);
 }
@@ -902,9 +902,9 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .match-rewards-meta{
   display:flex;
   flex-direction:column;
-  gap:8px;
-  padding:12px 14px;
-  border-radius:16px;
+  gap:6px;
+  padding:10px 12px;
+  border-radius:14px;
   border:1px solid rgba(45,28,12,.12);
   background:linear-gradient(180deg,rgba(255,255,255,.46),rgba(255,255,255,.2));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
@@ -918,19 +918,19 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   color:#8d2418;
 }
 .match-rewards-article{
-  font-size:12px;
-  line-height:1.45;
+  font-size:11px;
+  line-height:1.35;
 }
 .match-rewards-article p + p{
-  margin-top:6px;
+  margin-top:5px;
 }
 .match-rewards-pullquote{
-  padding:8px 10px;
+  padding:7px 9px;
   border-left:3px solid rgba(170,31,25,.55);
   background:rgba(255,248,234,.65);
   border-radius:10px;
   font-family:var(--os);
-  font-size:13px;
+  font-size:12px;
   line-height:1.2;
   color:#20140d;
   text-transform:uppercase;
@@ -953,8 +953,8 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-rewards-reaction{
   width:100%;
-  min-height:200px;
-  border-radius:16px;
+  min-height:132px;
+  border-radius:14px;
   border:1px solid rgba(45,28,12,.16);
   background:
     linear-gradient(145deg,#e8d5ae,#d8bd87);
@@ -984,6 +984,23 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   text-align:center;
   text-transform:uppercase;
 }
+.match-rewards-list-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 14px 0;
+  font-family:var(--os);
+  font-size:14px;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  color:#2a1a0f;
+}
+.match-rewards-list-note{
+  font-size:10px;
+  color:#7a5d44;
+  letter-spacing:.7px;
+}
 .match-rewards-list{
   padding:10px 14px 8px;
   flex:1 1 auto;
@@ -994,9 +1011,9 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
     linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));
 }
 .match-reward-row{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:6px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
   background:
     linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.12));
   border:1px solid rgba(39,21,8,.12);
@@ -1017,12 +1034,11 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   background:linear-gradient(180deg,rgba(255,211,218,.72),rgba(255,211,218,.18));
   border-color:rgba(155,28,41,.18);
 }
-.match-reward-line{
+.match-reward-top{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
   gap:12px;
-  grid-column:1 / 2;
 }
 .match-reward-match{
   font-family:var(--os);
@@ -1030,28 +1046,36 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   color:#18110b;
   line-height:1.08;
 }
-.match-reward-pred{
-  margin-top:4px;
-  font-size:10px;
-  color:#5f4735;
+.match-reward-scoreline{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr)) auto;
+  gap:8px;
+  align-items:stretch;
+}
+.match-reward-scorebox{
+  border-radius:12px;
+  padding:8px 9px;
+  background:rgba(255,255,255,.34);
+  border:1px solid rgba(39,21,8,.08);
+}
+.match-reward-scorelabel{
+  display:block;
+  font-size:9px;
+  letter-spacing:.7px;
   text-transform:uppercase;
-  letter-spacing:.55px;
+  color:#6a503b;
+  margin-bottom:3px;
+}
+.match-reward-scorevalue{
+  font-family:var(--os);
+  font-size:19px;
+  line-height:1;
+  color:#17110c;
 }
 .match-reward-comment{
-  margin-top:1px;
   font-size:11px;
   line-height:1.3;
   color:#3b2a1d;
-  grid-column:1 / -1;
-}
-.match-reward-verdict{
-  margin-top:0;
-  font-family:var(--os);
-  font-size:11px;
-  letter-spacing:.45px;
-  color:#8f1f16;
-  text-transform:uppercase;
-  grid-column:1 / -1;
 }
 .match-reward-delta{
   white-space:nowrap;
@@ -1059,10 +1083,15 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   font-size:24px;
   color:#0f5b30;
   line-height:1;
-  text-align:right;
-  align-self:start;
-  grid-column:2 / 3;
-  grid-row:1 / span 2;
+  text-align:center;
+  align-self:stretch;
+  min-width:88px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 10px;
+  border-radius:12px;
+  background:rgba(15,91,48,.09);
 }
 .match-reward-tag{
   display:inline-flex;
@@ -1127,17 +1156,21 @@ body.match-rewards-locked{
   .match-rewards-mainbar{grid-template-columns:1fr;padding:16px 14px 12px}
   .match-rewards-title{font-size:22px}
   .match-rewards-total{text-align:left;font-size:24px}
-  .match-rewards-hero{grid-template-columns:1fr}
+  .match-rewards-hero{grid-template-columns:minmax(0,1fr) 92px;gap:10px;margin:0 10px 0;padding:10px}
   .match-rewards-meta{padding:10px 11px}
   .match-rewards-article{font-size:11px}
   .match-rewards-pullquote{font-size:12px}
-  .match-rewards-reaction{min-height:160px}
+  .match-rewards-reaction{min-height:92px}
+  .match-rewards-reaction-badge{font-size:9px;left:6px;right:6px;bottom:6px;padding:5px 6px}
+  .match-rewards-list-head{padding:8px 10px 0;font-size:12px}
   .match-rewards-list{padding:8px 10px 6px}
-  .match-reward-row{padding:9px 10px;gap:5px 10px}
-  .match-reward-line{gap:8px}
+  .match-reward-row{padding:9px 10px;gap:6px}
+  .match-reward-top{gap:8px}
   .match-reward-match{font-size:14px}
+  .match-reward-scoreline{grid-template-columns:1fr 1fr;gap:6px}
+  .match-reward-scorevalue{font-size:17px}
+  .match-reward-delta{grid-column:1 / -1;min-width:0;padding:6px 10px;font-size:18px}
   .match-reward-comment{font-size:10.5px}
-  .match-reward-delta{font-size:18px}
 }
 
 
@@ -1249,6 +1282,10 @@ try{
       <img id="match-rewards-reaction-img" src="big-win.png" alt="Реакция ЛузБета"/>
       <div class="match-rewards-reaction-badge" id="match-rewards-reaction-badge">ПРОТОКОЛ ПОЗОРА</div>
     </div>
+  </div>
+  <div class="match-rewards-list-head">
+    <span>Разбор матчей</span>
+    <span class="match-rewards-list-note">Факт, прогноз и приговор кассы</span>
   </div>
   <div class="match-rewards-list" id="match-rewards-list"></div>
   <div class="match-rewards-foot">
@@ -2929,8 +2966,8 @@ function renderMatchRewardsArticle(mood, rows, total){
     matches: Array.isArray(rows) ? rows.length : 0,
     total: total || 0,
     exact: Array.isArray(rows) ? rows.filter(r => String(r.result_type || '') === 'exact').length : 0,
-    good: Array.isArray(rows) ? rows.filter(r => (parseInt(r.coins_delta,10) || 0) > 0).length : 0,
-    miss: Array.isArray(rows) ? rows.filter(r => (parseInt(r.coins_delta,10) || 0) <= 0).length : 0,
+    good: Array.isArray(rows) ? rows.filter(r => ['exact','diff','outcome'].includes(String(r.result_type || ''))).length : 0,
+    miss: Array.isArray(rows) ? rows.filter(r => !['exact','diff','outcome'].includes(String(r.result_type || ''))).length : 0,
   };
   const article = mood && mood.article ? mood.article : null;
   if(!article) return escapeHtml(withViewerName('Матчи посчитаны, монеты начислены, самооценка пересмотрена.'));
@@ -2952,12 +2989,12 @@ function renderMatchRewardsArticle(mood, rows, total){
 }
 
 function getMatchRewardsMood(rows){
-  const exactCount = rows.filter(r => String(r.result_type || '') === 'exact').length;
-  const positiveCount = rows.filter(r => (parseInt(r.coins_delta,10) || 0) > 0).length;
-  const total = rows.reduce((sum,row)=>sum + (parseInt(row.coins_delta,10) || 0), 0);
+  const types = rows.map(r => String(r.result_type || 'miss'));
+  const exactCount = types.filter(t => t === 'exact').length;
+  const goodCount = types.filter(t => t === 'exact' || t === 'diff' || t === 'outcome').length;
   if(exactCount > 0) return MATCH_REWARD_POPUP_MOODS.exact;
-  if(positiveCount === rows.length && total > 0) return MATCH_REWARD_POPUP_MOODS.outcome;
-  if(positiveCount > 0) return MATCH_REWARD_POPUP_MOODS.mixed;
+  if(goodCount === rows.length && rows.length > 0) return MATCH_REWARD_POPUP_MOODS.outcome;
+  if(goodCount > 0) return MATCH_REWARD_POPUP_MOODS.mixed;
   return MATCH_REWARD_POPUP_MOODS.miss;
 }
 
@@ -3051,16 +3088,22 @@ async function showMatchRewardsPopup(rows){
     const predicted=`${parseInt(row.pred_home,10)}:${parseInt(row.pred_away,10)}`;
     const delta = parseInt(row.coins_delta,10) || 0;
     return `<div class="match-reward-row ${meta.cls}">
-      <div class="match-reward-tag ${meta.cls}">${meta.icon} ${meta.text}</div>
-      <div class="match-reward-line">
-        <div>
-          <div class="match-reward-match">${getMatchRewardTeams(row.group_code, parseInt(row.match_index,10))} → ${actual}</div>
-          <div class="match-reward-pred">Твой прогноз: ${predicted}</div>
+      <div class="match-reward-top">
+        <div class="match-reward-match">${getMatchRewardTeams(row.group_code, parseInt(row.match_index,10))}</div>
+        <div class="match-reward-tag ${meta.cls}">${meta.icon} ${meta.text}</div>
+      </div>
+      <div class="match-reward-scoreline">
+        <div class="match-reward-scorebox">
+          <span class="match-reward-scorelabel">Факт</span>
+          <strong class="match-reward-scorevalue">${actual}</strong>
         </div>
-        <div class="match-reward-delta">${delta >= 0 ? '+' : ''}${delta}</div>
+        <div class="match-reward-scorebox">
+          <span class="match-reward-scorelabel">Твой прогноз</span>
+          <strong class="match-reward-scorevalue">${predicted}</strong>
+        </div>
+        <div class="match-reward-delta">${delta >= 0 ? '+' : ''}${delta} ЛК</div>
       </div>
       <div class="match-reward-comment">${escapeHtml(row.message || '')}</div>
-      <div class="match-reward-verdict">${escapeHtml(getMatchRewardRowVerdict(resultType))}</div>
     </div>`;
   }).join('');
 
