@@ -987,6 +987,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   overflow:hidden;
   position:relative;
   box-shadow:0 10px 24px rgba(49,29,13,.18);
+  transform:rotate(-1.5deg);
 }
 .match-rewards-reaction img{
   width:100%;
@@ -1171,12 +1172,42 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   color:#fff4df;
   background:linear-gradient(135deg,#a81d19,#cf3320 46%,#ed7d23 100%);
   box-shadow:0 14px 28px rgba(138,34,19,.24);
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+.match-rewards-btn:not([disabled]){
+  animation:matchRewardsBtnPulse 1.6s ease-in-out infinite;
+}
+.match-rewards-btn:not([disabled])::after{
+  content:'ЖМИ';
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:11px;
+  letter-spacing:1px;
+  color:rgba(255,244,223,.9);
+  opacity:.88;
+}
+.match-rewards-btn:not([disabled]):hover{
+  transform:translateY(-2px) scale(1.01);
+  box-shadow:0 18px 34px rgba(138,34,19,.32);
+  filter:saturate(1.12) brightness(1.03);
+}
+.match-rewards-btn:not([disabled]):active{
+  transform:translateY(0) scale(.992);
 }
 .match-rewards-btn[disabled]{
   cursor:not-allowed;
   color:#dac8a1;
   background:linear-gradient(135deg,#7c6b4d,#66563c);
   box-shadow:none;
+}
+@keyframes matchRewardsBtnPulse{
+  0%,100%{box-shadow:0 14px 28px rgba(138,34,19,.24),0 0 0 0 rgba(237,125,35,.16)}
+  50%{box-shadow:0 18px 34px rgba(138,34,19,.3),0 0 0 8px rgba(237,125,35,0)}
 }
 body.match-rewards-locked{
   overflow:hidden;
@@ -2893,7 +2924,7 @@ const MATCH_REWARD_POPUP_MOODS = {
       ],
       quote: 'Свидетели уверяют, что мячи будто заранее получили от {name_gen} маршрутный лист.',
     },
-    badge: '{name_nom} нервирует кассу',
+    badge: '{name_nom} опять ломает бухгалтерию',
     image: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmNmZDd4eGcwMjdhbm42NTdlbHlrand3NDc0MWx5b3oyN3E2Z25sNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26gs6Y4Mke6i0MUi4/giphy.gif',
     rowVerdicts: [
       'Даже у {name_gen} иногда срабатывает не паника, а попадание.',
@@ -2918,7 +2949,7 @@ const MATCH_REWARD_POPUP_MOODS = {
       ],
       quote: 'Очевидцы клянутся: реальность бодалась с {name_inst}, но сегодня проиграла по очкам.',
     },
-    badge: '{name_nom} временно в адеквате',
+    badge: '{name_nom} временно включил мозг',
     image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/D6WuLOKOpR2fK/200w.gif',
     rowVerdicts: [
       '{name_nom}, здесь хотя бы без фирменного цирка имени {name_gen}.',
@@ -2943,7 +2974,7 @@ const MATCH_REWARD_POPUP_MOODS = {
       ],
       quote: '{name_nom} сумел одновременно порадовать кассу и заставить её уткнуться лицом в папку с валидолом.',
     },
-    badge: '{name_nom} устроил драму кассе',
+    badge: '{name_nom} устроил цирк бухгалтерии',
     image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/vcKEsYOdjoCeJRpn95/200w.gif',
     rowVerdicts: [
       'У {name_gen} тут то ли инсайт, то ли очередной приступ импровизации.',
@@ -2968,7 +2999,7 @@ const MATCH_REWARD_POPUP_MOODS = {
       ],
       quote: 'Очевидцы заявляют, что прогноз {name_gen} пришлось искать уже где-то между киберспортом и погодой на четверг.',
     },
-    badge: '{name_nom} снова мимо кассы',
+    badge: '{name_nom} снова проиграл спор с реальностью',
     image: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3IxeG1hNDdiMWo2MjJ3anliYXMxemNlMHRodHBnbmlnZGloMmJ1diZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9Zchaz9dO1JApPV44G/200w.gif',
     rowVerdicts: [
       'Это не промах {name_gen}, это побег прогноза с места логики.',
