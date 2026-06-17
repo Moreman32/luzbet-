@@ -717,17 +717,18 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   left:50%;
   top:50%;
   transform:translate(-50%,-50%) scale(.96);
-  width:min(760px,92vw);
+  width:min(880px,94vw);
   max-height:min(90vh,720px);
   overflow:hidden;
   display:flex;
   flex-direction:column;
   background:
-    radial-gradient(circle at top,rgba(255,240,120,.2),transparent 34%),
-    linear-gradient(180deg,#3a0505,#220909 48%,#14070f 100%);
-  border:2px solid rgba(255,230,0,.5);
-  border-radius:18px;
-  box-shadow:0 28px 110px rgba(0,0,0,.68),0 0 0 4px rgba(255,70,70,.12);
+    radial-gradient(circle at top right,rgba(255,255,255,.86),transparent 26%),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.025),rgba(0,0,0,.025) 1px,transparent 1px,transparent 30px),
+    linear-gradient(180deg,#f7edd6,#eadab6 52%,#dfc997 100%);
+  border:1px solid rgba(38,24,12,.55);
+  border-radius:24px;
+  box-shadow:0 28px 110px rgba(0,0,0,.58),0 0 0 10px rgba(30,15,0,.08);
   z-index:10020;
   opacity:0;
   pointer-events:none;
@@ -736,12 +737,14 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .match-rewards-pop::before{
   content:'';
   position:absolute;
-  inset:-3px;
-  border-radius:20px;
-  background:linear-gradient(135deg,rgba(255,230,0,.9),rgba(255,75,75,.85),rgba(255,230,0,.75));
+  inset:0;
+  border-radius:24px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.2),transparent 18%),
+    repeating-linear-gradient(90deg,transparent,transparent 27px,rgba(55,35,14,.035) 27px,rgba(55,35,14,.035) 28px);
   z-index:-1;
-  filter:blur(18px);
-  opacity:.85;
+  opacity:.55;
+  pointer-events:none;
 }
 .match-rewards-pop.show{
   opacity:1;
@@ -751,7 +754,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .match-rewards-backdrop{
   position:fixed;
   inset:0;
-  background:radial-gradient(circle at center,rgba(255,230,0,.14),rgba(0,0,0,.88) 42%,rgba(0,0,0,.94));
+  background:radial-gradient(circle at center,rgba(255,233,163,.12),rgba(0,0,0,.86) 42%,rgba(0,0,0,.94));
   backdrop-filter:blur(7px);
   z-index:10010;
   opacity:0;
@@ -763,62 +766,109 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   pointer-events:auto;
 }
 .match-rewards-head{
-  padding:18px 20px 12px;
-  border-bottom:1px solid rgba(255,255,255,.1);
-  background:linear-gradient(90deg,rgba(255,230,0,.22),rgba(255,80,80,.28));
+  padding:0;
+  border-bottom:1px solid rgba(39,21,8,.18);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 100%),
+    linear-gradient(180deg,#fff7e5,#f0dfbb 62%,#e6d1a6 100%);
 }
 .match-rewards-pop.mood-exact{
-  background:
-    radial-gradient(circle at top,rgba(150,255,174,.24),transparent 34%),
-    linear-gradient(180deg,#08361d,#101d15 48%,#120710 100%);
-  border-color:rgba(143,255,150,.55);
+  box-shadow:0 28px 110px rgba(0,0,0,.58),0 0 0 10px rgba(20,110,46,.11);
 }
 .match-rewards-pop.mood-good{
-  background:
-    radial-gradient(circle at top,rgba(255,240,120,.2),transparent 34%),
-    linear-gradient(180deg,#3a2205,#221109 48%,#14070f 100%);
+  box-shadow:0 28px 110px rgba(0,0,0,.58),0 0 0 10px rgba(184,123,0,.11);
 }
 .match-rewards-pop.mood-mixed{
-  background:
-    radial-gradient(circle at top,rgba(255,167,120,.22),transparent 34%),
-    linear-gradient(180deg,#341406,#24110d 48%,#14070f 100%);
+  box-shadow:0 28px 110px rgba(0,0,0,.58),0 0 0 10px rgba(207,92,27,.11);
 }
 .match-rewards-pop.mood-miss{
-  background:
-    radial-gradient(circle at top,rgba(255,120,140,.2),transparent 34%),
-    linear-gradient(180deg,#32050d,#1d0912 48%,#12070f 100%);
-  border-color:rgba(255,120,140,.48);
+  box-shadow:0 28px 110px rgba(0,0,0,.58),0 0 0 10px rgba(155,28,41,.12);
+}
+.match-rewards-paperline{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 20px 8px;
+  background:#21140c;
+  color:#f7e7bf;
+  font-family:var(--os);
+  font-size:11px;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+}
+.match-rewards-paperline-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.match-rewards-paperline-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 9px;
+  border-radius:999px;
+  background:#b21d18;
+  color:#fff4d6;
+}
+.match-rewards-edition{
+  color:#6c4b2b;
+  background:rgba(255,255,255,.62);
+  border:1px solid rgba(39,21,8,.12);
+  border-radius:999px;
+  padding:4px 10px;
+}
+.match-rewards-mainbar{
+  padding:18px 20px 14px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:end;
 }
 .match-rewards-title{
   font-family:var(--os);
-  font-size:24px;
-  color:#fff3a0;
-  margin-bottom:6px;
-  text-shadow:0 0 24px rgba(255,230,0,.4);
+  font-size:clamp(28px,4.4vw,48px);
+  line-height:.92;
+  color:#17110c;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.4px;
 }
 .match-rewards-sub{
   font-size:13px;
-  color:#fff1f1;
+  color:#5e4634;
+  max-width:620px;
 }
 .match-rewards-total{
-  margin-top:10px;
+  margin-top:0;
   font-family:var(--os);
-  font-size:22px;
-  color:#a8ff8f;
-  text-shadow:0 0 18px rgba(168,255,143,.22);
+  font-size:30px;
+  color:#10542d;
+  text-align:right;
+  white-space:nowrap;
+}
+.match-rewards-total-label{
+  display:block;
+  font-size:10px;
+  letter-spacing:1px;
+  color:#6f563a;
+  margin-bottom:4px;
+  text-transform:uppercase;
 }
 .match-rewards-hero{
-  margin:14px 16px 0;
-  padding:14px;
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,.12);
+  margin:0 16px 0;
+  padding:16px;
+  border-radius:20px;
+  border:1px solid rgba(45,28,12,.16);
   background:
-    radial-gradient(circle at top left,rgba(255,255,255,.08),transparent 30%),
-    linear-gradient(145deg,rgba(255,255,255,.06),rgba(0,0,0,.22));
+    linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.08)),
+    linear-gradient(145deg,#fff8ea,#f2dfb7);
   display:grid;
-  grid-template-columns:minmax(0,1fr) 150px;
-  gap:14px;
-  align-items:center;
+  grid-template-columns:minmax(0,1fr) 200px;
+  gap:16px;
+  align-items:stretch;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);
 }
 .match-rewards-hero-copy{
   min-width:0;
@@ -829,36 +879,39 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   gap:8px;
   padding:6px 12px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
+  border:1px solid rgba(50,24,10,.18);
   font-family:var(--os);
   font-size:11px;
   letter-spacing:1px;
-  color:#fff6b8;
-  background:rgba(0,0,0,.24);
+  color:#fff3df;
+  background:#aa1f19;
   text-transform:uppercase;
+  box-shadow:0 6px 18px rgba(170,31,25,.18);
 }
 .match-rewards-verdict{
   margin-top:10px;
   font-family:var(--os);
-  font-size:23px;
-  line-height:1.04;
-  color:#fff;
+  font-size:26px;
+  line-height:1;
+  color:#16110d;
+  text-transform:uppercase;
 }
 .match-rewards-meta{
   margin-top:8px;
   font-size:12px;
   line-height:1.55;
-  color:#e8dede;
+  color:#5f4735;
 }
 .match-rewards-reaction{
   width:100%;
-  aspect-ratio:1/1;
+  min-height:200px;
   border-radius:16px;
-  border:1px solid rgba(255,255,255,.12);
+  border:1px solid rgba(45,28,12,.16);
   background:
-    linear-gradient(145deg,rgba(255,255,255,.08),rgba(0,0,0,.22));
+    linear-gradient(145deg,#e8d5ae,#d8bd87);
   overflow:hidden;
   position:relative;
+  box-shadow:0 10px 24px rgba(49,29,13,.18);
 }
 .match-rewards-reaction img{
   width:100%;
@@ -873,7 +926,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   bottom:8px;
   padding:7px 8px 6px;
   border-radius:10px;
-  background:rgba(10,10,10,.78);
+  background:rgba(18,12,8,.82);
   backdrop-filter:blur(6px);
   font-family:var(--os);
   font-size:11px;
@@ -888,25 +941,29 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   min-height:0;
   overflow:auto;
   -webkit-overflow-scrolling:touch;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));
 }
 .match-reward-row{
-  background:rgba(255,255,255,.055);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:14px;
-  padding:12px 14px;
-  margin-bottom:10px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.12));
+  border:1px solid rgba(39,21,8,.12);
+  border-radius:18px;
+  padding:14px 15px;
+  margin-bottom:12px;
+  box-shadow:0 8px 18px rgba(60,35,12,.08);
 }
 .match-reward-row.exact{
-  background:rgba(143,255,150,.08);
-  border-color:rgba(143,255,150,.24);
+  background:linear-gradient(180deg,rgba(208,255,218,.65),rgba(208,255,218,.18));
+  border-color:rgba(30,120,55,.22);
 }
 .match-reward-row.outcome{
-  background:rgba(255,224,122,.08);
-  border-color:rgba(255,224,122,.22);
+  background:linear-gradient(180deg,rgba(255,241,185,.75),rgba(255,241,185,.18));
+  border-color:rgba(181,119,0,.22);
 }
 .match-reward-row.miss{
-  background:rgba(255,154,168,.07);
-  border-color:rgba(255,154,168,.2);
+  background:linear-gradient(180deg,rgba(255,211,218,.72),rgba(255,211,218,.18));
+  border-color:rgba(155,28,41,.18);
 }
 .match-reward-line{
   display:flex;
@@ -916,33 +973,38 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-reward-match{
   font-family:var(--os);
-  font-size:15px;
-  color:var(--white);
+  font-size:18px;
+  color:#18110b;
+  line-height:1.05;
 }
 .match-reward-pred{
-  margin-top:4px;
+  margin-top:6px;
   font-size:11px;
-  color:var(--muted);
+  color:#5f4735;
+  text-transform:uppercase;
+  letter-spacing:.7px;
 }
 .match-reward-comment{
   margin-top:8px;
   font-size:13px;
   line-height:1.45;
-  color:#ffe1e1;
+  color:#3b2a1d;
 }
 .match-reward-verdict{
   margin-top:8px;
   font-family:var(--os);
   font-size:12px;
   letter-spacing:.6px;
-  color:#fff4a5;
+  color:#8f1f16;
   text-transform:uppercase;
 }
 .match-reward-delta{
   white-space:nowrap;
   font-family:var(--os);
-  font-size:24px;
-  color:#8fff96;
+  font-size:30px;
+  color:#0f5b30;
+  line-height:1;
+  text-align:right;
 }
 .match-reward-tag{
   display:inline-flex;
@@ -953,17 +1015,19 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   text-transform:uppercase;
   padding:4px 8px;
   border-radius:999px;
-  background:rgba(255,255,255,.06);
-  color:var(--muted);
+  background:rgba(24,17,12,.08);
+  color:#6c5039;
   margin-bottom:8px;
 }
-.match-reward-tag.exact{color:#8fff96;background:rgba(143,255,150,.12)}
-.match-reward-tag.outcome{color:#ffe07a;background:rgba(255,224,122,.12)}
-.match-reward-tag.miss{color:#ff9aa8;background:rgba(255,154,168,.12)}
+.match-reward-tag.exact{color:#0d6f38;background:rgba(143,255,150,.2)}
+.match-reward-tag.outcome{color:#8d5d00;background:rgba(255,224,122,.22)}
+.match-reward-tag.miss{color:#a12332;background:rgba(255,154,168,.2)}
 .match-rewards-foot{
   padding:14px 16px 18px;
-  border-top:1px solid rgba(255,255,255,.1);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.07));
+  border-top:1px solid rgba(39,21,8,.14);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.12)),
+    linear-gradient(180deg,#f4e4c4,#ead6aa);
   flex:0 0 auto;
   position:sticky;
   bottom:0;
@@ -972,7 +1036,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .match-rewards-lock{
   font-family:var(--os);
   font-size:15px;
-  color:#fff0a8;
+  color:#5e432e;
   margin-bottom:10px;
   text-align:center;
 }
@@ -985,14 +1049,14 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   font-size:16px;
   font-weight:700;
   letter-spacing:.4px;
-  color:#2b0909;
-  background:linear-gradient(135deg,#fff06a,#ffcf33 46%,#ff9254 100%);
-  box-shadow:0 14px 28px rgba(255,170,0,.32);
+  color:#fff4df;
+  background:linear-gradient(135deg,#a81d19,#cf3320 46%,#ed7d23 100%);
+  box-shadow:0 14px 28px rgba(138,34,19,.24);
 }
 .match-rewards-btn[disabled]{
   cursor:not-allowed;
-  color:#6c5b00;
-  background:linear-gradient(135deg,#8b7d1b,#6d5f12);
+  color:#dac8a1;
+  background:linear-gradient(135deg,#7c6b4d,#66563c);
   box-shadow:none;
 }
 body.match-rewards-locked{
@@ -1000,8 +1064,12 @@ body.match-rewards-locked{
 }
 @media(max-width:480px){
   .big-win-pop{width:min(220px,62vw);max-height:40vh;}
-  .match-rewards-title{font-size:18px}
+  .match-rewards-paperline{padding:8px 14px 7px}
+  .match-rewards-mainbar{grid-template-columns:1fr;padding:16px 14px 12px}
+  .match-rewards-title{font-size:22px}
+  .match-rewards-total{text-align:left;font-size:24px}
   .match-rewards-hero{grid-template-columns:1fr}
+  .match-rewards-reaction{min-height:160px}
   .match-reward-line{flex-direction:column}
   .match-reward-delta{font-size:20px}
 }
@@ -1089,14 +1157,26 @@ try{
 <div id="match-rewards-backdrop" class="match-rewards-backdrop" aria-hidden="true"></div>
 <div id="match-rewards-pop" class="match-rewards-pop" aria-hidden="true">
   <div class="match-rewards-head">
-    <div class="match-rewards-title">МАТЧИ ЗАКОНЧИЛИСЬ. ТЕПЕРЬ ТЕРПИ ВЕРДИКТ.</div>
-    <div class="match-rewards-sub" id="match-rewards-sub">Сейчас тебе напомнят, насколько ты был близок к позору. Или уже в нём.</div>
-    <div class="match-rewards-total" id="match-rewards-total">+0 ЛК</div>
+    <div class="match-rewards-paperline">
+      <div class="match-rewards-paperline-left">
+        <span class="match-rewards-paperline-badge">СРОЧНО • ПОСЛЕ МАТЧА</span>
+        <span class="match-rewards-stamp" id="match-rewards-stamp">ВЕРДИКТ КАССЫ</span>
+      </div>
+      <span class="match-rewards-edition">Вечерний ЛузБет</span>
+    </div>
+    <div class="match-rewards-mainbar">
+      <div>
+        <div class="match-rewards-title" id="match-rewards-verdict">МАТЧИ ЗАКОНЧИЛИСЬ. ТЕПЕРЬ ТЕРПИ ВЕРДИКТ.</div>
+        <div class="match-rewards-sub" id="match-rewards-sub">Сейчас тебе напомнят, насколько ты был близок к позору. Или уже в нём.</div>
+      </div>
+      <div class="match-rewards-total" id="match-rewards-total-wrap">
+        <span class="match-rewards-total-label">Начислено редакцией</span>
+        <span id="match-rewards-total">+0 ЛК</span>
+      </div>
+    </div>
   </div>
   <div class="match-rewards-hero">
     <div class="match-rewards-hero-copy">
-      <div class="match-rewards-stamp" id="match-rewards-stamp">ВЕРДИКТ КАССЫ</div>
-      <div class="match-rewards-verdict" id="match-rewards-verdict">Эксперты ЛузБета нехотя открыли калькулятор.</div>
       <div class="match-rewards-meta" id="match-rewards-meta">Матчи посчитаны, монеты начислены, самооценка пересмотрена.</div>
     </div>
     <div class="match-rewards-reaction">
