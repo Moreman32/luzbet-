@@ -828,12 +828,16 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-rewards-title{
   font-family:var(--os);
-  font-size:clamp(15px,2.2vw,24px);
-  line-height:.98;
+  font-size:clamp(13px,1.7vw,20px);
+  line-height:1;
   color:#17110c;
   margin-bottom:2px;
   text-transform:uppercase;
   letter-spacing:.25px;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
 }
 .match-rewards-sub{
   font-size:10px;
@@ -903,13 +907,18 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   display:flex;
   flex-direction:column;
   gap:4px;
-  padding:10px 12px;
+  padding:9px 10px;
   border-radius:12px;
   border:1px solid rgba(45,28,12,.12);
   background:linear-gradient(180deg,rgba(255,255,255,.46),rgba(255,255,255,.2));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
   color:#4f3929;
+  max-height:320px;
+  overflow:auto;
+  scrollbar-width:thin;
 }
+.match-rewards-meta::-webkit-scrollbar{width:8px}
+.match-rewards-meta::-webkit-scrollbar-thumb{background:rgba(79,57,41,.28);border-radius:999px}
 .match-rewards-kicker{
   font-family:var(--os);
   font-size:9px;
@@ -917,25 +926,37 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   text-transform:uppercase;
   color:#8d2418;
 }
+.match-rewards-byline{
+  font-size:9px;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  color:#7b5d43;
+  padding-bottom:4px;
+  border-bottom:1px dashed rgba(79,57,41,.18);
+}
 .match-rewards-article{
-  font-size:11px;
-  line-height:1.34;
-  display:-webkit-box;
-  -webkit-line-clamp:6;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
+  font-size:10px;
+  line-height:1.28;
+}
+.match-rewards-article p:first-child::first-letter{
+  float:left;
+  font-family:var(--os);
+  font-size:28px;
+  line-height:.9;
+  padding-right:5px;
+  color:#8d2418;
 }
 .match-rewards-article p + p{
   margin-top:4px;
 }
 .match-rewards-pullquote{
   display:block;
-  padding:7px 9px;
+  padding:6px 8px;
   border-left:3px solid rgba(170,31,25,.55);
   background:rgba(255,248,234,.65);
   border-radius:8px;
   font-family:var(--os);
-  font-size:11px;
+  font-size:10px;
   line-height:1.15;
   color:#20140d;
   text-transform:uppercase;
@@ -991,7 +1012,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-rewards-body{
   display:grid;
-  grid-template-columns:320px minmax(0,1fr);
+  grid-template-columns:300px minmax(0,1fr);
   gap:12px;
   padding:12px;
   flex:1 1 auto;
@@ -1195,6 +1216,11 @@ body.match-rewards-locked{
   .match-rewards-body{grid-template-columns:1fr;padding:10px;gap:10px}
   .match-rewards-hero{grid-template-columns:minmax(0,1fr) 104px}
   .match-rewards-reaction{min-height:120px}
+  .match-rewards-meta{max-height:none;overflow:visible}
+}
+@media (max-height:760px){
+  .match-rewards-pullquote{display:none}
+  .match-rewards-meta{max-height:260px}
 }
 
 
@@ -3049,13 +3075,44 @@ function withViewerName(text){
 }
 
 function fillMatchRewardsTemplate(text, stats){
-  return String(text || '')
-    .replaceAll('{name}', getViewerShortName())
+  return withViewerName(String(text || ''))
     .replaceAll('{matches}', String(stats.matches))
     .replaceAll('{coins}', formatCoins(stats.total))
     .replaceAll('{exact}', String(stats.exact))
     .replaceAll('{good}', String(stats.good))
     .replaceAll('{miss}', String(stats.miss));
+}
+
+function getMatchRewardsLead(stats){
+  return fillMatchRewardsTemplate(
+    '{name_nom} снова оказался в эпицентре редакционного расследования: закрыто {matches} матч(а/ей), начислено +{coins} ЛК, а степень нелепости происходящего официально признана выше среднего по палате.',
+    stats
+  );
+}
+
+function getMatchRewardsOutro(stats){
+  if(stats.exact > 0){
+    return fillMatchRewardsTemplate(
+      'Финальный вывод комиссии прост: {name_nom} либо случайно открыл третий глаз, либо снова каким-то чудом угадал то, что обычно портит с особым вдохновением.',
+      stats
+    );
+  }
+  if(stats.good > stats.miss){
+    return fillMatchRewardsTemplate(
+      'Редакция нехотя признаёт: в этот раз у {name_gen} получилось больше толка, чем привычной художественной самодеятельности. Касса страдает, но молчит.',
+      stats
+    );
+  }
+  if(stats.good > 0){
+    return fillMatchRewardsTemplate(
+      'Итог выпуска тревожный, но красивый: у {name_gen} одновременно нашлись и просветы разума, и фирменные кульбиты мимо логики. То есть всё по классике имени {name_gen}.',
+      stats
+    );
+  }
+  return fillMatchRewardsTemplate(
+    'По итогам вечера редакция постановила: прогнозы {name_gen} снова заслужили отдельную полку между спортивной фантастикой, бытовой паникой и очень смелыми заблуждениями.',
+    stats
+  );
 }
 
 function renderMatchRewardsArticle(mood, rows, total){
@@ -3077,9 +3134,15 @@ function renderMatchRewardsArticle(mood, rows, total){
     `Попаданий: ${stats.good}`,
     `Мимо: ${stats.miss}`,
   ];
+  const story = [
+    getMatchRewardsLead(stats),
+    ...paragraphs.map(p => fillMatchRewardsTemplate(p, stats)),
+    getMatchRewardsOutro(stats),
+  ];
   return `
     <div class="match-rewards-kicker">${kicker}</div>
-    <div class="match-rewards-article">${paragraphs.map(p => `<p>${escapeHtml(fillMatchRewardsTemplate(p, stats))}</p>`).join('')}</div>
+    <div class="match-rewards-byline">Спецкор ЛузБета • Отдел матчевого абсурда • Выпуск для ${escapeHtml(getViewerShortName())}</div>
+    <div class="match-rewards-article">${story.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>
     ${quote ? `<div class="match-rewards-pullquote">${quote}</div>` : ''}
     <div class="match-rewards-facts">${facts.map(f => `<span class="match-rewards-fact">${escapeHtml(f)}</span>`).join('')}</div>
   `;
