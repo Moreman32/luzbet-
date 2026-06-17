@@ -3694,7 +3694,7 @@ function showPage(id){
   if(id==='profile') updateProfilePage();
   tabsVisited.add(id);
   if(tabsVisited.size>=5)unlockAch('all_tabs');
-  if(id==='leaderboard')loadLeaderboard(true);
+  if(id==='leaderboard')loadLeaderboard();
   if(id==='achievements')renderAchievements();
   if(id==='rules')unlockAch('page_rules');
   if(id==='playoff')loadPlayoffPage();
@@ -4303,15 +4303,6 @@ async function loadLeaderboard(force=false){
       // В одном ответе уже лежат все топы: прогнозы, монеты, потрачено и ачивки.
       // Рендерим текущую активную вкладку, но остальные вкладки будут открываться мгновенно из _lbCache.
       renderActiveLbTab();
-      if(pendingSyncs.length){
-        Promise.allSettled(pendingSyncs).then(()=>{
-          const page=document.getElementById('page-leaderboard');
-          if(page && page.classList.contains('active')){
-            _lbCache=null;
-            loadLeaderboard(true).catch(()=>null);
-          }
-        });
-      }
       return _lbCache;
     }
     catch(e){
