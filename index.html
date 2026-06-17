@@ -7095,17 +7095,22 @@ async function loadCasinoFromSheets(code) {
       const localState = loadCasinoLocalState(code);
       const localTs = localState && localState.updated_at ? Date.parse(localState.updated_at) : 0;
       const localIsFresh = Number.isFinite(localTs) && (Date.now() - localTs) <= CASINO_LOCAL_STATE_TTL_MS;
+      const serverCoins = parseInt(r.coins, 10) || 1000;
+      const serverSpent = parseInt(r.spent, 10) || 0;
+      const localCoins = parseInt(localState && localState.coins, 10) || 1000;
+      const localSpent = parseInt(localState && localState.spent, 10) || 0;
       const shouldPreferLocal =
         !!(localState && localState.dirty && localIsFresh) &&
         (
-          parseInt(localState.coins, 10) !== (parseInt(r.coins, 10) || 1000) ||
-          parseInt(localState.spent, 10) !== (parseInt(r.spent, 10) || 0)
+          localCoins !== serverCoins ||
+          localSpent !== serverSpent
         );
+      const trustedSpent = localIsFresh ? Math.max(serverSpent, localSpent) : serverSpent;
 
       // Данные казино привязаны к текущему коду игрока.
       // Не смешиваем их с localStorage прошлого пользователя в этом же браузере.
-      coins = shouldPreferLocal ? (parseInt(localState.coins, 10) || 1000) : (parseInt(r.coins, 10) || 1000);
-      totalSpent = shouldPreferLocal ? (parseInt(localState.spent, 10) || 0) : (parseInt(r.spent, 10) || 0);
+      coins = shouldPreferLocal ? localCoins : serverCoins;
+      totalSpent = shouldPreferLocal ? Math.max(localSpent, trustedSpent) : trustedSpent;
       applyEarnedTotal(r.earned || 0);
       casinoServerState.last_daily = r.last_daily || '';
       casinoServerState.last_cashback = r.last_cashback || '';
