@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildSpentMap, fetchCasinoEvents } from "../_shared/casino-ledger.ts";
 
 const AUTOCLICKER_CODES = new Set(["kef_1_01", "prodam_prognoz"]);
 
@@ -134,7 +133,6 @@ function mapSnapshotCasinoRows(
   snapshot: any,
   liveCasinoRows: any[],
   participantRows: any[],
-  spentMap: Map<string, number>,
 ) {
   const snapshotRows = asArray(snapshot?.casinoCoins).length
     ? asArray(snapshot?.casinoCoins)
@@ -162,7 +160,7 @@ function mapSnapshotCasinoRows(
     const liveRow = (snapshotCode && liveByCode.get(snapshotCode)) || liveByName.get(snapshotName) || null;
     const participantRow = participantByName.get(snapshotName) || null;
     const code = snapshotCode || String(liveRow?.code || participantRow?.code || "").trim();
-    const spent = Number(row?.spent ?? (code ? spentMap.get(normalizeKey(code)) : undefined) ?? liveRow?.spent ?? 0);
+    const spent = Number(row?.spent ?? liveRow?.spent ?? 0);
 
     return {
       code,
@@ -214,11 +212,6 @@ function mapSnapshotAutoclickers(snapshot: any) {
   }));
 }
 
-async function loadSpentTotals(supabase: ReturnType<typeof createClient>) {
-  const events = await fetchCasinoEvents(supabase);
-  return buildSpentMap(events);
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -230,14 +223,13 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const [snapshotRes, predictionsRes, resultsRes, casinoRes, achRes, participantsRes, spentMap] = await Promise.all([
+    const [snapshotRes, predictionsRes, resultsRes, casinoRes, achRes, participantsRes] = await Promise.all([
       supabase.from("rating_snapshots").select("key,data,updated_at").eq("key", "public_ratings").maybeSingle(),
       supabase.from("predictions").select("id,code,name,data,updated_at").order("updated_at", { ascending: true }).order("id", { ascending: true }),
       supabase.from("results").select("group_code,data").order("group_code", { ascending: true }),
       supabase.from("casino").select("code,name,coins,spent").order("code", { ascending: true }),
       supabase.from("achievements").select("code,achievement").order("id", { ascending: true }),
       supabase.from("participants").select("code,name,created_at,id").order("id", { ascending: true }),
-      loadSpentTotals(supabase),
     ]);
 
     if (snapshotRes.error) throw snapshotRes.error;
@@ -264,7 +256,7 @@ Deno.serve(async (req) => {
       const key = String(row.code || "").toLowerCase();
       casinoMap.set(key, {
         ...row,
-        spent: spentMap.get(key) ?? Number(row.spent || 0),
+        spent: Number(row.spent || 0),
       });
     }
 
@@ -297,10 +289,9 @@ Deno.serve(async (req) => {
     );
 
     const casinoRows = (casinoRes.data || []).map((row) => {
-      const key = String(row.code || "").toLowerCase();
       return {
         ...row,
-        spent: spentMap.get(key) ?? Number(row.spent || 0),
+        spent: Number(row.spent || 0),
       };
     });
 
@@ -329,7 +320,7 @@ Deno.serve(async (req) => {
       })
       .sort((a, b) => b.spent - a.spent || String(a.name || "").localeCompare(String(b.name || ""), "ru"));
 
-    const snapshotCasinoRows = mapSnapshotCasinoRows(snapshotData, casinoRows, participantRows, spentMap);
+    const snapshotCasinoRows = mapSnapshotCasinoRows(snapshotData, casinoRows, participantRows);
     const snapshotAchRows = mapSnapshotAchievementRows(snapshotData, participantRows);
     const snapshotAutoclickers = mapSnapshotAutoclickers(snapshotData);
 

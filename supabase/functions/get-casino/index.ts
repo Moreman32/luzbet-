@@ -67,6 +67,10 @@ Deno.serve(async (req) => {
     }
 
     const economy = summarizeEconomyRows(events);
+    const resolvedSpent = Math.max(
+      Number(economy.spent_total || 0),
+      Number(row?.spent || 0),
+    );
 
     if (!row) {
       return json({
@@ -74,7 +78,7 @@ Deno.serve(async (req) => {
         code: participant.code,
         name: participant.name || "",
         coins: 1000,
-        spent: economy.spent_total || 0,
+        spent: resolvedSpent,
         earned: economy.earned_total || 0,
         last_daily: null,
         last_cashback: null,
@@ -86,7 +90,7 @@ Deno.serve(async (req) => {
       code: row.code,
       name: row.name || participant.name || "",
       coins: Number(row.coins || 0),
-      spent: Number(economy.spent_total || row.spent || 0),
+      spent: resolvedSpent,
       earned: Number(economy.earned_total || 0),
       last_daily: row.last_daily || null,
       last_cashback: row.last_cashback || null,
