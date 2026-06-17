@@ -4280,10 +4280,10 @@ async function loadLeaderboard(force=false){
         results: r.results || {},
         casinoRows: Array.isArray(r.casinoRows)
           ? r.casinoRows
-          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).map(p=>({name:p.name,coins:p.coins||0,spent:p.spent||0})),
+          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).map(p=>({code:p.code,name:p.name,coins:p.coins||0,spent:p.spent||0})),
         achRows: Array.isArray(r.achRows)
           ? r.achRows
-          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).flatMap(p=>(p.achList||[]).map(a=>({name:p.name,achievement:a}))),
+          : (Array.isArray(r.leaderboard) ? r.leaderboard : []).flatMap(p=>(p.achList||[]).map(a=>({code:p.code,name:p.name,achievement:a,spent:p.spent||0}))),
         participantRows: Array.isArray(r.participantRows) ? r.participantRows : [],
         autoclickerRows: Array.isArray(r.autoclickers)
           ? r.autoclickers

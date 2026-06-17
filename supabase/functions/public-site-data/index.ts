@@ -1,6 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildSpentMap, fetchCasinoEvents } from "../_shared/casino-ledger.ts";
 
+const AUTOCLICKER_CODES = new Set(["kef_1_01", "prodam_prognoz"]);
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -132,11 +134,12 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const [predictionsRes, resultsRes, casinoRes, achRes, spentMap] = await Promise.all([
+    const [predictionsRes, resultsRes, casinoRes, achRes, participantsRes, spentMap] = await Promise.all([
       supabase.from("predictions").select("id,code,name,data,updated_at").order("updated_at", { ascending: true }).order("id", { ascending: true }),
       supabase.from("results").select("group_code,data").order("group_code", { ascending: true }),
       supabase.from("casino").select("code,name,coins,spent").order("code", { ascending: true }),
       supabase.from("achievements").select("code,achievement").order("id", { ascending: true }),
+      supabase.from("participants").select("code,name,created_at,id").order("id", { ascending: true }),
       loadSpentTotals(supabase),
     ]);
 
@@ -144,6 +147,7 @@ Deno.serve(async (req) => {
     if (resultsRes.error) throw resultsRes.error;
     if (casinoRes.error) throw casinoRes.error;
     if (achRes.error) throw achRes.error;
+    if (participantsRes.error) throw participantsRes.error;
 
     const results: Record<string, any> = {};
     for (const row of resultsRes.data || []) {
@@ -202,12 +206,38 @@ Deno.serve(async (req) => {
       };
     });
 
+    const participantRows = participantsRes.data || [];
+    const leaderboardMap = new Map<string, any>();
+    for (const row of leaderboard) {
+      leaderboardMap.set(String(row.code || "").trim().toLowerCase(), row);
+    }
+
+    const autoclickers = casinoRows
+      .filter((row) => AUTOCLICKER_CODES.has(String(row.code || "").trim().toLowerCase()))
+      .map((row) => {
+        const key = String(row.code || "").trim().toLowerCase();
+        const lbRow = leaderboardMap.get(key);
+        const participantRow = participantRows.find((p) => String(p.code || "").trim().toLowerCase() === key);
+        const achList = achMap.get(key) || [];
+        return {
+          code: row.code,
+          name: row.name || lbRow?.name || participantRow?.name || row.code,
+          coins: Number(row.coins || 0),
+          spent: Number(row.spent || 0),
+          achCount: achList.length,
+          predTotal: Number(lbRow?.total || 0),
+        };
+      })
+      .sort((a, b) => b.spent - a.spent || String(a.name || "").localeCompare(String(b.name || ""), "ru"));
+
     return json({
       ok: true,
       leaderboard,
       results,
       casinoRows,
       achRows: achRes.data || [],
+      participantRows,
+      autoclickers,
     });
   } catch (e) {
     return json(
