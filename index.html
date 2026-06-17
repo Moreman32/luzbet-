@@ -872,6 +872,9 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-rewards-hero-copy{
   min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 .match-rewards-stamp{
   display:inline-flex;
@@ -897,10 +900,56 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   text-transform:uppercase;
 }
 .match-rewards-meta{
-  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:12px 14px;
+  border-radius:16px;
+  border:1px solid rgba(45,28,12,.12);
+  background:linear-gradient(180deg,rgba(255,255,255,.46),rgba(255,255,255,.2));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+  color:#4f3929;
+}
+.match-rewards-kicker{
+  font-family:var(--os);
+  font-size:11px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#8d2418;
+}
+.match-rewards-article{
   font-size:12px;
-  line-height:1.55;
-  color:#5f4735;
+  line-height:1.45;
+}
+.match-rewards-article p + p{
+  margin-top:6px;
+}
+.match-rewards-pullquote{
+  padding:8px 10px;
+  border-left:3px solid rgba(170,31,25,.55);
+  background:rgba(255,248,234,.65);
+  border-radius:10px;
+  font-family:var(--os);
+  font-size:13px;
+  line-height:1.2;
+  color:#20140d;
+  text-transform:uppercase;
+}
+.match-rewards-facts{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.match-rewards-fact{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(34,21,11,.08);
+  font-size:10px;
+  letter-spacing:.4px;
+  color:#5e4634;
 }
 .match-rewards-reaction{
   width:100%;
@@ -936,7 +985,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   text-transform:uppercase;
 }
 .match-rewards-list{
-  padding:14px 16px 10px;
+  padding:10px 14px 8px;
   flex:1 1 auto;
   min-height:0;
   overflow:auto;
@@ -945,12 +994,15 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
     linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0));
 }
 .match-reward-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:6px 12px;
   background:
     linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.12));
   border:1px solid rgba(39,21,8,.12);
-  border-radius:18px;
-  padding:14px 15px;
-  margin-bottom:12px;
+  border-radius:15px;
+  padding:10px 12px;
+  margin-bottom:8px;
   box-shadow:0 8px 18px rgba(60,35,12,.08);
 }
 .match-reward-row.exact{
@@ -967,57 +1019,64 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 }
 .match-reward-line{
   display:flex;
-  align-items:flex-start;
+  align-items:center;
   justify-content:space-between;
   gap:12px;
+  grid-column:1 / 2;
 }
 .match-reward-match{
   font-family:var(--os);
-  font-size:18px;
+  font-size:15px;
   color:#18110b;
-  line-height:1.05;
+  line-height:1.08;
 }
 .match-reward-pred{
-  margin-top:6px;
-  font-size:11px;
+  margin-top:4px;
+  font-size:10px;
   color:#5f4735;
   text-transform:uppercase;
-  letter-spacing:.7px;
+  letter-spacing:.55px;
 }
 .match-reward-comment{
-  margin-top:8px;
-  font-size:13px;
-  line-height:1.45;
+  margin-top:1px;
+  font-size:11px;
+  line-height:1.3;
   color:#3b2a1d;
+  grid-column:1 / -1;
 }
 .match-reward-verdict{
-  margin-top:8px;
+  margin-top:0;
   font-family:var(--os);
-  font-size:12px;
-  letter-spacing:.6px;
+  font-size:11px;
+  letter-spacing:.45px;
   color:#8f1f16;
   text-transform:uppercase;
+  grid-column:1 / -1;
 }
 .match-reward-delta{
   white-space:nowrap;
   font-family:var(--os);
-  font-size:30px;
+  font-size:24px;
   color:#0f5b30;
   line-height:1;
   text-align:right;
+  align-self:start;
+  grid-column:2 / 3;
+  grid-row:1 / span 2;
 }
 .match-reward-tag{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  font-size:10px;
-  letter-spacing:.8px;
+  width:max-content;
+  font-size:9px;
+  letter-spacing:.7px;
   text-transform:uppercase;
-  padding:4px 8px;
+  padding:3px 7px;
   border-radius:999px;
   background:rgba(24,17,12,.08);
   color:#6c5039;
-  margin-bottom:8px;
+  margin-bottom:2px;
 }
 .match-reward-tag.exact{color:#0d6f38;background:rgba(143,255,150,.2)}
 .match-reward-tag.outcome{color:#8d5d00;background:rgba(255,224,122,.22)}
@@ -1069,9 +1128,16 @@ body.match-rewards-locked{
   .match-rewards-title{font-size:22px}
   .match-rewards-total{text-align:left;font-size:24px}
   .match-rewards-hero{grid-template-columns:1fr}
+  .match-rewards-meta{padding:10px 11px}
+  .match-rewards-article{font-size:11px}
+  .match-rewards-pullquote{font-size:12px}
   .match-rewards-reaction{min-height:160px}
-  .match-reward-line{flex-direction:column}
-  .match-reward-delta{font-size:20px}
+  .match-rewards-list{padding:8px 10px 6px}
+  .match-reward-row{padding:9px 10px;gap:5px 10px}
+  .match-reward-line{gap:8px}
+  .match-reward-match{font-size:14px}
+  .match-reward-comment{font-size:10.5px}
+  .match-reward-delta{font-size:18px}
 }
 
 
@@ -2738,8 +2804,16 @@ const MATCH_REWARD_POPUP_MOODS = {
       '{name}, комиссия в панике: ты реально знал, чем всё кончится.',
       '{name}, касса нехотя признаёт: тут был прогноз, а не бред.'
     ],
-    meta: '{name}, сегодня тебе начисляют монеты без уважения, но с явным раздражением.',
-    badge: 'Точный счёт обнаружен',
+    article: {
+      kicker: 'Экстренный выпуск редакции',
+      paragraphs: [
+        'Редакция подтверждает: {name} снова вышел к матчам с лицом обычного человека, а ушёл с ощущением, будто заранее видел табло в подсобке стадиона.',
+        'По предварительным данным, точность прогноза вызвала лёгкую истерику у бухгалтерии: касса скрипела, VAR шептался, а особенно впечатлительные сотрудники просто отвернулись от мониторов.',
+        'Если коротко: {matches} матч(а/ей) разобраны, монеты начислены, а репутация {name} временно переведена из категории "несчастный фантазёр" в категорию "слишком подозрительно собранный персонаж".'
+      ],
+      quote: 'Свидетели утверждают, что {name} попал так точно, будто мячи лично согласовали с ним маршрут.',
+    },
+    badge: '{name} снова пугает кассу',
     image: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmNmZDd4eGcwMjdhbm42NTdlbHlrand3NDc0MWx5b3oyN3E2Z25sNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26gs6Y4Mke6i0MUi4/giphy.gif',
     rowVerdicts: [
       '{name}, слишком чистое попадание. Проверь карманы на наличие судьи.',
@@ -2755,8 +2829,16 @@ const MATCH_REWARD_POPUP_MOODS = {
       '{name}, не позор. Уже праздник по меркам этой конторы.',
       '{name}, эксперты ЛузБета сдержанно кивают и скрипят зубами.'
     ],
-    meta: '{name}, монеты начислены за редкий приступ адекватности и умеренной логики.',
-    badge: 'Есть жизнь в прогнозе',
+    article: {
+      kicker: 'Панель экспертов ошарашена',
+      paragraphs: [
+        'Сегодня {name} продемонстрировал редкую для этой платформы комбинацию: уверенный взгляд, умеренную логику и отсутствие тотального развала уже после первого свистка.',
+        'Редакционный совет признал, что местами прогноз выглядел даже осмысленно. Да, формулировать это неприятно, но факты упрямы, особенно когда за них уже начислены ЛузКоины.',
+        'В сухом остатке: {good} удачных решений из {matches}, касса недовольна, но придраться сходу не смогла. Для {name} это почти газетный подвиг районного масштаба.'
+      ],
+      quote: 'По версии очевидцев, {name} впервые за день спорил с реальностью и не проиграл ей всухую.',
+    },
+    badge: '{name} поймал волну адекватности',
     image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/D6WuLOKOpR2fK/200w.gif',
     rowVerdicts: [
       '{name}, не идеально, но хотя бы не полное фиаско.',
@@ -2772,8 +2854,16 @@ const MATCH_REWARD_POPUP_MOODS = {
       '{name}, набор результатов в стиле: один угадал, три придумал.',
       '{name}, матчи закрыты, твоя репутация открыта для насмешек.'
     ],
-    meta: '{name}, монеты начислены, но честь восстановлению не подлежит.',
-    badge: 'Смешанный уровень стыда',
+    article: {
+      kicker: 'Спецрепортаж о противоречивой личности',
+      paragraphs: [
+        'Выступление {name} снова разделило экспертов на лагеря. Одни требовали похвалить за отдельные попадания, другие просили немедленно запретить так обращаться с логикой в прямом эфире.',
+        'В одних матчах чувствовалась мысль, в других будто прогноз составлялся на бегу, по шуму холодильника и внутреннему голосу, который сам не до конца понимал, что происходит.',
+        'Официальная формулировка редакции звучит так: {good} раз получилось, {miss} раз стало неловко, а общий результат по-прежнему идеально описывает карьеру {name} как драмеди с элементами спортивного бедлама.'
+      ],
+      quote: '{name} сумел одновременно обнадёжить кассу и заставить её нервно прикрыть лицо ладонью.',
+    },
+    badge: '{name} устроил драмеди из прогнозов',
     image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/vcKEsYOdjoCeJRpn95/200w.gif',
     rowVerdicts: [
       '{name}, здесь спорно, но бухгалтерия сочла это жизнеспособным.',
@@ -2789,8 +2879,16 @@ const MATCH_REWARD_POPUP_MOODS = {
       '{name}, матч закончился, а твоя версия событий так и не началась.',
       '{name}, комиссия посмотрела на это и выключила свет.'
     ],
-    meta: '{name}, ЛузКоинов немного, зато стыда выдано с запасом и без лимита.',
-    badge: 'Полный мрак',
+    article: {
+      kicker: 'Чёрная хроника игрового вечера',
+      paragraphs: [
+        'Вечером {name} уверенно вошёл в раздел прогнозов, а чуть позже столь же уверенно уехал мимо реальности, оставив после себя несколько смелых, но совершенно беспомощных версий того, как должен был закончиться футбол.',
+        'Наблюдатели сообщают, что некоторые исходы промахнулись настолько широко, что мячам пришлось отдельно объяснять, почему их вообще сюда приплели.',
+        'Редакция фиксирует: {miss} эпизодов неловкости из {matches}, ЛузКоинов немного, зато материала для подколов хватит надолго. Имя {name} снова произносится в кулуарах с интонацией "ну конечно".'
+      ],
+      quote: 'Очевидцы говорят, что прогноз {name} улетел так далеко, что его пытались вернуть уже из соседнего вида спорта.',
+    },
+    badge: '{name} снова спорит с реальностью',
     image: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3IxeG1hNDdiMWo2MjJ3anliYXMxemNlMHRodHBnbmlnZGloMmJ1diZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9Zchaz9dO1JApPV44G/200w.gif',
     rowVerdicts: [
       '{name}, это уже не мимо, это в соседний вид спорта.',
@@ -2814,6 +2912,43 @@ function getViewerShortName(){
 
 function withViewerName(text){
   return String(text || '').replaceAll('{name}', getViewerShortName());
+}
+
+function fillMatchRewardsTemplate(text, stats){
+  return String(text || '')
+    .replaceAll('{name}', getViewerShortName())
+    .replaceAll('{matches}', String(stats.matches))
+    .replaceAll('{coins}', formatCoins(stats.total))
+    .replaceAll('{exact}', String(stats.exact))
+    .replaceAll('{good}', String(stats.good))
+    .replaceAll('{miss}', String(stats.miss));
+}
+
+function renderMatchRewardsArticle(mood, rows, total){
+  const stats = {
+    matches: Array.isArray(rows) ? rows.length : 0,
+    total: total || 0,
+    exact: Array.isArray(rows) ? rows.filter(r => String(r.result_type || '') === 'exact').length : 0,
+    good: Array.isArray(rows) ? rows.filter(r => (parseInt(r.coins_delta,10) || 0) > 0).length : 0,
+    miss: Array.isArray(rows) ? rows.filter(r => (parseInt(r.coins_delta,10) || 0) <= 0).length : 0,
+  };
+  const article = mood && mood.article ? mood.article : null;
+  if(!article) return escapeHtml(withViewerName('Матчи посчитаны, монеты начислены, самооценка пересмотрена.'));
+  const kicker = escapeHtml(fillMatchRewardsTemplate(article.kicker, stats));
+  const paragraphs = Array.isArray(article.paragraphs) ? article.paragraphs : [];
+  const quote = article.quote ? escapeHtml(fillMatchRewardsTemplate(article.quote, stats)) : '';
+  const facts = [
+    `Матчей: ${stats.matches}`,
+    `Начислено: +${formatCoins(stats.total)} ЛК`,
+    `Попаданий: ${stats.good}`,
+    `Мимо: ${stats.miss}`,
+  ];
+  return `
+    <div class="match-rewards-kicker">${kicker}</div>
+    <div class="match-rewards-article">${paragraphs.map(p => `<p>${escapeHtml(fillMatchRewardsTemplate(p, stats))}</p>`).join('')}</div>
+    ${quote ? `<div class="match-rewards-pullquote">${quote}</div>` : ''}
+    <div class="match-rewards-facts">${facts.map(f => `<span class="match-rewards-fact">${escapeHtml(f)}</span>`).join('')}</div>
+  `;
 }
 
 function getMatchRewardsMood(rows){
@@ -2904,10 +3039,10 @@ async function showMatchRewardsPopup(rows){
   popup.className = `match-rewards-pop ${mood.popupClass}`;
   stampEl.textContent = mood.stamp;
   verdictEl.textContent = withViewerName(randomFrom(mood.verdicts));
-  metaEl.textContent = withViewerName(mood.meta);
+  metaEl.innerHTML = renderMatchRewardsArticle(mood, rows, total);
   reactionImgEl.src = mood.image;
   reactionImgEl.alt = withViewerName(mood.badge);
-  reactionBadgeEl.textContent = mood.badge;
+  reactionBadgeEl.textContent = withViewerName(mood.badge);
 
   list.innerHTML = rows.map(row=>{
     const resultType = String(row.result_type || 'miss');
