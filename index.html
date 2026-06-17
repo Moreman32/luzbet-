@@ -3748,7 +3748,7 @@ async function doLogin(){
       LS.set('luzbet_session_code', S.code);
       if(elapsed<3)unlockAch('fast_login');
       toast('👋 Привет, '+r.name+'! Готов проиграть?','ok');updateNavAfterLogin();setTimeout(()=>announcePlayer(r.name),500);
-      loadCasinoFromSheets(S.code);
+      await loadCasinoFromSheets(S.code);
       loadAchFromSheets(S.code);
       if(r.hasVoted){
         const p=await api({action:'getPrediction',code:S.code});
@@ -4265,10 +4265,10 @@ async function loadLeaderboard(force=false){
 
   _lbLoadingPromise = (async()=>{
     try{
-      // Перед рейтингом принудительно сохраняем свежие данные текущего игрока.
-      // Иначе после игры в казино рейтинг мог не видеть изменения до отложенной синхронизации.
-      await flushCasinoSync();
-      await flushAchSync();
+      // Синк запускаем в фоне: рейтинг должен открываться сразу, а не ждать дозапись клиента.
+      const pendingSyncs = [];
+      if(S.code && casinoDirty) pendingSyncs.push(flushCasinoSync().catch(()=>null));
+      if(S.code && achDirty) pendingSyncs.push(flushAchSync().catch(()=>null));
 
       const r = await api({action:'getLeaderboard'});
       if(!r.ok) throw new Error(r.error || 'leaderboard failed');
@@ -4303,6 +4303,15 @@ async function loadLeaderboard(force=false){
       // В одном ответе уже лежат все топы: прогнозы, монеты, потрачено и ачивки.
       // Рендерим текущую активную вкладку, но остальные вкладки будут открываться мгновенно из _lbCache.
       renderActiveLbTab();
+      if(pendingSyncs.length){
+        Promise.allSettled(pendingSyncs).then(()=>{
+          const page=document.getElementById('page-leaderboard');
+          if(page && page.classList.contains('active')){
+            _lbCache=null;
+            loadLeaderboard(true).catch(()=>null);
+          }
+        });
+      }
       return _lbCache;
     }
     catch(e){
@@ -4331,6 +4340,7 @@ function getTrustedSpentForCode(code, cache=_lbCache){
 
 async function syncTrustedSpent(code, opts={}){
   const preferCache = opts.preferCache !== false;
+  const applyUi = opts.applyUi !== false;
   const key=String(code||'').trim().toLowerCase();
   if(!key) return null;
 
@@ -4338,8 +4348,9 @@ async function syncTrustedSpent(code, opts={}){
   if(spent === null){
     try{
       const selfRes = await api({ action:'getCasino', code:key });
-      if(selfRes && selfRes.ok && selfRes.row){
-        const selfSpent = parseInt(selfRes.row.spent,10);
+      if(selfRes && selfRes.ok){
+        const rawSpent = selfRes.spent ?? (selfRes.row ? selfRes.row.spent : null);
+        const selfSpent = parseInt(rawSpent,10);
         spent = Number.isFinite(selfSpent) ? selfSpent : null;
       }
     }catch(e){
@@ -4350,8 +4361,11 @@ async function syncTrustedSpent(code, opts={}){
   if(spent !== null){
     totalSpent = spent;
     LS.set('luzbet_spent', totalSpent);
-    updateVip();
-    updateProfilePage();
+    if(applyUi){
+      updateVip();
+      updateProfilePage();
+      updateCashbackUI();
+    }
   }
 
   return spent;
@@ -7098,11 +7112,12 @@ async function loadCasinoFromSheets(code) {
       LS.set('luzbet_coins', coins);
       LS.set('luzbet_spent', totalSpent);
       saveCasinoLocalState(code, { dirty:shouldPreferLocal });
+      await syncTrustedSpent(code, { preferCache:false, applyUi:false });
       renderCoinsUI();
       updateVip();
       checkDaily();
       updateCashbackUI();
-      await syncTrustedSpent(code, { preferCache:true });
+      updateProfilePage();
       if (shouldPreferLocal) {
         scheduleCasinoSync();
         flushCasinoSync(true).catch(() => {});
@@ -7668,7 +7683,7 @@ async function restoreSession(){
     if(!r.ok){LS.remove('luzbet_session_code');return;}
     S={code:savedCode.trim().toLowerCase(),name:r.name,voted:r.hasVoted};
     updateNavAfterLogin();
-    loadCasinoFromSheets(S.code);
+    await loadCasinoFromSheets(S.code);
     loadAchFromSheets(S.code);
     if(r.hasVoted){
       const p=await api({action:'getPrediction',code:S.code});

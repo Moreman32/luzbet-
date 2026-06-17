@@ -118,6 +118,102 @@ function scorePrediction(row: any, results: Record<string, any>) {
   };
 }
 
+function normalizeKey(value: unknown) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function normalizeName(value: unknown) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function asArray<T = any>(value: unknown): T[] {
+  return Array.isArray(value) ? (value as T[]) : [];
+}
+
+function mapSnapshotCasinoRows(
+  snapshot: any,
+  liveCasinoRows: any[],
+  participantRows: any[],
+  spentMap: Map<string, number>,
+) {
+  const snapshotRows = asArray(snapshot?.casinoCoins).length
+    ? asArray(snapshot?.casinoCoins)
+    : asArray(snapshot?.casino);
+  if (!snapshotRows.length) return null;
+
+  const liveByCode = new Map<string, any>();
+  const liveByName = new Map<string, any>();
+  for (const row of liveCasinoRows || []) {
+    const codeKey = normalizeKey(row?.code);
+    const nameKey = normalizeName(row?.name);
+    if (codeKey) liveByCode.set(codeKey, row);
+    if (nameKey) liveByName.set(nameKey, row);
+  }
+
+  const participantByName = new Map<string, any>();
+  for (const row of participantRows || []) {
+    const nameKey = normalizeName(row?.name);
+    if (nameKey && !participantByName.has(nameKey)) participantByName.set(nameKey, row);
+  }
+
+  return snapshotRows.map((row: any) => {
+    const snapshotCode = normalizeKey(row?.code || row?.login);
+    const snapshotName = normalizeName(row?.name);
+    const liveRow = (snapshotCode && liveByCode.get(snapshotCode)) || liveByName.get(snapshotName) || null;
+    const participantRow = participantByName.get(snapshotName) || null;
+    const code = snapshotCode || String(liveRow?.code || participantRow?.code || "").trim();
+    const spent = Number(row?.spent ?? (code ? spentMap.get(normalizeKey(code)) : undefined) ?? liveRow?.spent ?? 0);
+
+    return {
+      code,
+      name: row?.name || liveRow?.name || participantRow?.name || "",
+      coins: Number(row?.coins ?? liveRow?.coins ?? 0),
+      spent,
+    };
+  });
+}
+
+function mapSnapshotAchievementRows(snapshot: any, participantRows: any[]) {
+  const snapshotRows = asArray(snapshot?.achievementsRating).length
+    ? asArray(snapshot?.achievementsRating)
+    : asArray(snapshot?.achievements);
+  if (!snapshotRows.length) return null;
+
+  const participantByName = new Map<string, any>();
+  for (const row of participantRows || []) {
+    const nameKey = normalizeName(row?.name);
+    if (nameKey && !participantByName.has(nameKey)) participantByName.set(nameKey, row);
+  }
+
+  return snapshotRows.flatMap((row: any) => {
+    const name = String(row?.name || "").trim();
+    const participantRow = participantByName.get(normalizeName(name)) || null;
+    const code = String(row?.code || participantRow?.code || "").trim();
+    return asArray<string>(row?.achList).map((achievement) => ({
+      code,
+      name,
+      achievement,
+    }));
+  });
+}
+
+function mapSnapshotAutoclickers(snapshot: any) {
+  const rows = asArray(snapshot?.autoclickers).length
+    ? asArray(snapshot?.autoclickers)
+    : asArray(snapshot?.autoclickerRows);
+  if (!rows.length) return null;
+
+  return rows.map((row: any) => ({
+    code: row?.code || row?.login || "",
+    name: row?.name || "",
+    coins: Number(row?.coins || 0),
+    spent: Number(row?.spent || 0),
+    achCount: Number(row?.achCount || asArray(row?.achList).length || 0),
+    predTotal: Number(row?.predTotal || row?.points || 0),
+    login: row?.login || row?.code || "",
+  }));
+}
+
 async function loadSpentTotals(supabase: ReturnType<typeof createClient>) {
   const events = await fetchCasinoEvents(supabase);
   return buildSpentMap(events);
@@ -134,7 +230,8 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const [predictionsRes, resultsRes, casinoRes, achRes, participantsRes, spentMap] = await Promise.all([
+    const [snapshotRes, predictionsRes, resultsRes, casinoRes, achRes, participantsRes, spentMap] = await Promise.all([
+      supabase.from("rating_snapshots").select("key,data,updated_at").eq("key", "public_ratings").maybeSingle(),
       supabase.from("predictions").select("id,code,name,data,updated_at").order("updated_at", { ascending: true }).order("id", { ascending: true }),
       supabase.from("results").select("group_code,data").order("group_code", { ascending: true }),
       supabase.from("casino").select("code,name,coins,spent").order("code", { ascending: true }),
@@ -143,6 +240,7 @@ Deno.serve(async (req) => {
       loadSpentTotals(supabase),
     ]);
 
+    if (snapshotRes.error) throw snapshotRes.error;
     if (predictionsRes.error) throw predictionsRes.error;
     if (resultsRes.error) throw resultsRes.error;
     if (casinoRes.error) throw casinoRes.error;
@@ -207,12 +305,13 @@ Deno.serve(async (req) => {
     });
 
     const participantRows = participantsRes.data || [];
+    const snapshotData = snapshotRes.data?.data || null;
     const leaderboardMap = new Map<string, any>();
     for (const row of leaderboard) {
       leaderboardMap.set(String(row.code || "").trim().toLowerCase(), row);
     }
 
-    const autoclickers = casinoRows
+    const liveAutoclickers = casinoRows
       .filter((row) => AUTOCLICKER_CODES.has(String(row.code || "").trim().toLowerCase()))
       .map((row) => {
         const key = String(row.code || "").trim().toLowerCase();
@@ -230,14 +329,18 @@ Deno.serve(async (req) => {
       })
       .sort((a, b) => b.spent - a.spent || String(a.name || "").localeCompare(String(b.name || ""), "ru"));
 
+    const snapshotCasinoRows = mapSnapshotCasinoRows(snapshotData, casinoRows, participantRows, spentMap);
+    const snapshotAchRows = mapSnapshotAchievementRows(snapshotData, participantRows);
+    const snapshotAutoclickers = mapSnapshotAutoclickers(snapshotData);
+
     return json({
       ok: true,
       leaderboard,
       results,
-      casinoRows,
-      achRows: achRes.data || [],
+      casinoRows: snapshotCasinoRows || casinoRows,
+      achRows: snapshotAchRows || (achRes.data || []),
       participantRows,
-      autoclickers,
+      autoclickers: snapshotAutoclickers || liveAutoclickers,
     });
   } catch (e) {
     return json(
