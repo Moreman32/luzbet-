@@ -193,6 +193,30 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .cgc-title{font-family:var(--os);font-size:18px;font-weight:700}
 .cgc-rtp{font-size:11px;color:var(--muted)}
 .cgc-body{padding:16px}
+.pvp-hero{background:
+linear-gradient(135deg,rgba(120,20,20,.28),rgba(16,16,16,.92) 44%,rgba(120,90,10,.22)),
+radial-gradient(circle at top right,rgba(255,230,0,.16),transparent 34%);
+border:1px solid rgba(255,230,0,.16);border-radius:18px;padding:22px 20px;margin-bottom:18px;position:relative;overflow:hidden}
+.pvp-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-22deg,transparent,transparent 16px,rgba(255,255,255,.025) 16px,rgba(255,255,255,.025) 17px);pointer-events:none}
+.pvp-hero-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:relative}
+.pvp-hero-kicker{font-family:var(--os);font-size:11px;letter-spacing:2px;color:var(--yellow);margin-bottom:6px}
+.pvp-hero-title{font-family:var(--os);font-size:clamp(28px,5vw,40px);line-height:1;color:var(--white)}
+.pvp-hero-sub{font-size:13px;color:var(--muted);line-height:1.6;max-width:560px;margin-top:10px;position:relative}
+.pvp-hero-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,230,0,.22);background:rgba(0,0,0,.28);font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow)}
+.pvp-hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px;position:relative}
+.pvp-hero-stat{background:rgba(0,0,0,.28);border:1px solid var(--border);border-radius:12px;padding:12px 13px}
+.pvp-hero-stat-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.pvp-hero-stat-value{font-family:var(--os);font-size:20px;color:var(--white);margin-top:6px;line-height:1}
+.pvp-lobby-title{font-family:var(--os);font-size:11px;letter-spacing:2px;color:var(--yellow);margin:20px 0 10px}
+.pvp-lobby-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.pvp-coming-card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid var(--border);border-radius:14px;padding:14px 14px 16px}
+.pvp-coming-tag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 9px;font-family:var(--os);font-size:10px;letter-spacing:1px;margin-bottom:10px}
+.pvp-coming-tag.live{background:rgba(0,176,80,.12);border:1px solid rgba(0,176,80,.28);color:#7ff0a8}
+.pvp-coming-tag.soon{background:rgba(255,230,0,.1);border:1px solid rgba(255,230,0,.18);color:var(--yellow)}
+.pvp-coming-name{font-family:var(--os);font-size:18px;color:var(--white);margin-bottom:6px}
+.pvp-coming-desc{font-size:12px;color:var(--muted);line-height:1.55}
+.pvp-coming-meta{font-size:11px;color:var(--muted2);margin-top:10px}
+.pvp-coming-btn{width:100%;margin-top:12px;height:42px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-family:var(--os);font-size:12px;letter-spacing:.8px;cursor:not-allowed}
 .casino-stats-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:16px}
 .casino-stats-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .casino-stats-title{font-family:var(--os);font-size:15px;color:var(--yellow);letter-spacing:1px}
@@ -1497,6 +1521,7 @@ try{
     <button class="nav-tab" data-page="predict" onclick="showPage('predict')">⚽ Купон</button>
     <button class="nav-tab" onclick="showPage('leaderboard')">🏆 Рейтинг</button>
     <button class="nav-tab" data-page="casino" onclick="showPage('casino')">🎰 Казино</button>
+    <button class="nav-tab" data-page="pvp" onclick="showPage('pvp')">⚔️ ПвП игры</button>
     <button class="nav-tab" data-page="achievements" onclick="showPage('achievements')">🏅 Ачивки</button>
     <button class="nav-tab" data-page="playoff" onclick="showPage('playoff')">🏆 Плей-офф</button>
     <button class="nav-tab" onclick="showPage('rules')">📜 Правила</button>
@@ -1994,27 +2019,6 @@ try{
         </div>
       </div>
 
-      <!-- PVP BLACKJACK -->
-      <div class="casino-game-card">
-        <div class="cgc-head"><span class="cgc-title">👥🃏 Дуэль 21</span><span class="cgc-rtp">игрок vs игрок</span></div>
-        <div class="cgc-body">
-          <div class="mini-game-panel">
-            <div class="mini-game-hint">Создаешь комнату на ставку, второй игрок её принимает, дальше вы по очереди добираете карты или останавливаетесь. Побеждает тот, кто ближе к 21 и не перебрал.</div>
-          </div>
-          <div class="bet-chip-row" style="justify-content:center"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('pvp_blackjack',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',150,this)">150</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',250,this)">250</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',500,this)">500</div></div>
-          <div class="bj-actions" style="margin-bottom:10px"><button class="btn btn-yellow" onclick="createPvpBlackjackRoom()" id="pvp-bj-create-btn">Создать оффер</button><button class="btn btn-ghost" onclick="refreshPvpBlackjackRooms(false)" id="pvp-bj-refresh-btn">Обновить</button><button class="btn btn-ghost" onclick="cancelPvpBlackjackRoom()" id="pvp-bj-cancel-btn" style="display:none">Отменить оффер</button></div>
-          <div id="pvp-bj-room-wrap" style="display:none">
-            <div class="bj-table"><div class="bj-label" id="pvp-bj-host-label">Хост</div><div class="bj-cards" id="pvp-bj-host-cards"></div><div class="bj-score" id="pvp-bj-host-score"></div></div>
-            <div class="bj-table"><div class="bj-label" id="pvp-bj-guest-label">Гость</div><div class="bj-cards" id="pvp-bj-guest-cards"></div><div class="bj-score" id="pvp-bj-guest-score"></div></div>
-            <div class="bj-result" id="pvp-bj-room-status"></div>
-            <div class="bj-actions"><button class="btn btn-yellow" onclick="playPvpBlackjackTurn('hit')" id="pvp-bj-hit-btn" disabled>Ещё 🎴</button><button class="btn btn-ghost" onclick="playPvpBlackjackTurn('stand')" id="pvp-bj-stand-btn" disabled>Хватит 🛑</button></div>
-          </div>
-          <div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin:10px 0 6px">Открытые офферы</div>
-          <div id="pvp-bj-waiting-list" style="display:grid;gap:8px"></div>
-          <div id="pvp-bj-my-list" style="display:grid;gap:8px;margin-top:10px"></div>
-        </div>
-      </div>
-
       <!-- WHEEL -->
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🎡 Колесо</span><span class="cgc-rtp">ставка: <span id="bet-label-wheel">30 ЛК</span></span></div>
@@ -2257,6 +2261,81 @@ try{
     <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Один купон — один раз. Доступен после окончания групп.</p>
     <div id="playoff-content">
       <div class="loading-ctr"><div class="spinner"></div><br/><br/>Проверяем...</div>
+    </div>
+  </div>
+
+  <!-- PVP -->
+  <div id="page-pvp" class="page">
+    <div style="max-width:760px;margin:0 auto">
+      <div class="pvp-hero">
+        <div class="pvp-hero-top">
+          <div>
+            <div class="pvp-hero-kicker">PVP ИГРЫ</div>
+            <div class="pvp-hero-title">Лобби дуэлей</div>
+          </div>
+          <div class="pvp-hero-badge">⚔️ Игрок против игрока</div>
+        </div>
+        <div class="pvp-hero-sub">Здесь игры идут не против кассы, а против живых людей. Сейчас уже доступна первая дисциплина, а ниже сразу видно, какие PvP-режимы скоро появятся в лобби.</div>
+        <div class="pvp-hero-stats">
+          <div class="pvp-hero-stat">
+            <div class="pvp-hero-stat-label">Сейчас доступно</div>
+            <div class="pvp-hero-stat-value">1 режим</div>
+          </div>
+          <div class="pvp-hero-stat">
+            <div class="pvp-hero-stat-label">Ближайший формат</div>
+            <div class="pvp-hero-stat-value">Блэкджек</div>
+          </div>
+          <div class="pvp-hero-stat">
+            <div class="pvp-hero-stat-label">Тип ставок</div>
+            <div class="pvp-hero-stat-value">ЛузКоины</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">👥🃏 Дуэль 21</span><span class="cgc-rtp">игрок vs игрок</span></div>
+        <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Создаешь комнату на ставку, второй игрок её принимает, дальше вы по очереди добираете карты или останавливаетесь. Побеждает тот, кто ближе к 21 и не перебрал.</div>
+          </div>
+          <div class="bet-chip-row" style="justify-content:center"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('pvp_blackjack',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',150,this)">150</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',250,this)">250</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',500,this)">500</div></div>
+          <div class="bj-actions" style="margin-bottom:10px"><button class="btn btn-yellow" onclick="createPvpBlackjackRoom()" id="pvp-bj-create-btn">Создать оффер</button><button class="btn btn-ghost" onclick="refreshPvpBlackjackRooms(false)" id="pvp-bj-refresh-btn">Обновить</button><button class="btn btn-ghost" onclick="cancelPvpBlackjackRoom()" id="pvp-bj-cancel-btn" style="display:none">Отменить оффер</button></div>
+          <div id="pvp-bj-room-wrap" style="display:none">
+            <div class="bj-table"><div class="bj-label" id="pvp-bj-host-label">Хост</div><div class="bj-cards" id="pvp-bj-host-cards"></div><div class="bj-score" id="pvp-bj-host-score"></div></div>
+            <div class="bj-table"><div class="bj-label" id="pvp-bj-guest-label">Гость</div><div class="bj-cards" id="pvp-bj-guest-cards"></div><div class="bj-score" id="pvp-bj-guest-score"></div></div>
+            <div class="bj-result" id="pvp-bj-room-status"></div>
+            <div class="bj-actions"><button class="btn btn-yellow" onclick="playPvpBlackjackTurn('hit')" id="pvp-bj-hit-btn" disabled>Ещё 🎴</button><button class="btn btn-ghost" onclick="playPvpBlackjackTurn('stand')" id="pvp-bj-stand-btn" disabled>Хватит 🛑</button></div>
+          </div>
+          <div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin:10px 0 6px">Открытые офферы</div>
+          <div id="pvp-bj-waiting-list" style="display:grid;gap:8px"></div>
+          <div id="pvp-bj-my-list" style="display:grid;gap:8px;margin-top:10px"></div>
+        </div>
+      </div>
+
+      <div class="pvp-lobby-title">СКОРО В ЛОББИ</div>
+      <div class="pvp-lobby-grid">
+        <div class="pvp-coming-card">
+          <div class="pvp-coming-tag live">СЕЙЧАС В ИГРЕ</div>
+          <div class="pvp-coming-name">👥🃏 Дуэль 21</div>
+          <div class="pvp-coming-desc">Быстрая карточная дуэль на ставку. Создаёшь оффер, принимаешь вызов и пытаешься стать ближе к 21, чем соперник.</div>
+          <div class="pvp-coming-meta">Статус: готово к игре</div>
+          <button class="pvp-coming-btn" disabled>УЖЕ ДОСТУПНО ВЫШЕ</button>
+        </div>
+        <div class="pvp-coming-card">
+          <div class="pvp-coming-tag soon">СКОРО</div>
+          <div class="pvp-coming-name">🎲 Кости 1v1</div>
+          <div class="pvp-coming-desc">Оба игрока кидают кости на одинаковую ставку, а победитель забирает банк. Коротко, злобно и без лишней философии.</div>
+          <div class="pvp-coming-meta">Следующий кандидат в релиз</div>
+          <button class="pvp-coming-btn" disabled>СКОРО В БОЮ</button>
+        </div>
+        <div class="pvp-coming-card">
+          <div class="pvp-coming-tag soon">СКОРО</div>
+          <div class="pvp-coming-name">🚩 Chicken Race</div>
+          <div class="pvp-coming-desc">Оба давят риск по шагам, но выигрывает тот, кто дольше не дрогнет и не сорвётся раньше времени.</div>
+          <div class="pvp-coming-meta">Режим на жадность и нервы</div>
+          <button class="pvp-coming-btn" disabled>СКОРО В БОЮ</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -4474,9 +4553,9 @@ function updateProfilePage(){
 function showPage(id){
   // Redirect login → profile if already logged in
   if(id==='login' && S.code){id='profile';}
-  if(id!=='casino') stopPvpBlackjackPolling();
+  if(id!=='pvp') stopPvpBlackjackPolling();
   // Guard: закрытые разделы без логина
-  const PROTECTED=['predict','casino','achievements','playoff','profile'];
+  const PROTECTED=['predict','casino','pvp','achievements','playoff','profile'];
   if(PROTECTED.includes(id) && !S.code){
     toast('🔐 Сначала войди в аккаунт','err',2500);
     id='login';
@@ -4508,7 +4587,8 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();refreshDurakGame();refreshPvpBlackjackRooms(true);if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();refreshDurakGame();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='pvp'){saveCoins();refreshPvpBlackjackRooms(true);}
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
