@@ -244,6 +244,8 @@ export function toPublicPvpBlackjackRoom(state: PvpBlackjackRoom, viewerCode = "
   const revealAllCards = state.status === "finished";
   const showHostCards = revealAllCards || myRole === "host";
   const showGuestCards = revealAllCards || myRole === "guest";
+  const hostVisibleState = revealAllCards || myRole === "host";
+  const guestVisibleState = revealAllCards || myRole === "guest";
   return {
     room_id: state.room_id,
     status: state.status,
@@ -272,8 +274,8 @@ export function toPublicPvpBlackjackRoom(state: PvpBlackjackRoom, viewerCode = "
       hand: showHostCards ? state.host_hand : Array.from({ length: state.host_hand.length }, () => ({ s: "?", v: "?" })),
       score: showHostCards ? hostScore : null,
       hidden: !showHostCards,
-      stood: state.host_stood,
-      busted: state.host_busted,
+      stood: hostVisibleState ? state.host_stood : null,
+      busted: hostVisibleState ? state.host_busted : null,
     },
     guest: {
       code: state.guest_code,
@@ -281,8 +283,8 @@ export function toPublicPvpBlackjackRoom(state: PvpBlackjackRoom, viewerCode = "
       hand: showGuestCards ? state.guest_hand : Array.from({ length: state.guest_hand.length }, () => ({ s: "?", v: "?" })),
       score: showGuestCards ? guestScore : null,
       hidden: !showGuestCards,
-      stood: state.guest_stood,
-      busted: state.guest_busted,
+      stood: guestVisibleState ? state.guest_stood : null,
+      busted: guestVisibleState ? state.guest_busted : null,
     },
     resolution,
     created_at: state.created_at || null,

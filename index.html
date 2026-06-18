@@ -403,7 +403,38 @@ border:1px solid rgba(255,230,0,.16);border-radius:18px;padding:22px 20px;margin
 .bj-cards{display:flex;flex-wrap:wrap;gap:6px;min-height:60px;align-items:center}
 .bj-card{background:#fff;color:#111;border-radius:6px;padding:6px 10px;font-family:var(--os);font-size:18px;font-weight:700;min-width:42px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,.4);line-height:1}
 .bj-card.red{color:var(--red)}
-.bj-card.hidden{background:linear-gradient(135deg,#1a0050,#3a0080);color:transparent;border:2px solid rgba(155,89,182,.4)}
+.bj-card.hidden{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 30% 30%,rgba(255,255,255,.16),transparent 28%),
+    repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 6px,rgba(255,255,255,.02) 6px 12px),
+    linear-gradient(145deg,#16213f,#274c8f 52%,#14203d);
+  color:transparent;
+  border:1px solid rgba(150,205,255,.4);
+  box-shadow:0 6px 16px rgba(0,0,0,.32), inset 0 0 0 2px rgba(255,255,255,.08);
+}
+.bj-card.hidden::before{
+  content:'';
+  position:absolute;
+  inset:5px;
+  border-radius:4px;
+  border:1px solid rgba(255,255,255,.22);
+  background:
+    radial-gradient(circle,rgba(255,255,255,.15) 0 1px,transparent 1px) 0 0/8px 8px,
+    linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,0));
+}
+.bj-card.hidden::after{
+  content:'♠';
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:rgba(255,255,255,.78);
+  font-size:18px;
+  text-shadow:0 1px 0 rgba(0,0,0,.25);
+}
 .bj-score{font-family:var(--os);font-size:13px;color:var(--muted);margin-top:8px}
 .bj-score b{color:var(--white)}
 .bj-result{font-family:var(--os);font-size:20px;text-align:center;padding:10px;min-height:40px}
@@ -5784,7 +5815,7 @@ async function spinSlots(){
 const BJ_DECK=()=>{const suits=['♠','♥','♦','♣'],vals=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];const d=[];suits.forEach(s=>vals.forEach(v=>d.push({s,v})));return d.sort(()=>Math.random()-.5);};
 function bjVal(v){if(['J','Q','K'].includes(v))return 10;if(v==='A')return 11;return parseInt(v);}
 function bjScore(hand){let s=hand.reduce((a,c)=>a+bjVal(c.v),0),aces=hand.filter(c=>c.v==='A').length;while(s>21&&aces>0){s-=10;aces--;}return s;}
-function bjCardHtml(c,hidden=false){if(hidden)return`<div class="bj-card hidden">?</div>`;const red=['♥','♦'].includes(c.s);return`<div class="bj-card${red?' red':''}">${c.v}${c.s}</div>`;}
+function bjCardHtml(c,hidden=false){if(hidden)return`<div class="bj-card hidden"></div>`;const red=['♥','♦'].includes(c.s);return`<div class="bj-card${red?' red':''}">${c.v}${c.s}</div>`;}
 function bjRenderHands(revealDealer=false){
   const ph=bjState.player,dh=bjState.dealer;
   document.getElementById('player-cards').innerHTML=ph.map(c=>bjCardHtml(c)).join('');
@@ -5872,10 +5903,10 @@ function pvpBjResultLabel(room){
   const result=String(room.resolution?.result || '');
   const hostName=room.host?.name || room.host_name || 'Хозяин стола';
   const guestName=room.guest?.name || room.guest_name || 'Соперник';
-  if(result==='host_win') return `${hostName} забрал банк`;
-  if(result==='guest_win') return `${guestName} забрал банк`;
-  if(result==='double_bust_push') return 'оба сгорели и получили ничью';
-  if(result==='push') return 'ничья, ставки разошлись обратно';
+  if(result==='host_win') return `${hostName} забрал весь банк`;
+  if(result==='guest_win') return `${guestName} забрал весь банк`;
+  if(result==='double_bust_push') return 'оба словили перебор, поэтому банк разошёлся по домам';
+  if(result==='push') return 'ничья, банк вернулся обоим';
   return 'партия завершена';
 }
 
@@ -5919,13 +5950,13 @@ function renderPvpBlackjackState(){
     document.getElementById('pvp-bj-guest-cards').innerHTML=pvpBjHandHtml(room.guest.hand, !!room.guest.hidden);
     document.getElementById('pvp-bj-host-score').innerHTML=room.host.hand && room.host.hand.length
       ? room.host.hidden
-        ? '<b>Счёт скрыт до конца партии</b>'
-        : `<b>Счёт: ${room.host.score}${room.host.stood?' • стоит':''}${room.host.busted?' • перебор':''}</b>`
+        ? '<b>Карты скрыты до конца партии</b>'
+        : `<b>Счёт: ${room.host.score}${room.host.stood===true?' • стоит':''}${room.host.busted===true?' • перебор':''}</b>`
       : 'Ждём соперника';
     document.getElementById('pvp-bj-guest-score').innerHTML=room.guest.hand && room.guest.hand.length
       ? room.guest.hidden
-        ? '<b>Счёт скрыт до конца партии</b>'
-        : `<b>Счёт: ${room.guest.score}${room.guest.stood?' • стоит':''}${room.guest.busted?' • перебор':''}</b>`
+        ? '<b>Карты скрыты до конца партии</b>'
+        : `<b>Счёт: ${room.guest.score}${room.guest.stood===true?' • стоит':''}${room.guest.busted===true?' • перебор':''}</b>`
       : 'Ещё не зашёл';
     document.getElementById('pvp-bj-room-status').textContent=pvpBjResolutionText(room);
     const canAct=room.status==='active' && room.my_turn;
