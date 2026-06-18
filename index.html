@@ -2891,6 +2891,7 @@ let matchRewardsPopupActive = false;
 let matchRewardsLastCheckAt = 0;
 let matchRewardsPendingIds = [];
 let matchRewardsUnlockAt = 0;
+let matchRewardsStandingCache = { code:'', points:null, rank:null };
 
 function getMatchRewardLabel(type){
   if(type==='exact') return { cls:'exact', text:'ТОЧНЫЙ СЧЕТ', icon:'💯' };
@@ -2911,9 +2912,9 @@ const MATCH_REWARD_POPUP_MOODS = {
     popupClass: 'mood-exact',
     stamp: 'VAR ПОДОЗРЕВАЕТ ИНСАЙД',
     verdicts: [
-      '{name_nom}, точный счёт. Касса шепчет, что у {name_gen} либо дар, либо знакомый в будке VAR.',
-      '{name_nom}, это уже не прогноз, а подозрительно аккуратный цирк с попаданием в табло.',
-      '{name_nom}, редакция с тоской фиксирует: даже у {name_gen} иногда выходит не каша, а факт.'
+      '{name_nom} поймал табло.',
+      'Касса боится {name_acc}.',
+      '{name_nom} угадал слишком точно.'
     ],
     article: {
       kicker: 'Срочная справка о подозрительном везении',
@@ -2936,9 +2937,9 @@ const MATCH_REWARD_POPUP_MOODS = {
     popupClass: 'mood-good',
     stamp: 'КАССА НЕХОТЯ ОДОБРЯЕТ',
     verdicts: [
-      '{name_nom}, редкий случай: у {name_gen} в голове сегодня был не сквозняк, а мысль.',
-      '{name_nom}, это ещё не триумф, но уже и не привычный фестиваль растерянности.',
-      '{name_nom}, касса морщится, но признаёт: местами {name_acc} несло в правильную сторону.'
+      '{name_nom} внезапно попал в логику.',
+      'У {name_gen} случился прилив адекватности.',
+      '{name_nom} сегодня не развалился сразу.'
     ],
     article: {
       kicker: 'Отдел умеренного недоумения',
@@ -2961,9 +2962,9 @@ const MATCH_REWARD_POPUP_MOODS = {
     popupClass: 'mood-mixed',
     stamp: 'КОЛЛЕКТИВНЫЙ РАЗБОР ПОЛЁТОВ',
     verdicts: [
-      '{name_nom}, классика {name_gen}: один матч как человек, второй как потерянный комментатор.',
-      '{name_nom}, половина прогнозов держится, половина уже просит политического убежища.',
-      '{name_nom}, репутация {name_gen} снова пляшет между "ничего себе" и "что это было".'
+      '{name_nom}: то гений, то катастрофа.',
+      'У {name_gen} снова вечер качелей.',
+      '{name_nom} устроил шоу без сценария.'
     ],
     article: {
       kicker: 'Досье на человека с внутренним бардаком',
@@ -2986,9 +2987,9 @@ const MATCH_REWARD_POPUP_MOODS = {
     popupClass: 'mood-miss',
     stamp: 'ПРОТОКОЛ ПОЗОРА',
     verdicts: [
-      '{name_nom}, прогнозы {name_gen} снова жили в отдельной вселенной без футбола.',
-      '{name_nom}, матч уже закончился, а версия {name_gen} так и не добралась до реальности.',
-      '{name_nom}, редакция посмотрела на это и записала {name_acc} в отдел бытового абсурда.'
+      '{name_nom} снова мимо реальности.',
+      'Футбол не понял {name_acc}.',
+      'Прогнозы {name_gen} сбежали из логики.'
     ],
     article: {
       kicker: 'Криминальная хроника по линии логики',
@@ -3098,48 +3099,128 @@ function fillMatchRewardsTemplate(text, stats){
     .replaceAll('{coins}', formatCoins(stats.total))
     .replaceAll('{exact}', String(stats.exact))
     .replaceAll('{good}', String(stats.good))
-    .replaceAll('{miss}', String(stats.miss));
+    .replaceAll('{miss}', String(stats.miss))
+    .replaceAll('{pred_points}', String(stats.pred_points ?? 0))
+    .replaceAll('{pred_rank}', String(stats.pred_rank ?? '?'));
 }
 
 function getMatchRewardsLead(stats){
   return fillMatchRewardsTemplate(
-    '{name_nom} снова оказался в эпицентре редакционного расследования: закрыто {matches} матч(а/ей), начислено +{coins} ЛК, а степень нелепости происходящего официально признана выше среднего по палате.',
+    '{name_nom} снова оказался в эпицентре редакционного расследования: закрыто {matches} матч(а/ей), начислено +{coins} ЛК, на прогнозах у {name_gen} уже {pred_points} очков, а место в рейтинге сейчас — №{pred_rank}. То есть шуму много, а турнирная судьба по-прежнему пахнет сомнительно.',
     stats
   );
+}
+
+function getMatchRewardsHeadline(moodKey, stats){
+  const forms = getViewerNameForms();
+  if(moodKey === 'exact'){
+    return randomFrom([
+      `${forms.nom} попал в табло`,
+      `Касса боится ${forms.acc}`,
+      `${forms.nom} включил режим VAR`,
+    ]);
+  }
+  if(moodKey === 'outcome'){
+    return randomFrom([
+      `${forms.nom} внезапно собрался`,
+      `У ${forms.gen} проснулась логика`,
+      `${forms.nom} не развалился в эфире`,
+    ]);
+  }
+  if(moodKey === 'mixed'){
+    return randomFrom([
+      `${forms.nom}: цирк и озарение`,
+      `Вечер качелей имени ${forms.gen}`,
+      `${forms.nom} устроил драму кассе`,
+    ]);
+  }
+  return randomFrom([
+    `${forms.nom} снова мимо реальности`,
+    `Футбол не понял ${forms.acc}`,
+    `Прогнозы ${forms.gen} ушли в астрал`,
+  ]);
 }
 
 function getMatchRewardsOutro(stats){
   if(stats.exact > 0){
     return fillMatchRewardsTemplate(
-      'Финальный вывод комиссии прост: {name_nom} либо случайно открыл третий глаз, либо снова каким-то чудом угадал то, что обычно портит с особым вдохновением.',
+      'Финальный вывод комиссии прост: {name_nom} либо случайно открыл третий глаз, либо снова каким-то чудом угадал то, что обычно портит с особым вдохновением. При этом №{pred_rank} в рейтинге всё ещё выглядит как официально заверенный компромисс между талантом и балаганом.',
       stats
     );
   }
   if(stats.good > stats.miss){
     return fillMatchRewardsTemplate(
-      'Редакция нехотя признаёт: в этот раз у {name_gen} получилось больше толка, чем привычной художественной самодеятельности. Касса страдает, но молчит.',
+      'Редакция нехотя признаёт: в этот раз у {name_gen} получилось больше толка, чем привычной художественной самодеятельности. Касса страдает, но молчит, а место №{pred_rank} вынуждает относиться к {name_dat} чуть серьёзнее, чем хотелось бы.',
       stats
     );
   }
   if(stats.good > 0){
     return fillMatchRewardsTemplate(
-      'Итог выпуска тревожный, но красивый: у {name_gen} одновременно нашлись и просветы разума, и фирменные кульбиты мимо логики. То есть всё по классике имени {name_gen}.',
+      'Итог выпуска тревожный, но красивый: у {name_gen} одновременно нашлись и просветы разума, и фирменные кульбиты мимо логики. То есть всё по классике имени {name_gen}. Особенно для человека, который уже как-то дополз до №{pred_rank} с {pred_points} очками.',
       stats
     );
   }
   return fillMatchRewardsTemplate(
-    'По итогам вечера редакция постановила: прогнозы {name_gen} снова заслужили отдельную полку между спортивной фантастикой, бытовой паникой и очень смелыми заблуждениями.',
+    'По итогам вечера редакция постановила: прогнозы {name_gen} снова заслужили отдельную полку между спортивной фантастикой, бытовой паникой и очень смелыми заблуждениями. А место №{pred_rank} лишь доказывает, что рейтингу иногда тоже бывает неловко.',
     stats
   );
 }
 
-function renderMatchRewardsArticle(mood, rows, total){
+async function getPredictionStandingContext(){
+  if(!S.code) return { points:0, rank:'?' };
+  if(matchRewardsStandingCache.code === S.code && matchRewardsStandingCache.points != null && matchRewardsStandingCache.rank != null){
+    return { points: matchRewardsStandingCache.points, rank: matchRewardsStandingCache.rank };
+  }
+
+  let lbRows = [];
+  let results = window._lastResults || {};
+
+  if(window._lbCache && Array.isArray(window._lbCache.lb) && window._lbCache.lb.length){
+    lbRows = window._lbCache.lb;
+    results = window._lbCache.results || results;
+  } else {
+    try{
+      const r = await api({ action:'getLeaderboard' });
+      if(r && r.ok){
+        lbRows = Array.isArray(r.leaderboard) ? r.leaderboard : [];
+        results = r.results || results;
+      }
+    }catch(e){}
+  }
+
+  if(Array.isArray(lbRows) && lbRows.length){
+    const me = lbRows.find(p => String(p.code || '').trim().toLowerCase() === String(S.code || '').trim().toLowerCase())
+      || lbRows.find(p => String(p.name || '').trim() === String(S.name || '').trim());
+    if(me){
+      const rank = Math.max(1, lbRows.findIndex(p => p === me) + 1);
+      const points = parseInt(me.total,10) || 0;
+      matchRewardsStandingCache = { code:S.code, points, rank };
+      return { points, rank };
+    }
+  }
+
+  try{
+    const pred = normalizePredictionData(currentPredictionData || {});
+    if(Object.keys(pred).length && Object.keys(results || {}).length){
+      const mine = scorePreds(S.name || '', pred, results);
+      const points = parseInt(mine.total,10) || 0;
+      matchRewardsStandingCache = { code:S.code, points, rank:'?' };
+      return { points, rank:'?' };
+    }
+  }catch(e){}
+
+  return { points:0, rank:'?' };
+}
+
+function renderMatchRewardsArticle(mood, rows, total, standing){
   const stats = {
     matches: Array.isArray(rows) ? rows.length : 0,
     total: total || 0,
     exact: Array.isArray(rows) ? rows.filter(r => String(r.result_type || '') === 'exact').length : 0,
     good: Array.isArray(rows) ? rows.filter(r => ['exact','diff','outcome'].includes(String(r.result_type || ''))).length : 0,
     miss: Array.isArray(rows) ? rows.filter(r => !['exact','diff','outcome'].includes(String(r.result_type || ''))).length : 0,
+    pred_points: standing && standing.points != null ? standing.points : 0,
+    pred_rank: standing && standing.rank != null ? standing.rank : '?',
   };
   const article = mood && mood.article ? mood.article : null;
   if(!article) return escapeHtml(withViewerName('Матчи посчитаны, монеты начислены, самооценка пересмотрена.'));
@@ -3149,6 +3230,8 @@ function renderMatchRewardsArticle(mood, rows, total){
   const facts = [
     `Матчей: ${stats.matches}`,
     `Начислено: +${formatCoins(stats.total)} ЛК`,
+    `Очков: ${stats.pred_points}`,
+    `Место: №${stats.pred_rank}`,
     `Попаданий: ${stats.good}`,
     `Мимо: ${stats.miss}`,
   ];
@@ -3247,14 +3330,29 @@ async function showMatchRewardsPopup(rows){
   matchRewardsPendingIds=ids;
   const total = rows.reduce((sum,row)=>sum + (parseInt(row.coins_delta,10) || 0), 0);
   const mood = getMatchRewardsMood(rows);
+  const standing = await getPredictionStandingContext();
+  const moodKey = mood === MATCH_REWARD_POPUP_MOODS.exact
+    ? 'exact'
+    : mood === MATCH_REWARD_POPUP_MOODS.outcome
+      ? 'outcome'
+      : mood === MATCH_REWARD_POPUP_MOODS.mixed
+        ? 'mixed'
+        : 'miss';
+  const stats = {
+    matches: rows.length,
+    total,
+    exact: rows.filter(r => String(r.result_type || '') === 'exact').length,
+    good: rows.filter(r => ['exact','diff','outcome'].includes(String(r.result_type || ''))).length,
+    miss: rows.filter(r => !['exact','diff','outcome'].includes(String(r.result_type || ''))).length,
+  };
   totalEl.textContent = `+${total} ЛК`;
   subEl.textContent = rows.length===1
     ? 'Один матч закончился. И да, тебя по нему уже оценили.'
     : `Матчей закрыто: ${rows.length}. Коллективный разбор твоих решений готов.`;
   popup.className = `match-rewards-pop ${mood.popupClass}`;
   stampEl.textContent = mood.stamp;
-  verdictEl.textContent = withViewerName(randomFrom(mood.verdicts));
-  metaEl.innerHTML = renderMatchRewardsArticle(mood, rows, total);
+  verdictEl.textContent = getMatchRewardsHeadline(moodKey, stats);
+  metaEl.innerHTML = renderMatchRewardsArticle(mood, rows, total, standing);
   reactionImgEl.src = mood.image;
   reactionImgEl.alt = withViewerName(mood.badge);
   reactionBadgeEl.textContent = withViewerName(mood.badge);
