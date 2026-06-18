@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const AUTOCLICKER_CODES = new Set(["kef_1_01", "prodam_prognoz"]);
+const AUTOCLICKER_CODES = new Set<string>();
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
