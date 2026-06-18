@@ -2967,7 +2967,11 @@ const MATCH_REWARD_POPUP_MOODS = {
       quote: 'Свидетели уверяют, что мячи будто заранее получили от {name_gen} маршрутный лист.',
     },
     badge: '{name_nom} опять ломает бухгалтерию',
-    image: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmNmZDd4eGcwMjdhbm42NTdlbHlrand3NDc0MWx5b3oyN3E2Z25sNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26gs6Y4Mke6i0MUi4/giphy.gif',
+    images: [
+      'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmNmZDd4eGcwMjdhbm42NTdlbHlrand3NDc0MWx5b3oyN3E2Z25sNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26gs6Y4Mke6i0MUi4/giphy.gif',
+      'big-win1.png',
+      'big-win.png'
+    ],
     rowVerdicts: [
       'Даже у {name_gen} иногда срабатывает не паника, а попадание.',
       '{name_nom} попал так чисто, что это уже выглядит как бытовое колдовство.',
@@ -2992,7 +2996,11 @@ const MATCH_REWARD_POPUP_MOODS = {
       quote: 'Очевидцы клянутся: реальность бодалась с {name_inst}, но сегодня проиграла по очкам.',
     },
     badge: '{name_nom} временно включил мозг',
-    image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/D6WuLOKOpR2fK/200w.gif',
+    images: [
+      'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/D6WuLOKOpR2fK/200w.gif',
+      'big-win2.png',
+      'big-win.png'
+    ],
     rowVerdicts: [
       '{name_nom}, здесь хотя бы без фирменного цирка имени {name_gen}.',
       'Неидеально, но для {name_gen} уже почти научная сенсация.',
@@ -3017,7 +3025,11 @@ const MATCH_REWARD_POPUP_MOODS = {
       quote: '{name_nom} сумел одновременно порадовать кассу и заставить её уткнуться лицом в папку с валидолом.',
     },
     badge: '{name_nom} устроил цирк бухгалтерии',
-    image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/vcKEsYOdjoCeJRpn95/200w.gif',
+    images: [
+      'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDBzNzdmYTN5ZDM1c3JrbGMwa251N3VnY3NvcnA4bWtqczB3ZXQwaiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/vcKEsYOdjoCeJRpn95/200w.gif',
+      'big-win1.png',
+      'big-win2.png'
+    ],
     rowVerdicts: [
       'У {name_gen} тут то ли инсайт, то ли очередной приступ импровизации.',
       '{name_nom} снова играет в смесь эксперта и растерянного туриста.',
@@ -3042,7 +3054,11 @@ const MATCH_REWARD_POPUP_MOODS = {
       quote: 'Очевидцы заявляют, что прогноз {name_gen} пришлось искать уже где-то между киберспортом и погодой на четверг.',
     },
     badge: '{name_nom} снова проиграл спор с реальностью',
-    image: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3IxeG1hNDdiMWo2MjJ3anliYXMxemNlMHRodHBnbmlnZGloMmJ1diZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9Zchaz9dO1JApPV44G/200w.gif',
+    images: [
+      'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3IxeG1hNDdiMWo2MjJ3anliYXMxemNlMHRodHBnbmlnZGloMmJ1diZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9Zchaz9dO1JApPV44G/200w.gif',
+      'big-win.png',
+      'big-win2.png'
+    ],
     rowVerdicts: [
       'Это не промах {name_gen}, это побег прогноза с места логики.',
       '{name_nom} улетел мимо так, будто спорил не с футболом, а с астрологией.',
@@ -3278,9 +3294,9 @@ function renderMatchRewardsArticle(mood, rows, total, standing){
   ];
   const spotlight = [
     { label:'Место в рейтинге', value:`№${stats.pred_rank}`, note:'Официальная позиция в таблице народного смущения.', major:true },
-    { label:'Очков на прогнозе', value:String(stats.pred_points), note:'Сухой остаток после всех умных лиц и странных решений.', major:true },
+    { label:'Всего очков', value:String(stats.pred_points), note:'Общий улов за прогнозы. Столько уже наскреблось с начала турнира.', major:true },
     { label:'Начислено за выпуск', value:`+${formatCoins(stats.total)}`, note:'ЛузКоины пришли, стыд остался.' },
-    { label:'Баланс тура', value:`${stats.good}/${stats.miss}`, note:'Попадания против эпизодов, где логика просила пощады.' },
+    { label:'Попаданий / промахов', value:`${stats.good} / ${stats.miss}`, note:'Сколько раз попал и сколько раз снова поссорился с реальностью.' },
   ];
   const story = [
     getMatchRewardsLead(stats),
@@ -3401,7 +3417,7 @@ async function showMatchRewardsPopup(rows){
   stampEl.textContent = mood.stamp;
   verdictEl.textContent = getMatchRewardsHeadline(moodKey, stats);
   metaEl.innerHTML = renderMatchRewardsArticle(mood, rows, total, standing);
-  reactionImgEl.src = mood.image;
+  reactionImgEl.src = randomFrom(Array.isArray(mood.images) && mood.images.length ? mood.images : ['big-win.png']);
   reactionImgEl.alt = withViewerName(mood.badge);
   reactionBadgeEl.textContent = withViewerName(mood.badge);
 
