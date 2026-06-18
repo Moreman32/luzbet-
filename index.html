@@ -5861,10 +5861,22 @@ function schedulePvpBlackjackPolling(delayMs){
   pvpBjState.pollTimer=setTimeout(()=>refreshPvpBlackjackRooms(true), computedDelay);
 }
 
-function pvpBjHandHtml(hand){
+function pvpBjHandHtml(hand,hidden=false){
   return Array.isArray(hand) && hand.length
-    ? hand.map(card=>bjCardHtml(card)).join('')
+    ? hand.map(card=>bjCardHtml(card, hidden)).join('')
     : '<div style="font-size:12px;color:var(--muted)">Пока пусто</div>';
+}
+
+function pvpBjResultLabel(room){
+  if(!room) return '';
+  const result=String(room.resolution?.result || '');
+  const hostName=room.host?.name || room.host_name || 'Хозяин стола';
+  const guestName=room.guest?.name || room.guest_name || 'Соперник';
+  if(result==='host_win') return `${hostName} забрал банк`;
+  if(result==='guest_win') return `${guestName} забрал банк`;
+  if(result==='double_bust_push') return 'оба сгорели и получили ничью';
+  if(result==='push') return 'ничья, ставки разошлись обратно';
+  return 'партия завершена';
 }
 
 function pvpBjResolutionText(room){
@@ -5873,9 +5885,9 @@ function pvpBjResolutionText(room){
   if(room.status==='cancelled') return 'Комната отменена, ставка возвращена.';
   if(room.status==='finished'){
     if(room.winner_code){
-      return `🏁 Победитель: ${escapeHtml(room.winner_name || '—')}. Итог: ${escapeHtml(String(room.resolution?.result || 'win'))}`;
+      return `🏁 Победитель: ${escapeHtml(room.winner_name || '—')}. ${escapeHtml(pvpBjResultLabel(room))}.`;
     }
-    return '🤝 Ничья. Банк разошёлся обратно по карманам.';
+    return `🤝 Ничья. ${escapeHtml(pvpBjResultLabel(room))}.`;
   }
   const turnName=room.turn_name || 'соперник';
   return room.my_turn ? 'Твой ход. Решай: добрать или остановиться.' : `Ходит ${escapeHtml(turnName)}.`;
@@ -5903,10 +5915,18 @@ function renderPvpBlackjackState(){
   if(room){
     document.getElementById('pvp-bj-host-label').textContent=`${room.host.name || 'Хост'}${room.my_role==='host'?' (ты)':''}`;
     document.getElementById('pvp-bj-guest-label').textContent=`${room.guest.name || 'Гость'}${room.my_role==='guest'?' (ты)':''}`;
-    document.getElementById('pvp-bj-host-cards').innerHTML=pvpBjHandHtml(room.host.hand);
-    document.getElementById('pvp-bj-guest-cards').innerHTML=pvpBjHandHtml(room.guest.hand);
-    document.getElementById('pvp-bj-host-score').innerHTML=room.host.hand && room.host.hand.length ? `<b>Счёт: ${room.host.score}${room.host.stood?' • стоит':''}${room.host.busted?' • перебор':''}</b>` : 'Ждём соперника';
-    document.getElementById('pvp-bj-guest-score').innerHTML=room.guest.hand && room.guest.hand.length ? `<b>Счёт: ${room.guest.score}${room.guest.stood?' • стоит':''}${room.guest.busted?' • перебор':''}</b>` : 'Ещё не зашёл';
+    document.getElementById('pvp-bj-host-cards').innerHTML=pvpBjHandHtml(room.host.hand, !!room.host.hidden);
+    document.getElementById('pvp-bj-guest-cards').innerHTML=pvpBjHandHtml(room.guest.hand, !!room.guest.hidden);
+    document.getElementById('pvp-bj-host-score').innerHTML=room.host.hand && room.host.hand.length
+      ? room.host.hidden
+        ? '<b>Счёт скрыт до конца партии</b>'
+        : `<b>Счёт: ${room.host.score}${room.host.stood?' • стоит':''}${room.host.busted?' • перебор':''}</b>`
+      : 'Ждём соперника';
+    document.getElementById('pvp-bj-guest-score').innerHTML=room.guest.hand && room.guest.hand.length
+      ? room.guest.hidden
+        ? '<b>Счёт скрыт до конца партии</b>'
+        : `<b>Счёт: ${room.guest.score}${room.guest.stood?' • стоит':''}${room.guest.busted?' • перебор':''}</b>`
+      : 'Ещё не зашёл';
     document.getElementById('pvp-bj-room-status').textContent=pvpBjResolutionText(room);
     const canAct=room.status==='active' && room.my_turn;
     hitBtn.disabled=!canAct || busy;

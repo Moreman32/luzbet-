@@ -241,6 +241,9 @@ export function toPublicPvpBlackjackRoom(state: PvpBlackjackRoom, viewerCode = "
   const resolution = asObject(state.resolution);
   const myRole = viewerCode === state.host_code ? "host" : viewerCode === state.guest_code ? "guest" : "";
   const myTurn = !!viewerCode && state.turn_code === viewerCode;
+  const revealAllCards = state.status === "finished";
+  const showHostCards = revealAllCards || myRole === "host";
+  const showGuestCards = revealAllCards || myRole === "guest";
   return {
     room_id: state.room_id,
     status: state.status,
@@ -266,16 +269,18 @@ export function toPublicPvpBlackjackRoom(state: PvpBlackjackRoom, viewerCode = "
     host: {
       code: state.host_code,
       name: state.host_name,
-      hand: state.host_hand,
-      score: hostScore,
+      hand: showHostCards ? state.host_hand : Array.from({ length: state.host_hand.length }, () => ({ s: "?", v: "?" })),
+      score: showHostCards ? hostScore : null,
+      hidden: !showHostCards,
       stood: state.host_stood,
       busted: state.host_busted,
     },
     guest: {
       code: state.guest_code,
       name: state.guest_name,
-      hand: state.guest_hand,
-      score: guestScore,
+      hand: showGuestCards ? state.guest_hand : Array.from({ length: state.guest_hand.length }, () => ({ s: "?", v: "?" })),
+      score: showGuestCards ? guestScore : null,
+      hidden: !showGuestCards,
       stood: state.guest_stood,
       busted: state.guest_busted,
     },
