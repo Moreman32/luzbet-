@@ -1994,6 +1994,27 @@ try{
         </div>
       </div>
 
+      <!-- PVP BLACKJACK -->
+      <div class="casino-game-card">
+        <div class="cgc-head"><span class="cgc-title">👥🃏 Дуэль 21</span><span class="cgc-rtp">игрок vs игрок</span></div>
+        <div class="cgc-body">
+          <div class="mini-game-panel">
+            <div class="mini-game-hint">Создаешь комнату на ставку, второй игрок её принимает, дальше вы по очереди добираете карты или останавливаетесь. Побеждает тот, кто ближе к 21 и не перебрал.</div>
+          </div>
+          <div class="bet-chip-row" style="justify-content:center"><span style="font-size:11px;color:var(--muted)">Ставка:</span><div class="bet-chip active" onclick="selectCasinoBet('pvp_blackjack',25,this)">25</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',50,this)">50</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',100,this)">100</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',150,this)">150</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',250,this)">250</div><div class="bet-chip" onclick="selectCasinoBet('pvp_blackjack',500,this)">500</div></div>
+          <div class="bj-actions" style="margin-bottom:10px"><button class="btn btn-yellow" onclick="createPvpBlackjackRoom()" id="pvp-bj-create-btn">Создать оффер</button><button class="btn btn-ghost" onclick="refreshPvpBlackjackRooms(false)" id="pvp-bj-refresh-btn">Обновить</button><button class="btn btn-ghost" onclick="cancelPvpBlackjackRoom()" id="pvp-bj-cancel-btn" style="display:none">Отменить оффер</button></div>
+          <div id="pvp-bj-room-wrap" style="display:none">
+            <div class="bj-table"><div class="bj-label" id="pvp-bj-host-label">Хост</div><div class="bj-cards" id="pvp-bj-host-cards"></div><div class="bj-score" id="pvp-bj-host-score"></div></div>
+            <div class="bj-table"><div class="bj-label" id="pvp-bj-guest-label">Гость</div><div class="bj-cards" id="pvp-bj-guest-cards"></div><div class="bj-score" id="pvp-bj-guest-score"></div></div>
+            <div class="bj-result" id="pvp-bj-room-status"></div>
+            <div class="bj-actions"><button class="btn btn-yellow" onclick="playPvpBlackjackTurn('hit')" id="pvp-bj-hit-btn" disabled>Ещё 🎴</button><button class="btn btn-ghost" onclick="playPvpBlackjackTurn('stand')" id="pvp-bj-stand-btn" disabled>Хватит 🛑</button></div>
+          </div>
+          <div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin:10px 0 6px">Открытые офферы</div>
+          <div id="pvp-bj-waiting-list" style="display:grid;gap:8px"></div>
+          <div id="pvp-bj-my-list" style="display:grid;gap:8px;margin-top:10px"></div>
+        </div>
+      </div>
+
       <!-- WHEEL -->
       <div class="casino-game-card">
         <div class="cgc-head"><span class="cgc-title">🎡 Колесо</span><span class="cgc-rtp">ставка: <span id="bet-label-wheel">30 ЛК</span></span></div>
@@ -2600,10 +2621,12 @@ function addEarnedTotal(amount){
   syncEarnedLocal();
 }
 let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRaf=null;
+let pvpBjState={waiting:[],mine:[],room:null,loading:false,pollTimer:null};
 const CASINO_BET_DEFAULTS={
   durak:25,
   slots:10,
   blackjack:10,
+  pvp_blackjack:25,
   wheel:30,
   dice:20,
   crash:10,
@@ -2623,6 +2646,7 @@ const CASINO_BET_OPTIONS={
   durak:[25,50,100,150,250],
   slots:[10,25,50,100,150,250,500],
   blackjack:[10,25,50,100,150,250,500],
+  pvp_blackjack:[25,50,100,150,250,500],
   wheel:[30,50,100,150],
   dice:[20,50,100,150],
   crash:[10,25,50,100,150,250,500],
@@ -2640,6 +2664,7 @@ const CASINO_BET_OPTIONS={
 };
 const CASINO_BET_HARD_CAPS={
   durak:3000,
+  pvp_blackjack:3000,
   keno:1000,
   scratch:1000,
   rps:1000,
@@ -2769,6 +2794,40 @@ if (action === 'getAchAll') {
 
     if (action === 'getCasino') {
       return await sbFunction('get-casino', { code });
+    }
+
+    if (action === 'createPvpBlackjackRoom') {
+      return await sbFunction('create-pvp-blackjack-room', {
+        code,
+        bet: parseInt(params.bet || 0, 10),
+        room_id: params.room_id || '',
+      });
+    }
+
+    if (action === 'listPvpBlackjackRooms') {
+      return await sbFunction('list-pvp-blackjack-rooms', { code });
+    }
+
+    if (action === 'getPvpBlackjackRoom') {
+      return await sbFunction('get-pvp-blackjack-room', {
+        code,
+        room_id: params.room_id || '',
+      });
+    }
+
+    if (action === 'acceptPvpBlackjackRoom') {
+      return await sbFunction('accept-pvp-blackjack-room', {
+        code,
+        room_id: params.room_id || '',
+      });
+    }
+
+    if (action === 'playPvpBlackjackTurn') {
+      return await sbFunction('play-pvp-blackjack-turn', {
+        code,
+        room_id: params.room_id || '',
+        action: params.turn_action || params.action_name || '',
+      });
     }
 
     if (action === 'saveCasino') {
@@ -4415,6 +4474,7 @@ function updateProfilePage(){
 function showPage(id){
   // Redirect login → profile if already logged in
   if(id==='login' && S.code){id='profile';}
+  if(id!=='casino') stopPvpBlackjackPolling();
   // Guard: закрытые разделы без логина
   const PROTECTED=['predict','casino','achievements','playoff','profile'];
   if(PROTECTED.includes(id) && !S.code){
@@ -4448,7 +4508,7 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();refreshDurakGame();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();refreshDurakGame();refreshPvpBlackjackRooms(true);if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
@@ -4543,6 +4603,8 @@ async function doLogout(){
   achDirty=false;
   casinoSyncTimer=null;
   achSyncTimer=null;
+  stopPvpBlackjackPolling();
+  pvpBjState={waiting:[],mine:[],room:null,loading:false,pollTimer:null};
   durakState={busy:false,loading:false,game:null,round:null,difficulty:'regular',selectedCardId:'',selectedTargetId:''};
   LS.remove('luzbet_session_code');
   LS.remove('luzbet_coins');
@@ -5695,6 +5757,182 @@ async function bjEnd(result){
   document.getElementById('bj-deal-btn').disabled=false;document.getElementById('bj-new-btn').style.display='block';
 }
 function bjNewGame(){document.getElementById('player-cards').innerHTML='';document.getElementById('dealer-cards').innerHTML='';document.getElementById('player-score').textContent='';document.getElementById('dealer-score').textContent='';document.getElementById('bj-result').textContent='';document.getElementById('bj-deal-btn').disabled=false;document.getElementById('bj-hit-btn').disabled=true;document.getElementById('bj-stand-btn').disabled=true;document.getElementById('bj-new-btn').style.display='none';bjState=null;}
+
+function stopPvpBlackjackPolling(){
+  if(pvpBjState.pollTimer){
+    clearTimeout(pvpBjState.pollTimer);
+    pvpBjState.pollTimer=null;
+  }
+}
+
+function schedulePvpBlackjackPolling(){
+  stopPvpBlackjackPolling();
+  if(!S.code) return;
+  pvpBjState.pollTimer=setTimeout(()=>refreshPvpBlackjackRooms(true), 5000);
+}
+
+function pvpBjHandHtml(hand){
+  return Array.isArray(hand) && hand.length
+    ? hand.map(card=>bjCardHtml(card)).join('')
+    : '<div style="font-size:12px;color:var(--muted)">Пока пусто</div>';
+}
+
+function pvpBjResolutionText(room){
+  if(!room) return '';
+  if(room.status==='waiting') return `⏳ Оффер ждёт соперника. Ставка: ${room.bet} ЛК`;
+  if(room.status==='cancelled') return 'Комната отменена, ставка возвращена.';
+  if(room.status==='finished'){
+    if(room.winner_code){
+      return `🏁 Победитель: ${escapeHtml(room.winner_name || '—')}. Итог: ${escapeHtml(String(room.resolution?.result || 'win'))}`;
+    }
+    return '🤝 Ничья. Банк разошёлся обратно по карманам.';
+  }
+  const turnName=room.turn_name || 'соперник';
+  return room.my_turn ? 'Твой ход. Решай: добрать или остановиться.' : `Ходит ${escapeHtml(turnName)}.`;
+}
+
+function renderPvpBlackjackState(){
+  const waitingEl=document.getElementById('pvp-bj-waiting-list');
+  const mineEl=document.getElementById('pvp-bj-my-list');
+  const roomWrap=document.getElementById('pvp-bj-room-wrap');
+  const createBtn=document.getElementById('pvp-bj-create-btn');
+  const refreshBtn=document.getElementById('pvp-bj-refresh-btn');
+  const cancelBtn=document.getElementById('pvp-bj-cancel-btn');
+  const hitBtn=document.getElementById('pvp-bj-hit-btn');
+  const standBtn=document.getElementById('pvp-bj-stand-btn');
+  if(!waitingEl || !mineEl || !roomWrap || !createBtn || !refreshBtn || !cancelBtn || !hitBtn || !standBtn) return;
+
+  const room=pvpBjState.room;
+  createBtn.disabled=!!(room && (room.status==='waiting' || room.status==='active')) || pvpBjState.loading;
+  refreshBtn.disabled=pvpBjState.loading;
+  cancelBtn.style.display=room && room.status==='waiting' && room.my_role==='host' ? '' : 'none';
+  cancelBtn.disabled=pvpBjState.loading;
+  roomWrap.style.display=room ? '' : 'none';
+
+  if(room){
+    document.getElementById('pvp-bj-host-label').textContent=`${room.host.name || 'Хост'}${room.my_role==='host'?' (ты)':''}`;
+    document.getElementById('pvp-bj-guest-label').textContent=`${room.guest.name || 'Гость'}${room.my_role==='guest'?' (ты)':''}`;
+    document.getElementById('pvp-bj-host-cards').innerHTML=pvpBjHandHtml(room.host.hand);
+    document.getElementById('pvp-bj-guest-cards').innerHTML=pvpBjHandHtml(room.guest.hand);
+    document.getElementById('pvp-bj-host-score').innerHTML=room.host.hand && room.host.hand.length ? `<b>Счёт: ${room.host.score}${room.host.stood?' • стоит':''}${room.host.busted?' • перебор':''}</b>` : 'Ждём соперника';
+    document.getElementById('pvp-bj-guest-score').innerHTML=room.guest.hand && room.guest.hand.length ? `<b>Счёт: ${room.guest.score}${room.guest.stood?' • стоит':''}${room.guest.busted?' • перебор':''}</b>` : 'Ещё не зашёл';
+    document.getElementById('pvp-bj-room-status').textContent=pvpBjResolutionText(room);
+    const canAct=room.status==='active' && room.my_turn;
+    hitBtn.disabled=!canAct || pvpBjState.loading;
+    standBtn.disabled=!canAct || pvpBjState.loading;
+  } else {
+    hitBtn.disabled=true;
+    standBtn.disabled=true;
+  }
+
+  waitingEl.innerHTML=(pvpBjState.waiting||[]).length
+    ? pvpBjState.waiting.map(item=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.04)"><div><div style="font-family:var(--os);font-size:14px">${escapeHtml(item.host.name || 'Игрок')}</div><div style="font-size:11px;color:var(--muted)">Ставка ${item.bet} ЛК • ждёт соперника</div></div><button class="btn btn-yellow" style="height:40px;font-size:14px" onclick="acceptPvpBlackjackRoom('${escapeAttr(item.room_id)}')">Принять</button></div>`).join('')
+    : '<div style="font-size:12px;color:var(--muted)">Открытых офферов пока нет. Можно первым выставить ставку и заманить жертву.</div>';
+
+  mineEl.innerHTML=(pvpBjState.mine||[]).length
+    ? `<div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin-bottom:2px">Твои комнаты</div>` + pvpBjState.mine.map(item=>`<div style="padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.03)"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="font-family:var(--os);font-size:14px">${escapeHtml(item.host.name || 'Ты')} vs ${escapeHtml(item.guest.name || 'ожидание')}</strong><span style="font-size:11px;color:var(--muted)">${escapeHtml(item.status)}</span></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Ставка ${item.bet} ЛК • ${escapeHtml(pvpBjResolutionText(item))}</div></div>`).join('')
+    : '';
+}
+
+async function refreshPvpBlackjackRooms(silent=true){
+  if(!S.code || pvpBjState.loading) return;
+  pvpBjState.loading=true;
+  try{
+    const list=await api({ action:'listPvpBlackjackRooms', code:S.code });
+    if(list && list.ok){
+      pvpBjState.waiting=Array.isArray(list.waiting)?list.waiting:[];
+      pvpBjState.mine=Array.isArray(list.mine)?list.mine:[];
+      const preferred=pvpBjState.mine.find(r=>r.status==='active') || pvpBjState.mine.find(r=>r.status==='waiting') || pvpBjState.mine[0] || null;
+      pvpBjState.room=preferred;
+      if(preferred){
+        const detail=await api({ action:'getPvpBlackjackRoom', code:S.code, room_id:preferred.room_id }).catch(()=>null);
+        if(detail && detail.ok && detail.room){
+          pvpBjState.room=detail.room;
+          syncCasinoEconomyFromResponse(detail);
+        }
+      }
+      renderPvpBlackjackState();
+    }else if(!silent){
+      toast(`🃏 PvP: ${list?.error || 'не удалось обновить комнаты'}`,'err');
+    }
+  }catch(e){
+    if(!silent) toast(`🃏 PvP: ${e.message||e}`,'err');
+  }finally{
+    pvpBjState.loading=false;
+    renderPvpBlackjackState();
+    schedulePvpBlackjackPolling();
+  }
+}
+
+async function createPvpBlackjackRoom(){
+  if(!S.code || pvpBjState.loading) return;
+  pvpBjState.loading=true;renderPvpBlackjackState();
+  try{
+    const bet=getCasinoBet('pvp_blackjack');
+    const r=await api({ action:'createPvpBlackjackRoom', code:S.code, bet });
+    if(!r || !r.ok) throw new Error(r?.error || 'не удалось создать оффер');
+    syncCasinoEconomyFromResponse(r);
+    toast(`🃏 Оффер создан на ${bet} ЛК. Ждём соперника.`, 'ok', 2800);
+    await refreshPvpBlackjackRooms(true);
+  }catch(e){
+    toast(`🃏 ${e.message||e}`,'err');
+  }finally{
+    pvpBjState.loading=false;renderPvpBlackjackState();
+  }
+}
+
+async function acceptPvpBlackjackRoom(roomId){
+  if(!S.code || pvpBjState.loading) return;
+  pvpBjState.loading=true;renderPvpBlackjackState();
+  try{
+    const r=await api({ action:'acceptPvpBlackjackRoom', code:S.code, room_id:roomId });
+    if(!r || !r.ok) throw new Error(r?.error || 'не удалось принять оффер');
+    syncCasinoEconomyFromResponse(r);
+    pvpBjState.room=r.room||null;
+    toast('🃏 Дуэль началась. Карты на столе.','ok',2600);
+    await refreshPvpBlackjackRooms(true);
+  }catch(e){
+    toast(`🃏 ${e.message||e}`,'err');
+  }finally{
+    pvpBjState.loading=false;renderPvpBlackjackState();
+  }
+}
+
+async function playPvpBlackjackTurn(action){
+  if(!S.code || !pvpBjState.room || pvpBjState.loading) return;
+  pvpBjState.loading=true;renderPvpBlackjackState();
+  try{
+    const r=await api({ action:'playPvpBlackjackTurn', code:S.code, room_id:pvpBjState.room.room_id, turn_action:action });
+    if(!r || !r.ok) throw new Error(r?.error || 'ход не прошёл');
+    syncCasinoEconomyFromResponse(r);
+    pvpBjState.room=r.room||null;
+    if(r.room && r.room.status==='finished'){
+      if(r.room.winner_code===S.code) toast('🏆 Победа в дуэли! Банк твой.','win',3000);
+      else if(!r.room.winner_code) toast('🤝 Ничья. Ставки вернулись.','info',2600);
+      else toast('💀 Соперник оказался ближе к 21.','err',2800);
+    }
+    await refreshPvpBlackjackRooms(true);
+  }catch(e){
+    toast(`🃏 ${e.message||e}`,'err');
+  }finally{
+    pvpBjState.loading=false;renderPvpBlackjackState();
+  }
+}
+
+async function cancelPvpBlackjackRoom(){
+  if(!S.code || !pvpBjState.room || pvpBjState.loading) return;
+  pvpBjState.loading=true;renderPvpBlackjackState();
+  try{
+    const r=await api({ action:'playPvpBlackjackTurn', code:S.code, room_id:pvpBjState.room.room_id, turn_action:'cancel' });
+    if(!r || !r.ok) throw new Error(r?.error || 'не удалось отменить оффер');
+    toast('🃏 Оффер снят, ставка возвращена.','info',2600);
+    await refreshPvpBlackjackRooms(true);
+  }catch(e){
+    toast(`🃏 ${e.message||e}`,'err');
+  }finally{
+    pvpBjState.loading=false;renderPvpBlackjackState();
+  }
+}
 
 // ══════════════════════════════════════════════
 //  CASINO — WHEEL
