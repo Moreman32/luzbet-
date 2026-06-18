@@ -5939,17 +5939,17 @@ async function cancelPvpBlackjackRoom(){
 // ══════════════════════════════════════════════
 const WHEEL_SEGMENTS=[
   {label:'x0',color:'#c0392b',mult:0},
-  {label:'x0.5',color:'#7f8c8d',mult:0.5},
-  {label:'x0.8',color:'#4b6f44',mult:0.8},
-  {label:'x1',color:'#2e8b57',mult:1},
-  {label:'x1.2',color:'#1a7a3f',mult:1.2},
-  {label:'x1.5',color:'#1a4a7a',mult:1.5},
-  {label:'x2',color:'#cc8400',mult:2},
-  {label:'x0',color:'#8b1e1e',mult:0},
-  {label:'x2.5',color:'#c47000',mult:2.5},
-  {label:'x3',color:'#9b59b6',mult:3},
-  {label:'x5',color:'#555',mult:5},
-  {label:'x10',color:'#ffe600',mult:10},
+  {label:'x0',color:'#7f8c8d',mult:0},
+  {label:'x0.25',color:'#4b6f44',mult:0.25},
+  {label:'x0.5',color:'#2e8b57',mult:0.5},
+  {label:'x0.75',color:'#1a7a3f',mult:0.75},
+  {label:'x0.9',color:'#1a4a7a',mult:0.9},
+  {label:'x1',color:'#cc8400',mult:1},
+  {label:'x1.1',color:'#8b1e1e',mult:1.1},
+  {label:'x1.2',color:'#c47000',mult:1.2},
+  {label:'x1.35',color:'#9b59b6',mult:1.35},
+  {label:'x1.6',color:'#555',mult:1.6},
+  {label:'x2.5',color:'#ffe600',mult:2.5},
 ];
 function drawWheel(angle=0){
   const canvas=document.getElementById('wheel');if(!canvas)return;
@@ -6194,7 +6194,7 @@ function toggleCasinoStats(force){
 //  NEW CASINO GAMES
 // ══════════════════════════════════════════════
 const KENO_NUMBERS=[1,2,3,4,5,6,7,8,9,10,11,12];
-const KENO_PAYOUTS={0:0,1:1,2:3,3:8};
+const KENO_PAYOUTS={0:0,1:0.75,2:1.5,3:9};
 let kenoSelected=new Set(),kenoBusy=false;
 function renderKenoBoard(drawn=[]){
   const grid=document.getElementById('keno-grid');
@@ -6355,7 +6355,7 @@ async function playRps(choice,el){
   document.getElementById('rps-bot').textContent=`${RPS_META[bot].emoji} ${RPS_META[bot].label}`;
   let result='lose', payout=0;
   if(choice===bot){result='draw'; payout=bet;}
-  else if((choice==='rock'&&bot==='scissors')||(choice==='scissors'&&bot==='paper')||(choice==='paper'&&bot==='rock')){result='win'; payout=bet*2;}
+  else if((choice==='rock'&&bot==='scissors')||(choice==='scissors'&&bot==='paper')||(choice==='paper'&&bot==='rock')){result='win'; payout=Math.round(bet*1.85);}
   if(result==='win'){
     document.getElementById('rps-result').textContent=`✊ Победа! +${payout} ЛК`;
     toast(`✊ К-Н-Б: +${payout} ЛК`,'win');
@@ -6376,7 +6376,7 @@ async function playRps(choice,el){
 
 let penaltyBusy=false;
 const PENALTY_DIRECTIONS={left:{label:'↙️ Влево',emoji:'↙️'},center:{label:'⬆️ Центр',emoji:'⬆️'},right:{label:'↘️ Вправо',emoji:'↘️'}};
-const PENALTY_PAYOUT_MULT = 2.2;
+const PENALTY_PAYOUT_MULT = 1.65;
 async function playPenalty(direction,el){
   if(penaltyBusy)return;
   const bet=getCasinoBet('penalty');
@@ -6386,8 +6386,12 @@ async function playPenalty(direction,el){
   if(el)el.classList.add('selected');
   const roundId=await tryStartCasinoRound('penalty', bet, { shot:direction, source:'penalty_start' });
   if(!roundId){penaltyBusy=false;document.querySelectorAll('.shot-btn').forEach(b=>b.classList.remove('selected'));return;}
-  const keeper=['left','center','right'][Math.floor(Math.random()*3)];
-  const goal=keeper!==direction;
+  const goal=Math.random()<0.55;
+  let keeper=direction;
+  if(goal){
+    const alternatives=['left','center','right'].filter((dir)=>dir!==direction);
+    keeper=alternatives[Math.floor(Math.random()*alternatives.length)];
+  }
   const payout=goal?Math.round(bet * PENALTY_PAYOUT_MULT):0;
   document.getElementById('penalty-shot-emoji').textContent=PENALTY_DIRECTIONS[direction].emoji;
   document.getElementById('penalty-keeper-emoji').textContent=PENALTY_DIRECTIONS[keeper].emoji;
@@ -6408,7 +6412,7 @@ async function playPenalty(direction,el){
   setTimeout(()=>{penaltyBusy=false;document.querySelectorAll('.shot-btn').forEach(b=>b.classList.remove('selected'));},350);
 }
 
-let offsideState={running:false,roundId:'',bet:0,step:0,busted:false,multipliers:[1.2,1.5,1.9,2.4,3.2]};
+let offsideState={running:false,roundId:'',bet:0,step:0,busted:false,multipliers:[1.18,1.42,1.78,2.2,2.9]};
 function renderOffsideTrack(){
   const track=document.getElementById('offside-track');
   if(!track)return;
@@ -6443,7 +6447,7 @@ async function startOffside(){
   if(coins<bet){toast('❌ Недостаточно ЛузКоинов.','err');return;}
   const roundId=await tryStartCasinoRound('offside', bet, { source:'offside_start' });
   if(!roundId)return;
-  offsideState={running:true,roundId,bet,step:0,busted:false,multipliers:[1.2,1.5,1.9,2.4,3.2]};
+  offsideState={running:true,roundId,bet,step:0,busted:false,multipliers:[1.18,1.42,1.78,2.2,2.9]};
   document.getElementById('offside-start-btn').disabled=true;
   document.getElementById('offside-cash-btn').disabled=true;
   document.getElementById('offside-next-btn').disabled=false;
@@ -6452,7 +6456,7 @@ async function startOffside(){
 }
 async function advanceOffside(){
   if(!offsideState.running)return;
-  const catchChance=[0.25,0.3,0.36,0.42,0.48][offsideState.step] || 0.5;
+  const catchChance=[0.34,0.40,0.48,0.58,0.70][offsideState.step] || 0.75;
   if(Math.random()<catchChance){
     offsideState.busted=true;
     document.getElementById('offside-result').textContent='🚩 Поднят флажок. Всё сгорело.';
@@ -6512,8 +6516,9 @@ async function startVarChallenge(){
     bet,
     cards:[
       {label:'Оффсайд',mult:0,tone:'bad'},
-      {label:'Пенальти',mult:1.5,tone:'good'},
-      {label:'Гол засчитан',mult:3,tone:'good'},
+      {label:'Сомнительный контакт',mult:0.7,tone:'neutral'},
+      {label:'Пенальти подтверждён',mult:1.2,tone:'good'},
+      {label:'Гол засчитан',mult:2.0,tone:'good'},
     ].sort(()=>Math.random()-.5),
   };
   document.getElementById('var-result').textContent='Выбирай один повтор. Остальные потом покажем из вредности.';
@@ -6545,7 +6550,7 @@ async function pickVarCard(idx){
       toast(`📺 VAR: частичный возврат ${payout} ЛК`,'info');
       onPartialReturn(payout);
     }
-    if(picked.mult>=3)unlockAch('var_goal');
+    if(picked.mult>=2)unlockAch('var_goal');
   }else{
     document.getElementById('var-result').textContent='📺 После просмотра: оффсайд. Отменяем радость и деньги.';
     toast('📺 VAR отменил всё. Как всегда.','err');
@@ -6612,7 +6617,7 @@ async function playLastChance(side){
 }
 
 const DICE_FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
-const DICE_PAYOUTS={2:24,3:12,4:9,5:6,6:5,7:4,8:5,9:6,10:9,11:12,12:24};
+const DICE_PAYOUTS={2:24,3:12,4:8,5:6,6:4.5,7:3.5,8:4.5,9:6,10:8,11:12,12:24};
 let diceSelected=null,diceRolling=false;
 async function diceGuess(n,el){
   if(diceRolling)return;
@@ -6738,7 +6743,7 @@ async function crashStart(){
   else if(r<0.65)crashAt=+(1.5+Math.random()*1).toFixed(2);
   else if(r<0.85)crashAt=+(2.5+Math.random()*2.5).toFixed(2);
   else if(r<0.95)crashAt=+(5+Math.random()*5).toFixed(2);
-  else crashAt=+(10+Math.random()*20).toFixed(2);
+  else crashAt=+(10+Math.random()*10).toFixed(2);
   crashState={running:true,mult:1,bet,roundId,crashAt};
   document.getElementById('crash-start-btn').disabled=true;
   document.getElementById('crash-cash-btn').disabled=false;
@@ -6856,7 +6861,7 @@ function hlGuess(dir){
   hlResolving=true;
   const correct=(dir==='higher'&&next.n>hlCurrent.n)||(dir==='lower'&&next.n<hlCurrent.n);
   if(correct){
-    hlStreakCount++;hlPot=Math.floor(hlPot*1.4);
+    hlStreakCount++;hlPot=Math.floor(hlPot*1.33);
     document.getElementById('hl-streak').textContent=hlStreakCount;
     document.getElementById('hl-result').textContent=`✅ Верно! Горшок: ${hlPot} ЛК`;
     document.getElementById('hl-deal').textContent='Забрать ('+hlPot+' ЛК)';
@@ -6912,7 +6917,7 @@ async function hlEnd(won){
 // ══════════════════════════════════════════════
 //  HORSES
 // ══════════════════════════════════════════════
-const HORSES=[{name:'Быстрый Брюс',emoji:'🐎',odds:1.9},{name:'Медленный Мэт',emoji:'🐴',odds:3.3},{name:'Единорог-69',emoji:'🦄',odds:4.8},{name:'Философ (улитка)',emoji:'🐌',odds:9.5}];
+const HORSES=[{name:'Быстрый Брюс',emoji:'🐎',odds:1.8},{name:'Медленный Мэт',emoji:'🐴',odds:3.0},{name:'Единорог-69',emoji:'🦄',odds:4.2},{name:'Философ (улитка)',emoji:'🐌',odds:8.0}];
 let selectedHorse=null,horseRunning=false;
 function selectHorse(idx,el){
   if(horseRunning)return;
@@ -7010,7 +7015,7 @@ async function horseRace(){
 // ══════════════════════════════════════════════
 //  PLINKO
 // ══════════════════════════════════════════════
-const PLINKO_MULTS=[0,0.5,0.7,1,1.15,1.35,1.8,2.5,4];
+const PLINKO_MULTS=[0,0.5,0.7,0.95,1.1,1.3,1.7,2.3,3.5];
 const PLINKO_WEIGHTS=[18,16,14,12,11,8,5,3,1];
 const PLINKO_ROWS=8;
 const PLINKO_HALF_STEP=13;
@@ -7138,7 +7143,7 @@ async function dropPlinko(){
 //  MINES
 // ══════════════════════════════════════════════
 let minesState={ running:false, bet:0, mines:new Set(), opened:new Set(), multiplier:1, mineCount:2 };
-const MINES_MULTS=[1.1,1.28,1.5,1.78,2.12,2.55,3.05,3.7,4.45,5.35];
+const MINES_MULTS=[1.08,1.22,1.42,1.68,1.98,2.35,2.8,3.35,4,4.8];
 
 function renderMinesBoard(showAll=false){
   const grid=document.getElementById('mines-grid');
@@ -7208,7 +7213,7 @@ async function cashoutMines(){
 // ══════════════════════════════════════════════
 //  TOWER
 // ══════════════════════════════════════════════
-let towerState={ running:false, roundId:'', bet:0, level:0, bombs:[], multipliers:[1.15,1.4,1.75,2.15,2.8,3.8] };
+let towerState={ running:false, roundId:'', bet:0, level:0, bombs:[], multipliers:[1.15,1.35,1.62,1.95,2.45,3.2] };
 
 function renderTower(){
   const grid=document.getElementById('tower-grid');
