@@ -294,6 +294,21 @@ Deno.serve(async (req) => {
         spent: Number(row.spent || 0),
       };
     });
+    const casinoRowCodes = new Set(casinoRows.map((row) => String(row.code || "").trim().toLowerCase()).filter(Boolean));
+    for (const row of leaderboard) {
+      const key = String(row.code || "").trim().toLowerCase();
+      if (!key || casinoRowCodes.has(key)) continue;
+      const coins = Number(row.coins || 0);
+      const spent = Number(row.spent || 0);
+      if (coins <= 0 && spent <= 0) continue;
+      casinoRows.push({
+        code: row.code,
+        name: row.name || "",
+        coins,
+        spent,
+      });
+      casinoRowCodes.add(key);
+    }
 
     const participantRows = participantsRes.data || [];
     const snapshotData = snapshotRes.data?.data || null;
@@ -322,16 +337,16 @@ Deno.serve(async (req) => {
 
     const snapshotCasinoRows = mapSnapshotCasinoRows(snapshotData, casinoRows, participantRows);
     const snapshotAchRows = mapSnapshotAchievementRows(snapshotData, participantRows);
-    const snapshotAutoclickers = mapSnapshotAutoclickers(snapshotData);
+    const snapshotAutoclickers: any[] = [];
 
     return json({
       ok: true,
       leaderboard,
       results,
-      casinoRows: snapshotCasinoRows || casinoRows,
+      casinoRows,
       achRows: snapshotAchRows || (achRes.data || []),
       participantRows,
-      autoclickers: snapshotAutoclickers || liveAutoclickers,
+      autoclickers: [],
     });
   } catch (e) {
     return json(
