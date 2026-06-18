@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { hydratePvpBlackjackRoom, toPublicPvpBlackjackRoom } from "../_shared/pvp-blackjack.ts";
+import { ensurePvpBlackjackRoomLedger } from "../_shared/pvp-blackjack-ledger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,10 +43,12 @@ Deno.serve(async (req) => {
     if (error) return json({ ok: false, error: error.message }, 500);
     if (!row) return json({ ok: false, error: "pvp blackjack room not found" }, 404);
 
+    const room = hydratePvpBlackjackRoom(row as Record<string, unknown>);
+    if (room.status === "finished" || room.status === "cancelled") {
+      await ensurePvpBlackjackRoomLedger(sb, room);
+    }
     const { data: casinoRow, error: casinoError } = await sb.from("casino").select("coins, spent").eq("code", code).maybeSingle();
     if (casinoError) return json({ ok: false, error: casinoError.message }, 500);
-
-    const room = hydratePvpBlackjackRoom(row as Record<string, unknown>);
     return json({
       ok: true,
       room: toPublicPvpBlackjackRoom(room, code),

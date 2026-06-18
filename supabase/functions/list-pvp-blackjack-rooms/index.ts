@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { hydratePvpBlackjackRoom, toPublicPvpBlackjackRoom } from "../_shared/pvp-blackjack.ts";
+import { ensurePvpBlackjackRoomLedger } from "../_shared/pvp-blackjack-ledger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,13 +49,21 @@ Deno.serve(async (req) => {
     if (waitingError) return json({ ok: false, error: waitingError.message }, 500);
     if (mineError) return json({ ok: false, error: mineError.message }, 500);
 
-    const waiting = (waitingRows || [])
-      .map((row) => hydratePvpBlackjackRoom(row as Record<string, unknown>))
+    const hydratedWaiting = (waitingRows || [])
+      .map((row) => hydratePvpBlackjackRoom(row as Record<string, unknown>));
+    const hydratedMine = (mineRows || [])
+      .map((row) => hydratePvpBlackjackRoom(row as Record<string, unknown>));
+
+    await Promise.all([
+      ...hydratedWaiting.filter((room) => room.status === "finished" || room.status === "cancelled").map((room) => ensurePvpBlackjackRoomLedger(sb, room)),
+      ...hydratedMine.filter((room) => room.status === "finished" || room.status === "cancelled").map((room) => ensurePvpBlackjackRoomLedger(sb, room)),
+    ]);
+
+    const waiting = hydratedWaiting
       .filter((room) => room.host_code !== code)
       .map((room) => toPublicPvpBlackjackRoom(room, code));
 
-    const mine = (mineRows || [])
-      .map((row) => hydratePvpBlackjackRoom(row as Record<string, unknown>))
+    const mine = hydratedMine
       .map((room) => toPublicPvpBlackjackRoom(room, code));
 
     return json({ ok: true, waiting, mine });

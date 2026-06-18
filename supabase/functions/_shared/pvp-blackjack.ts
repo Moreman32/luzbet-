@@ -25,6 +25,8 @@ export type PvpBlackjackRoom = {
   updated_at?: string | null;
   accepted_at?: string | null;
   finished_at?: string | null;
+  settled_at?: string | null;
+  cancel_refunded_at?: string | null;
 };
 
 const SUITS = ["♠", "♥", "♦", "♣"] as const;
@@ -106,6 +108,8 @@ export function hydratePvpBlackjackRoom(row: Record<string, unknown>): PvpBlackj
     updated_at: row.updated_at ? String(row.updated_at) : null,
     accepted_at: row.accepted_at ? String(row.accepted_at) : null,
     finished_at: row.finished_at ? String(row.finished_at) : null,
+    settled_at: row.settled_at ? String(row.settled_at) : null,
+    cancel_refunded_at: row.cancel_refunded_at ? String(row.cancel_refunded_at) : null,
   };
 }
 

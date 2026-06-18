@@ -5,6 +5,7 @@ import {
   maybeFinishPvpBlackjack,
   toPublicPvpBlackjackRoom,
 } from "../_shared/pvp-blackjack.ts";
+import { ensurePvpBlackjackRoomLedger } from "../_shared/pvp-blackjack-ledger.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,39 +23,6 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders });
-}
-
-async function settleRoom(room: ReturnType<typeof hydratePvpBlackjackRoom>) {
-  const resolution = room.resolution && typeof room.resolution === "object" ? room.resolution as Record<string, unknown> : {};
-  const payoutHost = Math.max(0, Number(resolution.payout_host ?? 0));
-  const payoutGuest = Math.max(0, Number(resolution.payout_guest ?? 0));
-
-  const [{ data: hostCasino }, { data: guestCasino }] = await Promise.all([
-    sb.from("casino").select("coins, spent, name, last_daily, last_cashback").eq("code", room.host_code).maybeSingle(),
-    room.guest_code ? sb.from("casino").select("coins, spent, name, last_daily, last_cashback").eq("code", room.guest_code).maybeSingle() : Promise.resolve({ data: null }),
-  ]);
-
-  if (hostCasino) {
-    await sb.from("casino").upsert({
-      code: room.host_code,
-      name: hostCasino.name || room.host_name,
-      coins: Math.max(0, Number(hostCasino.coins ?? 0)) + payoutHost,
-      spent: Math.max(0, Number(hostCasino.spent ?? 0)),
-      last_daily: hostCasino.last_daily || null,
-      last_cashback: hostCasino.last_cashback || null,
-    }, { onConflict: "code" });
-  }
-
-  if (room.guest_code && guestCasino) {
-    await sb.from("casino").upsert({
-      code: room.guest_code,
-      name: guestCasino.name || room.guest_name || "",
-      coins: Math.max(0, Number(guestCasino.coins ?? 0)) + payoutGuest,
-      spent: Math.max(0, Number(guestCasino.spent ?? 0)),
-      last_daily: guestCasino.last_daily || null,
-      last_cashback: guestCasino.last_cashback || null,
-    }, { onConflict: "code" });
-  }
 }
 
 Deno.serve(async (req) => {
@@ -82,20 +50,43 @@ Deno.serve(async (req) => {
 
     if (action === "cancel") {
       if (room.status !== "waiting" || !isHost) return json({ ok: false, error: "cannot cancel room" }, 400);
-      const { data: hostCasino } = await sb.from("casino").select("coins, spent, name, last_daily, last_cashback").eq("code", room.host_code).maybeSingle();
-      if (hostCasino) {
-        await sb.from("casino").upsert({
-          code: room.host_code,
-          name: hostCasino.name || room.host_name,
-          coins: Math.max(0, Number(hostCasino.coins ?? 0)) + room.bet,
-          spent: Math.max(0, Math.max(0, Number(hostCasino.spent ?? 0)) - room.bet),
-          last_daily: hostCasino.last_daily || null,
-          last_cashback: hostCasino.last_cashback || null,
-        }, { onConflict: "code" });
-      }
-      const { error: cancelError } = await sb.from("casino_pvp_blackjack_rooms").update({ status: "cancelled", turn_code: null, finished_at: new Date().toISOString() }).eq("room_id", room_id);
+      const { data: updatedRows, error: cancelError } = await sb
+        .from("casino_pvp_blackjack_rooms")
+        .update({ status: "cancelled", turn_code: null, finished_at: new Date().toISOString() })
+        .eq("room_id", room_id)
+        .eq("status", "waiting")
+        .eq("host_code", code)
+        .eq("updated_at", room.updated_at || "")
+        .select("*")
+        .limit(1);
       if (cancelError) return json({ ok: false, error: cancelError.message }, 500);
-      return json({ ok: true, cancelled: true });
+      if (!updatedRows || !updatedRows.length) {
+        const { data: freshRow } = await sb.from("casino_pvp_blackjack_rooms").select("*").eq("room_id", room_id).maybeSingle();
+        const freshRoom = freshRow ? hydratePvpBlackjackRoom(freshRow as Record<string, unknown>) : room;
+        await ensurePvpBlackjackRoomLedger(sb, freshRoom);
+        return json({ ok: false, error: "room state changed", room: toPublicPvpBlackjackRoom(freshRoom, code) }, 409);
+      }
+      room = hydratePvpBlackjackRoom(updatedRows[0] as Record<string, unknown>);
+      await ensurePvpBlackjackRoomLedger(sb, room);
+      const { data: casinoRow } = await sb.from("casino").select("coins, spent").eq("code", code).maybeSingle();
+      return json({
+        ok: true,
+        cancelled: true,
+        room: toPublicPvpBlackjackRoom(room, code),
+        coins: Math.max(0, Number(casinoRow?.coins ?? 0)),
+        spent: Math.max(0, Number(casinoRow?.spent ?? 0)),
+      });
+    }
+
+    if (room.status === "finished" || room.status === "cancelled") {
+      await ensurePvpBlackjackRoomLedger(sb, room);
+      const { data: casinoRow } = await sb.from("casino").select("coins, spent").eq("code", code).maybeSingle();
+      return json({
+        ok: true,
+        room: toPublicPvpBlackjackRoom(room, code),
+        coins: Math.max(0, Number(casinoRow?.coins ?? 0)),
+        spent: Math.max(0, Number(casinoRow?.spent ?? 0)),
+      });
     }
 
     if (room.status !== "active") {
@@ -131,7 +122,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    const { error: updateError } = await sb
+    const { data: updatedRows, error: updateError } = await sb
       .from("casino_pvp_blackjack_rooms")
       .update({
         status: room.status,
@@ -147,12 +138,27 @@ Deno.serve(async (req) => {
         resolution: room.resolution,
         finished_at: room.finished_at,
       })
-      .eq("room_id", room.room_id);
+      .eq("room_id", room.room_id)
+      .eq("status", "active")
+      .eq("turn_code", code)
+      .eq("updated_at", row.updated_at || "")
+      .select("*")
+      .limit(1);
 
     if (updateError) return json({ ok: false, error: updateError.message }, 500);
+    if (!updatedRows || !updatedRows.length) {
+      const { data: freshRow } = await sb.from("casino_pvp_blackjack_rooms").select("*").eq("room_id", room_id).maybeSingle();
+      const freshRoom = freshRow ? hydratePvpBlackjackRoom(freshRow as Record<string, unknown>) : room;
+      if (freshRoom.status === "finished" || freshRoom.status === "cancelled") {
+        await ensurePvpBlackjackRoomLedger(sb, freshRoom);
+      }
+      return json({ ok: false, error: "room state changed", room: toPublicPvpBlackjackRoom(freshRoom, code) }, 409);
+    }
+
+    room = hydratePvpBlackjackRoom(updatedRows[0] as Record<string, unknown>);
 
     if (room.status === "finished") {
-      await settleRoom(room);
+      await ensurePvpBlackjackRoomLedger(sb, room);
     }
 
     const { data: casinoRow } = await sb.from("casino").select("coins, spent").eq("code", code).maybeSingle();
