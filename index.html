@@ -934,6 +934,44 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
   padding-bottom:4px;
   border-bottom:1px dashed rgba(79,57,41,.18);
 }
+.match-rewards-spotlight{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.match-rewards-stat{
+  padding:8px 9px;
+  border-radius:12px;
+  border:1px solid rgba(55,31,12,.12);
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.22));
+  box-shadow:0 6px 14px rgba(60,35,12,.06);
+}
+.match-rewards-stat.major{
+  background:linear-gradient(180deg,rgba(255,244,196,.95),rgba(255,227,149,.42));
+  border-color:rgba(181,119,0,.22);
+}
+.match-rewards-stat-label{
+  display:block;
+  font-size:8px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  color:#6f563a;
+  margin-bottom:3px;
+}
+.match-rewards-stat-value{
+  display:block;
+  font-family:var(--os);
+  font-size:22px;
+  line-height:.95;
+  color:#17110c;
+}
+.match-rewards-stat-note{
+  display:block;
+  margin-top:3px;
+  font-size:9px;
+  line-height:1.15;
+  color:#6b4d36;
+}
 .match-rewards-article{
   font-size:10px;
   line-height:1.28;
@@ -1222,6 +1260,9 @@ body.match-rewards-locked{
   .match-rewards-body{grid-template-columns:1fr;padding:10px;gap:10px}
   .match-rewards-hero{grid-template-columns:minmax(0,1fr) 92px;gap:8px;padding:8px}
   .match-rewards-meta{padding:8px 9px}
+  .match-rewards-spotlight{grid-template-columns:1fr 1fr}
+  .match-rewards-stat{padding:7px 8px}
+  .match-rewards-stat-value{font-size:18px}
   .match-rewards-article{-webkit-line-clamp:3;font-size:9.5px}
   .match-rewards-pullquote{display:none}
   .match-rewards-reaction{min-height:110px}
@@ -3235,6 +3276,12 @@ function renderMatchRewardsArticle(mood, rows, total, standing){
     `Попаданий: ${stats.good}`,
     `Мимо: ${stats.miss}`,
   ];
+  const spotlight = [
+    { label:'Место в рейтинге', value:`№${stats.pred_rank}`, note:'Официальная позиция в таблице народного смущения.', major:true },
+    { label:'Очков на прогнозе', value:String(stats.pred_points), note:'Сухой остаток после всех умных лиц и странных решений.', major:true },
+    { label:'Начислено за выпуск', value:`+${formatCoins(stats.total)}`, note:'ЛузКоины пришли, стыд остался.' },
+    { label:'Баланс тура', value:`${stats.good}/${stats.miss}`, note:'Попадания против эпизодов, где логика просила пощады.' },
+  ];
   const story = [
     getMatchRewardsLead(stats),
     ...paragraphs.map(p => fillMatchRewardsTemplate(p, stats)),
@@ -3243,6 +3290,7 @@ function renderMatchRewardsArticle(mood, rows, total, standing){
   return `
     <div class="match-rewards-kicker">${kicker}</div>
     <div class="match-rewards-byline">Спецкор ЛузБета • Отдел матчевого абсурда • Выпуск для ${escapeHtml(getViewerShortName())}</div>
+    <div class="match-rewards-spotlight">${spotlight.map(item=>`<div class="match-rewards-stat${item.major?' major':''}"><span class="match-rewards-stat-label">${escapeHtml(item.label)}</span><strong class="match-rewards-stat-value">${escapeHtml(item.value)}</strong><span class="match-rewards-stat-note">${escapeHtml(item.note)}</span></div>`).join('')}</div>
     <div class="match-rewards-article">${story.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>
     ${quote ? `<div class="match-rewards-pullquote">${quote}</div>` : ''}
     <div class="match-rewards-facts">${facts.map(f => `<span class="match-rewards-fact">${escapeHtml(f)}</span>`).join('')}</div>
