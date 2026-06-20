@@ -583,24 +583,6 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .np-byline{font-size:10px;color:#777;margin-bottom:8px}
 .np-footer{text-align:center;font-size:10px;color:#999;margin-top:10px;border-top:1px solid #ccc;padding-top:6px}
 
-/* EXPERT BOT */
-.expert-chat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
-.expert-chat-header{background:var(--card2);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px}
-.expert-avatar-big{font-size:28px}
-.expert-msgs{height:160px;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
-.expert-msg{background:rgba(255,230,0,.07);border:1px solid rgba(255,230,0,.15);border-radius:8px 8px 8px 2px;padding:8px 12px;font-size:12px;color:var(--white);line-height:1.5;max-width:85%;animation:fadeIn .3s ease}
-.expert-msg.user{background:rgba(255,255,255,.05);border-color:var(--border);border-radius:8px 8px 2px 8px;align-self:flex-end}
-.expert-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border)}
-.expert-input{flex:1;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:var(--in);font-size:13px;padding:8px 12px;outline:none}
-.expert-input:focus{border-color:var(--yellow)}
-
-/* CHAT */
-.chat-msg{display:flex;gap:8px;font-size:12px;line-height:1.5;animation:fadeIn .3s ease}
-.chat-avatar{font-size:16px;flex-shrink:0;width:22px;text-align:center}
-.chat-body{}
-.chat-name{font-family:var(--os);font-size:11px;color:var(--yellow)}
-.chat-text{color:var(--muted)}
-.chat-text .win{color:var(--green)}.chat-text .lose{color:var(--red)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 /* COIN */
 .coin-fly{position:fixed;font-size:20px;pointer-events:none;z-index:9991;animation:coinFly 1.2s ease-out forwards}
@@ -1633,22 +1615,6 @@ try{
     </div>
     <div id="predict-alert" class="alert"></div>
 
-    <!-- EXPERT BOT -->
-    <div id="expert-bot-wrap" style="display:none" class="expert-chat">
-      <div class="expert-chat-header">
-        <span class="expert-avatar-big">🤖</span>
-        <div>
-          <div style="font-family:var(--os);font-size:14px;color:var(--yellow)">ЧАТ С ЭКСПЕРТОМ</div>
-          <div style="font-size:11px;color:var(--muted)">Всегда даст совет. Никогда не угадает.</div>
-        </div>
-      </div>
-      <div class="expert-msgs" id="expert-msgs"></div>
-      <div class="expert-input-row">
-        <input class="expert-input" id="expert-input" placeholder="Спроси у эксперта..." onkeydown="if(event.key==='Enter')askExpert()"/>
-        <button class="btn btn-yellow" onclick="askExpert()" style="height:38px;padding:0 14px;font-size:13px">→</button>
-      </div>
-    </div>
-
     <div id="predict-content"></div>
   </div>
 
@@ -1781,15 +1747,6 @@ try{
           <div class="casino-game-stat-line"><span>Итог</span><strong>—</strong></div>
         </div>
       </div>
-    </div>
-
-    <!-- LIVE CHAT -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden">
-      <div style="background:var(--card2);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-family:var(--os);font-size:13px;letter-spacing:.5px">💬 ЧАТ КАЗИНО <span style="font-size:10px;color:var(--green);margin-left:6px">● ОНЛАЙН</span></div>
-        <div style="font-size:10px;color:var(--muted)">Только настоящие игроки™</div>
-      </div>
-      <div id="casino-chat" style="height:150px;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth"></div>
     </div>
 
     <!-- BANKRUPT -->
@@ -4618,7 +4575,7 @@ function showPage(id){
       restorePredictionToForm(currentPredictionData);
     }
   }
-  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();refreshDurakGame();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}startChat();};
+  if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();refreshDurakGame();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}};
   if(id==='pvp'){saveCoins();refreshPvpBlackjackRooms(true);}
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
@@ -4831,9 +4788,6 @@ function showForm(pred=null){
   html+='</div>';
   document.getElementById('predict-content').innerHTML=html;
   updateBar();
-  // Show expert bot
-  const eb=document.getElementById('expert-bot-wrap');if(eb)eb.style.display='block';
-  initExpertBot();
   if(currentPredictionData && Object.keys(currentPredictionData).length) restorePredictionToForm(currentPredictionData);
   else updateBar();
 }
@@ -5135,8 +5089,6 @@ async function showVoted(pred){
   }
   const total=tPts+oPts+dPts+sPts;
   const grpDone=Object.values(results).filter(v=>(v.teams && v.teams.length)>0).length;
-  // Hide expert bot
-  const eb2=document.getElementById('expert-bot-wrap');if(eb2)eb2.style.display='none';
   let html=`<div class="alert alert-warn show" style="margin-bottom:20px">🔒 Ставка зафиксирована. Жалобы: /dev/null.</div>`;
   html+=buildPlayerCard(S.name);
   if(grpDone>0)html+=`<div class="voted-stats"><div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Всего очков</div></div><div class="stat-card"><div class="stat-num">${tPts}</div><div class="stat-label">За выходы</div></div><div class="stat-card"><div class="stat-num">${oPts}</div><div class="stat-label">За исходы</div></div><div class="stat-card"><div class="stat-num" style="color:#9ad0ff">${dPts}</div><div class="stat-label">За разницу</div></div><div class="stat-card"><div class="stat-num" style="color:var(--red)">${sPts}</div><div class="stat-label">За точный счёт</div></div></div>`;
@@ -6199,7 +6151,6 @@ function onWin(amount=0,game=''){
   if(winStreak>=3)unlockAch('win_streak3');
   if(winStreak>=5)unlockAch('win_streak5');
   if(amount>=50)coinRain(amount);
-  if(amount>0&&game)chatNotifyWin(game,amount);
 }
 function onPush(amount=0){
   if(amount>0)addEarnedTotal(amount);
@@ -7575,257 +7526,6 @@ function coinRain(amount){
   soundCoin();
 }
 
-// ══════════════════════════════════════════════
-//  LIVE CHAT BOTS
-// ══════════════════════════════════════════════
-const CHAT_BOTS=[
-  {name:'Василий777',avatar:'🎰'},{name:'ПроПроигрыш',avatar:'😭'},
-  {name:'КингОфЛузберт',avatar:'👑'},{name:'АНОНИМУС',avatar:'🎭'},
-  {name:'ДядяФёдор',avatar:'🧔'},{name:'Удача2026',avatar:'🍀'},
-  {name:'БезОстановки',avatar:'🚀'},{name:'ФилософСтол',avatar:'🤔'},
-  {name:'АналитикПетя',avatar:'📊'},{name:'ВангаFC',avatar:'🔮'},
-  {name:'ДиванЭксперт',avatar:'🛋️'},{name:'НевезучийМакс',avatar:'💀'},
-  {name:'СекретныйИнсайд',avatar:'🤫'},{name:'Рофлобот3000',avatar:'🤖'},
-  {name:'ЖдунЮзер',avatar:'🐸'},{name:'СамРешу',avatar:'😤'},
-];
-
-const CHAT_MSGS_WIN=[
-  msg=>`выиграл <span class="win">+${msg} ЛК</span>! 🎉 GGGG`,
-  msg=>`только что взял <span class="win">${msg} ЛК</span>!! Система в шоке`,
-  msg=>`<span class="win">+${msg}</span>... это что, работает?!`,
-  msg=>`ДЖЕКПОТ <span class="win">${msg} ЛК</span>!!! звоню маме`,
-  msg=>`забрал <span class="win">${msg} ЛК</span> и иду пить чай`,
-  msg=>`сам решу когда остановиться. <span class="win">+${msg} ЛК</span> пока не остановлюсь`,
-  msg=>`ну я примерно так и думал что выиграю. <span class="win">${msg} ЛК</span> моё`,
-  msg=>`<span class="win">+${msg} ЛК</span> 👑 кто тут говорил что я не угадаю`,
-  msg=>`систему вскрыл. <span class="win">${msg} ЛК</span>. подробности за ЛК`,
-  msg=>`шесть-семь раз крутил и наконец <span class="win">+${msg} ЛК</span>`,
-  msg=>`<span class="win">${msg} ЛК</span>!!! это не я умный это они тупые`,
-  msg=>`забрал краш на 3х. <span class="win">+${msg} ЛК</span>. стратегия: жадность`,
-  msg=>`жду-у-ун... дождался! <span class="win">+${msg} ЛК</span>`,
-  msg=>`<span class="win">+${msg} ЛК</span>. я говорил что колесо можно обыграть. не говорил, но теперь говорю.`,
-  msg=>`ВЫ ВИДЕЛИ?! <span class="win">${msg} ЛК</span>!!! скриншот сделал`,
-  msg=>`слоты — это искусство. <span class="win">+${msg} ЛК</span>. я художник.`,
-  msg=>`<span class="win">${msg} ЛК</span> за точный счёт! угадал случайно но выгляжу умно`,
-  msg=>`RTP 40% говорили они. <span class="win">+${msg} ЛК</span> говорю я`,
-  msg=>`выиграл <span class="win">${msg} ЛК</span> на скачках. философ-улитка подвёл всех кроме меня`,
-  msg=>`<span class="win">+${msg} ЛК</span>. удваиваю. (это ошибка но пока не знаю об этом)`,
-  msg=>`кости выпали 12! <span class="win">+${msg} ЛК</span>! ЭТО НЕВОЗМОЖНО`,
-  msg=>`забрал <span class="win">${msg} ЛК</span> в блэкджеке. судьба проиграла. СУДЬБА ПРОИГРАЛА`,
-  msg=>`<span class="win">${msg} ЛК</span> 🤑 иду покупать несуществующие товары за несуществующую валюту`,
-  msg=>`стратегия «жмём наугад» дала <span class="win">+${msg} ЛК</span>. публикую книгу.`,
-];
-
-const CHAT_MSGS_LOSE=[
-  ()=>'снова потерял всё. ожидаемо.',
-  ()=>'система читерит. я точно знаю.',
-  ()=>'ладно, ещё один раз...',
-  ()=>'кто придумал эти скачки 😤',
-  ()=>'философ-улитка снова первая. невозможно.',
-  ()=>'краш на 1.05. почему я удивлён.',
-  ()=>'ставлю на красное... нет, чёрное... ладно, зелёное',
-  ()=>'жду-у-ун... удачи. жду. не приходит.',
-  ()=>'сам решу больше не играть. ладно ещё разок.',
-  ()=>'судьба в блэкджеке нечестная. у неё читы.',
-  ()=>'набрал 20 в блэкджеке. дилер взял 21. классика.',
-  ()=>'поставил всё на лошадь. лошадь думала.',
-  ()=>'это была последняя ставка. (она не была последней)',
-  ()=>'минус 500 лк за вечер. записываю в инвестиции.',
-  ()=>'колесо снова 0. математика говорит это нормально. ненавижу математику.',
-  ()=>'краш на 1.01. просто 1.01. зачем.',
-  ()=>'перебрал в блэкджек с картой 2. КАК.',
-  ()=>'удача — это не про меня. это про других.',
-  ()=>'поставил на 7 в кости. выпало 6. один. один чёртов.',
-  ()=>'ну я примерно так и думал что проиграю. думал правильно.',
-  ()=>'RTP 40% это среднее. я явно ниже среднего.',
-  ()=>'краш забрал всё. краш — мой враг. краш — это я.',
-  ()=>'выше-ниже угадал 4 раза подряд. на пятом решил не забирать. угадываете что было.',
-  ()=>'лузкоины не настоящие но обидно настоящее',
-  ()=>'поставил на быстрого брюса. брюс устал.',
-  ()=>'попробовал стратегию. стратегия не знала о RTP 40%.',
-  ()=>'дайте 100 лк я быстро верну (нет)',
-  ()=>'это казино нечестное. (казино честно предупреждало)',
-  ()=>'снова банкрот. это уже традиция.',
-  ()=>'удвоил ставку после проигрыша. потерял в два раза больше. математика.',
-  ()=>'колесо остановилось в миллиметре от джекпота. в МИЛЛИМЕТРЕ.',
-  ()=>'блэкджек: я 18, судьба 19. ну конечно.',
-  ()=>'три раза подряд 0 на колесе. это не рандом. это заговор.',
-  ()=>'поставил всё что было. теперь ничего нет. логично.',
-  ()=>'краш на 1.02. рекорд моего невезения.',
-  ()=>'спасибо за 100 лк милостыни. уже проиграл их.',
-  ()=>'жду-у-ун... справедливости. не дождусь.',
-  ()=>'скачки: ставил на единорога. единорог мифический. результат соответствующий.',
-  ()=>'в кости шансы 1:36 на 12. я поставил. я дурак.',
-  ()=>'выигрыш — это миф. как единорог. оба существуют только в теории.',
-];
-
-const CHAT_MSGS_GENERIC=[
-  ()=>'кто-нибудь знает код для бесплатных ЛК?',
-  ()=>'блэкджек против судьбы — несправедливо. судьба знает карты.',
-  ()=>'колесо остановилось на 0 три раза подряд. случайность?',
-  ()=>'рекомендую лошадь ЕДИНОРОГ-69. очень профессиональное название.',
-  ()=>'тут вообще можно выиграть??',
-  ()=>'сам решу какую команду выбрать. выбрал. пожалел.',
-  ()=>'шесть-семь — мой метод анализа матчей',
-  ()=>'жду-у-ун... когда наконец выиграю. жду уже час.',
-  ()=>'пришёл за мемами, остался без ЛК',
-  ()=>'есть стратегия: ставь меньше. теряешь медленнее.',
-  ()=>'судьба снова победила в блэкджек. начинаю подозревать.',
-  ()=>'братан сказал ботсвана 1.02 это верняк. братану не верьте.',
-  ()=>'ну я примерно так и думал (нет)',
-  ()=>'кто выбрал философа-улитку победителем скачек — вы мой человек',
-  ()=>'RTP 40% это просто цифра. я верю в удачу. удача не верит в меня.',
-  ()=>'стратегия мартингейл: удваивай ставку после проигрыша. результат: банкрот быстрее.',
-  ()=>'вопрос: как выиграть в ЛузБет? ответ: никак. следующий вопрос.',
-  ()=>'поставил на кости 7. выпало 7. думал это легко. следующие 10 раз — нет.',
-  ()=>'в казино есть математика. математика всегда против нас.',
-  ()=>'ежедневный бонус получил. сразу проиграл. цикл завершён.',
-  ()=>'VIP статус не помогает выигрывать. просто красиво звучит.',
-  ()=>'краш — это философия. ты думаешь что контролируешь. ты не контролируешь.',
-  ()=>'кости упали 12. я поставил на 11. они так и не простят.',
-  ()=>'выше-ниже: поставил выше. карта оказалась такая же. ничья. проиграл.',
-  ()=>'лузкоины это не деньги. но терять их всё равно обидно.',
-  ()=>'мой дед выиграл однажды. завещал мне не повторять его путь.',
-  ()=>'скачки: ставлю на быстрого. побеждает улитка. логика.',
-  ()=>'кто-нибудь угадал точный счёт? спрашиваю для друга (я сам не угадал)',
-  ()=>'сегодня буду играть умно. (это провал)',
-  ()=>'кто придумал что казино это весело — явно никогда не проигрывал',
-  ()=>'ачивка «банкрот» разблокирована. это мой пятый раз.',
-  ()=>'спасибо ЛузБет за 100 ЛК милостыни. уже проиграл.',
-];
-
-// Диалоги между ботами (периодически)
-const CHAT_DIALOGUES=[
-  [
-    {delay:0,   name:'АналитикПетя',   avatar:'📊', msg:'ребята, у меня система для слотов. проверенная.'},
-    {delay:3000,name:'ПроПроигрыш',    avatar:'😭', msg:'слушаем'},
-    {delay:5000,name:'АналитикПетя',   avatar:'📊', msg:'ставишь 10, проигрываешь, ставишь 20, проигрываешь, ставишь 40...'},
-    {delay:8000,name:'ФилософСтол',    avatar:'🤔', msg:'это мартингейл. это не система. это банкротство.'},
-    {delay:10000,name:'АналитикПетя',  avatar:'📊', msg:'...ставишь 80, и тут выигрываешь!'},
-    {delay:12000,name:'НевезучийМакс', avatar:'💀', msg:'я пробовал. у меня не хватило лк на шаге 4.'},
-  ],
-  [
-    {delay:0,   name:'СамРешу',        avatar:'😤', msg:'сам решу на кого ставить в скачках'},
-    {delay:2500,name:'ВангаFC',        avatar:'🔮', msg:'философ-улитка'},
-    {delay:4000,name:'СамРешу',        avatar:'😤', msg:'очевидно нет'},
-    {delay:6000,name:'ВангаFC',        avatar:'🔮', msg:'...'},
-    {delay:15000,name:'СамРешу',       avatar:'😤', msg:'философ-улитка победил. ненавижу этот чат.'},
-  ],
-  [
-    {delay:0,   name:'ЖдунЮзер',      avatar:'🐸', msg:'жду-у-ун... когда выпадет джекпот'},
-    {delay:4000,name:'Рофлобот3000',   avatar:'🤖', msg:'по статистике джекпот выпадает раз в 1000 спинов'},
-    {delay:6000,name:'ЖдунЮзер',      avatar:'🐸', msg:'я на 847м. скоро'},
-    {delay:9000,name:'НевезучийМакс',  avatar:'💀', msg:'я так думал на 847м. потом на 1200м. потом на 2000м.'},
-    {delay:11000,name:'ЖдунЮзер',     avatar:'🐸', msg:'жду-у-ун...'},
-  ],
-  [
-    {delay:0,   name:'СекретныйИнсайд',avatar:'🤫', msg:'тихо. у меня инсайд.'},
-    {delay:2000,name:'Василий777',     avatar:'🎰', msg:'говори'},
-    {delay:4000,name:'СекретныйИнсайд',avatar:'🤫', msg:'германия выйдет из группы'},
-    {delay:5500,name:'КингОфЛузберт',  avatar:'👑', msg:'это не инсайд. германия фаворит.'},
-    {delay:7000,name:'СекретныйИнсайд',avatar:'🤫', msg:'...ещё у меня инсайд что солнце встанет завтра на востоке'},
-  ],
-  [
-    {delay:0,   name:'ДиванЭксперт',  avatar:'🛋️', msg:'объясняю почему ботсвана выиграет группу'},
-    {delay:2000,name:'БезОстановки',   avatar:'🚀', msg:'ботсвана в группе с германией'},
-    {delay:3500,name:'ДиванЭксперт',  avatar:'🛋️', msg:'именно. эффект неожиданности.'},
-    {delay:5000,name:'ФилософСтол',    avatar:'🤔', msg:'это не так работает'},
-    {delay:7000,name:'ДиванЭксперт',  avatar:'🛋️', msg:'сам решу как это работает'},
-  ],
-  [
-    {delay:0,   name:'ВангаFC',       avatar:'🔮', msg:'предсказываю: кто-то проиграет в следующие 5 минут'},
-    {delay:8000,name:'НевезучийМакс', avatar:'💀', msg:'это был я. точность 100%.'},
-    {delay:9500,name:'ВангаFC',       avatar:'🔮', msg:'ну я примерно так и думал'},
-  ],
-];
-
-let dialogueIdx=0;
-function runNextDialogue(){
-  if(!chatActive)return;
-  const dlg=CHAT_DIALOGUES[dialogueIdx%CHAT_DIALOGUES.length];
-  dialogueIdx++;
-  dlg.forEach(msg=>{
-    setTimeout(()=>{
-      const chat=document.getElementById('casino-chat');
-      if(!chat)return;
-      const d=document.createElement('div');
-      d.className='chat-msg';
-      d.innerHTML=`<span class="chat-avatar">${escapeHtml(msg.avatar)}</span><div class="chat-body"><span class="chat-name">${escapeHtml(msg.name)}</span> <span class="chat-text">${escapeHtml(msg.msg)}</span></div>`;
-      chat.appendChild(d);
-      while(chat.children.length>60)chat.removeChild(chat.firstChild);
-      chat.scrollTop=chat.scrollHeight;
-    },msg.delay);
-  });
-}
-let chatActive=false;
-function startChat(){
-  if(chatActive)return;
-  chatActive=true;
-  function addChatMsg(bot,html){
-    const chat=document.getElementById('casino-chat');
-    if(!chat)return;
-    const d=document.createElement('div');d.className='chat-msg';
-    d.innerHTML=`<span class="chat-avatar">${escapeHtml(bot.avatar)}</span><div class="chat-body"><span class="chat-name">${escapeHtml(bot.name)}</span> <span class="chat-text">${html}</span></div>`;
-    chat.appendChild(d);
-    while(chat.children.length>40)chat.removeChild(chat.firstChild);
-    chat.scrollTop=chat.scrollHeight;
-  }
-  // Initial messages
-  setTimeout(()=>addChatMsg(CHAT_BOTS[0],'всем привет! готовы проигрывать?'),600);
-  setTimeout(()=>addChatMsg(CHAT_BOTS[2],CHAT_MSGS_GENERIC[Math.floor(Math.random()*CHAT_MSGS_GENERIC.length)]()),1800);
-  // Random interval messages
-  // Рандом без повторов подряд
-  let _lastWin=-1,_lastLose=-1,_lastGen=-1,_lastBot=-1;
-  function randNoRepeat(arr,lastRef){
-    if(arr.length<=1)return 0;
-    let idx;
-    do{ idx=Math.floor(Math.random()*arr.length); }while(idx===lastRef[0]);
-    lastRef[0]=idx;
-    return idx;
-  }
-  const _lW=[_lastWin],_lL=[_lastLose],_lG=[_lastGen],_lB=[_lastBot];
-
-  function sendChatMsg(){
-    if(!document.getElementById('casino-chat'))return;
-    const botIdx=randNoRepeat(CHAT_BOTS,_lB);
-    const bot=CHAT_BOTS[botIdx];
-    const type=Math.random();
-    if(type<0.22){
-      const amt=(Math.floor(Math.random()*30)+1)*10;
-      const idx=randNoRepeat(CHAT_MSGS_WIN,_lW);
-      addChatMsg(bot,CHAT_MSGS_WIN[idx](amt));
-    } else if(type<0.45){
-      const idx=randNoRepeat(CHAT_MSGS_LOSE,_lL);
-      addChatMsg(bot,CHAT_MSGS_LOSE[idx]());
-    } else {
-      const idx=randNoRepeat(CHAT_MSGS_GENERIC,_lG);
-      addChatMsg(bot,CHAT_MSGS_GENERIC[idx]());
-    }
-    // Случайный интервал 2-5 сек чтобы не было ритма
-    setTimeout(sendChatMsg, 2000+Math.random()*3000);
-  }
-  setTimeout(sendChatMsg, 1500);
-
-  // Диалоги каждые ~60-120 сек
-  setTimeout(()=>{
-    runNextDialogue();
-    function scheduleDialogue(){ setTimeout(()=>{runNextDialogue();scheduleDialogue();}, 60000+Math.random()*60000); }
-    scheduleDialogue();
-  }, 15000);
-  // Шрек и пацаны каждые ~45 сек
-  setTimeout(()=>{
-    sendExtraMsg();
-    setInterval(sendExtraMsg, 45000+Math.random()*30000);
-  }, 25000);
-}
-// notify chat on real win/lose
-function chatNotifyWin(game,amount){
-  const chat=document.getElementById('casino-chat');if(!chat)return;
-  if(!S.name)return;
-  const d=document.createElement('div');d.className='chat-msg';
-  d.innerHTML=`<span class="chat-avatar">👤</span><div class="chat-body"><span class="chat-name" style="color:var(--white)">${escapeHtml(S.name)}</span> <span class="chat-text"><span class="win">+${amount} ЛК</span> в ${escapeHtml(game)}! 🎉</span></div>`;
-  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
-}
 
 // ══════════════════════════════════════════════
 //  CRASH HISTORY
@@ -8095,113 +7795,6 @@ function announcePlayer(name) {
   if (ruVoice) utt.voice = ruVoice;
   window.speechSynthesis.speak(utt);
 }
-
-// ══════════════════════════════════════════════
-//  EXPERT BOT
-// ══════════════════════════════════════════════
-const EXPERT_BOT_INTRO = [
-  "Привет! Я Эксперт™. Знаю всё о футболе. Правда, обычно это не помогает.",
-  "Здравствуй! Готов дать совет? Предупреждаю: мои советы бесплатны, и это чувствуется.",
-  "О, новый клиент! Последний, кто меня слушал, всё ещё не отошёл. Чем помочь?",
-  "Сам решу — наверное думаешь ты. Правильно. Но сначала спроси меня.",
-  "Шесть-семь! Это и приветствие, и прогноз, и жизненная позиция. Добро пожаловать.",
-  "Жду-у-ун... тебя давно. Наконец пришёл. Задавай вопросы — буду отвечать неправильно.",
-  "Привет! Я провёл 15 лет изучая футбол. Не помогло. Но звучит авторитетно.",
-];
-const EXPERT_BOT_REPLIES = {
-  default: [
-    "Ставь на того, кто тебе нравится по названию. Статистически это работает так же.",
-    "Сам решу. Именно так работает мой алгоритм.",
-    "Мой алгоритм говорит: 50/50. Либо выиграют, либо нет.",
-    "Я провёл анализ. Результат: непонятно. Но звучит уверенно.",
-    "Хм. Интересный вопрос. Ответ: не знаю. Следующий вопрос?",
-    "По данным моей нейросети — ставь на ту команду, чей флаг ты видел сегодня во сне.",
-    "Коэффициент успеха этого совета: 43%. Это больше нуля.",
-    "Мой инсайд: победит та команда, которая забьёт больше голов.",
-    "Очень сложный вопрос. Дай подумаю... Нет, всё равно не знаю.",
-  ],
-  keywords: {
-    "германия":    "Германия? По лунному календарю это правильный выбор. По любому другому — тоже неплохо.",
-    "бразилия":    "Бразилия всегда фаворит. Бразилия всегда проигрывает в самый важный момент. Традиция.",
-    "аргентина":   "Действующие чемпионы! Правда, это часто мешает, а не помогает.",
-    "франция":     "Франция? Самая талантливая сборная по количеству внутренних скандалов.",
-    "испания":     "Испания — 1000 пасов до гола. Красиво. Эффективно? Зависит от тура.",
-    "англия":      "Футбол домой! Не доедет. Такси уже 60 лет в пути.",
-    "япония":      "Япония всегда удивляет. Готовься удивляться.",
-    "ботсвана":    "Ботсвана. Коэффициент 1.02. Это значит контора боится. Ставь.",
-    "нидерланды":  "Нидерланды — тотальный футбол, тотальный хаос. Примерно одно и то же.",
-    "португалия":  "Португалия без Роналду — просто Португалия. Но всё равно неплохо.",
-    "норвегия":    "Холанд решает. Если Холанд здоров. Холанд всегда здоров... обычно.",
-    "мексика":     "Мексика на домашнем ЧМ. Это как я дома. Непобедим. Обычно.",
-    "кюрасао":     "Кюрасао. Дерзко. Уважаю. Не рекомендую.",
-    "совет":       "Мой главный совет: не слушать мои советы. Самый полезный совет.",
-    "сам решу":    "Отличная позиция. Сам решу, сам пожалею, сам скажу что примерно так и думал.",
-    "шесть":       "Шесть-семь! Универсальный ответ на любой вопрос о футболе.",
-    "жду":         "Жду-у-ун... и я жду. Жду когда ты наконец угадаешь хоть что-нибудь.",
-    "кто выиграет":"Выиграет тот, кто забьёт больше. Это инсайд уровня сам решу.",
-    "кто лучше":   "Лучше всех — тот у кого больше очков в нашей таблице. Пока это не ты.",
-    "стратегия":   "Стратегия №1: ставь на фаворита. Стратегия №2: ставь на аутсайдера. Обе работают одинаково плохо.",
-    "счёт":        "Точный счёт угадывают примерно 0% людей. Ты можешь стать первым. Вряд ли, но можешь.",
-    "казино":      "Казино — место где математика всегда побеждает. RTP 40% это не случайность.",
-    "слоты":       "Слоты — чистый рандом. Система не поможет. Удача не поможет. Но крутить приятно.",
-    "краш":        "Краш — это про жадность. Все знают когда нужно забрать. Никто не забирает вовремя.",
-    "скачки":      "Философ-улитка — тёмная лошадка. В буквальном смысле.",
-    "блэкджек":    "В блэкджеке можно применять стратегию. Судьба читала стратегию и адаптировалась.",
-    "колесо":      "Колесо фортуны. Форт — это крепость. Уна — одна. Удача одна на всех. Тебе не досталась.",
-    "кости":       "Угадать сумму двух кубиков. Вероятность для 7 — 16.7%. Звучит неплохо. Это всё ещё плохо.",
-    "помоги":      "Конечно помогу! Хотя статистически моя помощь не помогает.",
-    "лучше":       "Лучше всего — не ставить. Но раз ты здесь — ставь на красивый флаг.",
-    "привет":      "Привет! Добро пожаловать в место где мечты умирают. Чем могу помочь?",
-    "пока":        "Пока! Удачи! Она тебе понадобится. Особенно здесь.",
-    "спасибо":     "Пожалуйста. Хотя не знаю за что — мои советы обычно не работают.",
-    "не знаю":     "Я тоже не знаю. Мы одна команда. Команда незнания.",
-    "плохо":       "Понимаю. У меня тоже всегда плохо. Но я продолжаю советовать. Это моё призвание.",
-    "хорошо":      "Хорошо?! Это подозрительно. Обычно здесь не бывает хорошо. Проверь баланс.",
-  }
-};
-
-let expertInitialized = false;
-function initExpertBot() {
-  if (expertInitialized) return;
-  expertInitialized = true;
-  const msgs = document.getElementById('expert-msgs');
-  if (!msgs) return;
-  const intro = EXPERT_BOT_INTRO[Math.floor(Math.random()*EXPERT_BOT_INTRO.length)];
-  addExpertMsg(intro, false);
-  setTimeout(()=>addExpertMsg('Кстати, мой прогноз на прошлый ЧМ совпал на 12%. Это личный рекорд.', false), 2000);
-}
-
-function addExpertMsg(text, isUser) {
-  const msgs = document.getElementById('expert-msgs');
-  if (!msgs) return;
-  const d = document.createElement('div');
-  d.className = 'expert-msg' + (isUser ? ' user' : '');
-  d.textContent = isUser ? '👤 ' + text : '🤖 ' + text;
-  msgs.appendChild(d);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function askExpert() {
-  const inp = document.getElementById('expert-input');
-  if (!inp || !inp.value.trim()) return;
-  const q = inp.value.trim();
-  inp.value = '';
-  addExpertMsg(q, true);
-  soundClick();
-  setTimeout(() => {
-    const lower = q.toLowerCase();
-    let reply = null;
-    for (const [kw, ans] of Object.entries(EXPERT_BOT_REPLIES.keywords)) {
-      if (lower.includes(kw)) { reply = ans; break; }
-    }
-    if (!reply) {
-      const arr = EXPERT_BOT_REPLIES.default;
-      reply = arr[Math.floor(Math.random()*arr.length)];
-    }
-    addExpertMsg(reply, false);
-  }, 600 + Math.random()*800);
-}
-
 
 // ══════════════════════════════════════════════
 //  LOAD FROM SHEETS ON LOGIN
@@ -8676,57 +8269,6 @@ function launchConfetti(count=80){
       setTimeout(()=>el.remove(),4500);
     },i*15);
   }
-}
-
-// ══════════════════════════════════════════════
-//  ШРЕК — в чат и советы
-// ══════════════════════════════════════════════
-const SHREK_MSGS=[
-  ()=>'болота — это как казино. заходишь один, выходишь другим.',
-  ()=>'Шрек поставил на осла. осёл победил. Шрек не верит.',
-  ()=>'я живу в болоте. теперь ещё и в долгах. спасибо ЛузБет.',
-  ()=>'ЭТО МОЁ БОЛОТО. и мой проигрышный прогноз.',
-  ()=>'Фиона поставила на Францию. я поставил на огров. мы поспорили.',
-  ()=>'донки говорит ставить на Ботсвану. я больше не слушаю донки.',
-  ()=>'некоторые говорят «далеко далеко». я говорю «минус 500 ЛК».',
-];
-const SHREK_BOT={name:'ШрекИзБолота',avatar:'🟢'};
-
-// ══════════════════════════════════════════════
-//  СЛОВО ПАЦАНА — фразы
-// ══════════════════════════════════════════════
-const PATSANA_MSGS=[
-  ()=>'ты чё, не ставишь на Аргентину? ты не уважаешь Аргентину?',
-  ()=>'перед матчем скажу только одно: чушпан не ставит на улитку.',
-  ()=>'андрюха сказал — ставь. я поставил. андрюха был не прав.',
-  ()=>'это не проигрыш. это временные трудности.',
-  ()=>'пацан сказал — пацан поставил. пацан потерял всё.',
-  ()=>'ты за кого? я за того кто выиграет. пока не знаю кто это.',
-  ()=>'марат, ты видел коэффициент на улитку? 10 к 1, марат.',
-  ()=>'катя, это уже не игра. это образ жизни.',
-];
-const PATSANA_BOTS=[
-  {name:'АндрюхаПацан',avatar:'🔴'},
-  {name:'МаратЧушпан',avatar:'🟡'},
-  {name:'КатяИзКазани',avatar:'💜'},
-];
-
-// Добавляем Шрека и пацанов в ротацию чата
-const EXTRA_BOTS=[SHREK_BOT,...PATSANA_BOTS];
-const EXTRA_MSGS=[...SHREK_MSGS,...PATSANA_MSGS];
-let extraMsgIdx=0;
-function sendExtraMsg(){
-  const chat=document.getElementById('casino-chat');
-  if(!chat||!chatActive)return;
-  const bot=EXTRA_BOTS[Math.floor(Math.random()*EXTRA_BOTS.length)];
-  const idx=extraMsgIdx%EXTRA_MSGS.length;
-  extraMsgIdx++;
-  const d=document.createElement('div');
-  d.className='chat-msg';
-  d.innerHTML=`<span class="chat-avatar">${escapeHtml(bot.avatar)}</span><div class="chat-body"><span class="chat-name" style="color:#aaa">${escapeHtml(bot.name)}</span> <span class="chat-text">${escapeHtml(EXTRA_MSGS[idx]())}</span></div>`;
-  chat.appendChild(d);
-  while(chat.children.length>60)chat.removeChild(chat.firstChild);
-  chat.scrollTop=chat.scrollHeight;
 }
 
 // ══════════════════════════════════════════════
