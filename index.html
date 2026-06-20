@@ -962,7 +962,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .playoff-bracket-wrap{display:flex;flex-direction:column;gap:14px;margin-bottom:16px;overflow:hidden}
 .playoff-bracket-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .playoff-bracket-deadline{font-size:11px;color:var(--muted2)}
-.playoff-rounds{display:grid;grid-template-columns:repeat(var(--playoff-round-count,4),minmax(176px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px;align-items:start;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.playoff-rounds{display:grid;grid-template-columns:repeat(var(--playoff-round-count,4),minmax(176px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px;align-items:stretch;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
 .playoff-rounds::-webkit-scrollbar{height:10px}
 .playoff-rounds::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:999px}
 .playoff-round-card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.08);border-radius:15px;padding:8px;position:relative;min-height:100%}
@@ -8914,7 +8914,7 @@ async function loadPlayoffPage() {
       poPrediction = createPlayoffPredictionState(poBracket, poCheck.prediction);
     }
 
-    if (groupsComplete < totalGroups) {
+    if (groupsComplete < totalGroups && !publicRounds) {
       const remaining = totalGroups - groupsComplete;
       content.innerHTML = `${bracketHtml}<div class="playoff-waiting">
         ⏳ Купон откроется после окончания всех групп<br/>
@@ -8933,7 +8933,7 @@ async function loadPlayoffPage() {
       return;
     }
 
-    if (poTeams.length === 0) {
+    if (poTeams.length === 0 && !publicRounds) {
       content.innerHTML = `${bracketHtml}<div class="playoff-waiting">⏳ Результаты групп ещё не внесены администратором.</div>`;
       return;
     }
