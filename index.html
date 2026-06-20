@@ -83,6 +83,18 @@ body{
 .chip{background:linear-gradient(180deg,var(--yellow),var(--yellow2));color:#000;font-family:var(--os);font-size:13px;font-weight:700;padding:7px 14px;border-radius:999px;border:1px solid rgba(0,0,0,.12);box-shadow:0 10px 22px rgba(0,0,0,.18)}
 .chip.red{background:var(--red);color:#fff}.chip.blue{background:var(--blue);color:#000}.chip.purple{background:var(--purple);color:#fff}
 .promo-disc{position:relative;z-index:1;font-size:10px;color:#7a7a7a;max-width:560px;margin:0 auto;line-height:1.6}
+.promo-sub{position:relative;z-index:1;max-width:720px;margin:0 auto 18px;font-size:15px;line-height:1.7;color:#d1d1d1}
+.promo-actions{position:relative;z-index:1;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.promo-btn{min-width:210px}
+.promo-live-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:980px;margin:0 auto 18px}
+.promo-live-card{
+  text-align:left;padding:16px 16px 14px;border-radius:18px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow-soft)
+}
+.promo-live-label{font-size:10px;color:var(--muted);letter-spacing:1.3px;text-transform:uppercase;margin-bottom:8px}
+.promo-live-value{font-family:var(--os);font-size:24px;line-height:1;color:var(--white)}
+.promo-live-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px}
 
 /* NAV */
 .nav-wrap{background:rgba(17,17,18,.86);border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
@@ -256,6 +268,64 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .profile-note{
   background:rgba(232,0,42,.06);border:1px solid rgba(232,0,42,.2);border-radius:16px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.7
 }
+.dashboard-shell{display:grid;gap:18px}
+.dashboard-hero{
+  display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:18px;align-items:stretch;
+  margin-bottom:18px
+}
+.dashboard-panel,.dashboard-side{
+  border-radius:calc(var(--r) + 4px);border:1px solid rgba(255,255,255,.08);
+  box-shadow:var(--shadow);position:relative;overflow:hidden
+}
+.dashboard-panel{
+  padding:24px;background:linear-gradient(135deg,rgba(255,230,0,.08),rgba(255,255,255,.03) 46%,rgba(79,195,247,.05));
+}
+.dashboard-side{
+  padding:22px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));
+}
+.dashboard-panel::before,.dashboard-side::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),transparent 34%);
+}
+.dashboard-kicker{font-family:var(--os);font-size:11px;letter-spacing:2px;color:var(--yellow);margin-bottom:8px}
+.dashboard-title{font-family:var(--os);font-size:34px;line-height:.98;margin-bottom:10px}
+.dashboard-copy{max-width:560px;font-size:14px;line-height:1.7;color:var(--muted)}
+.dashboard-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.dashboard-badge{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;
+  background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);font-size:11px;color:#d8d8d8
+}
+.dashboard-side-title{font-family:var(--os);font-size:17px;margin-bottom:14px}
+.dashboard-side-list{display:grid;gap:10px}
+.dashboard-side-item{
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+  padding:10px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:var(--muted)
+}
+.dashboard-side-item:first-child{border-top:0;padding-top:0}
+.dashboard-side-item strong{font-family:var(--os);font-size:16px;color:var(--white)}
+.dashboard-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.dashboard-stat{
+  padding:16px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));
+  border:1px solid var(--border);box-shadow:var(--shadow-soft)
+}
+.dashboard-stat-label{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.dashboard-stat-value{font-family:var(--os);font-size:30px;line-height:1;color:var(--yellow)}
+.dashboard-stat-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px}
+.dashboard-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.9fr);gap:18px}
+.dashboard-card{
+  padding:20px;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));
+  border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow-soft)
+}
+.dashboard-card-title{font-family:var(--os);font-size:22px;line-height:1;margin-bottom:8px}
+.dashboard-card-copy{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.dashboard-cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dashboard-pred-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.dashboard-pred-item{
+  padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--border)
+}
+.dashboard-pred-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.dashboard-pred-value{font-family:var(--os);font-size:20px;line-height:1.1}
+.dashboard-pred-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:6px}
 
 .ach-page-head{
   display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
@@ -397,6 +467,9 @@ border:1px solid rgba(255,230,0,.16);border-radius:18px;padding:22px 20px;margin
   .save-bar .btn{width:100%}
   .auth-layout,.main-grid{grid-template-columns:1fr}
   .profile-stats-grid{grid-template-columns:1fr}
+  .promo-live-grid,.dashboard-grid,.dashboard-actions,.dashboard-hero,.dashboard-cta-grid,.dashboard-pred-grid{grid-template-columns:1fr}
+  .promo-btn{min-width:min(100%,260px)}
+  .dashboard-title{font-size:28px}
   .lb-page-head{padding:16px}
   .lb-page-title{font-size:26px}
   .ach-page-title{font-size:26px}
@@ -1665,6 +1738,7 @@ try{
 <div class="promo">
   <div class="promo-eye">ЭКСКЛЮЗИВ • ТОЛЬКО ОДИН РАЗ • НА ВСЮ ЖИЗНЬ</div>
   <div class="promo-title">ЛУЗ<em>БЕТ</em> — ЧМ 2026</div>
+  <div class="promo-sub">Конкурс прогнозов, рейтинг страдальцев, VIP-статусы, ЛузКоины и казино в одной тёмной экосистеме. Сначала кажется весело. Потом статистика начинает говорить правду.</div>
   <div class="promo-chips">
     <span class="chip">⚽ Прогнозы</span>
     <span class="chip">🎯 Исход +1</span>
@@ -1672,6 +1746,33 @@ try{
     <span class="chip red">💥 Исход и счёт +3</span>
     <span class="chip purple">🎰 Казино</span>
     <span class="chip blue">🏅 Ачивки</span>
+  </div>
+  <div class="promo-actions">
+    <button class="btn btn-yellow promo-btn" id="hero-main-btn" onclick="navLoginClick()">🔐 Войти и начать</button>
+    <button class="btn btn-ghost promo-btn" onclick="showPage('leaderboard')">🏆 Смотреть рейтинг</button>
+    <button class="btn btn-red promo-btn" onclick="heroCasinoClick()">🎰 Открыть казино</button>
+  </div>
+  <div class="promo-live-grid">
+    <div class="promo-live-card">
+      <div class="promo-live-label">Главное действие</div>
+      <div class="promo-live-value">Один код</div>
+      <div class="promo-live-note">Вошёл, сделал прогноз, потом живёшь с последствиями до самого финала.</div>
+    </div>
+    <div class="promo-live-card">
+      <div class="promo-live-label">Система очков</div>
+      <div class="promo-live-value">+1 / +2 / +3</div>
+      <div class="promo-live-note">Исход, разница мячей и точный счёт складываются в официальный рейтинг хаоса.</div>
+    </div>
+    <div class="promo-live-card">
+      <div class="promo-live-label">После входа</div>
+      <div class="promo-live-value">VIP + ЛК</div>
+      <div class="promo-live-note">Профиль, быстрые действия, прогресс по ачивкам и полный контроль над своим позором.</div>
+    </div>
+    <div class="promo-live-card">
+      <div class="promo-live-label">Тон проекта</div>
+      <div class="promo-live-value">Sports Trash</div>
+      <div class="promo-live-note">Узнаваемые жёлто-красные акценты, но подача уже как у полноценного продукта.</div>
+    </div>
   </div>
   <div id="qod-wrap" style="background:rgba(255,230,0,.07);border:1px solid rgba(255,230,0,.18);border-radius:6px;padding:10px 14px;max-width:500px;margin:10px auto 8px;font-size:13px;font-style:italic;color:var(--white)">
     <span style="font-size:10px;color:var(--yellow);letter-spacing:1px;font-style:normal;display:block;margin-bottom:4px">📜 ЦИТАТА ДНЯ</span>
@@ -1749,7 +1850,79 @@ try{
 
   <!-- PROFILE -->
   <div id="page-profile" class="page">
-    <div class="profile-shell">
+    <div class="dashboard-shell">
+      <div class="dashboard-hero">
+        <div class="dashboard-panel">
+          <div class="dashboard-kicker">ЛИЧНЫЙ КАБИНЕТ</div>
+          <div class="dashboard-title"><span id="profile-short-name">Игрок</span>, твой матч-центр открыт</div>
+          <div class="dashboard-copy" id="profile-welcome-copy">Здесь видно твой статус, позицию в рейтинге, активность в казино и следующий лучший ход. Больше не нужно искать всё по вкладкам.</div>
+          <div class="dashboard-badges">
+            <span class="dashboard-badge" id="profile-status-badge">⚽ Прогноз ещё не зафиксирован</span>
+            <span class="dashboard-badge" id="profile-vip-badge-mini">👑 VIP: —</span>
+            <span class="dashboard-badge" id="profile-rank-badge">🏆 Рейтинг: —</span>
+          </div>
+        </div>
+        <div class="dashboard-side">
+          <div class="dashboard-side-title">Что у тебя под рукой</div>
+          <div class="dashboard-side-list">
+            <div class="dashboard-side-item"><span>Следующий лучший шаг</span><strong id="profile-next-step">Открыть прогнозы</strong></div>
+            <div class="dashboard-side-item"><span>Статус купона</span><strong id="profile-pred-status-side">—</strong></div>
+            <div class="dashboard-side-item"><span>Прогресс по VIP</span><strong id="profile-vip-side">—</strong></div>
+            <div class="dashboard-side-item"><span>Текущий вайб кабинета</span><strong>Контролируемый ущерб</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dashboard-stat">
+          <div class="dashboard-stat-label">Место в рейтинге</div>
+          <div class="dashboard-stat-value" id="profile-rank">—</div>
+          <div class="dashboard-stat-note" id="profile-rank-note">Загрузим позицию, как только таблица будет под рукой.</div>
+        </div>
+        <div class="dashboard-stat">
+          <div class="dashboard-stat-label">Очки прогноза</div>
+          <div class="dashboard-stat-value" id="profile-points">0</div>
+          <div class="dashboard-stat-note" id="profile-points-note">Именно они тащат тебя вверх или красиво роняют вниз.</div>
+        </div>
+        <div class="dashboard-stat">
+          <div class="dashboard-stat-label">ЛузКоины</div>
+          <div class="dashboard-stat-value" id="profile-coins-top">—</div>
+          <div class="dashboard-stat-note">Баланс для казино, кешбека и всех последующих сомнительных решений.</div>
+        </div>
+        <div class="dashboard-stat">
+          <div class="dashboard-stat-label">Ачивки</div>
+          <div class="dashboard-stat-value" id="profile-ach-top">—</div>
+          <div class="dashboard-stat-note">Коллекция, которая документирует и подвиги, и провалы.</div>
+        </div>
+      </div>
+      <div class="dashboard-actions">
+        <div class="dashboard-card">
+          <div class="dashboard-card-title">Быстрые действия</div>
+          <div class="dashboard-card-copy">Самые полезные разделы вынесены сюда, чтобы не гонять тебя по навигации.</div>
+          <div class="dashboard-cta-grid">
+            <button class="btn btn-yellow btn-full" onclick="showPage('predict')">⚽ Открыть прогнозы</button>
+            <button class="btn btn-red btn-full" onclick="showPage('casino')">🎰 Открыть казино</button>
+            <button class="btn btn-ghost btn-full" onclick="showPage('leaderboard')">🏆 Смотреть рейтинг</button>
+            <button class="btn btn-ghost btn-full" onclick="showPage('achievements')">🏅 Проверить ачивки</button>
+          </div>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-card-title">Мой статус прямо сейчас</div>
+          <div class="dashboard-card-copy" id="profile-status-copy">Как только данные подгрузятся, здесь появится твоя краткая сводка по прогнозу, VIP и положению в общей драме.</div>
+          <div class="dashboard-pred-grid">
+            <div class="dashboard-pred-item">
+              <div class="dashboard-pred-label">Купон</div>
+              <div class="dashboard-pred-value" id="profile-pred-status">—</div>
+              <div class="dashboard-pred-note" id="profile-pred-hint">—</div>
+            </div>
+            <div class="dashboard-pred-item">
+              <div class="dashboard-pred-label">VIP режим</div>
+              <div class="dashboard-pred-value" id="profile-vip-short">—</div>
+              <div class="dashboard-pred-note" id="profile-vip-hint">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-shell">
       <div class="profile-card" style="border:1px solid var(--border);border-top:3px solid var(--yellow);padding:24px;margin-bottom:16px">
         <div style="font-family:var(--os);font-size:11px;letter-spacing:2px;color:var(--yellow);margin-bottom:4px">ПРОФИЛЬ</div>
         <div class="profile-title" id="profile-name-big">—</div>
@@ -1776,6 +1949,7 @@ try{
           <b style="color:var(--white)">Изменить прогноз нельзя</b> — он зафиксирован навсегда.
         </div>
         <button class="btn btn-red btn-full" onclick="doLogout()">Выйти из аккаунта</button>
+      </div>
       </div>
     </div>
   </div>
@@ -4692,16 +4866,24 @@ function navLoginClick(){
   else{showPage('login');}
 }
 
+function heroCasinoClick(){
+  if(S.code) showPage('casino');
+  else showPage('login');
+}
+
 function updateNavAfterLogin(){
   const btn=document.getElementById('nav-login-btn');
+  const heroBtn=document.getElementById('hero-main-btn');
   if(!btn)return;
   if(S.code){
     const short=S.name.split(' ')[0];
     btn.textContent='👤 '+short;
     btn.style.color='var(--yellow)';
+    if(heroBtn) heroBtn.textContent='👤 Открыть кабинет';
   } else {
     btn.textContent='🔐 Войти';
     btn.style.color='';
+    if(heroBtn) heroBtn.textContent='🔐 Войти и начать';
   }
   // Визуально блокируем/разблокируем вкладки
   const PROTECTED=['predict','casino','achievements','playoff'];
@@ -4719,15 +4901,64 @@ function updateNavAfterLogin(){
   });
 }
 
-function updateProfilePage(){
+async function updateProfilePage(){
   const el=n=>document.getElementById(n);
   if(el('profile-name-big')) el('profile-name-big').textContent=S.name||'—';
   if(el('profile-coins')) el('profile-coins').textContent=coins;
+  if(el('profile-coins-top')) el('profile-coins-top').textContent=coins;
   if(el('profile-ach-count')) el('profile-ach-count').textContent=unlockedAch.size;
+  if(el('profile-ach-top')) el('profile-ach-top').textContent=unlockedAch.size;
   const v=getVip();
   if(el('profile-vip')){el('profile-vip').textContent=v.name;el('profile-vip').style.color=v.tc;}
   if(el('profile-vip-title')) el('profile-vip-title').textContent=getVipTitle(v);
   if(el('profile-vip-perks')) el('profile-vip-perks').textContent=`Кешбек ${v.cashback_pct}% • ежедневный бонус ${v.daily_bonus} ЛК • спасение ${v.bankrupt_rescue || 100} ЛК • лимит возврата ${v.cashback_cap} ЛК • VIP-ставка до ${v.bet_cap || 250} ЛК. ${v.perk}`;
+  const firstName=(S.name||'Игрок').split(' ')[0];
+  const voted=S.voted || !!Object.keys(currentPredictionData||{}).length;
+  const nextStep=voted?'Открыть казино':'Заполнить прогноз';
+  if(el('profile-short-name')) el('profile-short-name').textContent=firstName;
+  if(el('profile-welcome-copy')) el('profile-welcome-copy').textContent=voted
+    ? 'Прогноз сохранён, теперь главное не потеряться между рейтингом, VIP и собственными амбициями. Ниже собраны самые полезные действия и текущий статус по всем ключевым зонам.'
+    : 'Сначала зафиксируй свой прогноз, а потом уже можно уверенно идти в рейтинг, казино и ачивки. Ниже собраны самые важные рычаги управления.';
+  if(el('profile-status-badge')) el('profile-status-badge').textContent=voted?'⚽ Купон активен':'⚽ Прогноз ещё не сохранён';
+  if(el('profile-vip-badge-mini')) el('profile-vip-badge-mini').textContent=`👑 VIP: ${v.name}`;
+  if(el('profile-vip-side')) el('profile-vip-side').textContent=getVipTitle(v);
+  if(el('profile-vip-short')) el('profile-vip-short').textContent=v.name;
+  if(el('profile-vip-hint')) el('profile-vip-hint').textContent=`Кешбек ${v.cashback_pct}% • бонус ${v.daily_bonus} ЛК • лимит ${v.cashback_cap} ЛК`;
+  if(el('profile-next-step')) el('profile-next-step').textContent=nextStep;
+  if(el('profile-pred-status')) el('profile-pred-status').textContent=voted?'Зафиксирован':'Ждёт тебя';
+  if(el('profile-pred-status-side')) el('profile-pred-status-side').textContent=voted?'Купон сохранён':'Нужен прогноз';
+  if(el('profile-pred-hint')) el('profile-pred-hint').textContent=voted
+    ? 'Твой купон уже в системе. Можно идти в рейтинг, смотреть расклады и добивать VIP.'
+    : 'Без сохранённого купона ты пока пропускаешь самое важное очковое действие на сайте.';
+  if(el('profile-status-copy')) el('profile-status-copy').textContent=voted
+    ? 'Купон уже сохранён. Теперь твоя главная линия роста: очки в рейтинге, VIP через казино и дополнительные ачивки.'
+    : 'Сейчас самый ценный ход один: открыть прогнозы и зафиксировать купон, пока дедлайны не начали закрываться.';
+
+  const currentCode=S.code;
+  if(el('profile-rank')) el('profile-rank').textContent='…';
+  if(el('profile-points')) el('profile-points').textContent='…';
+  if(el('profile-rank-note')) el('profile-rank-note').textContent='Сверяемся с рейтингом и считаем официальную позицию.';
+  if(el('profile-points-note')) el('profile-points-note').textContent='Текущий итог по прогнозам появится после сверки с таблицей.';
+
+  try{
+    const standing=await getPredictionStandingContext();
+    if(currentCode!==S.code) return;
+    const rankLabel=standing.rank==='?'?'—':`#${standing.rank}`;
+    if(el('profile-rank')) el('profile-rank').textContent=rankLabel;
+    if(el('profile-points')) el('profile-points').textContent=standing.points;
+    if(el('profile-rank-badge')) el('profile-rank-badge').textContent=`🏆 Рейтинг: ${rankLabel}`;
+    if(el('profile-rank-note')) el('profile-rank-note').textContent=standing.rank==='?'
+      ? 'Точное место появится, когда рейтинг полностью сверится с публичной таблицей.'
+      : 'Официальная позиция среди всех участников общей редакционной тревоги.';
+    if(el('profile-points-note')) el('profile-points-note').textContent=standing.points>0
+      ? 'Эти очки уже работают на твою позицию в таблице и общий образ народного эксперта.'
+      : 'Пока очков немного, но рейтинг уже готов использовать это против тебя.';
+  }catch(e){
+    if(currentCode!==S.code) return;
+    if(el('profile-rank')) el('profile-rank').textContent='—';
+    if(el('profile-points')) el('profile-points').textContent='0';
+    if(el('profile-rank-badge')) el('profile-rank-badge').textContent='🏆 Рейтинг: —';
+  }
 }
 
 function showPage(id){
@@ -4829,7 +5060,7 @@ async function doLogin(){
         currentPredictionData={};
         showForm();
       }
-      showPage('predict');
+      showPage('profile');
       setTimeout(()=>checkPendingMatchRewards(true),900);
     }
   }catch(e){console.error(e);setAlert('login-alert','err','❌ Сервер упал: '+(e.message||e));}
