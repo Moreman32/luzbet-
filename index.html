@@ -971,11 +971,11 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .playoff-round-sublabel{font-family:var(--os);font-size:10px;color:var(--muted2);margin:10px 0 6px;letter-spacing:.28px;text-transform:uppercase}
 .playoff-round-empty{font-size:12px;color:var(--muted2);padding:10px 0}
 .playoff-round-stack{position:relative;display:grid;grid-template-rows:repeat(var(--playoff-slot-count,1),minmax(0,1fr));gap:8px;min-height:100%}
-.playoff-slot{display:flex;align-items:flex-start}
+.playoff-slot{display:flex;align-items:stretch}
 .playoff-slot.spacer{pointer-events:none}
-.playoff-slot-inner{width:100%}
+.playoff-slot-inner{width:100%;height:100%}
 .playoff-gap{display:none}
-.playoff-match-card{background:linear-gradient(180deg,rgba(6,10,18,.86),rgba(15,20,31,.94));border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 8px 7px;margin-bottom:0;box-shadow:0 8px 16px rgba(0,0,0,.14);position:relative;width:100%}
+.playoff-match-card{background:linear-gradient(180deg,rgba(6,10,18,.86),rgba(15,20,31,.94));border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 8px 7px;margin-bottom:0;box-shadow:0 8px 16px rgba(0,0,0,.14);position:relative;width:100%;height:100%;display:flex;flex-direction:column}
 .playoff-round-card:not(:last-child) .playoff-match-card::after{content:'';position:absolute;top:50%;right:-11px;width:11px;height:1px;background:rgba(255,255,255,.12);transform:translateY(-50%)}
 .playoff-match-meta{display:flex;justify-content:space-between;align-items:center;gap:5px;font-size:9px;color:var(--muted2);margin-bottom:6px}
 .playoff-match-code{display:inline-flex;align-items:center;justify-content:center;min-width:30px;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--white);font-family:var(--os);font-size:9px;letter-spacing:.4px}
@@ -1010,6 +1010,7 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .playoff-editor-status{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:10px;color:var(--muted2)}
 .playoff-editor-status.ready{color:#9cf2b9;border-color:rgba(0,176,80,.28);background:rgba(0,176,80,.10)}
 .playoff-editor-status.warn{color:#ffe774;border-color:rgba(255,230,0,.24);background:rgba(255,230,0,.10)}
+.playoff-overview-after{margin-top:18px}
 .playoff-points-pill{display:inline-flex;align-items:center;justify-content:center;padding:3px 6px;border-radius:999px;font-family:var(--os);font-size:8px;letter-spacing:.35px;border:1px solid transparent}
 .playoff-points-pill.exact{background:rgba(0,176,80,.14);border-color:rgba(0,176,80,.28);color:#9cf2b9}
 .playoff-points-pill.diff{background:rgba(154,208,255,.12);border-color:rgba(154,208,255,.28);color:#bfe7ff}
@@ -8956,7 +8957,7 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
   const bracketMap = buildBracketMatchMap(poBracket);
   const canSave = hasEditablePlayoffMatches(poBracket) && isPlayoffPredictionDirty(poBracket);
   const progress = getPlayoffPredictionProgress(poBracket);
-  let html = `${bracketHtml}<div class="alert alert-warn show" style="margin-bottom:20px">
+  let html = `<div class="alert alert-warn show" style="margin-bottom:20px">
     ⚠️ Можно сохранять частями и обновлять прогноз до старта каждого конкретного матча. После стартового свистка матч блокируется. Первый дедлайн: ${escapeHtml(formatPlayoffKickoff(String(poBracket && poBracket.deadline || deadline.toISOString())))}.
   </div>`;
 
@@ -9042,6 +9043,10 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
     </button>
     <p style="font-size:11px;color:var(--muted2);text-align:center;margin-top:10px">${canSave ? 'Есть несохранённые изменения.' : 'Кнопка активируется, когда ты изменишь любой ещё не начавшийся матч.'}</p>
   </div>`;
+
+  if(bracketHtml){
+    html += `<div class="playoff-overview-after">${bracketHtml}</div>`;
+  }
 
   content.innerHTML = html;
 }
