@@ -180,6 +180,9 @@ function scorePlayoffPredictionV2(pred: any, playoff: any) {
   const predictedMatches = normalizePlayoffPredictionMatches(pred);
   const actualRounds = Array.isArray(playoff?.rounds) ? playoff.rounds : [];
   let playoffPts = 0;
+  let exactPts = 0;
+  let scorePassPts = 0;
+  let teamOnlyPts = 0;
   const rows: any[] = [];
 
   for (const round of actualRounds) {
@@ -201,16 +204,29 @@ function scorePlayoffPredictionV2(pred: any, playoff: any) {
       );
       let pts = 0;
       if (predicted.homeScore !== null && predicted.awayScore !== null && predictedWinner === actualWinner) {
-        if (predicted.homeScore === actualHome && predicted.awayScore === actualAway) pts = 3;
-        else if ((predicted.homeScore - predicted.awayScore) === (actualHome - actualAway)) pts = 2;
-        else pts = 1;
+        if (predicted.homeScore === actualHome && predicted.awayScore === actualAway) {
+          pts = 3;
+          exactPts += 3;
+        } else if ((predicted.homeScore - predicted.awayScore) === (actualHome - actualAway)) {
+          pts = 2;
+          scorePassPts += 2;
+        } else {
+          pts = 1;
+          teamOnlyPts += 1;
+        }
       }
       playoffPts += pts;
       rows.push({ id, pts, settled: true, predicted: { ...predicted, winner: predictedWinner }, actual: match });
     }
   }
 
-  return { playoffPts, detail: { rows, rounds: actualRounds } };
+  return {
+    playoffPts,
+    exactPts,
+    scorePassPts,
+    teamOnlyPts,
+    detail: { rows, rounds: actualRounds },
+  };
 }
 
 function scorePrediction(row: any, results: Record<string, any>) {
@@ -278,21 +294,38 @@ function scorePrediction(row: any, results: Record<string, any>) {
   if (playoff) {
     if (pred?.format === "bracket_v2") {
       const scored = scorePlayoffPredictionV2(pred, playoff);
+      const groupTotal = teamPts + outPts + diffPts + scPts;
+      const playoffTotal = scored.playoffPts;
+      const groupScorePts = outPts + diffPts;
       detail._PLAYOFF = {
         predicted: pred,
         actual: playoff,
         pts: scored.playoffPts,
+        exactPts: scored.exactPts,
+        scorePassPts: scored.scorePassPts,
+        teamOnlyPts: scored.teamOnlyPts,
         rows: scored.detail.rows,
       };
       return {
         name: row.name,
         code: row.code,
-        total: teamPts + outPts + diffPts + scPts + scored.playoffPts,
+        total: groupTotal + playoffTotal,
         teamPts,
         outPts,
         diffPts,
         scPts,
-        playoffPts: scored.playoffPts,
+        playoffPts: playoffTotal,
+        groupTotal,
+        playoffTotal,
+        groupExactPts: scPts,
+        groupScorePts,
+        groupTeamPts: teamPts,
+        playoffExactPts: scored.exactPts,
+        playoffScorePts: scored.scorePassPts,
+        playoffTeamPts: scored.teamOnlyPts,
+        overallExactPts: scPts + scored.exactPts,
+        overallScorePts: groupScorePts + scored.scorePassPts,
+        overallTeamPts: teamPts + scored.teamOnlyPts,
         detail,
       };
     }
@@ -321,33 +354,67 @@ function scorePrediction(row: any, results: Record<string, any>) {
     const thirdA = parseScore(pred.thirdA);
     if (thirdH !== null && thirdA !== null && thirdH === playoff.thirdH && thirdA === playoff.thirdA) playoffPts += 3;
 
+    const legacyExactPts =
+      (finalH !== null && finalA !== null && finalH === playoff.finalH && finalA === playoff.finalA ? 5 : 0) +
+      (thirdH !== null && thirdA !== null && thirdH === playoff.thirdH && thirdA === playoff.thirdA ? 3 : 0);
+    const legacyTeamPts = playoffPts - legacyExactPts;
+    const groupTotal = teamPts + outPts + diffPts + scPts;
+    const groupScorePts = outPts + diffPts;
+
     detail._PLAYOFF = {
       predicted: { winner, finalist, third, semi: semiTeams, finalH, finalA, thirdH, thirdA },
       actual: playoff,
       pts: playoffPts,
+      exactPts: legacyExactPts,
+      scorePassPts: 0,
+      teamOnlyPts: legacyTeamPts,
     };
     return {
       name: row.name,
       code: row.code,
-      total: teamPts + outPts + diffPts + scPts + playoffPts,
+      total: groupTotal + playoffPts,
       teamPts,
       outPts,
       diffPts,
       scPts,
       playoffPts,
+      groupTotal,
+      playoffTotal: playoffPts,
+      groupExactPts: scPts,
+      groupScorePts,
+      groupTeamPts: teamPts,
+      playoffExactPts: legacyExactPts,
+      playoffScorePts: 0,
+      playoffTeamPts: legacyTeamPts,
+      overallExactPts: scPts + legacyExactPts,
+      overallScorePts: groupScorePts,
+      overallTeamPts: teamPts + legacyTeamPts,
       detail,
     };
   }
 
+  const groupTotal = teamPts + outPts + diffPts + scPts;
+  const groupScorePts = outPts + diffPts;
   return {
     name: row.name,
     code: row.code,
-    total: teamPts + outPts + diffPts + scPts,
+    total: groupTotal,
     teamPts,
     outPts,
     diffPts,
     scPts,
     playoffPts: 0,
+    groupTotal,
+    playoffTotal: 0,
+    groupExactPts: scPts,
+    groupScorePts,
+    groupTeamPts: teamPts,
+    playoffExactPts: 0,
+    playoffScorePts: 0,
+    playoffTeamPts: 0,
+    overallExactPts: scPts,
+    overallScorePts: groupScorePts,
+    overallTeamPts: teamPts,
     detail,
   };
 }

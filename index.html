@@ -750,6 +750,29 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .lb-pts{font-family:var(--os);font-size:32px;color:var(--yellow);line-height:1}
 .lb-pts-label{font-size:10px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase}
 .lb-breakdown{font-size:10px;color:var(--muted2);margin-top:4px}
+.lb-pred-switcher{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.lb-pred-tab{font-family:var(--os);font-size:11px;letter-spacing:.5px;padding:10px 12px;border:none;border-radius:12px;background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;transition:all .18s}
+.lb-pred-tab:hover{color:var(--white);background:rgba(255,255,255,.06)}
+.lb-pred-tab.active{color:var(--yellow);background:rgba(255,230,0,.08);box-shadow:inset 0 0 0 1px rgba(255,230,0,.14)}
+.lb-pred-hint{font-size:11px;color:var(--muted);line-height:1.6;margin:-2px 0 16px}
+.lb-score-split{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px;margin-top:8px;max-width:260px}
+.lb-score-chip{padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:10px;color:var(--muted2);line-height:1.2}
+.lb-score-chip strong{color:var(--white);font-family:var(--os);font-size:11px}
+.lb-detail-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.lb-detail-stat{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:12px;padding:10px}
+.lb-detail-stat strong{display:block;font-family:var(--os);font-size:18px;color:var(--yellow);line-height:1}
+.lb-detail-stat span{display:block;font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4}
+.lb-playoff-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.lb-playoff-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;font-size:10px;color:var(--muted2);padding:6px 0;border-top:1px solid rgba(255,255,255,.05)}
+.lb-playoff-row:first-child{border-top:none;padding-top:0}
+.lb-playoff-match{display:flex;flex-direction:column;gap:2px}
+.lb-playoff-match strong{font-size:11px;color:var(--white);font-weight:600}
+.lb-playoff-score{font-family:var(--os);font-size:11px;color:var(--white)}
+.lb-playoff-badge{padding:4px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);white-space:nowrap}
+.lb-playoff-badge.hit{color:#b6f5c4;border-color:rgba(0,176,80,.35);background:rgba(0,176,80,.10)}
+.lb-playoff-badge.mid{color:#cce8ff;border-color:rgba(79,195,247,.28);background:rgba(79,195,247,.10)}
+.lb-playoff-badge.low{color:#ffe49a;border-color:rgba(255,230,0,.22);background:rgba(255,230,0,.10)}
+.lb-playoff-badge.miss{color:#ff9b9b;border-color:rgba(232,0,42,.24);background:rgba(232,0,42,.10)}
 .lb-detail{display:none;padding:16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
 .lb-row.open .lb-detail{display:block}
 .detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
@@ -5658,72 +5681,44 @@ async function syncTrustedSpent(code, opts={}){
 
 function renderLB(lb,results){
   window._lastResults=results;
-  // Обновляем кэш если данные новее
   if(_lbCache && lb) _lbCache.lb=lb;
-  // Реальные code скрыты из публичного рейтинга, поэтому VIP в футбольном рейтинге
-  // считаем из поля spent самой строки, без маппинга по code.
-  const grpDone=Object.values(results).filter(v=>(v.teams && v.teams.length)>0).length;
-  const funTitle=n=>FUN_TITLES[Math.abs(n.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%FUN_TITLES.length];
+  const cfg = getPredictionLbViewConfig(_activePredictionLbView);
+  const rows = sortPredictionLeaderboard(lb, cfg);
+  const hasResults = Object.entries(results || {}).some(([key, value]) => {
+    if(key === '_PLAYOFF'){
+      return Array.isArray(value && value.rounds) && value.rounds.some(round =>
+        Array.isArray(round && round.matches) && round.matches.some(match =>
+          match && match.homeScore !== null && match.homeScore !== undefined &&
+          match.awayScore !== null && match.awayScore !== undefined
+        )
+      );
+    }
+    return !!(value && value.teams && value.teams.length);
+  });
+  const funTitle=n=>FUN_TITLES[Math.abs(String(n||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0))%FUN_TITLES.length];
   const comment=(i,n)=>{const arr=i===0?LB_COMMENTS.first:i>=n-1?LB_COMMENTS.last:LB_COMMENTS.mid;return arr[Math.abs(i*7+n)%arr.length];};
   const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
   const rc=i=>i===0?'r1':i===1?'r2':i===2?'r3':'';
-  let html=grpDone?'':`<div class="lb-note">⚠️ Результаты не введены. Все на нуле — равенство в страдании.</div>`;
-  html+=`<div class="lb-list">`;
-  lb.forEach((p,i)=>{
+  let html = renderPredictionLbSwitcher(cfg.id);
+  html += `<div class="lb-pred-hint"><strong style="color:var(--white)">${cfg.title}</strong><br/>${cfg.subtitle}</div>`;
+  if(!hasResults) html += `<div class="lb-note">⚠️ Результаты не введены. Все на нуле — равенство в страдании.</div>`;
+  html += `<div class="lb-list">`;
+  rows.forEach((p,i)=>{
+    const total = p[cfg.totalKey] || 0;
+    const exact = p[cfg.exactKey] || 0;
+    const score = p[cfg.scoreKey] || 0;
+    const team = p[cfg.teamKey] || 0;
     const safeName = escapeHtml(p.name || `Игрок #${i+1}`);
     const spent=parseInt(p.spent,10) || 0;
     const vipBadge=formatVipBadge(spent);
-    html+=`<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${safeName} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div><div class="lb-fun">${escapeHtml(funTitle(p.name))}</div><div class="lb-comment">${escapeHtml(comment(i,lb.length))}</div></div><div class="lb-right"><div class="lb-pts">${p.total}</div><div class="lb-pts-label">очков</div>${grpDone?`<div class="lb-breakdown">⚽${p.teamPts} 🎯${p.outPts} ↔️${p.diffPts||0} 💥${p.scPts}</div>`:''}</div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${vipBadge}<span style="font-size:11px;color:var(--muted)">Потрачено в казино: ${spent.toLocaleString('ru-RU')} ЛК</span></div><div class="detail-grid">`;
-    for(const[g,d]of Object.entries(p.detail)){
-      if(!d.predicted.length)continue;
-      // Считаем очки для этой группы
-      let grpPts=0;
-      html+=`<div class="dc"><div class="dc-label">ГР.${g}</div>`;
-      // Команды на выход
-      d.predicted.forEach(t=>{
-        const flag=safeFind((GROUPS[g] && GROUPS[g].teams)||[], x=>x.n===t).f||'';
-        let cls='';
-          if(d.actual.length){
-          const hit=d.actual.some(a=>a.toLowerCase()===t.toLowerCase());
-          cls=hit?' hit':' miss';
-          if(hit)grpPts+=3;
-        }
-        html+=`<div class="dc-team${cls}">${escapeHtml(flag ? flag + ' ' : '')}${escapeHtml(t)}</div>`;
-      });
-      // Счёт матчей
-      if(d.predScores && d.predScores.length){
-        html+=`<div class="dc-scores">`;
-        GROUPS[g].matches.forEach((m,mi)=>{
-          const ps=d.predScores[mi];
-          if(!ps)return;
-          const as=d.actScores[mi];
-          let ptsBadge='';
-          let rowCls='';
-          if(hasResolvedScore(as)){
-            const info=getMatchPointsInfo(ps.h, ps.a, as);
-            grpPts+=info.points||0;
-            if(info.points>0) rowCls='h';
-            else rowCls='m';
-            ptsBadge=`<span style="color:${info.points===3?'#00b050':info.points===2?'#9ad0ff':info.points===1?'#4fc3f7':'var(--red)'};font-weight:700">${info.points===0?'0':`+${info.points}`}</span>`;
-          }
-          // Короткие названия команд
-          const hn=m.h.split(' ')[0].slice(0,6);
-          const an=m.a.split(' ')[0].slice(0,6);
-          html+=`<div class="dc-score-row">
-            <span style="color:var(--muted)">${hn}–${an}</span>
-            <span class="${rowCls}" style="font-family:var(--os)">${ps.h}:${ps.a}${hasResolvedScore(as)?` (${as.h}:${as.a})`:''}</span>
-            ${ptsBadge}
-          </div>`;
-        });
-        html+=`</div>`;
-      }
-      // Итого по группе
-      if(grpPts>0) html+=`<div class="dc-pts">+${grpPts} очк.</div>`;
-      html+=`</div>`;
-    }
-    html+=`</div></div></div>`;
+    const detailSummary = `<div class="lb-detail-summary"><div class="lb-detail-stat"><strong>${total}</strong><span>Всего очков в этом рейтинге</span></div><div class="lb-detail-stat"><strong>${exact}</strong><span>${cfg.exactLabel}</span></div><div class="lb-detail-stat"><strong>${score}</strong><span>${cfg.scoreLabel}</span></div><div class="lb-detail-stat"><strong>${team}</strong><span>${cfg.teamLabel}</span></div></div>`;
+    let detailGrid = '';
+    if(cfg.id !== 'playoff') detailGrid += buildGroupLeaderboardDetail(p);
+    if(cfg.id !== 'groups') detailGrid += buildPlayoffLeaderboardDetail(p.detail && p.detail._PLAYOFF);
+    if(!detailGrid) detailGrid = `<div class="dc"><div class="dc-label">ПОКА ПУСТО</div><div style="font-size:11px;color:var(--muted);line-height:1.7">Как только появятся рассчитанные матчи, тут покажем подробности по очкам.</div></div>`;
+    html += `<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${safeName} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div><div class="lb-fun">${escapeHtml(funTitle(p.name))}</div><div class="lb-comment">${escapeHtml(comment(i,rows.length))}</div></div><div class="lb-right"><div class="lb-pts">${total}</div><div class="lb-pts-label">очков</div><div class="lb-score-split"><span class="lb-score-chip"><strong>${exact}</strong> ${cfg.exactLabel}</span><span class="lb-score-chip"><strong>${score}</strong> ${cfg.scoreLabel}</span><span class="lb-score-chip"><strong>${team}</strong> ${cfg.teamLabel}</span></div></div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${vipBadge}<span style="font-size:11px;color:var(--muted)">Потрачено в казино: ${spent.toLocaleString('ru-RU')} ЛК</span></div>${detailSummary}<div class="detail-grid">${detailGrid}</div></div></div>`;
   });
-  html+=`</div>`;
+  html += `</div>`;
   document.getElementById('lb-content').innerHTML=html;
 }
 
@@ -9268,6 +9263,7 @@ async function fillLucky(){
 let _lbCache = null; // кэш всех топов рейтинга
 let _lbLoadingPromise = null;
 let _activeLbTab = 'predictions';
+let _activePredictionLbView = 'overall';
 const AUTOCLICKER_CODES = new Set([]);
 
 function normalizeCode(code){
@@ -9288,6 +9284,149 @@ function filterOutAutoclickers(rows){
 
 function filterOnlyAutoclickers(rows){
   return (rows || []).filter(row => isAutoclickerCode(getRowLogin(row)));
+}
+
+function switchPredictionLbView(view='overall'){
+  _activePredictionLbView = view || 'overall';
+  if(_activeLbTab === 'predictions' && _lbCache) renderLB(_lbCache.lb || [], _lbCache.results || {});
+}
+
+function getPredictionLbViewConfig(view){
+  const map = {
+    overall: {
+      id:'overall',
+      title:'Общий рейтинг прогнозов',
+      subtitle:'Все очки вместе: группы и плей-офф в одной таблице.',
+      totalKey:'total',
+      exactKey:'overallExactPts',
+      scoreKey:'overallScorePts',
+      teamKey:'overallTeamPts',
+      exactLabel:'Точный счёт',
+      scoreLabel:'Счёт + проход',
+      teamLabel:'Только команды',
+    },
+    groups: {
+      id:'groups',
+      title:'Рейтинг группового этапа',
+      subtitle:'Только группы: точные счета, исходы и команды на выход.',
+      totalKey:'groupTotal',
+      exactKey:'groupExactPts',
+      scoreKey:'groupScorePts',
+      teamKey:'groupTeamPts',
+      exactLabel:'Точный счёт',
+      scoreLabel:'Счёт / исход',
+      teamLabel:'Проход команд',
+    },
+    playoff: {
+      id:'playoff',
+      title:'Рейтинг плей-офф',
+      subtitle:'Только сетка: точный счёт, счёт с проходом и просто проход дальше.',
+      totalKey:'playoffTotal',
+      exactKey:'playoffExactPts',
+      scoreKey:'playoffScorePts',
+      teamKey:'playoffTeamPts',
+      exactLabel:'Точный + проход',
+      scoreLabel:'Счёт + проход',
+      teamLabel:'Только проход',
+    }
+  };
+  return map[view] || map.overall;
+}
+
+function sortPredictionLeaderboard(rows, cfg){
+  const list = Array.isArray(rows) ? [...rows] : [];
+  return list.sort((a,b)=>
+    (b[cfg.totalKey]||0) - (a[cfg.totalKey]||0) ||
+    (b[cfg.exactKey]||0) - (a[cfg.exactKey]||0) ||
+    (b[cfg.scoreKey]||0) - (a[cfg.scoreKey]||0) ||
+    (b[cfg.teamKey]||0) - (a[cfg.teamKey]||0) ||
+    String(a.name||'').localeCompare(String(b.name||''),'ru')
+  );
+}
+
+function renderPredictionLbSwitcher(activeView){
+  const buttons = [
+    ['overall','Общий рейтинг'],
+    ['groups','Групповой этап'],
+    ['playoff','Плей-офф']
+  ];
+  return `<div class="lb-pred-switcher">${buttons.map(([id,label])=>`<button class="lb-pred-tab ${activeView===id?'active':''}" onclick="switchPredictionLbView('${id}')">${label}</button>`).join('')}</div>`;
+}
+
+function getPlayoffLbBadge(pts, settled){
+  if(!settled) return { cls:'', text:'Ждём матч' };
+  if(pts === 3) return { cls:'hit', text:'Точный + проход' };
+  if(pts === 2) return { cls:'mid', text:'Счёт + проход' };
+  if(pts === 1) return { cls:'low', text:'Только проход' };
+  return { cls:'miss', text:'Мимо' };
+}
+
+function buildGroupLeaderboardDetail(p){
+  let html = '';
+  for(const [g,d] of Object.entries(p.detail || {})){
+    if(g === '_PLAYOFF' || !d || !Array.isArray(d.predicted) || !d.predicted.length) continue;
+    let grpPts = 0;
+    html += `<div class="dc"><div class="dc-label">ГР.${g}</div>`;
+    d.predicted.forEach(t=>{
+      const flag = safeFind((GROUPS[g] && GROUPS[g].teams) || [], x=>x.n===t).f || '';
+      let cls = '';
+      if(Array.isArray(d.actual) && d.actual.length){
+        const hit = d.actual.some(a=>String(a).toLowerCase()===String(t).toLowerCase());
+        cls = hit ? ' hit' : ' miss';
+        if(hit) grpPts += 3;
+      }
+      html += `<div class="dc-team${cls}">${escapeHtml(flag ? flag + ' ' : '')}${escapeHtml(t)}</div>`;
+    });
+    if(d.predScores && d.predScores.length){
+      html += `<div class="dc-scores">`;
+      (GROUPS[g] && GROUPS[g].matches ? GROUPS[g].matches : []).forEach((m,mi)=>{
+        const ps = d.predScores[mi];
+        if(!ps) return;
+        const as = d.actScores ? d.actScores[mi] : null;
+        let ptsBadge = '';
+        let rowCls = '';
+        if(hasResolvedScore(as)){
+          const info = getMatchPointsInfo(ps.h, ps.a, as);
+          grpPts += info.points || 0;
+          rowCls = info.points > 0 ? 'h' : 'm';
+          ptsBadge = `<span style="color:${info.points===3?'#00b050':info.points===2?'#9ad0ff':info.points===1?'#4fc3f7':'var(--red)'};font-weight:700">${info.points===0?'0':`+${info.points}`}</span>`;
+        }
+        const hn = m.h.split(' ')[0].slice(0,6);
+        const an = m.a.split(' ')[0].slice(0,6);
+        html += `<div class="dc-score-row"><span style="color:var(--muted)">${hn}–${an}</span><span class="${rowCls}" style="font-family:var(--os)">${ps.h}:${ps.a}${hasResolvedScore(as)?` (${as.h}:${as.a})`:''}</span>${ptsBadge}</div>`;
+      });
+      html += `</div>`;
+    }
+    if(grpPts>0) html += `<div class="dc-pts">+${grpPts} очк.</div>`;
+    html += `</div>`;
+  }
+  return html;
+}
+
+function buildPlayoffLeaderboardDetail(playoffDetail){
+  if(!playoffDetail) return '';
+  const rows = Array.isArray(playoffDetail.rows) ? playoffDetail.rows : [];
+  if(rows.length){
+    return `<div class="dc"><div class="dc-label">ПЛЕЙ-ОФФ</div><div class="lb-playoff-list">${rows.map(row=>{
+      const actual = row.actual || {};
+      const homeLabel = resolvePlayoffSlotLabel(actual.home, buildBracketMatchMap(playoffDetail.actual || {}), {}, 'actual');
+      const awayLabel = resolvePlayoffSlotLabel(actual.away, buildBracketMatchMap(playoffDetail.actual || {}), {}, 'actual');
+      const badge = getPlayoffLbBadge(row.pts, row.settled);
+      const predictedScore = row.predicted && row.predicted.homeScore !== null && row.predicted.awayScore !== null
+        ? `${row.predicted.homeScore}:${row.predicted.awayScore}`
+        : '—';
+      const actualScore = actual.homeScore !== undefined && actual.homeScore !== null && actual.awayScore !== undefined && actual.awayScore !== null
+        ? `${actual.homeScore}:${actual.awayScore}`
+        : '?:?';
+      return `<div class="lb-playoff-row"><div class="lb-playoff-match"><strong>${escapeHtml(actual.id || '')} · ${escapeHtml(formatPlayoffTeamLabel(homeLabel))} vs ${escapeHtml(formatPlayoffTeamLabel(awayLabel))}</strong><span>${escapeHtml(predictedScore)} → ${escapeHtml(actualScore)}</span></div><div class="lb-playoff-score">${row.pts>0?`+${row.pts}`:'0'}</div><div class="lb-playoff-badge ${badge.cls}">${badge.text}</div></div>`;
+    }).join('')}</div></div>`;
+  }
+
+  const exact = playoffDetail.exactPts || 0;
+  const score = playoffDetail.scorePassPts || 0;
+  const team = playoffDetail.teamOnlyPts || 0;
+  if(!exact && !score && !team && !playoffDetail.pts) return '';
+  return `<div class="dc"><div class="dc-label">ПЛЕЙ-ОФФ</div><div style="font-size:11px;color:var(--muted);line-height:1.7">Старый формат прогноза. Точная детализация по матчам недоступна, но очки учтены в рейтинге.</div><div class="lb-detail-summary" style="margin-top:10px"><div class="lb-detail-stat"><strong>${playoffDetail.pts||0}</strong><span>Всего очков</span></div><div class="lb-detail-stat"><strong>${exact}</strong><span>Точный счёт</span></div><div class="lb-detail-stat"><strong>${team}</strong><span>Проход команд</span></div></div></div>`;
 }
 
 function renderActiveLbTab(){
