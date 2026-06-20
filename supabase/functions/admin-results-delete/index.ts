@@ -30,7 +30,9 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
-    const settlement = await clearGroupRewards(supabase, groupCode);
+    const settlement = groupCode.startsWith("_")
+      ? { skipped: true, reason: "system result row" }
+      : await clearGroupRewards(supabase, groupCode);
 
     return json({ ok: true, settlement });
   } catch (e) {

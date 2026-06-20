@@ -18,6 +18,9 @@ function json(body: unknown, status = 200) {
 
 function normalizeResultRow(row: any) {
   const d = row?.data || {};
+  if (d && typeof d === "object" && Array.isArray(d.rounds)) {
+    return normalizePlayoffRow(row);
+  }
   if (Array.isArray(d.teams)) {
     return {
       teams: d.teams,
@@ -41,6 +44,98 @@ function normalizeResultRow(row: any) {
     scores.push(Number.isFinite(h) && Number.isFinite(a) ? { h, a } : { h: null, a: null });
   }
   return { teams, scores };
+}
+
+function parseScore(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number.parseInt(String(value), 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeWinnerToken(value: unknown) {
+  const token = String(value || "").trim().toLowerCase();
+  return token === "home" || token === "away" ? token : "";
+}
+
+function resolveMatchWinner(match: any) {
+  const explicit = normalizeWinnerToken(match?.winner);
+  if (explicit) return explicit;
+  const homeScore = parseScore(match?.homeScore);
+  const awayScore = parseScore(match?.awayScore);
+  if (homeScore === null || awayScore === null) return "";
+  if (homeScore > awayScore) return "home";
+  if (awayScore > homeScore) return "away";
+  return "";
+}
+
+function getWinnerName(match: any) {
+  const side = resolveMatchWinner(match);
+  if (side === "home") return String(match?.home || "").trim();
+  if (side === "away") return String(match?.away || "").trim();
+  return "";
+}
+
+function getLoserName(match: any) {
+  const side = resolveMatchWinner(match);
+  if (side === "home") return String(match?.away || "").trim();
+  if (side === "away") return String(match?.home || "").trim();
+  return "";
+}
+
+function normalizePlayoffRow(row: any) {
+  const d = row?.data && typeof row.data === "object" ? row.data : {};
+  const rounds = Array.isArray(d.rounds) ? d.rounds : [];
+  const normalizedRounds = rounds.map((round: any, roundIndex: number) => ({
+    key: String(round?.key || `round_${roundIndex + 1}`).trim(),
+    label: String(round?.label || `Раунд ${roundIndex + 1}`).trim(),
+    matches: Array.isArray(round?.matches)
+      ? round.matches.map((match: any, matchIndex: number) => ({
+          id: String(match?.id || `${String(round?.key || `round_${roundIndex + 1}`).trim()}_${matchIndex + 1}`).trim(),
+          home: String(match?.home || "").trim(),
+          away: String(match?.away || "").trim(),
+          kickoff: String(match?.kickoff || "").trim(),
+          homeScore: parseScore(match?.homeScore),
+          awayScore: parseScore(match?.awayScore),
+          note: String(match?.note || "").trim(),
+          winner: normalizeWinnerToken(match?.winner),
+        }))
+      : [],
+  }));
+
+  const findRound = (key: string) => normalizedRounds.find((round: any) => round.key === key);
+  const semifinalRound = findRound("semifinal");
+  const thirdPlaceRound = findRound("third_place");
+  const finalRound = findRound("final");
+  const finalMatch = finalRound?.matches?.[0] || null;
+  const thirdPlaceMatch = thirdPlaceRound?.matches?.[0] || null;
+
+  const teamSet = new Map<string, { name: string }>();
+  for (const round of normalizedRounds) {
+    for (const match of round.matches) {
+      for (const name of [match.home, match.away]) {
+        const trimmed = String(name || "").trim();
+        if (!trimmed || trimmed === "TBD" || trimmed === "—") continue;
+        if (!teamSet.has(trimmed.toLowerCase())) teamSet.set(trimmed.toLowerCase(), { name: trimmed });
+      }
+    }
+  }
+
+  return {
+    deadline: String(d.deadline || "").trim(),
+    locked: String(d.locked || "").trim() === "1",
+    rounds: normalizedRounds,
+    teams: [...teamSet.values()],
+    semi: semifinalRound
+      ? semifinalRound.matches.flatMap((match: any) => [match.home, match.away]).filter(Boolean)
+      : [],
+    winner: getWinnerName(finalMatch),
+    finalist: getLoserName(finalMatch),
+    third: getWinnerName(thirdPlaceMatch),
+    finalH: finalMatch?.homeScore ?? null,
+    finalA: finalMatch?.awayScore ?? null,
+    thirdH: thirdPlaceMatch?.homeScore ?? null,
+    thirdA: thirdPlaceMatch?.awayScore ?? null,
+  };
 }
 
 function scorePrediction(row: any, results: Record<string, any>) {
@@ -101,6 +196,50 @@ function scorePrediction(row: any, results: Record<string, any>) {
       pts: groupPts,
       actScores,
       predScores,
+    };
+  }
+
+  const playoff = results._PLAYOFF;
+  if (playoff) {
+    const winner = String(pred.winner || "").trim();
+    const finalist = String(pred.finalist || "").trim();
+    const third = String(pred.third || "").trim();
+    const semiTeams = String(pred.semi || "").split("|").map((s) => s.trim()).filter(Boolean);
+    const actualSemiTeams = Array.isArray(playoff.semi) ? playoff.semi : [];
+    let playoffPts = 0;
+
+    if (winner && playoff.winner && winner.toLowerCase() === String(playoff.winner).toLowerCase()) playoffPts += 5;
+    if (finalist && playoff.finalist && finalist.toLowerCase() === String(playoff.finalist).toLowerCase()) playoffPts += 3;
+    if (third && playoff.third && third.toLowerCase() === String(playoff.third).toLowerCase()) playoffPts += 3;
+    if (actualSemiTeams.length) {
+      playoffPts += semiTeams.filter((team) =>
+        actualSemiTeams.some((actual: string) => String(actual).toLowerCase() === team.toLowerCase())
+      ).length * 2;
+    }
+
+    const finalH = parseScore(pred.finalH);
+    const finalA = parseScore(pred.finalA);
+    if (finalH !== null && finalA !== null && finalH === playoff.finalH && finalA === playoff.finalA) playoffPts += 5;
+
+    const thirdH = parseScore(pred.thirdH);
+    const thirdA = parseScore(pred.thirdA);
+    if (thirdH !== null && thirdA !== null && thirdH === playoff.thirdH && thirdA === playoff.thirdA) playoffPts += 3;
+
+    detail._PLAYOFF = {
+      predicted: { winner, finalist, third, semi: semiTeams, finalH, finalA, thirdH, thirdA },
+      actual: playoff,
+      pts: playoffPts,
+    };
+    return {
+      name: row.name,
+      code: row.code,
+      total: teamPts + outPts + diffPts + scPts + playoffPts,
+      teamPts,
+      outPts,
+      diffPts,
+      scPts,
+      playoffPts,
+      detail,
     };
   }
 

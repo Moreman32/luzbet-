@@ -2,6 +2,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, json, requireAdmin } from "../_shared/admin.ts";
 import { settleGroupRewards } from "../_shared/match-rewards.ts";
 
+function sanitizePayload(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizePayload(item));
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, sanitizePayload(item)]),
+    );
+  }
+  return String(value ?? "").trim();
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -23,10 +35,7 @@ Deno.serve(async (req) => {
       return json({ ok: false, error: "data is required" }, 400);
     }
 
-    const payload: Record<string, string> = {};
-    for (const [key, value] of Object.entries(data)) {
-      payload[key] = String(value ?? "").trim();
-    }
+    const payload = sanitizePayload(data);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -48,7 +57,9 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
-    const settlement = await settleGroupRewards(supabase, groupCode);
+    const settlement = groupCode.startsWith("_")
+      ? { skipped: true, reason: "system result row" }
+      : await settleGroupRewards(supabase, groupCode);
 
     return json({
       ok: true,
