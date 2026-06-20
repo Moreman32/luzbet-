@@ -183,6 +183,7 @@ function scorePlayoffPredictionV2(pred: any, playoff: any) {
   let exactPts = 0;
   let scorePassPts = 0;
   let teamOnlyPts = 0;
+  let advancePts = 0;
   const rows: any[] = [];
 
   for (const round of actualRounds) {
@@ -204,6 +205,7 @@ function scorePlayoffPredictionV2(pred: any, playoff: any) {
       );
       let pts = 0;
       if (predicted.homeScore !== null && predicted.awayScore !== null && predictedWinner === actualWinner) {
+        advancePts += 1;
         if (predicted.homeScore === actualHome && predicted.awayScore === actualAway) {
           pts = 3;
           exactPts += 3;
@@ -225,6 +227,7 @@ function scorePlayoffPredictionV2(pred: any, playoff: any) {
     exactPts,
     scorePassPts,
     teamOnlyPts,
+    advancePts,
     detail: { rows, rounds: actualRounds },
   };
 }
@@ -297,6 +300,7 @@ function scorePrediction(row: any, results: Record<string, any>) {
       const groupTotal = teamPts + outPts + diffPts + scPts;
       const playoffTotal = scored.playoffPts;
       const groupScorePts = outPts + diffPts;
+      const playoffAdvanceTotal = scored.advancePts;
       detail._PLAYOFF = {
         predicted: pred,
         actual: playoff,
@@ -304,6 +308,7 @@ function scorePrediction(row: any, results: Record<string, any>) {
         exactPts: scored.exactPts,
         scorePassPts: scored.scorePassPts,
         teamOnlyPts: scored.teamOnlyPts,
+        advancePts: playoffAdvanceTotal,
         rows: scored.detail.rows,
       };
       return {
@@ -323,9 +328,11 @@ function scorePrediction(row: any, results: Record<string, any>) {
         playoffExactPts: scored.exactPts,
         playoffScorePts: scored.scorePassPts,
         playoffTeamPts: scored.teamOnlyPts,
+        playoffAdvancePts: playoffAdvanceTotal,
         overallExactPts: scPts + scored.exactPts,
         overallScorePts: groupScorePts + scored.scorePassPts,
         overallTeamPts: teamPts + scored.teamOnlyPts,
+        overallAdvancePts: teamPts + playoffAdvanceTotal,
         detail,
       };
     }
@@ -368,6 +375,7 @@ function scorePrediction(row: any, results: Record<string, any>) {
       exactPts: legacyExactPts,
       scorePassPts: 0,
       teamOnlyPts: legacyTeamPts,
+      advancePts: legacyTeamPts,
     };
     return {
       name: row.name,
@@ -386,9 +394,11 @@ function scorePrediction(row: any, results: Record<string, any>) {
       playoffExactPts: legacyExactPts,
       playoffScorePts: 0,
       playoffTeamPts: legacyTeamPts,
+      playoffAdvancePts: legacyTeamPts,
       overallExactPts: scPts + legacyExactPts,
       overallScorePts: groupScorePts,
       overallTeamPts: teamPts + legacyTeamPts,
+      overallAdvancePts: teamPts + legacyTeamPts,
       detail,
     };
   }
@@ -412,9 +422,11 @@ function scorePrediction(row: any, results: Record<string, any>) {
     playoffExactPts: 0,
     playoffScorePts: 0,
     playoffTeamPts: 0,
+    playoffAdvancePts: 0,
     overallExactPts: scPts,
     overallScorePts: groupScorePts,
     overallTeamPts: teamPts,
+    overallAdvancePts: teamPts,
     detail,
   };
 }

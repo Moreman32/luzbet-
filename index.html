@@ -754,6 +754,10 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .lb-pred-tab{font-family:var(--os);font-size:11px;letter-spacing:.5px;padding:10px 12px;border:none;border-radius:12px;background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;transition:all .18s}
 .lb-pred-tab:hover{color:var(--white);background:rgba(255,255,255,.06)}
 .lb-pred-tab.active{color:var(--yellow);background:rgba(255,230,0,.08);box-shadow:inset 0 0 0 1px rgba(255,230,0,.14)}
+.lb-pred-mode{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 14px}
+.lb-pred-mode-btn{font-family:var(--os);font-size:10px;letter-spacing:.5px;padding:8px 11px;border:none;border-radius:999px;background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;transition:all .18s}
+.lb-pred-mode-btn:hover{color:var(--white);background:rgba(255,255,255,.06)}
+.lb-pred-mode-btn.active{color:var(--white);background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)}
 .lb-pred-hint{font-size:11px;color:var(--muted);line-height:1.6;margin:-2px 0 16px}
 .lb-score-split{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px;margin-top:8px;max-width:260px}
 .lb-score-chip{padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:10px;color:var(--muted2);line-height:1.2}
@@ -5684,6 +5688,8 @@ function renderLB(lb,results){
   if(_lbCache && lb) _lbCache.lb=lb;
   const cfg = getPredictionLbViewConfig(_activePredictionLbView);
   const rows = sortPredictionLeaderboard(lb, cfg);
+  const modeTitle = _activePredictionLbMode === 'advance' ? 'только проход команд' : 'все очки';
+  const totalKey = _activePredictionLbMode === 'advance' ? cfg.advanceKey : cfg.totalKey;
   const hasResults = Object.entries(results || {}).some(([key, value]) => {
     if(key === '_PLAYOFF'){
       return Array.isArray(value && value.rounds) && value.rounds.some(round =>
@@ -5700,23 +5706,25 @@ function renderLB(lb,results){
   const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
   const rc=i=>i===0?'r1':i===1?'r2':i===2?'r3':'';
   let html = renderPredictionLbSwitcher(cfg.id);
-  html += `<div class="lb-pred-hint"><strong style="color:var(--white)">${cfg.title}</strong><br/>${cfg.subtitle}</div>`;
+  html += renderPredictionLbModeSwitcher();
+  html += `<div class="lb-pred-hint"><strong style="color:var(--white)">${cfg.title}</strong><br/>${cfg.subtitle}<br/>Сейчас считаем: <strong style="color:var(--white)">${modeTitle}</strong>.</div>`;
   if(!hasResults) html += `<div class="lb-note">⚠️ Результаты не введены. Все на нуле — равенство в страдании.</div>`;
   html += `<div class="lb-list">`;
   rows.forEach((p,i)=>{
-    const total = p[cfg.totalKey] || 0;
+    const total = p[totalKey] || 0;
     const exact = p[cfg.exactKey] || 0;
     const score = p[cfg.scoreKey] || 0;
     const team = p[cfg.teamKey] || 0;
+    const advanceTotal = p[cfg.advanceKey] || 0;
     const safeName = escapeHtml(p.name || `Игрок #${i+1}`);
     const spent=parseInt(p.spent,10) || 0;
     const vipBadge=formatVipBadge(spent);
-    const detailSummary = `<div class="lb-detail-summary"><div class="lb-detail-stat"><strong>${total}</strong><span>Всего очков в этом рейтинге</span></div><div class="lb-detail-stat"><strong>${exact}</strong><span>${cfg.exactLabel}</span></div><div class="lb-detail-stat"><strong>${score}</strong><span>${cfg.scoreLabel}</span></div><div class="lb-detail-stat"><strong>${team}</strong><span>${cfg.teamLabel}</span></div></div>`;
+    const detailSummary = `<div class="lb-detail-summary"><div class="lb-detail-stat"><strong>${total}</strong><span>${_activePredictionLbMode === 'advance' ? 'Очки только за проход команд' : 'Всего очков в этом рейтинге'}</span></div><div class="lb-detail-stat"><strong>${advanceTotal}</strong><span>Проход команд</span></div><div class="lb-detail-stat"><strong>${exact}</strong><span>${cfg.exactLabel}</span></div><div class="lb-detail-stat"><strong>${score}</strong><span>${cfg.scoreLabel}</span></div></div>`;
     let detailGrid = '';
     if(cfg.id !== 'playoff') detailGrid += buildGroupLeaderboardDetail(p);
     if(cfg.id !== 'groups') detailGrid += buildPlayoffLeaderboardDetail(p.detail && p.detail._PLAYOFF);
     if(!detailGrid) detailGrid = `<div class="dc"><div class="dc-label">ПОКА ПУСТО</div><div style="font-size:11px;color:var(--muted);line-height:1.7">Как только появятся рассчитанные матчи, тут покажем подробности по очкам.</div></div>`;
-    html += `<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${safeName} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div><div class="lb-fun">${escapeHtml(funTitle(p.name))}</div><div class="lb-comment">${escapeHtml(comment(i,rows.length))}</div></div><div class="lb-right"><div class="lb-pts">${total}</div><div class="lb-pts-label">очков</div><div class="lb-score-split"><span class="lb-score-chip"><strong>${exact}</strong> ${cfg.exactLabel}</span><span class="lb-score-chip"><strong>${score}</strong> ${cfg.scoreLabel}</span><span class="lb-score-chip"><strong>${team}</strong> ${cfg.teamLabel}</span></div></div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${vipBadge}<span style="font-size:11px;color:var(--muted)">Потрачено в казино: ${spent.toLocaleString('ru-RU')} ЛК</span></div>${detailSummary}<div class="detail-grid">${detailGrid}</div></div></div>`;
+    html += `<div class="lb-row ${rc(i)}" onclick="this.classList.toggle('open')"><div class="lb-main"><div class="lb-rank">${medal(i)}</div><div><div class="lb-name">${safeName} <span style="margin-left:8px;vertical-align:middle">${vipBadge}</span></div><div class="lb-fun">${escapeHtml(funTitle(p.name))}</div><div class="lb-comment">${escapeHtml(comment(i,rows.length))}</div></div><div class="lb-right"><div class="lb-pts">${total}</div><div class="lb-pts-label">${_activePredictionLbMode === 'advance' ? 'проход' : 'очков'}</div><div class="lb-score-split"><span class="lb-score-chip"><strong>${advanceTotal}</strong> Проход</span><span class="lb-score-chip"><strong>${exact}</strong> ${cfg.exactLabel}</span><span class="lb-score-chip"><strong>${score}</strong> ${cfg.scoreLabel}</span></div></div></div><div class="lb-detail"><div style="font-size:11px;color:var(--muted);margin-bottom:10px">— детализация —</div><div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${vipBadge}<span style="font-size:11px;color:var(--muted)">Потрачено в казино: ${spent.toLocaleString('ru-RU')} ЛК</span></div>${detailSummary}<div class="detail-grid">${detailGrid}</div></div></div>`;
   });
   html += `</div>`;
   document.getElementById('lb-content').innerHTML=html;
@@ -9264,6 +9272,7 @@ let _lbCache = null; // кэш всех топов рейтинга
 let _lbLoadingPromise = null;
 let _activeLbTab = 'predictions';
 let _activePredictionLbView = 'overall';
+let _activePredictionLbMode = 'all';
 const AUTOCLICKER_CODES = new Set([]);
 
 function normalizeCode(code){
@@ -9291,25 +9300,32 @@ function switchPredictionLbView(view='overall'){
   if(_activeLbTab === 'predictions' && _lbCache) renderLB(_lbCache.lb || [], _lbCache.results || {});
 }
 
+function switchPredictionLbMode(mode='all'){
+  _activePredictionLbMode = mode === 'advance' ? 'advance' : 'all';
+  if(_activeLbTab === 'predictions' && _lbCache) renderLB(_lbCache.lb || [], _lbCache.results || {});
+}
+
 function getPredictionLbViewConfig(view){
   const map = {
     overall: {
       id:'overall',
       title:'Общий рейтинг прогнозов',
-      subtitle:'Все очки вместе: группы и плей-офф в одной таблице.',
+      subtitle:'Общий срез по всем прогнозам: можно смотреть либо по всем очкам, либо только по тому, кто прошёл дальше.',
       totalKey:'total',
+      advanceKey:'overallAdvancePts',
       exactKey:'overallExactPts',
       scoreKey:'overallScorePts',
       teamKey:'overallTeamPts',
       exactLabel:'Точный счёт',
       scoreLabel:'Счёт + проход',
-      teamLabel:'Только команды',
+      teamLabel:'Только проход',
     },
     groups: {
       id:'groups',
       title:'Рейтинг группового этапа',
-      subtitle:'Только группы: точные счета, исходы и команды на выход.',
+      subtitle:'Только группы: либо все очки, либо отдельно только команды на выход из групп.',
       totalKey:'groupTotal',
+      advanceKey:'groupTeamPts',
       exactKey:'groupExactPts',
       scoreKey:'groupScorePts',
       teamKey:'groupTeamPts',
@@ -9320,8 +9336,9 @@ function getPredictionLbViewConfig(view){
     playoff: {
       id:'playoff',
       title:'Рейтинг плей-офф',
-      subtitle:'Только сетка: точный счёт, счёт с проходом и просто проход дальше.',
+      subtitle:'Только сетка: можно считать либо все очки, либо только угадывание тех, кто идёт дальше.',
       totalKey:'playoffTotal',
+      advanceKey:'playoffAdvancePts',
       exactKey:'playoffExactPts',
       scoreKey:'playoffScorePts',
       teamKey:'playoffTeamPts',
@@ -9335,8 +9352,9 @@ function getPredictionLbViewConfig(view){
 
 function sortPredictionLeaderboard(rows, cfg){
   const list = Array.isArray(rows) ? [...rows] : [];
+  const totalKey = _activePredictionLbMode === 'advance' ? cfg.advanceKey : cfg.totalKey;
   return list.sort((a,b)=>
-    (b[cfg.totalKey]||0) - (a[cfg.totalKey]||0) ||
+    (b[totalKey]||0) - (a[totalKey]||0) ||
     (b[cfg.exactKey]||0) - (a[cfg.exactKey]||0) ||
     (b[cfg.scoreKey]||0) - (a[cfg.scoreKey]||0) ||
     (b[cfg.teamKey]||0) - (a[cfg.teamKey]||0) ||
@@ -9351,6 +9369,14 @@ function renderPredictionLbSwitcher(activeView){
     ['playoff','Плей-офф']
   ];
   return `<div class="lb-pred-switcher">${buttons.map(([id,label])=>`<button class="lb-pred-tab ${activeView===id?'active':''}" onclick="switchPredictionLbView('${id}')">${label}</button>`).join('')}</div>`;
+}
+
+function renderPredictionLbModeSwitcher(){
+  const buttons = [
+    ['all','Точный счёт + проход'],
+    ['advance','Только проход команд']
+  ];
+  return `<div class="lb-pred-mode">${buttons.map(([id,label])=>`<button class="lb-pred-mode-btn ${_activePredictionLbMode===id?'active':''}" onclick="switchPredictionLbMode('${id}')">${label}</button>`).join('')}</div>`;
 }
 
 function getPlayoffLbBadge(pts, settled){
