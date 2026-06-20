@@ -156,6 +156,63 @@ function normalizePlayoffRow(row: any) {
   };
 }
 
+function normalizePlayoffPredictionMatches(pred: any) {
+  const map = new Map<string, { homeScore: number | null; awayScore: number | null; winner: string }>();
+  if (!pred || pred.format !== "bracket_v2") return map;
+  const items = Array.isArray(pred.matches)
+    ? pred.matches
+    : pred.matches && typeof pred.matches === "object"
+      ? Object.entries(pred.matches).map(([id, value]) => ({ id, ...(value as Record<string, unknown>) }))
+      : [];
+  for (const item of items) {
+    const id = String((item as any)?.id || "").trim().toUpperCase();
+    if (!id) continue;
+    map.set(id, {
+      homeScore: parseScore((item as any)?.homeScore),
+      awayScore: parseScore((item as any)?.awayScore),
+      winner: normalizeWinnerToken((item as any)?.winner),
+    });
+  }
+  return map;
+}
+
+function scorePlayoffPredictionV2(pred: any, playoff: any) {
+  const predictedMatches = normalizePlayoffPredictionMatches(pred);
+  const actualRounds = Array.isArray(playoff?.rounds) ? playoff.rounds : [];
+  let playoffPts = 0;
+  const rows: any[] = [];
+
+  for (const round of actualRounds) {
+    for (const match of Array.isArray(round?.matches) ? round.matches : []) {
+      const id = String(match?.id || "").trim().toUpperCase();
+      if (!id) continue;
+      const predicted = predictedMatches.get(id) || { homeScore: null, awayScore: null, winner: "" };
+      const actualHome = parseScore(match?.homeScore);
+      const actualAway = parseScore(match?.awayScore);
+      const actualWinner = resolveMatchWinner(match);
+      if (actualHome === null || actualAway === null || !actualWinner) {
+        rows.push({ id, pts: 0, settled: false, predicted, actual: match });
+        continue;
+      }
+      const predictedWinner = predicted.winner || (
+        predicted.homeScore !== null && predicted.awayScore !== null
+          ? predicted.homeScore > predicted.awayScore ? "home" : predicted.awayScore > predicted.homeScore ? "away" : ""
+          : ""
+      );
+      let pts = 0;
+      if (predicted.homeScore !== null && predicted.awayScore !== null && predictedWinner === actualWinner) {
+        if (predicted.homeScore === actualHome && predicted.awayScore === actualAway) pts = 3;
+        else if ((predicted.homeScore - predicted.awayScore) === (actualHome - actualAway)) pts = 2;
+        else pts = 1;
+      }
+      playoffPts += pts;
+      rows.push({ id, pts, settled: true, predicted: { ...predicted, winner: predictedWinner }, actual: match });
+    }
+  }
+
+  return { playoffPts, detail: { rows, rounds: actualRounds } };
+}
+
 function scorePrediction(row: any, results: Record<string, any>) {
   const pred = row?.data && typeof row.data === "object" ? row.data : {};
   let teamPts = 0;
@@ -219,6 +276,27 @@ function scorePrediction(row: any, results: Record<string, any>) {
 
   const playoff = results._PLAYOFF;
   if (playoff) {
+    if (pred?.format === "bracket_v2") {
+      const scored = scorePlayoffPredictionV2(pred, playoff);
+      detail._PLAYOFF = {
+        predicted: pred,
+        actual: playoff,
+        pts: scored.playoffPts,
+        rows: scored.detail.rows,
+      };
+      return {
+        name: row.name,
+        code: row.code,
+        total: teamPts + outPts + diffPts + scPts + scored.playoffPts,
+        teamPts,
+        outPts,
+        diffPts,
+        scPts,
+        playoffPts: scored.playoffPts,
+        detail,
+      };
+    }
+
     const winner = String(pred.winner || "").trim();
     const finalist = String(pred.finalist || "").trim();
     const third = String(pred.third || "").trim();

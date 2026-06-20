@@ -626,6 +626,50 @@ function scoreGroupsOnly(pred, results){
 
 function scorePlayoffOnly(pred, playoff){
   if(!playoff) return { total:0, winnerPts:0, finalistPts:0, thirdPts:0, semiPts:0, finalScorePts:0, thirdScorePts:0, semiHits:0 };
+  if(String(pred && pred.format || '')==='bracket_v2'){
+    const items=Array.isArray(pred.matches)
+      ? pred.matches
+      : pred.matches && typeof pred.matches==='object'
+        ? Object.entries(pred.matches).map(([id,v])=>({ id, ...(v||{}) }))
+        : [];
+    const predMap={};
+    items.forEach(item=>{
+      const id=String(item&&item.id || '').toUpperCase();
+      if(!id) return;
+      predMap[id]={
+        homeScore:parseScoreValue(item&&item.homeScore),
+        awayScore:parseScoreValue(item&&item.awayScore),
+        winner:winnerToken(item&&item.winner)
+      };
+    });
+    const rows=[];
+    let total=0;
+    (Array.isArray(playoff.rounds)?playoff.rounds:[]).forEach(round=>{
+      (Array.isArray(round.matches)?round.matches:[]).forEach(match=>{
+        const id=String(match&&match.id || '').toUpperCase();
+        const predicted=predMap[id] || { homeScore:null, awayScore:null, winner:'' };
+        const actualHome=parseScoreValue(match&&match.homeScore);
+        const actualAway=parseScoreValue(match&&match.awayScore);
+        const actualWinner=resolveWinner(match);
+        let pts=0;
+        if(actualHome!==null && actualAway!==null && actualWinner){
+          const predictedWinner=predicted.winner || (
+            predicted.homeScore!==null && predicted.awayScore!==null
+              ? predicted.homeScore>predicted.awayScore ? 'home' : predicted.awayScore>predicted.homeScore ? 'away' : ''
+              : ''
+          );
+          if(predicted.homeScore!==null && predicted.awayScore!==null && predictedWinner===actualWinner){
+            if(predicted.homeScore===actualHome && predicted.awayScore===actualAway) pts=3;
+            else if((predicted.homeScore-predicted.awayScore)===(actualHome-actualAway)) pts=2;
+            else pts=1;
+          }
+        }
+        total+=pts;
+        rows.push({ id, pts, predicted, actual:match });
+      });
+    });
+    return { total, rows, bracket:true };
+  }
   let winnerPts=0, finalistPts=0, thirdPts=0, semiPts=0, finalScorePts=0, thirdScorePts=0;
   const winner=String(pred.winner || '').trim();
   const finalist=String(pred.finalist || '').trim();
@@ -944,23 +988,30 @@ async function loadChk(){
         tbody+='<tr><td style="color:#ffe600;font-size:11px">Гр.'+gr.group+'</td><td>'+teams+'</td><td>'+( scHtml||'<span class="muted">—</span>')+'</td><td class="pts">'+(gr.groupPts>0?'+'+gr.groupPts:'0')+'</td></tr>';
       });
       if(playoff){
-        const semiActual=Array.isArray(playoff.semi) ? playoff.semi : [];
-        const semiHtml=(playoffScore.semiTeams||[]).map(team=>{
-          const hit=semiActual.length && semiActual.some(actual=>String(actual).toLowerCase()===team.toLowerCase());
-          const cls=semiActual.length ? (hit?'hit':'miss') : '';
-          return '<span class="'+cls+'">'+esc(team)+'</span>';
-        }).join(', ') || '<span class="muted">—</span>';
-        const finalScoreText=playoffScore.finalH===null||playoffScore.finalA===null ? '<span class="muted">—</span>' : esc(String(playoffScore.finalH)+':'+String(playoffScore.finalA));
-        const thirdScoreText=playoffScore.thirdH===null||playoffScore.thirdA===null ? '<span class="muted">—</span>' : esc(String(playoffScore.thirdH)+':'+String(playoffScore.thirdA));
-        tbody += '<tr><td style="color:#ffe600;font-size:11px">ПО</td><td>'
-          + '🏆 '+(playoffScore.winner?esc(playoffScore.winner):'<span class="muted">—</span>')
-          + '<br/>🥈 '+(playoffScore.finalist?esc(playoffScore.finalist):'<span class="muted">—</span>')
-          + '<br/>🥉 '+(playoffScore.third?esc(playoffScore.third):'<span class="muted">—</span>')
-          + '<br/>🎯 '+semiHtml
-          + '</td><td>'
-          + 'Финал: '+finalScoreText
-          + '<br/>3-е место: '+thirdScoreText
-          + '</td><td class="pts">'+(playoffScore.total>0?('+'+playoffScore.total):'0')+'</td></tr>';
+        if(playoffScore.bracket){
+          tbody += '<tr><td style="color:#ffe600;font-size:11px">ПО</td><td>Купон по сетке</td><td>'
+            + 'Матчей с очками: '+playoffScore.rows.filter(r=>r.pts>0).length
+            + ' / '+playoffScore.rows.length
+            + '</td><td class="pts">'+(playoffScore.total>0?('+'+playoffScore.total):'0')+'</td></tr>';
+        }else{
+          const semiActual=Array.isArray(playoff.semi) ? playoff.semi : [];
+          const semiHtml=(playoffScore.semiTeams||[]).map(team=>{
+            const hit=semiActual.length && semiActual.some(actual=>String(actual).toLowerCase()===team.toLowerCase());
+            const cls=semiActual.length ? (hit?'hit':'miss') : '';
+            return '<span class="'+cls+'">'+esc(team)+'</span>';
+          }).join(', ') || '<span class="muted">—</span>';
+          const finalScoreText=playoffScore.finalH===null||playoffScore.finalA===null ? '<span class="muted">—</span>' : esc(String(playoffScore.finalH)+':'+String(playoffScore.finalA));
+          const thirdScoreText=playoffScore.thirdH===null||playoffScore.thirdA===null ? '<span class="muted">—</span>' : esc(String(playoffScore.thirdH)+':'+String(playoffScore.thirdA));
+          tbody += '<tr><td style="color:#ffe600;font-size:11px">ПО</td><td>'
+            + '🏆 '+(playoffScore.winner?esc(playoffScore.winner):'<span class="muted">—</span>')
+            + '<br/>🥈 '+(playoffScore.finalist?esc(playoffScore.finalist):'<span class="muted">—</span>')
+            + '<br/>🥉 '+(playoffScore.third?esc(playoffScore.third):'<span class="muted">—</span>')
+            + '<br/>🎯 '+semiHtml
+            + '</td><td>'
+            + 'Финал: '+finalScoreText
+            + '<br/>3-е место: '+thirdScoreText
+            + '</td><td class="pts">'+(playoffScore.total>0?('+'+playoffScore.total):'0')+'</td></tr>';
+        }
       }
       const tot=groupScore.total+playoffScore.total;
       html+='<div class="card" style="margin-bottom:12px">';

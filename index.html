@@ -932,25 +932,40 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .playoff-section-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
 .playoff-pts{display:inline-block;background:var(--yellow);color:#000;font-family:var(--os);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;margin-left:8px}
 .playoff-pts.big{background:var(--red);color:#fff}
-.playoff-bracket-wrap{display:flex;flex-direction:column;gap:14px;margin-bottom:16px}
+.playoff-bracket-wrap{display:flex;flex-direction:column;gap:14px;margin-bottom:16px;overflow:hidden}
 .playoff-bracket-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .playoff-bracket-deadline{font-size:11px;color:var(--muted2)}
-.playoff-rounds{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.playoff-round-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--r);padding:12px}
+.playoff-rounds{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(255px,255px);gap:16px;overflow-x:auto;padding-bottom:6px;align-items:start;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.playoff-rounds::-webkit-scrollbar{height:10px}
+.playoff-rounds::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:999px}
+.playoff-round-card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px;position:relative;min-height:100%}
+.playoff-round-card:not(:last-child)::after{content:'';position:absolute;top:50%;right:-16px;width:16px;height:2px;background:linear-gradient(90deg,rgba(255,230,0,.28),rgba(255,230,0,.02));transform:translateY(-50%)}
 .playoff-round-label{font-family:var(--os);font-size:13px;color:var(--yellow);margin-bottom:10px;letter-spacing:.4px}
 .playoff-round-empty{font-size:12px;color:var(--muted2);padding:10px 0}
-.playoff-match-card{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 11px;margin-bottom:10px}
+.playoff-round-stack{position:relative}
+.playoff-gap{height:18px}
+.playoff-match-card{background:linear-gradient(180deg,rgba(6,10,18,.86),rgba(15,20,31,.94));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 11px;margin-bottom:10px;box-shadow:0 12px 28px rgba(0,0,0,.18);position:relative}
 .playoff-match-card:last-child{margin-bottom:0}
+.playoff-round-card:not(:last-child) .playoff-match-card::after{content:'';position:absolute;top:50%;right:-17px;width:17px;height:1px;background:rgba(255,255,255,.12);transform:translateY(-50%)}
 .playoff-match-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;color:var(--muted2);margin-bottom:8px}
+.playoff-match-code{display:inline-flex;align-items:center;justify-content:center;min-width:38px;padding:3px 7px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--white);font-family:var(--os);font-size:10px;letter-spacing:.5px}
 .playoff-match-note{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;background:rgba(255,230,0,.08);color:var(--yellow)}
+.playoff-match-kickoff{font-size:10px;color:var(--muted)}
 .playoff-team-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid rgba(255,255,255,.05)}
 .playoff-team-row:first-of-type{border-top:none;padding-top:0}
 .playoff-team-row:last-of-type{padding-bottom:0}
 .playoff-team-main{display:flex;align-items:center;gap:8px;min-width:0}
 .playoff-team-name{font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.playoff-team-name.placeholder{color:var(--muted2);font-style:italic}
 .playoff-team-score{min-width:24px;text-align:right;font-family:var(--os);font-size:18px;color:var(--white)}
 .playoff-team-row.winner .playoff-team-name,.playoff-team-row.winner .playoff-team-score{color:var(--yellow)}
 .playoff-team-row.pending .playoff-team-score{color:var(--muted)}
+.playoff-match-foot{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.08);font-size:10px;color:var(--muted2);line-height:1.45}
+.playoff-points-pill{display:inline-flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:999px;font-family:var(--os);font-size:10px;letter-spacing:.4px;border:1px solid transparent}
+.playoff-points-pill.exact{background:rgba(0,176,80,.14);border-color:rgba(0,176,80,.28);color:#9cf2b9}
+.playoff-points-pill.diff{background:rgba(154,208,255,.12);border-color:rgba(154,208,255,.28);color:#bfe7ff}
+.playoff-points-pill.winner{background:rgba(255,230,0,.12);border-color:rgba(255,230,0,.24);color:#ffe774}
+.playoff-points-pill.miss{background:rgba(232,0,42,.10);border-color:rgba(232,0,42,.18);color:#ff9ca9}
 .playoff-teams-strip{display:flex;flex-wrap:wrap;gap:8px}
 .playoff-team-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.03);font-size:12px}
 .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:8px;margin-bottom:8px}
@@ -1574,7 +1589,9 @@ body.match-rewards-locked{
   .match-rewards-hero{grid-template-columns:minmax(0,1fr) 104px}
   .match-rewards-reaction{min-height:120px}
   .match-rewards-meta{max-height:none;overflow:visible}
-  .playoff-rounds{grid-template-columns:1fr}
+  .playoff-rounds{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:1fr;overflow-x:visible}
+  .playoff-round-card:not(:last-child)::after,.playoff-round-card:not(:last-child) .playoff-match-card::after{display:none}
+  .playoff-gap{display:none}
 }
 @media (max-height:760px){
   .match-rewards-pullquote{display:none}
@@ -8343,15 +8360,10 @@ const PLAYOFF_DEFAULT_BRACKET = {
   ]
 };
 
-const PLAYOFF_SCORING = {
-  winner:    { label: '🏆 Победитель турнира',   pts: 5,  selClass: 'sel',        max: 1 },
-  finalist:  { label: '🥈 Финалист',             pts: 3,  selClass: 'sel-silver', max: 1 },
-  third:     { label: '🥉 3-е место',            pts: 3,  selClass: 'sel-bronze', max: 1 },
-  semi:      { label: '🎯 Полуфиналисты (4)',    pts: 2,  selClass: 'sel-semi',   max: 4 },
-};
+const PLAYOFF_MATCH_POINTS = { exact:3, diff:2, winner:1 };
 
 // playoff state
-let poSel = { winner: null, finalist: null, third: null, semi: [] };
+let poPrediction = { format:'bracket_v2', matches:{} };
 let poTeams = [];
 let poBracket = null;
 let poVoted = false;
@@ -8491,32 +8503,42 @@ function renderPlayoffOverview(bracket){
     </div>
     <div class="playoff-rounds">`;
   bracket.rounds.forEach(round => {
-    html += `<div class="playoff-round-card"><div class="playoff-round-label">${escapeHtml(round.label)}</div>`;
+    const gap = getPlayoffRoundGap(round.key);
+    html += `<div class="playoff-round-card"><div class="playoff-round-label">${escapeHtml(round.label)}</div><div class="playoff-round-stack">`;
     if(!round.matches.length){
       html += `<div class="playoff-round-empty">Матчи пока не добавлены.</div>`;
     } else {
-      round.matches.forEach(match => {
+      round.matches.forEach((match, matchIndex) => {
         const winner = getPlayoffWinnerSide(match);
         const kickoff = formatPlayoffKickoff(match.kickoff);
         const homeScore = match.homeScore === null ? '—' : String(match.homeScore);
         const awayScore = match.awayScore === null ? '—' : String(match.awayScore);
+        const homeName = formatPlayoffTeamLabel(match.home);
+        const awayName = formatPlayoffTeamLabel(match.away);
+        const homePlaceholder = isPlayoffPlaceholderTeam(match.home);
+        const awayPlaceholder = isPlayoffPlaceholderTeam(match.away);
+        if(matchIndex > 0 && gap > 0) html += `<div class="playoff-gap" style="height:${gap}px"></div>`;
         html += `<div class="playoff-match-card">
           <div class="playoff-match-meta">
-            <span>${kickoff ? escapeHtml(kickoff) : 'Дата уточняется'}</span>
+            <span class="playoff-match-code">${escapeHtml(String(match.id || '').toUpperCase())}</span>
+            <span class="playoff-match-kickoff">${kickoff ? escapeHtml(kickoff) : 'Дата уточняется'}</span>
+          </div>
+          <div class="playoff-match-meta">
             ${match.note ? `<span class="playoff-match-note">${escapeHtml(match.note)}</span>` : ''}
           </div>
           <div class="playoff-team-row ${winner==='home' ? 'winner' : ''} ${match.homeScore===null ? 'pending' : ''}">
-            <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(match.home))}</span><span class="playoff-team-name">${escapeHtml(match.home || 'TBD')}</span></div>
+            <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(match.home))}</span><span class="playoff-team-name${homePlaceholder ? ' placeholder' : ''}">${escapeHtml(homeName)}</span></div>
             <span class="playoff-team-score">${homeScore}</span>
           </div>
           <div class="playoff-team-row ${winner==='away' ? 'winner' : ''} ${match.awayScore===null ? 'pending' : ''}">
-            <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(match.away))}</span><span class="playoff-team-name">${escapeHtml(match.away || 'TBD')}</span></div>
+            <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(match.away))}</span><span class="playoff-team-name${awayPlaceholder ? ' placeholder' : ''}">${escapeHtml(awayName)}</span></div>
             <span class="playoff-team-score">${awayScore}</span>
           </div>
+          ${(homePlaceholder || awayPlaceholder) ? `<div class="playoff-match-foot">Слоты-заглушки заменятся на реальные команды, как только админ обновит сетку.</div>` : ''}
         </div>`;
       });
     }
-    html += `</div>`;
+    html += `</div></div>`;
   });
   html += `</div></div>`;
   return html;
@@ -8529,13 +8551,212 @@ function findTeamFlag(name){
   return found ? found.flag : '🏳️';
 }
 
+function getPlayoffRoundGap(roundKey){
+  if(roundKey === 'round_of_16') return 22;
+  if(roundKey === 'quarterfinal') return 54;
+  if(roundKey === 'semifinal') return 108;
+  return 0;
+}
+
+function formatPlayoffTeamLabel(name){
+  const clean = String(name || '').trim();
+  if(!clean) return 'TBD';
+  const map = {
+    '1A':'1-е место A','1B':'1-е место B','1C':'1-е место C','1D':'1-е место D','1E':'1-е место E','1F':'1-е место F',
+    '1G':'1-е место G','1H':'1-е место H','1I':'1-е место I','1J':'1-е место J','1K':'1-е место K','1L':'1-е место L',
+    '2A':'2-е место A','2B':'2-е место B','2C':'2-е место C','2D':'2-е место D','2E':'2-е место E','2F':'2-е место F',
+    '2G':'2-е место G','2H':'2-е место H','2I':'2-е место I','2J':'2-е место J','2K':'2-е место K','2L':'2-е место L',
+    'W73':'Победитель M73','W74':'Победитель M74','W75':'Победитель M75','W76':'Победитель M76','W77':'Победитель M77','W78':'Победитель M78',
+    'W79':'Победитель M79','W80':'Победитель M80','W81':'Победитель M81','W82':'Победитель M82','W83':'Победитель M83','W84':'Победитель M84',
+    'W85':'Победитель M85','W86':'Победитель M86','W87':'Победитель M87','W88':'Победитель M88','W89':'Победитель M89','W90':'Победитель M90',
+    'W91':'Победитель M91','W92':'Победитель M92','W93':'Победитель M93','W94':'Победитель M94','W95':'Победитель M95','W96':'Победитель M96',
+    'W97':'Победитель M97','W98':'Победитель M98','W99':'Победитель M99','W100':'Победитель M100','W101':'Победитель M101','W102':'Победитель M102',
+    'L101':'Проигравший M101','L102':'Проигравший M102'
+  };
+  if(map[clean]) return map[clean];
+  if(/^3[A-L]+$/i.test(clean)) return `Лучшая 3-я: ${clean.slice(1).split('').join('/')}`;
+  return clean;
+}
+
+function buildBracketMatchMap(bracket){
+  const map = {};
+  (bracket && Array.isArray(bracket.rounds) ? bracket.rounds : []).forEach(round => {
+    (round.matches || []).forEach(match => { map[String(match.id || '').toUpperCase()] = match; });
+  });
+  return map;
+}
+
+function normalizePredictionWinner(value){
+  const token = String(value || '').trim().toLowerCase();
+  return token === 'home' || token === 'away' ? token : '';
+}
+
+function normalizePlayoffPrediction(raw){
+  const matches = {};
+  if(raw && typeof raw === 'object' && raw.format === 'bracket_v2'){
+    if(Array.isArray(raw.matches)){
+      raw.matches.forEach(item => {
+        const id = String(item && item.id || '').toUpperCase();
+        if(!id) return;
+        matches[id] = {
+          homeScore: item && item.homeScore !== undefined && item.homeScore !== null ? String(item.homeScore).trim() : '',
+          awayScore: item && item.awayScore !== undefined && item.awayScore !== null ? String(item.awayScore).trim() : '',
+          winner: normalizePredictionWinner(item && item.winner)
+        };
+      });
+    } else if(raw.matches && typeof raw.matches === 'object'){
+      Object.entries(raw.matches).forEach(([id, item]) => {
+        const key = String(id || '').toUpperCase();
+        if(!key) return;
+        matches[key] = {
+          homeScore: item && item.homeScore !== undefined && item.homeScore !== null ? String(item.homeScore).trim() : '',
+          awayScore: item && item.awayScore !== undefined && item.awayScore !== null ? String(item.awayScore).trim() : '',
+          winner: normalizePredictionWinner(item && item.winner)
+        };
+      });
+    }
+    return { format:'bracket_v2', matches };
+  }
+  return { format:'legacy', raw: raw || {}, matches:{} };
+}
+
+function createPlayoffPredictionState(bracket, rawPrediction){
+  const normalized = normalizePlayoffPrediction(rawPrediction);
+  const state = { format:'bracket_v2', matches:{} };
+  (bracket && Array.isArray(bracket.rounds) ? bracket.rounds : []).forEach(round => {
+    (round.matches || []).forEach(match => {
+      const id = String(match.id || '').toUpperCase();
+      const existing = normalized.format === 'bracket_v2' ? normalized.matches[id] : null;
+      state.matches[id] = {
+        homeScore: existing ? existing.homeScore : '',
+        awayScore: existing ? existing.awayScore : '',
+        winner: existing ? existing.winner : ''
+      };
+    });
+  });
+  return state;
+}
+
+function getPredictionMatchState(matchId){
+  const id = String(matchId || '').toUpperCase();
+  if(!poPrediction.matches[id]) poPrediction.matches[id] = { homeScore:'', awayScore:'', winner:'' };
+  return poPrediction.matches[id];
+}
+
+function getPredictionWinnerSide(matchState){
+  const explicit = normalizePredictionWinner(matchState && matchState.winner);
+  if(explicit) return explicit;
+  const h = parsePlayoffInt(matchState && matchState.homeScore);
+  const a = parsePlayoffInt(matchState && matchState.awayScore);
+  if(h === null || a === null) return '';
+  if(h > a) return 'home';
+  if(a > h) return 'away';
+  return '';
+}
+
+function resolvePlayoffSlotLabel(token, bracketMap, predictionMatches, mode='prediction'){
+  const clean = String(token || '').trim();
+  if(!clean) return '';
+  if(/^W\d+$/i.test(clean) || /^L\d+$/i.test(clean)){
+    const matchId = 'M' + clean.slice(1);
+    const match = bracketMap[matchId];
+    if(!match) return formatPlayoffTeamLabel(clean);
+    const sourceState = mode === 'prediction'
+      ? (predictionMatches[String(matchId).toUpperCase()] || { homeScore:'', awayScore:'', winner:'' })
+      : match;
+    const side = /^W/i.test(clean)
+      ? (mode === 'prediction' ? getPredictionWinnerSide(sourceState) : getPlayoffWinnerSide(sourceState))
+      : (function(){
+          const win = mode === 'prediction' ? getPredictionWinnerSide(sourceState) : getPlayoffWinnerSide(sourceState);
+          return win === 'home' ? 'away' : win === 'away' ? 'home' : '';
+        })();
+    if(side === 'home') return resolvePlayoffSlotLabel(match.home, bracketMap, predictionMatches, mode);
+    if(side === 'away') return resolvePlayoffSlotLabel(match.away, bracketMap, predictionMatches, mode);
+    return formatPlayoffTeamLabel(clean);
+  }
+  return formatPlayoffTeamLabel(clean);
+}
+
+function resolvePlayoffSlotFlag(token, bracketMap, predictionMatches, mode='prediction'){
+  const label = resolvePlayoffSlotLabel(token, bracketMap, predictionMatches, mode);
+  return findTeamFlag(label);
+}
+
+function updatePredictionWinnerFromScores(matchId){
+  const state = getPredictionMatchState(matchId);
+  const h = parsePlayoffInt(state.homeScore);
+  const a = parsePlayoffInt(state.awayScore);
+  if(h === null || a === null) return;
+  if(h > a) state.winner = 'home';
+  else if(a > h) state.winner = 'away';
+}
+
+function setPlayoffPredictionScore(matchId, side, value){
+  const state = getPredictionMatchState(matchId);
+  state[side] = String(value || '').trim();
+  updatePredictionWinnerFromScores(matchId);
+  renderPlayoffForm(renderPlayoffOverview(poBracket), getPlayoffDeadline(poBracket));
+}
+
+function setPlayoffPredictionWinner(matchId, winner){
+  const state = getPredictionMatchState(matchId);
+  const h = parsePlayoffInt(state.homeScore);
+  const a = parsePlayoffInt(state.awayScore);
+  if(h !== null && a !== null && h !== a){
+    state.winner = h > a ? 'home' : 'away';
+  }else{
+    state.winner = normalizePredictionWinner(winner);
+  }
+  renderPlayoffForm(renderPlayoffOverview(poBracket), getPlayoffDeadline(poBracket));
+}
+
+function isPlayoffPredictionComplete(bracket){
+  const rounds = bracket && Array.isArray(bracket.rounds) ? bracket.rounds : [];
+  for(const round of rounds){
+    for(const match of (round.matches || [])){
+      const state = getPredictionMatchState(match.id);
+      if(state.homeScore === '' || state.awayScore === '') return false;
+      if(!getPredictionWinnerSide(state)) return false;
+    }
+  }
+  return rounds.length > 0;
+}
+
+function buildPlayoffSavePayload(){
+  const matches = [];
+  Object.entries(poPrediction.matches || {}).forEach(([id, item]) => {
+    matches.push({
+      id,
+      homeScore: item.homeScore === '' ? null : parsePlayoffInt(item.homeScore),
+      awayScore: item.awayScore === '' ? null : parsePlayoffInt(item.awayScore),
+      winner: getPredictionWinnerSide(item)
+    });
+  });
+  return { format:'bracket_v2', matches };
+}
+
+function scoreSinglePlayoffMatch(predState, actualMatch){
+  const actualHome = parsePlayoffInt(actualMatch && actualMatch.homeScore);
+  const actualAway = parsePlayoffInt(actualMatch && actualMatch.awayScore);
+  const predictedHome = parsePlayoffInt(predState && predState.homeScore);
+  const predictedAway = parsePlayoffInt(predState && predState.awayScore);
+  const actualWinner = getPlayoffWinnerSide(actualMatch);
+  const predictedWinner = getPredictionWinnerSide(predState);
+  if(actualHome === null || actualAway === null || !actualWinner) return { settled:false, points:0, mode:'pending' };
+  if(predictedHome === null || predictedAway === null || !predictedWinner) return { settled:true, points:0, mode:'miss' };
+  if(predictedWinner !== actualWinner) return { settled:true, points:0, mode:'miss' };
+  if(predictedHome === actualHome && predictedAway === actualAway) return { settled:true, points:PLAYOFF_MATCH_POINTS.exact, mode:'exact' };
+  if((predictedHome - predictedAway) === (actualHome - actualAway)) return { settled:true, points:PLAYOFF_MATCH_POINTS.diff, mode:'diff' };
+  return { settled:true, points:PLAYOFF_MATCH_POINTS.winner, mode:'winner' };
+}
+
 // ══════════════════════════════════════════════
 //  LOAD PLAYOFF PAGE
 // ══════════════════════════════════════════════
 async function loadPlayoffPage() {
   const content = document.getElementById('playoff-content');
   if (!content) return;
-  poSel = { winner: null, finalist: null, third: null, semi: [] };
+  poPrediction = { format:'bracket_v2', matches:{} };
   poVoted = false;
 
   if (!S.code) {
@@ -8563,7 +8784,11 @@ async function loadPlayoffPage() {
     const poCheck = await api({ action: 'getPlayoff', code: S.code });
     if (poCheck.ok && poCheck.prediction) {
       poVoted = true;
-      renderPlayoffVoted(poCheck.prediction, lb.results, bracketHtml);
+      if(String(poCheck.prediction.format || '') === 'bracket_v2'){
+        renderPlayoffBracketVoted(poCheck.prediction, lb.results, bracketHtml);
+      }else{
+        renderPlayoffVoted(poCheck.prediction, lb.results, bracketHtml);
+      }
       return;
     }
 
@@ -8591,6 +8816,7 @@ async function loadPlayoffPage() {
       return;
     }
 
+    poPrediction = createPlayoffPredictionState(poBracket, null);
     renderPlayoffForm(bracketHtml, deadline);
 
   } catch(e) {
@@ -8603,123 +8829,62 @@ async function loadPlayoffPage() {
 // ══════════════════════════════════════════════
 function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
   const content = document.getElementById('playoff-content');
-
+  const bracketMap = buildBracketMatchMap(poBracket);
   let html = `${bracketHtml}<div class="alert alert-warn show" style="margin-bottom:20px">
-    ⚠️ Один купон навсегда. Дедлайн: ${escapeHtml(formatPlayoffKickoff(deadline.toISOString()))}. Потом — только смотреть.
+    ⚠️ Один купон навсегда. Для каждого матча выбери, кто проходит дальше, и впиши счёт. Дедлайн: ${escapeHtml(formatPlayoffKickoff(String(poBracket && poBracket.deadline || deadline.toISOString())))}.
   </div>`;
 
-  // For each category
-  for (const [key, cfg] of Object.entries(PLAYOFF_SCORING)) {
-    html += `<div class="playoff-section">
-      <div class="playoff-section-title">${cfg.label} <span class="playoff-pts${cfg.pts >= 5 ? ' big' : ''}">+${cfg.pts} очков</span></div>
-      <div class="playoff-section-sub">${key === 'semi' ? 'Выбери 4 команды' : 'Выбери 1 команду'}${key === 'winner' ? ' — максимальный приз' : ''}</div>
-      <div class="team-grid" id="po-grid-${key}">`;
-
-    poTeams.forEach((t, idx) => {
-      const token = `po_team_${key}_${idx}`;
-      window[token] = t.name;
-      html += `<button class="playoff-team-btn" id="po-${key}-${t.name.replace(/[\s']/g,'_')}"
-        onclick="poSelect('${key}',window['${token}'])">
-        <span class="tf">${escapeHtml(t.flag)}</span>
-        <span class="tn">${escapeHtml(t.name)}</span>
-        <span class="tc">✓</span>
-      </button>`;
-    });
-
-    html += `</div>
-      <div class="gc-progress" id="po-counter-${key}">
-        ${key === 'semi' ? 'Выбрано: 0 / 4' : 'Не выбрано'}
-      </div>
-    </div>`;
-  }
-
-  // Final score
   html += `<div class="playoff-section">
-    <div class="playoff-section-title">⚽ Счёт финала <span class="playoff-pts big">+5 очков</span></div>
-    <div class="playoff-section-sub">Необязательно. Но +5 за точный — не упускай.</div>
-    <div class="score-row">
-      <input type="number" min="0" max="20" placeholder="?" id="po-final-h" class="score-input" onwheel="this.blur()"/>
-      <div class="score-vs">:</div>
-      <input type="number" min="0" max="20" placeholder="?" id="po-final-a" class="score-input" onwheel="this.blur()"/>
-    </div>
-  </div>
+    <div class="playoff-section-title">🎯 Твой Купон Плей-офф</div>
+    <div class="playoff-section-sub">Очки считаются по каждому матчу: +3 за точный счёт и проход, +2 за разницу и проход, +1 только за проход дальше.</div>
+    <div class="playoff-rounds">`;
 
-  <div class="playoff-section">
-    <div class="playoff-section-title">🥉 Счёт матча за 3-е место <span class="playoff-pts">+3 очка</span></div>
-    <div class="playoff-section-sub">Необязательно.</div>
-    <div class="score-row">
-      <input type="number" min="0" max="20" placeholder="?" id="po-third-h" class="score-input" onwheel="this.blur()"/>
-      <div class="score-vs">:</div>
-      <input type="number" min="0" max="20" placeholder="?" id="po-third-a" class="score-input" onwheel="this.blur()"/>
-    </div>
-  </div>
-
-  <button class="btn btn-yellow btn-full" id="po-save-btn" onclick="savePlayoff()" disabled style="margin-top:8px">
-    ЗАФИКСИРОВАТЬ ПРОГНОЗ →
-  </button>
-  <p style="font-size:11px;color:var(--muted2);text-align:center;margin-top:10px">
-    После сохранения изменить нельзя. Навсегда. Как выбор в жизни.
-  </p>`;
-
-  content.innerHTML = html;
-}
-
-// ══════════════════════════════════════════════
-//  PLAYOFF SELECTION
-// ══════════════════════════════════════════════
-function poSelect(key, name) {
-  const cfg = PLAYOFF_SCORING[key];
-  if (!cfg) return;
-  soundClick();
-
-  if (key === 'semi') {
-    const idx = poSel.semi.indexOf(name);
-    if (idx >= 0) {
-      poSel.semi.splice(idx, 1);
-    } else {
-      if (poSel.semi.length >= 4) { toast('⛔ Уже 4 команды выбраны', 'err'); return; }
-      poSel.semi.push(name);
-    }
-  } else {
-    poSel[key] = poSel[key] === name ? null : name;
-  }
-
-  // Update UI
-  poTeams.forEach(t => {
-    const btn = document.getElementById(`po-${key}-${t.name.replace(/[\s']/g,'_')}`);
-    if (!btn) return;
-    btn.className = 'playoff-team-btn';
-    if (key === 'semi') {
-      if (poSel.semi.includes(t.name)) btn.classList.add(cfg.selClass);
-    } else {
-      if (poSel[key] === t.name) btn.classList.add(cfg.selClass);
-    }
+  (poBracket.rounds || []).forEach(round => {
+    const gap = getPlayoffRoundGap(round.key);
+    html += `<div class="playoff-round-card"><div class="playoff-round-label">${escapeHtml(round.label)}</div><div class="playoff-round-stack">`;
+    (round.matches || []).forEach((match, matchIndex) => {
+      const state = getPredictionMatchState(match.id);
+      const winner = getPredictionWinnerSide(state);
+      const homeLabel = resolvePlayoffSlotLabel(match.home, bracketMap, poPrediction.matches, 'prediction');
+      const awayLabel = resolvePlayoffSlotLabel(match.away, bracketMap, poPrediction.matches, 'prediction');
+      const homeFlag = resolvePlayoffSlotFlag(match.home, bracketMap, poPrediction.matches, 'prediction');
+      const awayFlag = resolvePlayoffSlotFlag(match.away, bracketMap, poPrediction.matches, 'prediction');
+      const homePlaceholder = isPlayoffPlaceholderTeam(match.home);
+      const awayPlaceholder = isPlayoffPlaceholderTeam(match.away);
+      if(matchIndex > 0 && gap > 0) html += `<div class="playoff-gap" style="height:${gap}px"></div>`;
+      html += `<div class="playoff-match-card">
+        <div class="playoff-match-meta">
+          <span class="playoff-match-code">${escapeHtml(String(match.id || '').toUpperCase())}</span>
+          <span class="playoff-match-kickoff">${escapeHtml(formatPlayoffKickoff(match.kickoff) || 'Дата уточняется')}</span>
+        </div>
+        <div class="playoff-match-meta">${match.note ? `<span class="playoff-match-note">${escapeHtml(match.note)}</span>` : ''}</div>
+        <button type="button" class="playoff-team-row ${winner==='home' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','home')" style="width:100%;background:transparent;border:none;cursor:pointer">
+          <div class="playoff-team-main"><span>${escapeHtml(homeFlag)}</span><span class="playoff-team-name${homePlaceholder ? ' placeholder' : ''}">${escapeHtml(homeLabel)}</span></div>
+          <span class="playoff-team-score">${winner==='home' ? '✓' : ''}</span>
+        </button>
+        <button type="button" class="playoff-team-row ${winner==='away' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','away')" style="width:100%;background:transparent;border:none;cursor:pointer">
+          <div class="playoff-team-main"><span>${escapeHtml(awayFlag)}</span><span class="playoff-team-name${awayPlaceholder ? ' placeholder' : ''}">${escapeHtml(awayLabel)}</span></div>
+          <span class="playoff-team-score">${winner==='away' ? '✓' : ''}</span>
+        </button>
+        <div class="score-row" style="max-width:none;margin-top:10px">
+          <input type="number" min="0" max="20" placeholder="?" class="score-input" value="${escapeHtml(state.homeScore)}" oninput="setPlayoffPredictionScore('${escapeHtml(String(match.id || '').toUpperCase())}','homeScore',this.value)" onwheel="this.blur()"/>
+          <div class="score-vs">:</div>
+          <input type="number" min="0" max="20" placeholder="?" class="score-input" value="${escapeHtml(state.awayScore)}" oninput="setPlayoffPredictionScore('${escapeHtml(String(match.id || '').toUpperCase())}','awayScore',this.value)" onwheel="this.blur()"/>
+        </div>
+        <div class="playoff-match-foot">Если ставишь ничью по счёту, обязательно кликни команду, которая пройдёт дальше.</div>
+      </div>`;
+    });
+    html += `</div></div>`;
   });
 
-  // Counter
-  const ctr = document.getElementById(`po-counter-${key}`);
-  if (ctr) {
-    if (key === 'semi') {
-      ctr.textContent = `Выбрано: ${poSel.semi.length} / 4`;
-      ctr.className = 'gc-progress' + (poSel.semi.length === 4 ? ' ok' : '');
-    } else {
-      ctr.textContent = poSel[key] ? `✅ ${poSel[key]}` : 'Не выбрано';
-      ctr.className = 'gc-progress' + (poSel[key] ? ' ok' : '');
-    }
-  }
+  html += `</div>
+    <button class="btn btn-yellow btn-full" id="po-save-btn" onclick="savePlayoff()" ${isPlayoffPredictionComplete(poBracket) ? '' : 'disabled'} style="margin-top:8px">
+      ЗАФИКСИРОВАТЬ КУПОН ПО СЕТКЕ →
+    </button>
+    <p style="font-size:11px;color:var(--muted2);text-align:center;margin-top:10px">После сохранения изменить нельзя.</p>
+  </div>`;
 
-  // Validate
-  updatePoSaveBtn();
-
-  // Vasya comment
-  if ((key === 'winner' || key === 'finalist') && poSel[key]) showVasya(name);
-}
-
-function updatePoSaveBtn() {
-  const btn = document.getElementById('po-save-btn');
-  if (!btn) return;
-  const ok = poSel.winner && poSel.finalist && poSel.third && poSel.semi.length === 4;
-  btn.disabled = !ok;
+  content.innerHTML = html;
 }
 
 // ══════════════════════════════════════════════
@@ -8727,20 +8892,17 @@ function updatePoSaveBtn() {
 // ══════════════════════════════════════════════
 async function savePlayoff() {
   const btn = document.getElementById('po-save-btn');
+  if(!isPlayoffPredictionComplete(poBracket)){
+    toast('⛔ Заполни победителя и счёт для всех матчей', 'err');
+    return;
+  }
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Фиксируем...';
 
   const params = {
     action: 'savePlayoff',
     code: S.code,
-    winner:   poSel.winner   || '',
-    finalist: poSel.finalist || '',
-    third:    poSel.third    || '',
-    semi:     poSel.semi.join('|'),
-    finalH:   document.getElementById('po-final-h').value || '',
-    finalA:   document.getElementById('po-final-a').value || '',
-    thirdH:   document.getElementById('po-third-h').value || '',
-    thirdA:   document.getElementById('po-third-a').value || '',
+    ...buildPlayoffSavePayload(),
   };
 
   try {
@@ -8753,21 +8915,21 @@ async function savePlayoff() {
       const lb = await api({ action: 'getLeaderboard' });
       poBracket = normalizePlayoffBracket(lb.ok && lb.results ? (lb.results._PLAYOFF || lb.results._playoff) : null);
       poTeams = collectPlayoffTeams(lb.ok ? lb.results : {}, poBracket);
-      renderPlayoffVoted(params, lb.ok ? lb.results : {}, renderPlayoffOverview(poBracket));
+      renderPlayoffBracketVoted(params, lb.ok ? lb.results : {}, renderPlayoffOverview(poBracket));
     } else {
       toast('❌ ' + (r.error || 'Ошибка'), 'err');
       btn.disabled = false;
-      btn.textContent = 'ЗАФИКСИРОВАТЬ ПРОГНОЗ →';
+      btn.textContent = 'ЗАФИКСИРОВАТЬ КУПОН ПО СЕТКЕ →';
     }
   } catch(e) {
     toast('❌ Ошибка сети', 'err');
     btn.disabled = false;
-    btn.textContent = 'ЗАФИКСИРОВАТЬ ПРОГНОЗ →';
+    btn.textContent = 'ЗАФИКСИРОВАТЬ КУПОН ПО СЕТКЕ →';
   }
 }
 
 // ══════════════════════════════════════════════
-//  SHOW VOTED PLAYOFF
+//  SHOW VOTED PLAYOFF (LEGACY)
 // ══════════════════════════════════════════════
 function renderPlayoffVoted(pred, results, bracketHtml='') {
   const content = document.getElementById('playoff-content');
@@ -8831,6 +8993,64 @@ function renderPlayoffVoted(pred, results, bracketHtml='') {
   });
 
   html += '</div>';
+  content.innerHTML = html;
+}
+
+function renderPlayoffBracketVoted(pred, results, bracketHtml=''){
+  const content = document.getElementById('playoff-content');
+  const actualBracket = normalizePlayoffBracket(results && (results._PLAYOFF || results._playoff));
+  const actualMap = buildBracketMatchMap(actualBracket);
+  const normalizedPred = createPlayoffPredictionState(actualBracket, pred);
+  unlockAch('playoff_saved');
+
+  let total = 0;
+  let html = `${bracketHtml}<div class="alert alert-warn show" style="margin-bottom:20px">🔒 Купон плей-офф зафиксирован. Ниже твой прогноз по всем матчам.</div>`;
+  html += `<div class="playoff-section"><div class="playoff-section-title">🧾 Разбор Купона</div><div class="playoff-section-sub">Начисление как в группе, но с учётом того, кто прошёл дальше.</div>`;
+
+  (actualBracket.rounds || []).forEach(round => {
+    html += `<div class="playoff-round-label" style="margin-top:18px">${escapeHtml(round.label)}</div>`;
+    (round.matches || []).forEach(match => {
+      const predState = normalizedPred.matches[String(match.id || '').toUpperCase()] || { homeScore:'', awayScore:'', winner:'' };
+      const scoring = scoreSinglePlayoffMatch(predState, match);
+      total += scoring.points;
+      const homeLabel = resolvePlayoffSlotLabel(match.home, actualMap, normalizedPred.matches, 'actual');
+      const awayLabel = resolvePlayoffSlotLabel(match.away, actualMap, normalizedPred.matches, 'actual');
+      const predWinner = getPredictionWinnerSide(predState);
+      const actualWinner = getPlayoffWinnerSide(match);
+      const mood = scoring.mode === 'exact' ? 'exact' : scoring.mode === 'diff' ? 'diff' : scoring.mode === 'winner' ? 'winner' : 'miss';
+      const moodLabel = scoring.mode === 'exact'
+        ? 'Точный счёт + проход'
+        : scoring.mode === 'diff'
+          ? 'Разница + проход'
+          : scoring.mode === 'winner'
+            ? 'Только проход'
+            : scoring.settled
+              ? 'Мимо'
+              : 'Ждём матч';
+      html += `<div class="playoff-match-card" style="margin-bottom:12px">
+        <div class="playoff-match-meta">
+          <span class="playoff-match-code">${escapeHtml(String(match.id || '').toUpperCase())}</span>
+          <span class="playoff-match-kickoff">${escapeHtml(formatPlayoffKickoff(match.kickoff) || 'Дата уточняется')}</span>
+        </div>
+        <div class="playoff-team-row ${actualWinner==='home' ? 'winner' : ''}">
+          <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(homeLabel))}</span><span class="playoff-team-name">${escapeHtml(homeLabel)}</span></div>
+          <span class="playoff-team-score">${match.homeScore === null ? '—' : match.homeScore}</span>
+        </div>
+        <div class="playoff-team-row ${actualWinner==='away' ? 'winner' : ''}">
+          <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(awayLabel))}</span><span class="playoff-team-name">${escapeHtml(awayLabel)}</span></div>
+          <span class="playoff-team-score">${match.awayScore === null ? '—' : match.awayScore}</span>
+        </div>
+        <div class="playoff-match-foot">
+          Твой счёт: ${predState.homeScore !== '' || predState.awayScore !== '' ? `${escapeHtml(predState.homeScore || '?')}:${escapeHtml(predState.awayScore || '?')}` : '—'} ·
+          Проходит: ${predWinner ? (predWinner === 'home' ? escapeHtml(homeLabel) : escapeHtml(awayLabel)) : '—'} ·
+          Очки: <strong class="po-pts ${mood === 'miss' ? 'miss' : 'hit'}">${scoring.settled ? `+${scoring.points}` : '—'}</strong>
+          <span class="playoff-points-pill ${mood}">${escapeHtml(moodLabel)}</span>
+        </div>
+      </div>`;
+    });
+  });
+
+  html += `<div class="po-voted-row" style="border-bottom:none;padding-top:18px"><span class="po-voted-label">Итого за плей-офф</span><span class="po-pts hit" style="font-size:22px">+${total}</span></div></div>`;
   content.innerHTML = html;
 }
 
