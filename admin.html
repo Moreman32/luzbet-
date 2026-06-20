@@ -50,15 +50,28 @@ tr:hover td{background:#1a1a1a}
 .playoff-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px}
 .playoff-round{background:#161616;border:1px solid #222;border-radius:6px;padding:12px}
 .playoff-round-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-.playoff-match{background:#0f0f0f;border:1px solid #232323;border-radius:6px;padding:10px;margin-bottom:8px}
+.playoff-guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:12px}
+.playoff-guide-item{background:#121212;border:1px solid #222;border-radius:6px;padding:10px}
+.playoff-guide-item b{display:block;color:#ffe600;margin-bottom:4px}
+.playoff-match{background:#0f0f0f;border:1px solid #232323;border-radius:8px;padding:12px;margin-bottom:8px}
 .playoff-match:last-child{margin-bottom:0}
-.playoff-match-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.playoff-score-row{display:grid;grid-template-columns:72px 72px 1fr;gap:8px;align-items:end;margin-top:8px}
+.playoff-match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.playoff-score-row{display:grid;grid-template-columns:72px 72px 1fr;gap:8px;align-items:end;margin-top:10px}
 .playoff-inline-note{font-size:11px;color:#777}
 .playoff-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.playoff-sec{margin-top:10px;padding-top:10px;border-top:1px solid #1d1d1d}
+.playoff-sec:first-of-type{margin-top:0;padding-top:0;border-top:none}
+.playoff-sec-title{font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.playoff-match-id-row{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:end;margin-bottom:10px}
+.playoff-preview{margin-top:10px;background:#151515;border:1px solid #262626;border-radius:6px;padding:9px 10px;font-size:12px}
+.playoff-preview b{color:#fff}
+.playoff-preview.ok{border-color:rgba(0,176,80,.35);background:rgba(0,176,80,.08)}
+.playoff-preview.warn{border-color:rgba(255,184,0,.35);background:rgba(255,184,0,.07)}
+.playoff-preview.err{border-color:rgba(255,68,68,.35);background:rgba(255,68,68,.07)}
+.playoff-row-tools{display:flex;gap:8px;flex-wrap:wrap}
 textarea{min-height:72px;resize:vertical}
 @media (max-width: 760px){
-  .playoff-top,.playoff-match-grid,.playoff-score-row{grid-template-columns:1fr}
+  .playoff-top,.playoff-match-grid,.playoff-score-row,.playoff-match-id-row{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -739,6 +752,11 @@ function buildPlayoffForm(){
       <span>Закрыть приём купонов вручную</span>
     </label>
   </div>`;
+  html += `<div class="playoff-guide">
+    <div class="playoff-guide-item"><b>1. Участники</b>Впиши реальные команды или слоты сетки вроде <span style="color:#ffe600">1A</span>, <span style="color:#ffe600">W89</span>, <span style="color:#ffe600">L101</span>.</div>
+    <div class="playoff-guide-item"><b>2. Дата и счёт</b>Когда матч известен, укажи дату. После игры впиши счёт.</div>
+    <div class="playoff-guide-item"><b>3. Кто проходит</b>Если победитель ясен по счёту, оставь <span style="color:#ffe600">Авто по счёту</span>. Если ничья, выбери вручную.</div>
+  </div>`;
   html += '<div class="playoff-grid">';
   playoffState.rounds.forEach(round=>{
     html += `<div class="playoff-round">
@@ -753,46 +771,62 @@ function buildPlayoffForm(){
       html += '<div class="playoff-inline-note">Матчей пока нет. Добавь нужные пары для этого раунда.</div>';
     }
     round.matches.forEach((match,idx)=>{
+      const preview=getPlayoffMatchPreview(match);
+      const homeName=String(match.home || '').trim() || 'Команда 1';
+      const awayName=String(match.away || '').trim() || 'Команда 2';
       html += `<div class="playoff-match">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">
           <b style="color:#ffe600">${esc(round.label)} • матч ${idx+1}</b>
           <button class="btn bg" onclick="removePlayoffMatch('${round.key}',${idx})">Удалить</button>
         </div>
-        <div class="playoff-match-grid">
+        <div class="playoff-match-id-row">
           <div>
-            <div class="gl">Команда 1</div>
-            <input type="text" value="${esc(match.home)}" placeholder="Например, Бразилия" oninput="updatePlayoffMatch('${round.key}',${idx},'home',this.value)"/>
+            <div class="gl">Код матча</div>
+            <input type="text" value="${esc(match.id)}" placeholder="m97" oninput="updatePlayoffMatch('${round.key}',${idx},'id',this.value)"/>
           </div>
           <div>
-            <div class="gl">Команда 2</div>
-            <input type="text" value="${esc(match.away)}" placeholder="Например, Япония" oninput="updatePlayoffMatch('${round.key}',${idx},'away',this.value)"/>
-          </div>
-        </div>
-        <div style="margin-top:8px">
-          <div class="gl">Дата и время</div>
-          <input type="datetime-local" value="${esc(match.kickoff)}" oninput="updatePlayoffMatch('${round.key}',${idx},'kickoff',this.value)"/>
-        </div>
-        <div class="playoff-score-row">
-          <div>
-            <div class="gl">Счёт 1</div>
-            <input type="number" value="${esc(match.homeScore)}" min="0" max="20" oninput="updatePlayoffMatch('${round.key}',${idx},'homeScore',this.value)"/>
-          </div>
-          <div>
-            <div class="gl">Счёт 2</div>
-            <input type="number" value="${esc(match.awayScore)}" min="0" max="20" oninput="updatePlayoffMatch('${round.key}',${idx},'awayScore',this.value)"/>
-          </div>
-          <div>
-            <div class="gl">Победитель</div>
-            <select oninput="updatePlayoffMatch('${round.key}',${idx},'winner',this.value)">
-              <option value="" ${!match.winner?'selected':''}>Авто по счёту</option>
-              <option value="home" ${match.winner==='home'?'selected':''}>Команда 1</option>
-              <option value="away" ${match.winner==='away'?'selected':''}>Команда 2</option>
-            </select>
+            <div class="gl">Дата и время</div>
+            <input type="datetime-local" value="${esc(match.kickoff)}" oninput="updatePlayoffMatch('${round.key}',${idx},'kickoff',this.value)"/>
           </div>
         </div>
-        <div style="margin-top:8px">
-          <div class="gl">Примечание</div>
-          <textarea oninput="updatePlayoffMatch('${round.key}',${idx},'note',this.value)" placeholder="Например: по пенальти, после доп. времени">${esc(match.note)}</textarea>
+        <div class="playoff-sec">
+          <div class="playoff-sec-title">Участники пары</div>
+          <div class="playoff-match-grid">
+            <div>
+              <div class="gl">Команда / слот 1</div>
+              <input type="text" value="${esc(match.home)}" placeholder="Например, Бразилия или 1A" onchange="updatePlayoffMatchAndRefresh('${round.key}',${idx},'home',this.value)" oninput="updatePlayoffMatch('${round.key}',${idx},'home',this.value)"/>
+            </div>
+            <div>
+              <div class="gl">Команда / слот 2</div>
+              <input type="text" value="${esc(match.away)}" placeholder="Например, Япония или W89" onchange="updatePlayoffMatchAndRefresh('${round.key}',${idx},'away',this.value)" oninput="updatePlayoffMatch('${round.key}',${idx},'away',this.value)"/>
+            </div>
+          </div>
+        </div>
+        <div class="playoff-sec">
+          <div class="playoff-sec-title">Результат матча</div>
+          <div class="playoff-score-row">
+            <div>
+              <div class="gl">${esc(homeName)}</div>
+              <input type="number" value="${esc(match.homeScore)}" min="0" max="20" placeholder="0" onchange="updatePlayoffMatchAndRefresh('${round.key}',${idx},'homeScore',this.value)" oninput="updatePlayoffMatch('${round.key}',${idx},'homeScore',this.value)"/>
+            </div>
+            <div>
+              <div class="gl">${esc(awayName)}</div>
+              <input type="number" value="${esc(match.awayScore)}" min="0" max="20" placeholder="0" onchange="updatePlayoffMatchAndRefresh('${round.key}',${idx},'awayScore',this.value)" oninput="updatePlayoffMatch('${round.key}',${idx},'awayScore',this.value)"/>
+            </div>
+            <div>
+              <div class="gl">Кто проходит дальше</div>
+              <select oninput="updatePlayoffMatchAndRefresh('${round.key}',${idx},'winner',this.value)">
+                <option value="" ${!match.winner?'selected':''}>Авто по счёту</option>
+                <option value="home" ${match.winner==='home'?'selected':''}>${esc(homeName)}</option>
+                <option value="away" ${match.winner==='away'?'selected':''}>${esc(awayName)}</option>
+              </select>
+            </div>
+          </div>
+          <div class="playoff-preview ${preview.cls}"><b>Подсказка:</b> ${esc(preview.text)}</div>
+        </div>
+        <div class="playoff-sec">
+          <div class="playoff-sec-title">Пояснение для сайта</div>
+          <textarea oninput="updatePlayoffMatch('${round.key}',${idx},'note',this.value)" placeholder="Например: после серии пенальти, после доп. времени, стадион">${esc(match.note)}</textarea>
         </div>
       </div>`;
     });
@@ -823,6 +857,39 @@ function updatePlayoffMatch(roundKey,idx,field,value){
   const round=getPlayoffRound(roundKey);
   if(!round.matches[idx]) round.matches[idx]=createEmptyPlayoffMatch(roundKey,idx);
   round.matches[idx][field]=value;
+}
+
+function updatePlayoffMatchAndRefresh(roundKey,idx,field,value){
+  updatePlayoffMatch(roundKey,idx,field,value);
+  buildPlayoffForm();
+}
+
+function getPlayoffMatchWinnerLabel(match){
+  const side=resolveWinner(match);
+  if(side==='home') return String(match&&match.home || '').trim() || 'Команда 1';
+  if(side==='away') return String(match&&match.away || '').trim() || 'Команда 2';
+  return '';
+}
+
+function getPlayoffMatchPreview(match){
+  const home=String(match&&match.home || '').trim();
+  const away=String(match&&match.away || '').trim();
+  const hs=parseScoreValue(match&&match.homeScore);
+  const as=parseScoreValue(match&&match.awayScore);
+  const winner=resolveWinner(match);
+  if(!home && !away && hs===null && as===null){
+    return { cls:'', text:'Сначала укажи команды или слоты вроде 1A / W89. Потом можно будет внести счёт и победителя.' };
+  }
+  if(hs===null || as===null){
+    return { cls:'warn', text:`Пара готова: ${home || 'Команда 1'} vs ${away || 'Команда 2'}. Счёт пока не заполнен.` };
+  }
+  if(hs===as && !winner){
+    return { cls:'err', text:'Ничья по счёту. Обязательно выбери вручную, кто проходит дальше.' };
+  }
+  if(winner){
+    return { cls:'ok', text:`Сейчас дальше проходит: ${getPlayoffMatchWinnerLabel(match)}.` };
+  }
+  return { cls:'warn', text:'Счёт заполнен, но победитель пока не определился.' };
 }
 
 function addPlayoffMatch(roundKey){
