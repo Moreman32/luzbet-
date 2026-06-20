@@ -79,22 +79,18 @@ body{
 .promo-eye{position:relative;z-index:1;font-family:var(--os);font-size:11px;letter-spacing:3px;color:var(--yellow);margin-bottom:10px}
 .promo-title{position:relative;z-index:1;font-family:var(--os);font-size:clamp(28px,7vw,58px);font-weight:700;color:#fff;line-height:.96;margin-bottom:12px;text-shadow:0 12px 24px rgba(0,0,0,.3)}
 .promo-title em{color:var(--yellow);font-style:normal}
-.promo-chips{position:relative;z-index:1;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.promo-chips{position:relative;z-index:1;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .chip{background:linear-gradient(180deg,var(--yellow),var(--yellow2));color:#000;font-family:var(--os);font-size:13px;font-weight:700;padding:7px 14px;border-radius:999px;border:1px solid rgba(0,0,0,.12);box-shadow:0 10px 22px rgba(0,0,0,.18)}
 .chip.red{background:var(--red);color:#fff}.chip.blue{background:var(--blue);color:#000}.chip.purple{background:var(--purple);color:#fff}
 .promo-disc{position:relative;z-index:1;font-size:10px;color:#7a7a7a;max-width:560px;margin:0 auto;line-height:1.6}
 .promo-sub{position:relative;z-index:1;max-width:720px;margin:0 auto 18px;font-size:15px;line-height:1.7;color:#d1d1d1}
 .promo-actions{position:relative;z-index:1;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
 .promo-btn{min-width:210px}
-.promo-live-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:980px;margin:0 auto 18px}
-.promo-live-card{
-  text-align:left;padding:16px 16px 14px;border-radius:18px;
-  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
-  border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow-soft)
+.promo-meta-row{position:relative;z-index:1;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 auto 18px;max-width:860px}
+.promo-meta-pill{
+  display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;color:#d6d6d6
 }
-.promo-live-label{font-size:10px;color:var(--muted);letter-spacing:1.3px;text-transform:uppercase;margin-bottom:8px}
-.promo-live-value{font-family:var(--os);font-size:24px;line-height:1;color:var(--white)}
-.promo-live-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px}
 
 /* NAV */
 .nav-wrap{background:rgba(17,17,18,.86);border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
@@ -467,7 +463,7 @@ border:1px solid rgba(255,230,0,.16);border-radius:18px;padding:22px 20px;margin
   .save-bar .btn{width:100%}
   .auth-layout,.main-grid{grid-template-columns:1fr}
   .profile-stats-grid{grid-template-columns:1fr}
-  .promo-live-grid,.dashboard-grid,.dashboard-actions,.dashboard-hero,.dashboard-cta-grid,.dashboard-pred-grid{grid-template-columns:1fr}
+  .dashboard-grid,.dashboard-actions,.dashboard-hero,.dashboard-cta-grid,.dashboard-pred-grid{grid-template-columns:1fr}
   .promo-btn{min-width:min(100%,260px)}
   .dashboard-title{font-size:28px}
   .lb-page-head{padding:16px}
@@ -1738,41 +1734,22 @@ try{
 <div class="promo">
   <div class="promo-eye">ЭКСКЛЮЗИВ • ТОЛЬКО ОДИН РАЗ • НА ВСЮ ЖИЗНЬ</div>
   <div class="promo-title">ЛУЗ<em>БЕТ</em> — ЧМ 2026</div>
-  <div class="promo-sub">Конкурс прогнозов, рейтинг страдальцев, VIP-статусы, ЛузКоины и казино в одной тёмной экосистеме. Сначала кажется весело. Потом статистика начинает говорить правду.</div>
+  <div class="promo-sub">Конкурс прогнозов, рейтинг страдальцев и казино в одной тёмной экосистеме с узнаваемым характером LuzBet.</div>
   <div class="promo-chips">
     <span class="chip">⚽ Прогнозы</span>
-    <span class="chip">🎯 Исход +1</span>
-    <span class="chip">↔️ Разница мячей +2</span>
-    <span class="chip red">💥 Исход и счёт +3</span>
+    <span class="chip red">🏆 Рейтинг</span>
     <span class="chip purple">🎰 Казино</span>
-    <span class="chip blue">🏅 Ачивки</span>
+    <span class="chip blue">👑 VIP</span>
   </div>
   <div class="promo-actions">
     <button class="btn btn-yellow promo-btn" id="hero-main-btn" onclick="navLoginClick()">🔐 Войти и начать</button>
     <button class="btn btn-ghost promo-btn" onclick="showPage('leaderboard')">🏆 Смотреть рейтинг</button>
     <button class="btn btn-red promo-btn" onclick="heroCasinoClick()">🎰 Открыть казино</button>
   </div>
-  <div class="promo-live-grid">
-    <div class="promo-live-card">
-      <div class="promo-live-label">Главное действие</div>
-      <div class="promo-live-value">Один код</div>
-      <div class="promo-live-note">Вошёл, сделал прогноз, потом живёшь с последствиями до самого финала.</div>
-    </div>
-    <div class="promo-live-card">
-      <div class="promo-live-label">Система очков</div>
-      <div class="promo-live-value">+1 / +2 / +3</div>
-      <div class="promo-live-note">Исход, разница мячей и точный счёт складываются в официальный рейтинг хаоса.</div>
-    </div>
-    <div class="promo-live-card">
-      <div class="promo-live-label">После входа</div>
-      <div class="promo-live-value">VIP + ЛК</div>
-      <div class="promo-live-note">Профиль, быстрые действия, прогресс по ачивкам и полный контроль над своим позором.</div>
-    </div>
-    <div class="promo-live-card">
-      <div class="promo-live-label">Тон проекта</div>
-      <div class="promo-live-value">Sports Trash</div>
-      <div class="promo-live-note">Узнаваемые жёлто-красные акценты, но подача уже как у полноценного продукта.</div>
-    </div>
+  <div class="promo-meta-row">
+    <span class="promo-meta-pill">⚡ Один код • один кабинет</span>
+    <span class="promo-meta-pill">🎯 Быстрый доступ к прогнозам</span>
+    <span class="promo-meta-pill">♻️ VIP, кешбек и ЛузКоины</span>
   </div>
   <div id="qod-wrap" style="background:rgba(255,230,0,.07);border:1px solid rgba(255,230,0,.18);border-radius:6px;padding:10px 14px;max-width:500px;margin:10px auto 8px;font-size:13px;font-style:italic;color:var(--white)">
     <span style="font-size:10px;color:var(--yellow);letter-spacing:1px;font-style:normal;display:block;margin-bottom:4px">📜 ЦИТАТА ДНЯ</span>
