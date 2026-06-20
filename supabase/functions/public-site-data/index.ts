@@ -52,6 +52,12 @@ function parseScore(value: unknown) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function isPlaceholderTeam(value: unknown) {
+  const token = String(value || "").trim();
+  if (!token) return true;
+  return /^(?:[12][A-L]|3[A-L]+|W\d+|L\d+)$/i.test(token);
+}
+
 function normalizeWinnerToken(value: unknown) {
   const token = String(value || "").trim().toLowerCase();
   return token === "home" || token === "away" ? token : "";
@@ -70,15 +76,27 @@ function resolveMatchWinner(match: any) {
 
 function getWinnerName(match: any) {
   const side = resolveMatchWinner(match);
-  if (side === "home") return String(match?.home || "").trim();
-  if (side === "away") return String(match?.away || "").trim();
+  if (side === "home") {
+    const name = String(match?.home || "").trim();
+    return isPlaceholderTeam(name) ? "" : name;
+  }
+  if (side === "away") {
+    const name = String(match?.away || "").trim();
+    return isPlaceholderTeam(name) ? "" : name;
+  }
   return "";
 }
 
 function getLoserName(match: any) {
   const side = resolveMatchWinner(match);
-  if (side === "home") return String(match?.away || "").trim();
-  if (side === "away") return String(match?.home || "").trim();
+  if (side === "home") {
+    const name = String(match?.away || "").trim();
+    return isPlaceholderTeam(name) ? "" : name;
+  }
+  if (side === "away") {
+    const name = String(match?.home || "").trim();
+    return isPlaceholderTeam(name) ? "" : name;
+  }
   return "";
 }
 
@@ -114,7 +132,7 @@ function normalizePlayoffRow(row: any) {
     for (const match of round.matches) {
       for (const name of [match.home, match.away]) {
         const trimmed = String(name || "").trim();
-        if (!trimmed || trimmed === "TBD" || trimmed === "—") continue;
+        if (!trimmed || trimmed === "TBD" || trimmed === "—" || isPlaceholderTeam(trimmed)) continue;
         if (!teamSet.has(trimmed.toLowerCase())) teamSet.set(trimmed.toLowerCase(), { name: trimmed });
       }
     }
@@ -126,7 +144,7 @@ function normalizePlayoffRow(row: any) {
     rounds: normalizedRounds,
     teams: [...teamSet.values()],
     semi: semifinalRound
-      ? semifinalRound.matches.flatMap((match: any) => [match.home, match.away]).filter(Boolean)
+      ? semifinalRound.matches.flatMap((match: any) => [match.home, match.away]).filter((name: string) => name && !isPlaceholderTeam(name))
       : [],
     winner: getWinnerName(finalMatch),
     finalist: getLoserName(finalMatch),

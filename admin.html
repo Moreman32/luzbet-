@@ -324,17 +324,63 @@ const PLAYOFF_ROUND_TEMPLATES = [
   { key:'third_place', label:'Матч за 3-е место' },
   { key:'final', label:'Финал' }
 ];
+const PLAYOFF_DEFAULT_DATA = {
+  deadline:'2026-06-28T12:00',
+  locked:false,
+  rounds:[
+    { key:'round_of_32', label:'1/16 финала', matches:[
+      { id:'m73', home:'2A', away:'2B', kickoff:'2026-06-28T12:00', homeScore:'', awayScore:'', winner:'', note:'UTC−7 • SoFi Stadium, Inglewood' },
+      { id:'m76', home:'1C', away:'2F', kickoff:'2026-06-29T12:00', homeScore:'', awayScore:'', winner:'', note:'UTC−5 • NRG Stadium, Houston' },
+      { id:'m74', home:'1E', away:'3ABCDF', kickoff:'2026-06-29T16:30', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Gillette Stadium, Foxborough' },
+      { id:'m75', home:'1F', away:'2C', kickoff:'2026-06-29T19:00', homeScore:'', awayScore:'', winner:'', note:'UTC−6 • Estadio BBVA, Guadalupe' },
+      { id:'m78', home:'2E', away:'2I', kickoff:'2026-06-30T12:00', homeScore:'', awayScore:'', winner:'', note:'UTC−5 • AT&T Stadium, Arlington' },
+      { id:'m77', home:'1I', away:'3CDFGH', kickoff:'2026-06-30T17:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • MetLife Stadium, East Rutherford' },
+      { id:'m79', home:'Mexico', away:'3CEFHI', kickoff:'2026-06-30T19:00', homeScore:'', awayScore:'', winner:'', note:'UTC−6 • Estadio Azteca, Mexico City' },
+      { id:'m80', home:'1L', away:'3EHIJK', kickoff:'2026-07-01T12:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' },
+      { id:'m82', home:'1G', away:'3AEHIJ', kickoff:'2026-07-01T13:00', homeScore:'', awayScore:'', winner:'', note:'UTC−7 • Lumen Field, Seattle' },
+      { id:'m81', home:'United States', away:'3BEFIJ', kickoff:'2026-07-01T17:00', homeScore:'', awayScore:'', winner:'', note:'UTC−7 • Levi\'s Stadium, Santa Clara' },
+      { id:'m84', home:'1H', away:'2J', kickoff:'2026-07-02T12:00', homeScore:'', awayScore:'', winner:'', note:'UTC−7 • SoFi Stadium, Inglewood' },
+      { id:'m83', home:'2K', away:'2L', kickoff:'2026-07-02T19:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • BMO Field, Toronto' },
+      { id:'m85', home:'1B', away:'3EFGIJ', kickoff:'2026-07-02T20:00', homeScore:'', awayScore:'', winner:'', note:'UTC−7 • BC Place, Vancouver' },
+      { id:'m88', home:'2D', away:'2G', kickoff:'2026-07-03T13:00', homeScore:'', awayScore:'', winner:'', note:'UTC−5 • AT&T Stadium, Arlington' },
+      { id:'m86', home:'1J', away:'2H', kickoff:'2026-07-03T18:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' },
+      { id:'m87', home:'1K', away:'3DEIJL', kickoff:'2026-07-03T20:30', homeScore:'', awayScore:'', winner:'', note:'UTC−5 • Arrowhead Stadium, Kansas City' }
+    ]},
+    { key:'round_of_16', label:'1/8 финала', matches:[
+      { id:'m90', home:'W73', away:'W75', kickoff:'2026-07-04T12:00', homeScore:'', awayScore:'', winner:'', note:'UTC−5 • NRG Stadium, Houston' },
+      { id:'m89', home:'W74', away:'W77', kickoff:'2026-07-04T17:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Lincoln Financial Field, Philadelphia' },
+      { id:'m91', home:'W76', away:'W78', kickoff:'2026-07-05T16:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • MetLife Stadium, East Rutherford' },
+      { id:'m92', home:'W79', away:'W80', kickoff:'2026-07-05T18:00', homeScore:'', awayScore:'', winner:'', note:'UTC−6 • Estadio Azteca, Mexico City' },
+      { id:'m93', home:'W83', away:'W84', kickoff:'2026-07-06T14:00', homeScore:'', awayScore:'', winner:'', note:'UTC−5 • AT&T Stadium, Arlington' },
+      { id:'m94', home:'W81', away:'W82', kickoff:'2026-07-06T17:00', homeScore:'', awayScore:'', winner:'', note:'UTC−7 • Lumen Field, Seattle' },
+      { id:'m95', home:'W86', away:'W88', kickoff:'2026-07-07T12:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' },
+      { id:'m96', home:'W85', away:'W87', kickoff:'2026-07-07T13:00', homeScore:'', awayScore:'', winner:'', note:'UTC−7 • BC Place, Vancouver' }
+    ]},
+    { key:'quarterfinal', label:'Четвертьфиналы', matches:[
+      { id:'m97', home:'W89', away:'W90', kickoff:'2026-07-09T16:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Gillette Stadium, Foxborough' },
+      { id:'m98', home:'W93', away:'W94', kickoff:'2026-07-10T12:00', homeScore:'', awayScore:'', winner:'', note:'UTC−7 • SoFi Stadium, Inglewood' },
+      { id:'m99', home:'W91', away:'W92', kickoff:'2026-07-11T17:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' },
+      { id:'m100', home:'W95', away:'W96', kickoff:'2026-07-11T20:00', homeScore:'', awayScore:'', winner:'', note:'UTC−5 • Arrowhead Stadium, Kansas City' }
+    ]},
+    { key:'semifinal', label:'Полуфиналы', matches:[
+      { id:'m101', home:'W97', away:'W98', kickoff:'2026-07-14T14:00', homeScore:'', awayScore:'', winner:'', note:'UTC−5 • AT&T Stadium, Arlington' },
+      { id:'m102', home:'W99', away:'W100', kickoff:'2026-07-15T15:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' }
+    ]},
+    { key:'third_place', label:'Матч за 3-е место', matches:[
+      { id:'m103', home:'L101', away:'L102', kickoff:'2026-07-18T17:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' }
+    ]},
+    { key:'final', label:'Финал', matches:[
+      { id:'m104', home:'W101', away:'W102', kickoff:'2026-07-19T15:00', homeScore:'', awayScore:'', winner:'', note:'UTC−4 • MetLife Stadium, East Rutherford' }
+    ]}
+  ]
+};
 
 function createEmptyPlayoffMatch(roundKey, idx){
   return { id:`${roundKey}_${idx+1}`, home:'', away:'', kickoff:'', homeScore:'', awayScore:'', winner:'', note:'' };
 }
 
 function createDefaultPlayoffState(){
-  return {
-    deadline:'2026-06-26T20:00',
-    locked:false,
-    rounds:PLAYOFF_ROUND_TEMPLATES.map(round=>({ key:round.key, label:round.label, matches:[] }))
-  };
+  return JSON.parse(JSON.stringify(PLAYOFF_DEFAULT_DATA));
 }
 
 function normalizePlayoffState(raw){
@@ -430,6 +476,7 @@ function esc(v){
 
 function normRow(row){
   const d=row.data||{};
+  if(d && typeof d==='object' && Array.isArray(d.rounds)) return normPlayoffRow(row);
   if(Array.isArray(d.teams))return{teams:d.teams,scores:Array.isArray(d.scores)?d.scores:[]};
   const teams=[d.team1,d.team2].filter(Boolean);
   const scores=[];
@@ -441,6 +488,164 @@ function normRow(row){
     else scores.push({h:null,a:null});
   }
   return{teams,scores};
+}
+
+function parseScoreValue(v){
+  if(v===null||v===undefined||v==='') return null;
+  const n=parseInt(v,10);
+  return Number.isFinite(n) ? n : null;
+}
+
+function isPlayoffPlaceholderTeam(name){
+  const v=String(name||'').trim();
+  if(!v) return true;
+  return /^(?:[12][A-L]|3[A-L]+|W\d+|L\d+)$/i.test(v);
+}
+
+function winnerToken(v){
+  const token=String(v||'').trim().toLowerCase();
+  return token==='home'||token==='away' ? token : '';
+}
+
+function resolveWinner(match){
+  const explicit=winnerToken(match&&match.winner);
+  if(explicit) return explicit;
+  const h=parseScoreValue(match&&match.homeScore);
+  const a=parseScoreValue(match&&match.awayScore);
+  if(h===null||a===null) return '';
+  if(h>a) return 'home';
+  if(a>h) return 'away';
+  return '';
+}
+
+function getWinnerName(match){
+  const side=resolveWinner(match);
+  if(side==='home'){
+    const name=String(match&&match.home || '').trim();
+    return isPlayoffPlaceholderTeam(name) ? '' : name;
+  }
+  if(side==='away'){
+    const name=String(match&&match.away || '').trim();
+    return isPlayoffPlaceholderTeam(name) ? '' : name;
+  }
+  return '';
+}
+
+function getLoserName(match){
+  const side=resolveWinner(match);
+  if(side==='home'){
+    const name=String(match&&match.away || '').trim();
+    return isPlayoffPlaceholderTeam(name) ? '' : name;
+  }
+  if(side==='away'){
+    const name=String(match&&match.home || '').trim();
+    return isPlayoffPlaceholderTeam(name) ? '' : name;
+  }
+  return '';
+}
+
+function normPlayoffRow(row){
+  const d=row.data||{};
+  const rounds=Array.isArray(d.rounds)?d.rounds:[];
+  const normalizedRounds=rounds.map((round,roundIdx)=>({
+    key:String(round&&round.key || `round_${roundIdx+1}`).trim(),
+    label:String(round&&round.label || `Раунд ${roundIdx+1}`).trim(),
+    matches:Array.isArray(round&&round.matches) ? round.matches.map((match,matchIdx)=>({
+      id:String(match&&match.id || `${String(round&&round.key || `round_${roundIdx+1}`)}_${matchIdx+1}`).trim(),
+      home:String(match&&match.home || '').trim(),
+      away:String(match&&match.away || '').trim(),
+      kickoff:String(match&&match.kickoff || '').trim(),
+      homeScore:parseScoreValue(match&&match.homeScore),
+      awayScore:parseScoreValue(match&&match.awayScore),
+      note:String(match&&match.note || '').trim(),
+      winner:winnerToken(match&&match.winner)
+    })) : []
+  }));
+  const findRound=key=>normalizedRounds.find(round=>round.key===key);
+  const semifinalRound=findRound('semifinal');
+  const thirdPlaceRound=findRound('third_place');
+  const finalRound=findRound('final');
+  const finalMatch=finalRound&&finalRound.matches ? finalRound.matches[0] : null;
+  const thirdPlaceMatch=thirdPlaceRound&&thirdPlaceRound.matches ? thirdPlaceRound.matches[0] : null;
+  return {
+    deadline:String(d.deadline || '').trim(),
+    locked:String(d.locked || '').trim()==='1',
+    rounds:normalizedRounds,
+    semi:semifinalRound ? semifinalRound.matches.flatMap(match=>[match.home,match.away]).filter(name=>name && !isPlayoffPlaceholderTeam(name)) : [],
+    winner:getWinnerName(finalMatch),
+    finalist:getLoserName(finalMatch),
+    third:getWinnerName(thirdPlaceMatch),
+    finalH:finalMatch ? finalMatch.homeScore : null,
+    finalA:finalMatch ? finalMatch.awayScore : null,
+    thirdH:thirdPlaceMatch ? thirdPlaceMatch.homeScore : null,
+    thirdA:thirdPlaceMatch ? thirdPlaceMatch.awayScore : null
+  };
+}
+
+function scoreGroupsOnly(pred, results){
+  let teamPts=0,outPts=0,diffPts=0,scPts=0;
+  const rows=[];
+  Object.keys(GROUPS).forEach(g=>{
+    const raw=pred['group'+g]||'';
+    const predicted=raw?raw.split('|').map(s=>s.trim()).filter(Boolean):[];
+    const actual=(results[g]&&results[g].teams)||[];
+    const actSc=(results[g]&&results[g].scores)||[];
+    const hasR=actual.length>0;
+    let groupPts=0;
+    const teams=predicted.map(t=>{
+      const hit=hasR&&actual.some(a=>a.toLowerCase()===t.toLowerCase());
+      if(hit){groupPts+=3;teamPts+=3;}
+      return { team:t, hit, hasR };
+    });
+    const scoreRows=[];
+    GROUPS[g].matches.forEach((_,mi)=>{
+      const ph=pred['group'+g+'_m'+mi+'_h'];
+      const pa=pred['group'+g+'_m'+mi+'_a'];
+      if(ph===undefined||ph==='') return;
+      const as=actSc[mi];
+      if(as&&as.h!==null&&as.h!==undefined){
+        const predDiff=parseInt(ph,10)-parseInt(pa,10);
+        const actDiff=as.h-as.a;
+        const exact=parseInt(ph,10)===as.h&&parseInt(pa,10)===as.a;
+        const po=predDiff>0?'h':predDiff<0?'a':'d';
+        const ao=actDiff>0?'h':actDiff<0?'a':'d';
+        const diffOk=predDiff===actDiff;
+        const outcOk=po===ao;
+        if(exact){groupPts+=3;scPts+=3;}
+        else if(diffOk){groupPts+=2;diffPts+=2;}
+        else if(outcOk){groupPts+=1;outPts+=1;}
+        scoreRows.push({ ph, pa, as, exact, diffOk, outcOk });
+      }else{
+        scoreRows.push({ ph, pa, as:null, exact:false, diffOk:false, outcOk:false });
+      }
+    });
+    rows.push({ group:g, predicted, actual, hasR, groupPts, teams, scoreRows });
+  });
+  return { teamPts, outPts, diffPts, scPts, total:teamPts+outPts+diffPts+scPts, rows };
+}
+
+function scorePlayoffOnly(pred, playoff){
+  if(!playoff) return { total:0, winnerPts:0, finalistPts:0, thirdPts:0, semiPts:0, finalScorePts:0, thirdScorePts:0, semiHits:0 };
+  let winnerPts=0, finalistPts=0, thirdPts=0, semiPts=0, finalScorePts=0, thirdScorePts=0;
+  const winner=String(pred.winner || '').trim();
+  const finalist=String(pred.finalist || '').trim();
+  const third=String(pred.third || '').trim();
+  const semiTeams=String(pred.semi || '').split('|').map(s=>s.trim()).filter(Boolean);
+  const actualSemi=Array.isArray(playoff.semi) ? playoff.semi : [];
+  const semiHits=actualSemi.length ? semiTeams.filter(team=>actualSemi.some(actual=>String(actual).toLowerCase()===team.toLowerCase())).length : 0;
+  if(winner && playoff.winner && winner.toLowerCase()===String(playoff.winner).toLowerCase()) winnerPts=5;
+  if(finalist && playoff.finalist && finalist.toLowerCase()===String(playoff.finalist).toLowerCase()) finalistPts=3;
+  if(third && playoff.third && third.toLowerCase()===String(playoff.third).toLowerCase()) thirdPts=3;
+  semiPts=semiHits*2;
+  const finalH=parseScoreValue(pred.finalH), finalA=parseScoreValue(pred.finalA);
+  if(finalH!==null && finalA!==null && finalH===playoff.finalH && finalA===playoff.finalA) finalScorePts=5;
+  const thirdH=parseScoreValue(pred.thirdH), thirdA=parseScoreValue(pred.thirdA);
+  if(thirdH!==null && thirdA!==null && thirdH===playoff.thirdH && thirdA===playoff.thirdA) thirdScorePts=3;
+  return {
+    total:winnerPts+finalistPts+thirdPts+semiPts+finalScorePts+thirdScorePts,
+    winnerPts, finalistPts, thirdPts, semiPts, finalScorePts, thirdScorePts, semiHits,
+    winner, finalist, third, semiTeams, finalH, finalA, thirdH, thirdA
+  };
 }
 
 // ─── RESULTS FORM ───
@@ -709,64 +914,60 @@ async function loadChk(){
     const preds = (dashboard && dashboard.predictions) || [];
     const resRows = (dashboard && dashboard.results) || [];
     const results={};
-    (resRows||[]).forEach(r=>{results[r.group_code]=normRow(r);});
-    const done=Object.keys(results).filter(g=>results[g].teams.length>0).length;
+    (resRows||[]).forEach(r=>{results[String(r.group_code||'').toUpperCase()]=normRow(r);});
+    const playoff=results[PLAYOFF_ROW_CODE] || null;
+    const done=Object.keys(results).filter(g=>!String(g).startsWith('_') && results[g].teams.length>0).length;
     const latestPreds={};
     (preds||[]).forEach(row=>{latestPreds[String(row.code).toLowerCase()]=row;});
     const dedupPreds=Object.values(latestPreds);
     if(!dedupPreds.length){el.innerHTML='<p class="muted">Нет прогнозов</p>';return;}
 
-    let html='<div class="card muted" style="margin-bottom:12px">Участников: <b style="color:#fff">'+dedupPreds.length+'</b> | Групп с результатами: <b style="color:#fff">'+done+'/12</b></div>';
+    let html='<div class="card muted" style="margin-bottom:12px">Участников: <b style="color:#fff">'+dedupPreds.length+'</b> | Групп с результатами: <b style="color:#fff">'+done+'/12</b>'+(playoff?' | <b style="color:#fff">Плей-офф подключён</b>':' | Плей-офф ещё без результатов')+'</div>';
 
     dedupPreds.forEach(row=>{
       const pred=Object.assign({},row.data||{});
-      let tP=0,oP=0,dP=0,sP=0;
+      const groupScore=scoreGroupsOnly(pred, results);
+      const playoffScore=scorePlayoffOnly(pred, playoff);
       let tbody='';
-      Object.keys(GROUPS).forEach(g=>{
-        const raw=pred['group'+g]||'';
-        const predicted=raw?raw.split('|').map(s=>s.trim()).filter(Boolean):[];
-        const actual=(results[g]&&results[g].teams)||[];
-        const actSc=(results[g]&&results[g].scores)||[];
-        const hasR=actual.length>0;
-        let gP=0;
-        const teams=predicted.map(t=>{
-          const hit=hasR&&actual.some(a=>a.toLowerCase()===t.toLowerCase());
-          if(hit){gP+=3;tP+=3;}
-          const cls=hasR?(hit?'hit':'miss'):'';
-          return '<span class="'+cls+'">'+esc(t)+'</span>';
+      groupScore.rows.forEach(gr=>{
+        const teams=gr.teams.map(item=>{
+          const cls=item.hasR ? (item.hit?'hit':'miss') : '';
+          return '<span class="'+cls+'">'+esc(item.team)+'</span>';
         }).join(', ')||'<span class="muted">—</span>';
-
-        let scHtml='';
-        GROUPS[g].matches.forEach((_,mi)=>{
-          const ph=pred['group'+g+'_m'+mi+'_h'];
-          const pa=pred['group'+g+'_m'+mi+'_a'];
-          if(ph===undefined||ph==='')return;
-          const as=actSc[mi];
-          if(as&&as.h!==null&&as.h!==undefined){
-            const predDiff=parseInt(ph)-parseInt(pa);
-            const actDiff=as.h-as.a;
-            const exact=parseInt(ph)===as.h&&parseInt(pa)===as.a;
-            const po=predDiff>0?'h':predDiff<0?'a':'d';
-            const ao=actDiff>0?'h':actDiff<0?'a':'d';
-            const diffOk=predDiff===actDiff;
-            const outcOk=po===ao;
-            if(exact){gP+=3;sP+=3;}
-            else if(diffOk){gP+=2;dP+=2;}
-            else if(outcOk){gP+=1;oP++;}
-            const cls=exact||diffOk||outcOk?'hit':'miss';
-            scHtml+='<span class="'+cls+'" style="margin-right:6px;font-size:11px">'+esc(ph)+':'+esc(pa)+'→'+esc(as.h)+':'+esc(as.a)+'</span>';
-          }else if(ph!==''&&ph!==undefined){
-            scHtml+='<span class="muted" style="margin-right:6px;font-size:11px">'+esc(ph)+':'+esc(pa)+'?</span>';
+        const scHtml=gr.scoreRows.map(item=>{
+          if(item.as){
+            const cls=item.exact||item.diffOk||item.outcOk?'hit':'miss';
+            return '<span class="'+cls+'" style="margin-right:6px;font-size:11px">'+esc(item.ph)+':'+esc(item.pa)+'→'+esc(item.as.h)+':'+esc(item.as.a)+'</span>';
           }
-        });
-        tbody+='<tr><td style="color:#ffe600;font-size:11px">Гр.'+g+'</td><td>'+teams+'</td><td>'+( scHtml||'<span class="muted">—</span>')+'</td><td class="pts">'+(gP>0?'+'+gP:'0')+'</td></tr>';
+          return '<span class="muted" style="margin-right:6px;font-size:11px">'+esc(item.ph)+':'+esc(item.pa)+'?</span>';
+        }).join('');
+        tbody+='<tr><td style="color:#ffe600;font-size:11px">Гр.'+gr.group+'</td><td>'+teams+'</td><td>'+( scHtml||'<span class="muted">—</span>')+'</td><td class="pts">'+(gr.groupPts>0?'+'+gr.groupPts:'0')+'</td></tr>';
       });
-      const tot=tP+oP+dP+sP;
+      if(playoff){
+        const semiActual=Array.isArray(playoff.semi) ? playoff.semi : [];
+        const semiHtml=(playoffScore.semiTeams||[]).map(team=>{
+          const hit=semiActual.length && semiActual.some(actual=>String(actual).toLowerCase()===team.toLowerCase());
+          const cls=semiActual.length ? (hit?'hit':'miss') : '';
+          return '<span class="'+cls+'">'+esc(team)+'</span>';
+        }).join(', ') || '<span class="muted">—</span>';
+        const finalScoreText=playoffScore.finalH===null||playoffScore.finalA===null ? '<span class="muted">—</span>' : esc(String(playoffScore.finalH)+':'+String(playoffScore.finalA));
+        const thirdScoreText=playoffScore.thirdH===null||playoffScore.thirdA===null ? '<span class="muted">—</span>' : esc(String(playoffScore.thirdH)+':'+String(playoffScore.thirdA));
+        tbody += '<tr><td style="color:#ffe600;font-size:11px">ПО</td><td>'
+          + '🏆 '+(playoffScore.winner?esc(playoffScore.winner):'<span class="muted">—</span>')
+          + '<br/>🥈 '+(playoffScore.finalist?esc(playoffScore.finalist):'<span class="muted">—</span>')
+          + '<br/>🥉 '+(playoffScore.third?esc(playoffScore.third):'<span class="muted">—</span>')
+          + '<br/>🎯 '+semiHtml
+          + '</td><td>'
+          + 'Финал: '+finalScoreText
+          + '<br/>3-е место: '+thirdScoreText
+          + '</td><td class="pts">'+(playoffScore.total>0?('+'+playoffScore.total):'0')+'</td></tr>';
+      }
+      const tot=groupScore.total+playoffScore.total;
       html+='<div class="card" style="margin-bottom:12px">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">';
       html+='<div><b style="font-size:15px">'+esc(row.name)+'</b> <span class="muted">'+esc(row.code)+'</span></div>';
       html+='<div style="display:flex;gap:16px">';
-      html+='<span>⚽ <b>'+tP+'</b></span><span>🎯 <b>'+oP+'</b></span><span>↔️ <b>'+dP+'</b></span><span>💥 <b>'+sP+'</b></span>';
+      html+='<span>⚽ <b>'+groupScore.teamPts+'</b></span><span>🎯 <b>'+groupScore.outPts+'</b></span><span>↔️ <b>'+groupScore.diffPts+'</b></span><span>💥 <b>'+groupScore.scPts+'</b></span><span>🏟️ <b>'+playoffScore.total+'</b></span>';
       html+='<span class="pts" style="font-size:22px">'+tot+'</span></div></div>';
       html+='<table><thead><tr><th>Группа</th><th>Команды</th><th>Счёт матчей</th><th>Очки</th></tr></thead><tbody>'+tbody+'</tbody></table></div>';
     });
@@ -785,39 +986,32 @@ async function loadLB(){
     const resRows = (dashboard && dashboard.results) || [];
     const casRows = (dashboard && dashboard.casino) || [];
     const achRows = (dashboard && dashboard.achievements) || [];
-    const results={};(resRows||[]).forEach(r=>{results[r.group_code]=normRow(r);});
+    const results={};(resRows||[]).forEach(r=>{results[String(r.group_code||'').toUpperCase()]=normRow(r);});
+    const playoff=results[PLAYOFF_ROW_CODE] || null;
     const casMap={};(casRows||[]).forEach(r=>{casMap[r.code.toLowerCase()]=r.coins||0;});
     const achMap={};(achRows||[]).forEach(r=>{const k=r.code.toLowerCase();achMap[k]=(achMap[k]||0)+1;});
     const latestPreds={};
     (preds||[]).forEach(row=>{latestPreds[String(row.code).toLowerCase()]=row;});
     const lb=Object.values(latestPreds).map(row=>{
       const pred=Object.assign({},row.data||{});
-      let tot=0,tP=0,oP=0,dP=0,sP=0;
-      Object.keys(GROUPS).forEach(g=>{
-        const predicted=(pred['group'+g]||'').split('|').map(s=>s.trim()).filter(Boolean);
-        const actual=(results[g]&&results[g].teams)||[];
-        const actSc=(results[g]&&results[g].scores)||[];
-        predicted.forEach(t=>{if(actual.some(a=>a.toLowerCase()===t.toLowerCase())){tot+=3;tP+=3;}});
-        GROUPS[g].matches.forEach((_,mi)=>{
-          const ph=pred['group'+g+'_m'+mi+'_h'],pa=pred['group'+g+'_m'+mi+'_a'];
-          const as=actSc[mi];
-          if((ph===undefined||ph===''))return;
-          if(!as||as.h===null||as.h===undefined)return;
-          const predDiff=parseInt(ph)-parseInt(pa);
-          const actDiff=as.h-as.a;
-          const exact=parseInt(ph)===as.h&&parseInt(pa)===as.a;
-          const po=predDiff>0?'h':predDiff<0?'a':'d';
-          const ao=actDiff>0?'h':actDiff<0?'a':'d';
-          if(exact){tot+=3;sP+=3;}
-          else if(predDiff===actDiff){tot+=2;dP+=2;}
-          else if(po===ao){tot+=1;oP++;}
-        });
-      });
-      return{name:row.name,code:row.code,tot,tP,oP,dP,sP,coins:casMap[row.code.toLowerCase()]||0,achs:achMap[row.code.toLowerCase()]||0};
-    }).sort((a,b)=>b.tot-a.tot);
+      const groupScore=scoreGroupsOnly(pred, results);
+      const playoffScore=scorePlayoffOnly(pred, playoff);
+      return{
+        name:row.name,
+        code:row.code,
+        tot:groupScore.total+playoffScore.total,
+        tP:groupScore.teamPts,
+        oP:groupScore.outPts,
+        dP:groupScore.diffPts,
+        sP:groupScore.scPts,
+        pP:playoffScore.total,
+        coins:casMap[row.code.toLowerCase()]||0,
+        achs:achMap[row.code.toLowerCase()]||0
+      };
+    }).sort((a,b)=>b.tot-a.tot||b.tP-a.tP||b.sP-a.sP||b.dP-a.dP||b.oP-a.oP||b.pP-a.pP||String(a.name||'').localeCompare(String(b.name||''),'ru'));
     const m=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-    let html='<table><thead><tr><th>#</th><th>Участник</th><th>Итого</th><th>⚽</th><th>🎯</th><th>↔️</th><th>💥</th><th>🪙 ЛК</th><th>🏅</th></tr></thead><tbody>';
-    lb.forEach((p,i)=>{html+='<tr><td style="font-size:18px">'+m(i)+'</td><td><b>'+esc(p.name)+'</b><br/><span class="muted">'+esc(p.code)+'</span></td><td class="pts" style="font-size:20px">'+p.tot+'</td><td>'+p.tP+'</td><td>'+p.oP+'</td><td>'+p.dP+'</td><td>'+p.sP+'</td><td>'+p.coins+'</td><td>'+p.achs+'</td></tr>';});
+    let html='<table><thead><tr><th>#</th><th>Участник</th><th>Итого</th><th>⚽</th><th>🎯</th><th>↔️</th><th>💥</th><th>🏟️</th><th>🪙 ЛК</th><th>🏅</th></tr></thead><tbody>';
+    lb.forEach((p,i)=>{html+='<tr><td style="font-size:18px">'+m(i)+'</td><td><b>'+esc(p.name)+'</b><br/><span class="muted">'+esc(p.code)+'</span></td><td class="pts" style="font-size:20px">'+p.tot+'</td><td>'+p.tP+'</td><td>'+p.oP+'</td><td>'+p.dP+'</td><td>'+p.sP+'</td><td>'+p.pP+'</td><td>'+p.coins+'</td><td>'+p.achs+'</td></tr>';});
     el.innerHTML=html+'</tbody></table>';
     log('Таблица обновлена: '+lb.length+' участников','ok');
   }catch(e){el.innerHTML='<p class="err">Ошибка: '+esc(e.message)+'</p>';log(e.message,'err');}
