@@ -8622,11 +8622,9 @@ function updateCountdown(){
   const now=new Date();
   const diff=target-now;
   const wrap=document.getElementById('countdown-wrap');
-  const label=document.getElementById('cd-label');
   if(!wrap)return;
   if(diff<=0){
     wrap.style.display='none';
-    if(label)label.textContent='🏆 ЧМ 2026 уже идёт! Ставки приняты, слёзы не за горами.';
     return;
   }
   const d=Math.floor(diff/86400000);
