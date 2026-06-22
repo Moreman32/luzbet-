@@ -132,7 +132,7 @@ export function dealInitialPvpBlackjackRoom(params: {
     guest_name: params.guestName,
     bet: params.bet,
     status: "active" as const,
-    turn_code: params.hostCode,
+    turn_code: null,
     winner_code: null,
     deck,
     host_hand: hostHand,
@@ -240,12 +240,17 @@ export function toPublicPvpBlackjackRoom(state: PvpBlackjackRoom, viewerCode = "
   const guestScore = bjScore(state.guest_hand);
   const resolution = asObject(state.resolution);
   const myRole = viewerCode === state.host_code ? "host" : viewerCode === state.guest_code ? "guest" : "";
-  const myTurn = !!viewerCode && state.turn_code === viewerCode;
+  const myTurn = false;
   const revealAllCards = state.status === "finished";
   const showHostCards = revealAllCards || myRole === "host";
   const showGuestCards = revealAllCards || myRole === "guest";
   const hostVisibleState = revealAllCards || myRole === "host";
   const guestVisibleState = revealAllCards || myRole === "guest";
+  const myCanHit = state.status === "active" && (
+    (myRole === "host" && !state.host_stood && !state.host_busted) ||
+    (myRole === "guest" && !state.guest_stood && !state.guest_busted)
+  );
+  const myCanStand = myCanHit;
   return {
     room_id: state.room_id,
     status: state.status,
@@ -268,6 +273,8 @@ export function toPublicPvpBlackjackRoom(state: PvpBlackjackRoom, viewerCode = "
         : "",
     my_role: myRole,
     my_turn: myTurn,
+    my_can_hit: myCanHit,
+    my_can_stand: myCanStand,
     host: {
       code: state.host_code,
       name: state.host_name,

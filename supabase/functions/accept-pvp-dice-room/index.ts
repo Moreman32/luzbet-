@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { dealInitialPvpBlackjackRoom, hydratePvpBlackjackRoom, toPublicPvpBlackjackRoom } from "../_shared/pvp-blackjack.ts";
+import { hydratePvpDiceRoom, toPublicPvpDiceRoom } from "../_shared/pvp-dice.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
 
     const [{ data: participant, error: participantError }, { data: roomRow, error: roomError }] = await Promise.all([
       sb.from("participants").select("code, name").eq("code", code).maybeSingle(),
-      sb.from("casino_pvp_blackjack_rooms").select("*").eq("room_id", room_id).maybeSingle(),
+      sb.from("casino_pvp_dice_rooms").select("*").eq("room_id", room_id).maybeSingle(),
     ]);
 
     if (participantError) return json({ ok: false, error: participantError.message }, 500);
@@ -41,59 +41,37 @@ Deno.serve(async (req) => {
     if (!participant) return json({ ok: false, error: "participant not found" }, 404);
     if (!roomRow) return json({ ok: false, error: "room not found" }, 404);
 
-    const room = hydratePvpBlackjackRoom(roomRow as Record<string, unknown>);
+    const room = hydratePvpDiceRoom(roomRow as Record<string, unknown>);
     if (room.host_code === code) return json({ ok: false, error: "host cannot accept own room" }, 400);
     if (room.status !== "waiting") return json({ ok: false, error: "room is not waiting" }, 400);
     if (room.guest_code) return json({ ok: false, error: "room already taken" }, 400);
 
-    const activeRoom = dealInitialPvpBlackjackRoom({
-      roomId: room.room_id,
-      hostCode: room.host_code,
-      hostName: room.host_name,
-      guestCode: code,
-      guestName: participant.name || "",
-      bet: room.bet,
-    });
-
-    const { data: claimedRoom, error: claimError } = await sb.rpc("claim_pvp_blackjack_room", {
+    const { data: claimedRoom, error: claimError } = await sb.rpc("claim_pvp_dice_room", {
       p_room_id: room_id,
       p_guest_code: code,
       p_guest_name: participant.name || "",
       p_bet: room.bet,
-      p_turn_code: null,
-      p_deck: activeRoom.deck,
-      p_host_hand: activeRoom.host_hand,
-      p_guest_hand: activeRoom.guest_hand,
-      p_host_stood: activeRoom.host_stood,
-      p_guest_stood: activeRoom.guest_stood,
-      p_host_busted: activeRoom.host_busted,
-      p_guest_busted: activeRoom.guest_busted,
-      p_resolution: activeRoom.resolution,
-      p_accepted_at: activeRoom.accepted_at,
+      p_accepted_at: new Date().toISOString(),
     });
     if (claimError) {
       const message = claimError.message || "room already accepted";
-      const status = /not enough coins|active room|host cannot accept|room/i.test(message) ? 400 : 500;
+      const status = /not enough coins|host cannot accept|room/i.test(message) ? 400 : 500;
       return json({ ok: false, error: message }, status);
     }
 
     const finalRoomRow = Array.isArray(claimedRoom) ? claimedRoom[0] : claimedRoom;
     if (!finalRoomRow) return json({ ok: false, error: "room claim returned empty result" }, 500);
-    const finalRoom = hydratePvpBlackjackRoom(finalRoomRow as Record<string, unknown>);
-    const { data: casinoRow, error: casinoError } = await sb
-      .from("casino")
-      .select("coins, spent")
-      .eq("code", code)
-      .maybeSingle();
+    const finalRoom = hydratePvpDiceRoom(finalRoomRow as Record<string, unknown>);
+    const { data: casinoRow, error: casinoError } = await sb.from("casino").select("coins, spent").eq("code", code).maybeSingle();
     if (casinoError) return json({ ok: false, error: casinoError.message }, 500);
 
     return json({
       ok: true,
-      room: toPublicPvpBlackjackRoom(finalRoom, code),
+      room: toPublicPvpDiceRoom(finalRoom, code),
       coins: Math.max(0, Number(casinoRow?.coins ?? 0)),
       spent: Math.max(0, Number(casinoRow?.spent ?? 0)),
     });
   } catch (e) {
-    return json({ ok: false, error: e instanceof Error ? e.message : "accept-pvp-blackjack-room failed" }, 500);
+    return json({ ok: false, error: e instanceof Error ? e.message : "accept-pvp-dice-room failed" }, 500);
   }
 });
