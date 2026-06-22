@@ -1010,6 +1010,9 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .playoff-editor-status{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:10px;color:var(--muted2)}
 .playoff-editor-status.ready{color:#9cf2b9;border-color:rgba(0,176,80,.28);background:rgba(0,176,80,.10)}
 .playoff-editor-status.warn{color:#ffe774;border-color:rgba(255,230,0,.24);background:rgba(255,230,0,.10)}
+.playoff-savebar{position:sticky;bottom:10px;z-index:25;display:flex;justify-content:center;margin-top:14px}
+.playoff-savebar-inner{width:min(720px,100%);background:rgba(10,12,18,.92);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:10px 12px;box-shadow:0 14px 30px rgba(0,0,0,.28)}
+.playoff-savebar-meta{font-size:10px;color:var(--muted2);text-align:center;margin-top:8px;line-height:1.35}
 .playoff-overview-after{margin-top:18px}
 .playoff-points-pill{display:inline-flex;align-items:center;justify-content:center;padding:3px 6px;border-radius:999px;font-family:var(--os);font-size:8px;letter-spacing:.35px;border:1px solid transparent}
 .playoff-points-pill.exact{background:rgba(0,176,80,.14);border-color:rgba(0,176,80,.28);color:#9cf2b9}
@@ -8777,6 +8780,60 @@ function getPlayoffPredictionProgress(bracket){
   return { total, saved, editable, locked };
 }
 
+function updatePlayoffProgressUi(){
+  const progress = getPlayoffPredictionProgress(poBracket);
+  const saved = document.getElementById('po-progress-saved');
+  const editable = document.getElementById('po-progress-editable');
+  const locked = document.getElementById('po-progress-locked');
+  if(saved) saved.textContent = `${progress.saved}/${progress.total}`;
+  if(editable) editable.textContent = String(progress.editable);
+  if(locked) locked.textContent = String(progress.locked);
+}
+
+function updatePlayoffSaveUi(){
+  const btn = document.getElementById('po-save-btn');
+  const meta = document.getElementById('po-save-meta');
+  const canSave = hasEditablePlayoffMatches(poBracket) && isPlayoffPredictionDirty(poBracket);
+  if(btn) btn.disabled = !canSave;
+  if(meta) meta.textContent = canSave
+    ? 'Есть несохранённые изменения.'
+    : 'Кнопка активируется, когда ты изменишь любой ещё не начавшийся матч.';
+  updatePlayoffProgressUi();
+}
+
+function updatePlayoffMatchCardUi(matchId){
+  const id = String(matchId || '').toUpperCase();
+  const match = buildBracketMatchMap(poBracket)[id];
+  if(!match) return;
+  const state = getPredictionMatchState(id);
+  const winner = getPredictionWinnerSide(state);
+  const hasScores = state.homeScore !== '' && state.awayScore !== '';
+  const homeLabel = formatPlayoffTeamLabel(resolvePlayoffSlotLabel(match.home, buildBracketMatchMap(poBracket), poPrediction.matches, 'prediction'));
+  const awayLabel = formatPlayoffTeamLabel(resolvePlayoffSlotLabel(match.away, buildBracketMatchMap(poBracket), poPrediction.matches, 'prediction'));
+  const status = document.getElementById(`po-status-${id}`);
+  const homeRow = document.getElementById(`po-row-${id}-home`);
+  const awayRow = document.getElementById(`po-row-${id}-away`);
+  const homeTick = document.getElementById(`po-tick-${id}-home`);
+  const awayTick = document.getElementById(`po-tick-${id}-away`);
+  if(homeRow) homeRow.classList.toggle('winner', winner === 'home');
+  if(awayRow) awayRow.classList.toggle('winner', winner === 'away');
+  if(homeTick) homeTick.textContent = winner === 'home' ? '✓' : '';
+  if(awayTick) awayTick.textContent = winner === 'away' ? '✓' : '';
+  if(status){
+    status.classList.remove('ready','warn');
+    if(winner){
+      status.classList.add('ready');
+      status.textContent = `Проходит: ${winner === 'home' ? homeLabel : awayLabel}`;
+    }else if(hasScores){
+      status.classList.add('warn');
+      status.textContent = 'При ничьей выбери, кто проходит';
+    }else{
+      status.textContent = 'Сначала впиши счёт и выбери победителя';
+    }
+  }
+  updatePlayoffSaveUi();
+}
+
 function resolvePlayoffSlotLabel(token, bracketMap, predictionMatches, mode='prediction'){
   const clean = String(token || '').trim();
   if(!clean) return '';
@@ -8820,7 +8877,7 @@ function setPlayoffPredictionScore(matchId, side, value){
   const state = getPredictionMatchState(matchId);
   state[side] = String(value || '').trim();
   updatePredictionWinnerFromScores(matchId);
-  renderPlayoffForm(renderPlayoffOverview(poBracket), getPlayoffDeadline(poBracket));
+  updatePlayoffMatchCardUi(matchId);
 }
 
 function setPlayoffPredictionWinner(matchId, winner){
@@ -8834,7 +8891,7 @@ function setPlayoffPredictionWinner(matchId, winner){
   }else{
     state.winner = normalizePredictionWinner(winner);
   }
-  renderPlayoffForm(renderPlayoffOverview(poBracket), getPlayoffDeadline(poBracket));
+  updatePlayoffMatchCardUi(matchId);
 }
 
 function isPlayoffPredictionComplete(bracket){
@@ -8966,15 +9023,15 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
     <div class="playoff-section-sub">Заполняй матчи по раундам ниже. Очки считаются по каждому матчу: +3 за точный счёт и проход, +2 за разницу и проход, +1 только за проход дальше.</div>
     <div class="playoff-editor-summary">
       <div class="playoff-editor-summary-card">
-        <strong>${progress.saved}/${progress.total}</strong>
+        <strong id="po-progress-saved">${progress.saved}/${progress.total}</strong>
         <span>Сохранено матчей в купоне</span>
       </div>
       <div class="playoff-editor-summary-card">
-        <strong>${progress.editable}</strong>
+        <strong id="po-progress-editable">${progress.editable}</strong>
         <span>Ещё можно менять до стартового свистка</span>
       </div>
       <div class="playoff-editor-summary-card">
-        <strong>${progress.locked}</strong>
+        <strong id="po-progress-locked">${progress.locked}</strong>
         <span>Уже закрыто по времени матча</span>
       </div>
     </div>
@@ -9016,20 +9073,20 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
         </div>
         <div class="playoff-match-meta">
           ${match.note ? `<span class="playoff-match-note">${escapeHtml(match.note)}</span>` : '<span></span>'}
-          <span class="playoff-editor-status ${statusCls}">${escapeHtml(statusText)}</span>
+          <span id="po-status-${escapeHtml(String(match.id || '').toUpperCase())}" class="playoff-editor-status ${statusCls}">${escapeHtml(statusText)}</span>
         </div>
-        <button type="button" class="playoff-team-row ${winner==='home' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','home')" style="width:100%;background:transparent;border:none;cursor:${matchLocked?'not-allowed':'pointer'};opacity:${matchLocked?'.68':'1'}" ${matchLocked?'disabled':''}>
+        <button id="po-row-${escapeHtml(String(match.id || '').toUpperCase())}-home" type="button" class="playoff-team-row ${winner==='home' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','home')" style="width:100%;background:transparent;border:none;cursor:${matchLocked?'not-allowed':'pointer'};opacity:${matchLocked?'.68':'1'}" ${matchLocked?'disabled':''}>
           <div class="playoff-team-main"><span>${escapeHtml(homeFlag)}</span><span class="playoff-team-name${homePlaceholder ? ' placeholder' : ''}">${escapeHtml(homeLabel)}</span></div>
-          <span class="playoff-team-score">${winner==='home' ? '✓' : ''}</span>
+          <span id="po-tick-${escapeHtml(String(match.id || '').toUpperCase())}-home" class="playoff-team-score">${winner==='home' ? '✓' : ''}</span>
         </button>
-        <button type="button" class="playoff-team-row ${winner==='away' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','away')" style="width:100%;background:transparent;border:none;cursor:${matchLocked?'not-allowed':'pointer'};opacity:${matchLocked?'.68':'1'}" ${matchLocked?'disabled':''}>
+        <button id="po-row-${escapeHtml(String(match.id || '').toUpperCase())}-away" type="button" class="playoff-team-row ${winner==='away' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','away')" style="width:100%;background:transparent;border:none;cursor:${matchLocked?'not-allowed':'pointer'};opacity:${matchLocked?'.68':'1'}" ${matchLocked?'disabled':''}>
           <div class="playoff-team-main"><span>${escapeHtml(awayFlag)}</span><span class="playoff-team-name${awayPlaceholder ? ' placeholder' : ''}">${escapeHtml(awayLabel)}</span></div>
-          <span class="playoff-team-score">${winner==='away' ? '✓' : ''}</span>
+          <span id="po-tick-${escapeHtml(String(match.id || '').toUpperCase())}-away" class="playoff-team-score">${winner==='away' ? '✓' : ''}</span>
         </button>
         <div class="score-row" style="max-width:none;margin-top:10px">
-          <input type="number" min="0" max="20" placeholder="?" class="score-input" value="${escapeHtml(state.homeScore)}" oninput="setPlayoffPredictionScore('${escapeHtml(String(match.id || '').toUpperCase())}','homeScore',this.value)" onwheel="this.blur()" ${matchLocked?'disabled style="opacity:.6;cursor:not-allowed"':''}/>
+          <input id="po-${escapeHtml(String(match.id || '').toUpperCase())}-homeScore" type="number" min="0" max="20" placeholder="?" class="score-input" value="${escapeHtml(state.homeScore)}" oninput="setPlayoffPredictionScore('${escapeHtml(String(match.id || '').toUpperCase())}','homeScore',this.value)" onwheel="this.blur()" ${matchLocked?'disabled style="opacity:.6;cursor:not-allowed"':''}/>
           <div class="score-vs">:</div>
-          <input type="number" min="0" max="20" placeholder="?" class="score-input" value="${escapeHtml(state.awayScore)}" oninput="setPlayoffPredictionScore('${escapeHtml(String(match.id || '').toUpperCase())}','awayScore',this.value)" onwheel="this.blur()" ${matchLocked?'disabled style="opacity:.6;cursor:not-allowed"':''}/>
+          <input id="po-${escapeHtml(String(match.id || '').toUpperCase())}-awayScore" type="number" min="0" max="20" placeholder="?" class="score-input" value="${escapeHtml(state.awayScore)}" oninput="setPlayoffPredictionScore('${escapeHtml(String(match.id || '').toUpperCase())}','awayScore',this.value)" onwheel="this.blur()" ${matchLocked?'disabled style="opacity:.6;cursor:not-allowed"':''}/>
         </div>
         <div class="playoff-editor-hint">${matchLocked ? 'Этот матч уже начался, поэтому его прогноз зафиксирован.' : 'Если ставишь ничью по счёту, обязательно кликни команду, которая пройдёт дальше.'}</div>
       </div>`;
@@ -9038,10 +9095,14 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
   });
 
   html += `</div>
-    <button class="btn btn-yellow btn-full" id="po-save-btn" onclick="savePlayoff()" ${canSave ? '' : 'disabled'} style="margin-top:8px">
-      СОХРАНИТЬ ПРОГНОЗ ПО СЕТКЕ →
-    </button>
-    <p style="font-size:11px;color:var(--muted2);text-align:center;margin-top:10px">${canSave ? 'Есть несохранённые изменения.' : 'Кнопка активируется, когда ты изменишь любой ещё не начавшийся матч.'}</p>
+    <div class="playoff-savebar">
+      <div class="playoff-savebar-inner">
+        <button class="btn btn-yellow btn-full" id="po-save-btn" onclick="savePlayoff()" ${canSave ? '' : 'disabled'}>
+          СОХРАНИТЬ ПРОГНОЗ ПО СЕТКЕ →
+        </button>
+        <div id="po-save-meta" class="playoff-savebar-meta">${canSave ? 'Есть несохранённые изменения.' : 'Кнопка активируется, когда ты изменишь любой ещё не начавшийся матч.'}</div>
+      </div>
+    </div>
   </div>`;
 
   if(bracketHtml){
