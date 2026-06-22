@@ -4207,26 +4207,25 @@ function renderMatchRewardsArticle(mood, rows, total, standing){
     `Очков: ${stats.pred_points}`,
     `Место: №${stats.pred_rank}`,
     `Попаданий: ${stats.good}`,
-    `Мимо: ${stats.miss}`,
   ];
   const spotlight = [
-    { label:'Место в рейтинге', value:`№${stats.pred_rank}`, note:'Официальная позиция в таблице народного смущения.', major:true },
-    { label:'Всего очков', value:String(stats.pred_points), note:'Общий улов за прогнозы. Столько уже наскреблось с начала турнира.', major:true },
-    { label:'Начислено за выпуск', value:`+${formatCoins(stats.total)}`, note:'ЛузКоины пришли, стыд остался.' },
-    { label:'Попаданий / промахов', value:`${stats.good} / ${stats.miss}`, note:'Сколько раз попал и сколько раз снова поссорился с реальностью.' },
+    { label:'Место', value:`№${stats.pred_rank}`, note:'Текущая позиция в рейтинге.', major:true },
+    { label:'Очки', value:String(stats.pred_points), note:'Всего очков за прогнозы.', major:true },
+    { label:'Награда', value:`+${formatCoins(stats.total)}`, note:'Начислено за последние матчи.' },
+    { label:'Попаданий', value:String(stats.good), note:'Сколько матчей принесли очки.' },
   ];
   return `
     <div class="match-rewards-kicker">ПЕРСОНАЛЬНОЕ УВЕДОМЛЕНИЕ • МАТЧЕВЫЙ АПДЕЙТ • ДЛЯ ${shortName.toUpperCase()}</div>
-    <div class="match-rewards-byline">${shortName}, награды за последние матчи уже начислены. Ниже короткая сводка по очкам, месту и тому, что нужно не забыть сделать дальше.</div>
+    <div class="match-rewards-byline">${shortName}, награды начислены.</div>
     <div class="match-rewards-alert">
-      <strong>Плей-офф сейчас в тестовом режиме</strong>
-      <span>Не все страны и матчи уже известны, поэтому блок плей-офф пока предварительный. В ближайшее время не забудь проставить плей-офф. Кнопка <b>«проставить наугад»</b> уже есть, если хочешь заполнить быстро.</span>
+      <strong>Не все команды плей-офф ещё появились</strong>
+      <span>Плей-офф сейчас в тестовом режиме. Как только появятся остальные команды и матчи, не забудь проставить сетку. Кнопка <b>«проставить наугад»</b> уже есть.</span>
     </div>
     <div class="match-rewards-spotlight">${spotlight.map(item=>`<div class="match-rewards-stat${item.major?' major':''}"><span class="match-rewards-stat-label">${escapeHtml(item.label)}</span><strong class="match-rewards-stat-value">${escapeHtml(item.value)}</strong><span class="match-rewards-stat-note">${escapeHtml(item.note)}</span></div>`).join('')}</div>
     <div class="match-rewards-article">
-      <p>${shortName}, по свежему пересчёту у тебя сейчас <b>${stats.pred_points}</b> очков и место <b>№${stats.pred_rank}</b> в общем рейтинге прогнозов.</p>
-      <p>За этот пакет матчей начислено <b>+${formatCoins(stats.total)} ЛК</b>. Точных попаданий: <b>${stats.exact}</b>, удачных исходов: <b>${stats.good}</b>, промахов: <b>${stats.miss}</b>.</p>
-      <p>Самое важное сейчас: загляни в плей-офф и проставь сетку, пока она ещё в гибком тестовом режиме. Потом это окно закроешь и пойдёшь дальше побеждать или страдать.</p>
+      <p><b>Главное:</b> плей-офф ещё не полный, потому что не все команды уже определились.</p>
+      <p>Забери награду и потом сразу проверь сетку плей-офф.</p>
+      <p><b>PVP-игры:</b> уже вышли в версии 0.00001 преальфа. Работают неидеально, но уже стали лучше.</p>
     </div>
     <div class="match-rewards-facts">${facts.map(f => `<span class="match-rewards-fact">${escapeHtml(f)}</span>`).join('')}</div>
   `;
