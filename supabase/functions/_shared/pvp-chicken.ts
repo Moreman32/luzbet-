@@ -155,10 +155,13 @@ export function maybeFinishPvpChicken(state: PvpChickenRoom) {
 
 export function toPublicPvpChickenRoom(state: PvpChickenRoom, viewerCode = "") {
   const myRole = viewerCode === state.host_code ? "host" : viewerCode === state.guest_code ? "guest" : "";
+  const revealAll = state.status === "finished";
   const myCanPush = state.status === "active" && (
     (myRole === "host" && !state.host_stood && !state.host_busted) ||
     (myRole === "guest" && !state.guest_stood && !state.guest_busted)
   );
+  const showHostProgress = revealAll || myRole === "host";
+  const showGuestProgress = revealAll || myRole === "guest";
   return {
     room_id: state.room_id,
     status: state.status,
@@ -179,18 +182,20 @@ export function toPublicPvpChickenRoom(state: PvpChickenRoom, viewerCode = "") {
     host: {
       code: state.host_code,
       name: state.host_name,
-      steps: state.host_steps,
+      steps: showHostProgress ? state.host_steps : null,
       stood: state.host_stood,
       busted: state.host_busted,
-      next_bust_chance: getChickenBustChance(state.host_steps),
+      next_bust_chance: showHostProgress ? getChickenBustChance(state.host_steps) : null,
+      hidden_progress: !showHostProgress,
     },
     guest: {
       code: state.guest_code,
       name: state.guest_name,
-      steps: state.guest_steps,
+      steps: showGuestProgress ? state.guest_steps : null,
       stood: state.guest_stood,
       busted: state.guest_busted,
-      next_bust_chance: getChickenBustChance(state.guest_steps),
+      next_bust_chance: showGuestProgress ? getChickenBustChance(state.guest_steps) : null,
+      hidden_progress: !showGuestProgress,
     },
     resolution: state.resolution,
     created_at: state.created_at || null,

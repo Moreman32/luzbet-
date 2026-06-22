@@ -1662,6 +1662,247 @@ body.match-rewards-locked{
   .match-rewards-meta{max-height:260px}
 }
 
+/* Match Rewards Popup — refreshed attention layout */
+.match-rewards-pop{
+  background:
+    radial-gradient(circle at top right,rgba(255,230,0,.14),transparent 24%),
+    radial-gradient(circle at top left,rgba(255,74,74,.14),transparent 26%),
+    linear-gradient(180deg,#10141f 0%,#121927 48%,#0d111a 100%);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 34px 120px rgba(0,0,0,.62),0 0 0 1px rgba(255,230,0,.08),0 0 0 12px rgba(255,230,0,.04);
+}
+.match-rewards-pop::before{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.06),transparent 16%),
+    repeating-linear-gradient(90deg,transparent,transparent 22px,rgba(255,255,255,.02) 22px,rgba(255,255,255,.02) 23px);
+  opacity:1;
+}
+.match-rewards-backdrop{
+  background:radial-gradient(circle at center,rgba(255,230,0,.12),rgba(9,11,18,.86) 38%,rgba(5,7,12,.96));
+}
+.match-rewards-head{
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0)),
+    linear-gradient(135deg,rgba(255,230,0,.1),rgba(255,74,74,.08) 52%,rgba(255,255,255,.03));
+}
+.match-rewards-paperline{
+  background:linear-gradient(90deg,#ff4e36,#ffbc2f 45%,#ffe872 100%);
+  color:#170d08;
+}
+.match-rewards-paperline-badge{
+  background:#161616;
+  color:#fff2b3;
+}
+.match-rewards-edition{
+  color:#fff6da;
+  background:rgba(14,18,29,.58);
+  border:1px solid rgba(255,255,255,.14);
+}
+.match-rewards-title{
+  color:#f6f7fb;
+  font-size:clamp(20px,2.9vw,34px);
+  line-height:.95;
+  text-transform:none;
+}
+.match-rewards-sub{
+  color:#c6cedd;
+  font-size:12px;
+}
+.match-rewards-total{
+  color:#ffe35d;
+  text-shadow:0 0 22px rgba(255,227,93,.18);
+  font-size:26px;
+}
+.match-rewards-total-label{
+  color:#9facbf;
+}
+.match-rewards-hero{
+  border:1px solid rgba(255,255,255,.08);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015)),
+    linear-gradient(145deg,#121927,#0f1521);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);
+}
+.match-rewards-stamp{
+  border-color:rgba(255,230,0,.24);
+  color:#161109;
+  background:linear-gradient(135deg,#ffe351,#ffb547);
+  box-shadow:0 8px 24px rgba(255,181,71,.24);
+}
+.match-rewards-verdict{
+  color:#ffffff;
+  text-transform:none;
+  line-height:1;
+}
+.match-rewards-meta{
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg,rgba(15,20,32,.82),rgba(9,13,22,.92));
+  color:#dbe1ee;
+  box-shadow:none;
+}
+.match-rewards-meta::-webkit-scrollbar-thumb{background:rgba(255,230,0,.28)}
+.match-rewards-kicker{
+  color:#ffe35d;
+  font-size:10px;
+  letter-spacing:1.2px;
+}
+.match-rewards-byline{
+  color:#d3dbeb;
+  font-size:11px;
+  text-transform:none;
+  letter-spacing:.15px;
+  border-bottom:1px dashed rgba(255,255,255,.12);
+  padding-bottom:8px;
+}
+.match-rewards-alert{
+  display:grid;
+  gap:6px;
+  padding:12px 13px;
+  border-radius:14px;
+  border:1px solid rgba(255,230,0,.22);
+  background:
+    linear-gradient(135deg,rgba(255,230,0,.12),rgba(255,103,65,.08)),
+    rgba(255,255,255,.02);
+  box-shadow:0 14px 30px rgba(255,166,0,.08);
+}
+.match-rewards-alert strong{
+  font-family:var(--os);
+  font-size:14px;
+  letter-spacing:.5px;
+  color:#fff0a8;
+}
+.match-rewards-alert span{
+  font-size:12px;
+  line-height:1.55;
+  color:#fff8db;
+}
+.match-rewards-alert b{color:#ffe35d}
+.match-rewards-spotlight{
+  gap:8px;
+}
+.match-rewards-stat{
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  box-shadow:none;
+}
+.match-rewards-stat.major{
+  background:linear-gradient(135deg,rgba(255,230,0,.14),rgba(255,188,47,.08));
+  border-color:rgba(255,230,0,.2);
+}
+.match-rewards-stat-label{
+  color:#96a2b8;
+}
+.match-rewards-stat-value{
+  color:#ffffff;
+}
+.match-rewards-stat.major .match-rewards-stat-value{
+  color:#ffe35d;
+}
+.match-rewards-stat-note{
+  color:#c5cfdf;
+}
+.match-rewards-article{
+  font-size:12px;
+  line-height:1.62;
+  color:#e1e7f3;
+}
+.match-rewards-article p:first-child::first-letter{
+  color:#ffe35d;
+}
+.match-rewards-pullquote{display:none}
+.match-rewards-fact{
+  background:rgba(255,255,255,.06);
+  color:#dbe4f4;
+  border:1px solid rgba(255,255,255,.06);
+}
+.match-rewards-reaction{
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(145deg,#1d2738,#121a28);
+  box-shadow:0 14px 30px rgba(0,0,0,.24);
+}
+.match-rewards-reaction-badge{
+  background:rgba(10,14,23,.86);
+  color:#fff0a8;
+  border:1px solid rgba(255,230,0,.14);
+}
+.match-rewards-list-head{
+  color:#f5f7ff;
+}
+.match-rewards-list-note{
+  color:#9aa7bc;
+}
+.match-rewards-list{
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));
+}
+.match-reward-row{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:none;
+}
+.match-reward-row.exact{
+  background:linear-gradient(180deg,rgba(34,197,94,.16),rgba(34,197,94,.05));
+  border-color:rgba(34,197,94,.2);
+}
+.match-reward-row.outcome{
+  background:linear-gradient(180deg,rgba(255,191,36,.16),rgba(255,191,36,.05));
+  border-color:rgba(255,191,36,.2);
+}
+.match-reward-row.miss{
+  background:linear-gradient(180deg,rgba(255,82,82,.16),rgba(255,82,82,.05));
+  border-color:rgba(255,82,82,.16);
+}
+.match-reward-match,.match-reward-scorevalue{
+  color:#ffffff;
+}
+.match-reward-scorebox{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+.match-reward-scorelabel{
+  color:#96a2b8;
+}
+.match-reward-delta{
+  color:#fff0a8;
+  background:rgba(255,230,0,.1);
+}
+.match-reward-tag{
+  background:rgba(255,255,255,.06);
+  color:#dbe1ee;
+}
+.match-reward-tag.exact{color:#8ff0b0;background:rgba(34,197,94,.12)}
+.match-reward-tag.outcome{color:#ffe27f;background:rgba(255,191,36,.12)}
+.match-reward-tag.miss{color:#ff9fa8;background:rgba(255,82,82,.12)}
+.match-rewards-foot{
+  border-top:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg,rgba(10,14,23,.9),rgba(7,10,16,.98));
+}
+.match-rewards-lock{
+  color:#dbe4f6;
+}
+.match-rewards-btn{
+  color:#15110a;
+  background:linear-gradient(135deg,#ffe34f,#ffbf2f 46%,#ff6d4b 100%);
+  box-shadow:0 18px 34px rgba(255,145,77,.22);
+}
+.match-rewards-btn:not([disabled])::after{
+  color:rgba(21,17,10,.78);
+}
+.match-rewards-btn[disabled]{
+  color:#b2bdd1;
+  background:linear-gradient(135deg,#364258,#2a3346);
+}
+@keyframes matchRewardsBtnPulse{
+  0%,100%{box-shadow:0 18px 34px rgba(255,145,77,.22),0 0 0 0 rgba(255,230,79,.12)}
+  50%{box-shadow:0 22px 42px rgba(255,145,77,.3),0 0 0 10px rgba(255,230,79,0)}
+}
+@media(max-width:480px){
+  .match-rewards-alert{padding:10px 11px}
+  .match-rewards-alert strong{font-size:13px}
+  .match-rewards-alert span{font-size:11px}
+  .match-rewards-article{font-size:11px}
+}
+
 
 
 /* ANTICHEAT MEME POPUP */
@@ -3959,11 +4200,7 @@ function renderMatchRewardsArticle(mood, rows, total, standing){
     pred_points: standing && standing.points != null ? standing.points : 0,
     pred_rank: standing && standing.rank != null ? standing.rank : '?',
   };
-  const article = mood && mood.article ? mood.article : null;
-  if(!article) return escapeHtml(withViewerName('Матчи посчитаны, монеты начислены, самооценка пересмотрена.'));
-  const kicker = escapeHtml(fillMatchRewardsTemplate(article.kicker, stats));
-  const paragraphs = Array.isArray(article.paragraphs) ? article.paragraphs : [];
-  const quote = article.quote ? escapeHtml(fillMatchRewardsTemplate(article.quote, stats)) : '';
+  const shortName = escapeHtml(getViewerShortName());
   const facts = [
     `Матчей: ${stats.matches}`,
     `Начислено: +${formatCoins(stats.total)} ЛК`,
@@ -3978,17 +4215,19 @@ function renderMatchRewardsArticle(mood, rows, total, standing){
     { label:'Начислено за выпуск', value:`+${formatCoins(stats.total)}`, note:'ЛузКоины пришли, стыд остался.' },
     { label:'Попаданий / промахов', value:`${stats.good} / ${stats.miss}`, note:'Сколько раз попал и сколько раз снова поссорился с реальностью.' },
   ];
-  const story = [
-    getMatchRewardsLead(stats),
-    ...paragraphs.map(p => fillMatchRewardsTemplate(p, stats)),
-    getMatchRewardsOutro(stats),
-  ];
   return `
-    <div class="match-rewards-kicker">${kicker}</div>
-    <div class="match-rewards-byline">Спецкор ЛузБета • Отдел матчевого абсурда • Выпуск для ${escapeHtml(getViewerShortName())}</div>
+    <div class="match-rewards-kicker">ПЕРСОНАЛЬНОЕ УВЕДОМЛЕНИЕ • МАТЧЕВЫЙ АПДЕЙТ • ДЛЯ ${shortName.toUpperCase()}</div>
+    <div class="match-rewards-byline">${shortName}, награды за последние матчи уже начислены. Ниже короткая сводка по очкам, месту и тому, что нужно не забыть сделать дальше.</div>
+    <div class="match-rewards-alert">
+      <strong>Плей-офф сейчас в тестовом режиме</strong>
+      <span>Не все страны и матчи уже известны, поэтому блок плей-офф пока предварительный. В ближайшее время не забудь проставить плей-офф. Кнопка <b>«проставить наугад»</b> уже есть, если хочешь заполнить быстро.</span>
+    </div>
     <div class="match-rewards-spotlight">${spotlight.map(item=>`<div class="match-rewards-stat${item.major?' major':''}"><span class="match-rewards-stat-label">${escapeHtml(item.label)}</span><strong class="match-rewards-stat-value">${escapeHtml(item.value)}</strong><span class="match-rewards-stat-note">${escapeHtml(item.note)}</span></div>`).join('')}</div>
-    <div class="match-rewards-article">${story.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>
-    ${quote ? `<div class="match-rewards-pullquote">${quote}</div>` : ''}
+    <div class="match-rewards-article">
+      <p>${shortName}, по свежему пересчёту у тебя сейчас <b>${stats.pred_points}</b> очков и место <b>№${stats.pred_rank}</b> в общем рейтинге прогнозов.</p>
+      <p>За этот пакет матчей начислено <b>+${formatCoins(stats.total)} ЛК</b>. Точных попаданий: <b>${stats.exact}</b>, удачных исходов: <b>${stats.good}</b>, промахов: <b>${stats.miss}</b>.</p>
+      <p>Самое важное сейчас: загляни в плей-офф и проставь сетку, пока она ещё в гибком тестовом режиме. Потом это окно закроешь и пойдёшь дальше побеждать или страдать.</p>
+    </div>
     <div class="match-rewards-facts">${facts.map(f => `<span class="match-rewards-fact">${escapeHtml(f)}</span>`).join('')}</div>
   `;
 }
@@ -4039,8 +4278,8 @@ function updateMatchRewardsLockUI(){
     return;
   }
   btn.disabled=false;
-  btn.textContent='ЗАБРАТЬ ЛУЗКОИНЫ И ПРИНЯТЬ ПОЗОР';
-  text.textContent='Теперь нажми кнопку. Пока не нажмешь, окно не исчезнет.';
+  btn.textContent='ЗАБРАТЬ НАГРАДУ И ИДТИ В ПЛЕЙ-ОФФ';
+  text.textContent='Теперь можно забрать награду и вернуться к прогнозам.';
   matchRewardsPopupTimer=null;
 }
 
@@ -4091,15 +4330,15 @@ async function showMatchRewardsPopup(rows){
   };
   totalEl.textContent = `+${total} ЛК`;
   subEl.textContent = rows.length===1
-    ? 'Один матч закончился. И да, тебя по нему уже оценили.'
-    : `Матчей закрыто: ${rows.length}. Коллективный разбор твоих решений готов.`;
+    ? 'Один матч закрылся. Награда уже начислена, а ниже есть важное напоминание про плей-офф.'
+    : `Матчей закрыто: ${rows.length}. Награды начислены, рейтинг обновился, а ниже есть важное напоминание про плей-офф.`;
   popup.className = `match-rewards-pop ${mood.popupClass}`;
-  stampEl.textContent = mood.stamp;
-  verdictEl.textContent = getMatchRewardsHeadline(moodKey, stats);
+  stampEl.textContent = 'ТЕСТОВЫЙ ПЛЕЙ-ОФФ • НЕ ПРОПУСТИ';
+  verdictEl.textContent = `${getViewerShortName()}, забери награду и не забудь проставить плей-офф`;
   metaEl.innerHTML = renderMatchRewardsArticle(mood, rows, total, standing);
   reactionImgEl.src = randomFrom(Array.isArray(mood.images) && mood.images.length ? mood.images : ['big-win.png']);
-  reactionImgEl.alt = withViewerName(mood.badge);
-  reactionBadgeEl.textContent = withViewerName(mood.badge);
+  reactionImgEl.alt = 'Напоминание про плей-офф';
+  reactionBadgeEl.textContent = 'ПРОВЕРЬ ПЛЕЙ-ОФФ ПОСЛЕ НАГРАДЫ';
 
   list.innerHTML = rows.map(row=>{
     const resultType = String(row.result_type || 'miss');
@@ -6526,6 +6765,10 @@ function getPvpBlackjackHostRoom(){
   return (pvpBjState.mine||[]).find(item=>item && item.host_code===S.code && (item.status==='waiting' || item.status==='active')) || null;
 }
 
+function isPvpBlackjackActionable(room){
+  return !!(room && room.status==='active' && (room.my_can_hit===true || room.my_can_stand===true));
+}
+
 function getPvpBlackjackCancelableRoom(){
   return (pvpBjState.mine||[]).find(item=>item && item.host_code===S.code && item.status==='waiting') || null;
 }
@@ -6533,6 +6776,8 @@ function getPvpBlackjackCancelableRoom(){
 function pickPvpBlackjackRoom(nextRooms){
   const rooms=Array.isArray(nextRooms)?nextRooms:[];
   const currentId=pvpBjState.room && pvpBjState.room.room_id ? pvpBjState.room.room_id : '';
+  const actionable=rooms.find(isPvpBlackjackActionable);
+  if(actionable) return actionable;
   if(currentId){
     const same=rooms.find(item=>item && item.room_id===currentId);
     if(same) return same;
@@ -6602,7 +6847,7 @@ function renderPvpBlackjackState(){
     : '<div style="font-size:12px;color:var(--muted)">Открытых офферов пока нет. Можно первым выставить ставку и заманить жертву.</div>';
 
   mineEl.innerHTML=(pvpBjState.mine||[]).length
-    ? `<div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin-bottom:2px">Твои комнаты</div>` + pvpBjState.mine.map(item=>`<div style="padding:10px 12px;border:1px solid ${pvpBjState.room && pvpBjState.room.room_id===item.room_id ? 'var(--yellow)' : 'var(--border)'};border-radius:12px;background:rgba(255,255,255,.03)"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="font-family:var(--os);font-size:14px">${escapeHtml(item.host.name || 'Ты')} vs ${escapeHtml(item.guest.name || 'ожидание')}</strong><span style="font-size:11px;color:var(--muted)">${escapeHtml(item.status)}</span></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Ставка ${item.bet} ЛК • ${escapeHtml(pvpBjResolutionText(item))}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost" style="height:34px;font-size:12px" onclick="openPvpBlackjackRoom('${escapeAttr(item.room_id)}')">Открыть</button>${item.host_code===S.code && item.status==='waiting' ? `<button class="btn btn-ghost" style="height:34px;font-size:12px;border-color:#ff7b7b;color:#ff9a9a" onclick="cancelPvpBlackjackRoom('${escapeAttr(item.room_id)}')">Отменить</button>` : ''}</div></div>`).join('')
+    ? `<div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin-bottom:2px">Твои комнаты</div>` + pvpBjState.mine.map(item=>`<div style="padding:10px 12px;border:1px solid ${isPvpBlackjackActionable(item) ? 'rgba(255,230,0,.68)' : pvpBjState.room && pvpBjState.room.room_id===item.room_id ? 'var(--yellow)' : 'var(--border)'};border-radius:12px;background:${isPvpBlackjackActionable(item) ? 'rgba(255,230,0,.08)' : 'rgba(255,255,255,.03)'}"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="font-family:var(--os);font-size:14px">${escapeHtml(item.host.name || 'Ты')} vs ${escapeHtml(item.guest.name || 'ожидание')}</strong><span style="font-size:11px;color:${isPvpBlackjackActionable(item)?'var(--yellow)':'var(--muted)'}">${isPvpBlackjackActionable(item)?'ТВОЙ ХОД':escapeHtml(item.status)}</span></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Ставка ${item.bet} ЛК • ${escapeHtml(pvpBjResolutionText(item))}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost" style="height:34px;font-size:12px" onclick="openPvpBlackjackRoom('${escapeAttr(item.room_id)}')">${isPvpBlackjackActionable(item)?'Играть':'Открыть'}</button>${item.host_code===S.code && item.status==='waiting' ? `<button class="btn btn-ghost" style="height:34px;font-size:12px;border-color:#ff7b7b;color:#ff9a9a" onclick="cancelPvpBlackjackRoom('${escapeAttr(item.room_id)}')">Отменить</button>` : ''}</div></div>`).join('')
     : '';
 }
 
@@ -6739,6 +6984,10 @@ function getPvpDiceHostRoom(){
   return (pvpDiceState.mine||[]).find(item=>item && item.host_code===S.code && (item.status==='waiting' || item.status==='active')) || null;
 }
 
+function isPvpDiceActionable(room){
+  return !!(room && room.status==='active' && room.my_can_roll===true);
+}
+
 function getPvpDiceCancelableRoom(){
   return (pvpDiceState.mine||[]).find(item=>item && item.host_code===S.code && item.status==='waiting') || null;
 }
@@ -6746,6 +6995,8 @@ function getPvpDiceCancelableRoom(){
 function pickPvpDiceRoom(nextRooms){
   const rooms=Array.isArray(nextRooms)?nextRooms:[];
   const currentId=pvpDiceState.room && pvpDiceState.room.room_id ? pvpDiceState.room.room_id : '';
+  const actionable=rooms.find(isPvpDiceActionable);
+  if(actionable) return actionable;
   if(currentId){
     const same=rooms.find(item=>item && item.room_id===currentId);
     if(same) return same;
@@ -6796,7 +7047,7 @@ function renderPvpDiceState(){
     : '<div style="font-size:12px;color:var(--muted)">Пока нет открытых дуэлей на кости.</div>';
 
   mineEl.innerHTML=(pvpDiceState.mine||[]).length
-    ? `<div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin-bottom:2px">Твои комнаты</div>` + pvpDiceState.mine.map(item=>`<div style="padding:10px 12px;border:1px solid ${pvpDiceState.room && pvpDiceState.room.room_id===item.room_id ? 'var(--yellow)' : 'var(--border)'};border-radius:12px;background:rgba(255,255,255,.03)"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="font-family:var(--os);font-size:14px">${escapeHtml(item.host.name || 'Ты')} vs ${escapeHtml(item.guest.name || 'ожидание')}</strong><span style="font-size:11px;color:var(--muted)">${escapeHtml(item.status)}</span></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Ставка ${item.bet} ЛК • ${escapeHtml(pvpDiceResolutionText(item))}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost" style="height:34px;font-size:12px" onclick="openPvpDiceRoom('${escapeAttr(item.room_id)}')">Открыть</button>${item.host_code===S.code && item.status==='waiting' ? `<button class="btn btn-ghost" style="height:34px;font-size:12px;border-color:#ff7b7b;color:#ff9a9a" onclick="cancelPvpDiceRoom('${escapeAttr(item.room_id)}')">Отменить</button>` : ''}</div></div>`).join('')
+    ? `<div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin-bottom:2px">Твои комнаты</div>` + pvpDiceState.mine.map(item=>`<div style="padding:10px 12px;border:1px solid ${isPvpDiceActionable(item) ? 'rgba(255,230,0,.68)' : pvpDiceState.room && pvpDiceState.room.room_id===item.room_id ? 'var(--yellow)' : 'var(--border)'};border-radius:12px;background:${isPvpDiceActionable(item) ? 'rgba(255,230,0,.08)' : 'rgba(255,255,255,.03)'}"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="font-family:var(--os);font-size:14px">${escapeHtml(item.host.name || 'Ты')} vs ${escapeHtml(item.guest.name || 'ожидание')}</strong><span style="font-size:11px;color:${isPvpDiceActionable(item)?'var(--yellow)':'var(--muted)'}">${isPvpDiceActionable(item)?'ТВОЙ БРОСОК':escapeHtml(item.status)}</span></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Ставка ${item.bet} ЛК • ${escapeHtml(pvpDiceResolutionText(item))}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost" style="height:34px;font-size:12px" onclick="openPvpDiceRoom('${escapeAttr(item.room_id)}')">${isPvpDiceActionable(item)?'Играть':'Открыть'}</button>${item.host_code===S.code && item.status==='waiting' ? `<button class="btn btn-ghost" style="height:34px;font-size:12px;border-color:#ff7b7b;color:#ff9a9a" onclick="cancelPvpDiceRoom('${escapeAttr(item.room_id)}')">Отменить</button>` : ''}</div></div>`).join('')
     : '';
 }
 
@@ -6945,6 +7196,10 @@ function getPvpChickenHostRoom(){
   return (pvpChickenState.mine||[]).find(item=>item && item.host_code===S.code && (item.status==='waiting' || item.status==='active')) || null;
 }
 
+function isPvpChickenActionable(room){
+  return !!(room && room.status==='active' && (room.my_can_push===true || room.my_can_stand===true));
+}
+
 function getPvpChickenCancelableRoom(){
   return (pvpChickenState.mine||[]).find(item=>item && item.host_code===S.code && item.status==='waiting') || null;
 }
@@ -6952,6 +7207,8 @@ function getPvpChickenCancelableRoom(){
 function pickPvpChickenRoom(nextRooms){
   const rooms=Array.isArray(nextRooms)?nextRooms:[];
   const currentId=pvpChickenState.room && pvpChickenState.room.room_id ? pvpChickenState.room.room_id : '';
+  const actionable=rooms.find(isPvpChickenActionable);
+  if(actionable) return actionable;
   if(currentId){
     const same=rooms.find(item=>item && item.room_id===currentId);
     if(same) return same;
@@ -6990,8 +7247,8 @@ function renderPvpChickenState(){
   if(room){
     document.getElementById('pvp-chicken-host-label').textContent=`${room.host.name || 'Хост'}${room.my_role==='host'?' (ты)':''}`;
     document.getElementById('pvp-chicken-guest-label').textContent=`${room.guest.name || 'Гость'}${room.my_role==='guest'?' (ты)':''}`;
-    document.getElementById('pvp-chicken-host-state').innerHTML=`<b>Шаги: ${room.host.steps}</b><br><span style="font-size:11px;color:var(--muted)">${room.host.busted===true ? 'Сорвался' : room.host.stood===true ? 'Остановился' : `Следующий риск: ${room.host.next_bust_chance}%`}</span>`;
-    document.getElementById('pvp-chicken-guest-state').innerHTML=`<b>Шаги: ${room.guest.steps}</b><br><span style="font-size:11px;color:var(--muted)">${room.guest.busted===true ? 'Сорвался' : room.guest.stood===true ? 'Остановился' : `Следующий риск: ${room.guest.next_bust_chance}%`}</span>`;
+    document.getElementById('pvp-chicken-host-state').innerHTML=`<b>${room.host.hidden_progress ? 'Шаги скрыты' : `Шаги: ${room.host.steps}`}</b><br><span style="font-size:11px;color:var(--muted)">${room.host.busted===true ? 'Сорвался' : room.host.stood===true ? 'Остановился' : room.host.hidden_progress ? 'Текущий риск скрыт для соперника' : `Следующий риск: ${room.host.next_bust_chance}%`}</span>`;
+    document.getElementById('pvp-chicken-guest-state').innerHTML=`<b>${room.guest.hidden_progress ? 'Шаги скрыты' : `Шаги: ${room.guest.steps}`}</b><br><span style="font-size:11px;color:var(--muted)">${room.guest.busted===true ? 'Сорвался' : room.guest.stood===true ? 'Остановился' : room.guest.hidden_progress ? 'Текущий риск скрыт для соперника' : `Следующий риск: ${room.guest.next_bust_chance}%`}</span>`;
     document.getElementById('pvp-chicken-room-status').textContent=pvpChickenResolutionText(room);
     pushBtn.disabled=!(room.status==='active' && room.my_can_push===true) || busy;
     standBtn.disabled=!(room.status==='active' && room.my_can_stand===true) || busy;
@@ -7005,7 +7262,7 @@ function renderPvpChickenState(){
     : '<div style="font-size:12px;color:var(--muted)">Пока нет открытых Chicken Race комнат.</div>';
 
   mineEl.innerHTML=(pvpChickenState.mine||[]).length
-    ? `<div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin-bottom:2px">Твои комнаты</div>` + pvpChickenState.mine.map(item=>`<div style="padding:10px 12px;border:1px solid ${pvpChickenState.room && pvpChickenState.room.room_id===item.room_id ? 'var(--yellow)' : 'var(--border)'};border-radius:12px;background:rgba(255,255,255,.03)"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="font-family:var(--os);font-size:14px">${escapeHtml(item.host.name || 'Ты')} vs ${escapeHtml(item.guest.name || 'ожидание')}</strong><span style="font-size:11px;color:var(--muted)">${escapeHtml(item.status)}</span></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Ставка ${item.bet} ЛК • ${escapeHtml(pvpChickenResolutionText(item))}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost" style="height:34px;font-size:12px" onclick="openPvpChickenRoom('${escapeAttr(item.room_id)}')">Открыть</button>${item.host_code===S.code && item.status==='waiting' ? `<button class="btn btn-ghost" style="height:34px;font-size:12px;border-color:#ff7b7b;color:#ff9a9a" onclick="cancelPvpChickenRoom('${escapeAttr(item.room_id)}')">Отменить</button>` : ''}</div></div>`).join('')
+    ? `<div style="font-family:var(--os);font-size:12px;letter-spacing:.8px;color:var(--yellow);margin-bottom:2px">Твои комнаты</div>` + pvpChickenState.mine.map(item=>`<div style="padding:10px 12px;border:1px solid ${isPvpChickenActionable(item) ? 'rgba(255,230,0,.68)' : pvpChickenState.room && pvpChickenState.room.room_id===item.room_id ? 'var(--yellow)' : 'var(--border)'};border-radius:12px;background:${isPvpChickenActionable(item) ? 'rgba(255,230,0,.08)' : 'rgba(255,255,255,.03)'}"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="font-family:var(--os);font-size:14px">${escapeHtml(item.host.name || 'Ты')} vs ${escapeHtml(item.guest.name || 'ожидание')}</strong><span style="font-size:11px;color:${isPvpChickenActionable(item)?'var(--yellow)':'var(--muted)'}">${isPvpChickenActionable(item)?'ТВОЙ РИСК':escapeHtml(item.status)}</span></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Ставка ${item.bet} ЛК • ${escapeHtml(pvpChickenResolutionText(item))}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost" style="height:34px;font-size:12px" onclick="openPvpChickenRoom('${escapeAttr(item.room_id)}')">${isPvpChickenActionable(item)?'Играть':'Открыть'}</button>${item.host_code===S.code && item.status==='waiting' ? `<button class="btn btn-ghost" style="height:34px;font-size:12px;border-color:#ff7b7b;color:#ff9a9a" onclick="cancelPvpChickenRoom('${escapeAttr(item.room_id)}')">Отменить</button>` : ''}</div></div>`).join('')
     : '';
 }
 
