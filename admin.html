@@ -177,9 +177,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   sessionStorage.removeItem(ADMIN_PASS_KEY);
 });
 
-const SB_URL="https://kdsowktuirtkxnmtyoaz.supabase.co";
-const SB_KEY="sb_publishable_zjMkZslnb71eXQ_q6FQIAQ_eGyoW82B";
-const FUNCTIONS=SB_URL+"/functions/v1";
+const API_BASE_URL=String(window.LUZBET_API_BASE || '/api').replace(/\/+$/,'');
 
 const GROUPS={
   A:{
@@ -454,11 +452,9 @@ function go(id){
 
 async function fn(name,payload={},opts={}){
   const adminPass = opts.adminPass ?? sessionStorage.getItem(ADMIN_PASS_KEY) ?? '';
-  const r=await fetch(FUNCTIONS+'/'+name,{
+  const r=await fetch(API_BASE_URL+'/'+name,{
     method:'POST',
     headers:{
-      apikey:SB_KEY,
-      Authorization:'Bearer '+SB_KEY,
       'Content-Type':'application/json',
       ...(adminPass ? {'x-admin-pass':adminPass} : {})
     },

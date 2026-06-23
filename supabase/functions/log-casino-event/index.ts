@@ -1,11 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json; charset=utf-8",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -38,13 +32,6 @@ const ALLOWED_GAMES = new Set([
 
 const ALLOWED_EVENT_TYPES = new Set(["round", "bonus"]);
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: corsHeaders,
-  });
-}
-
 function toInt(value: unknown, fallback = 0) {
   const n = Number(value);
   if (!Number.isFinite(n)) return fallback;
@@ -52,13 +39,8 @@ function toInt(value: unknown, fallback = 0) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  if (req.method !== "POST") {
-    return json({ ok: false, error: "Method not allowed" }, 405);
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 8192 });
+  if (blocked) return blocked;
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -80,15 +62,15 @@ Deno.serve(async (req) => {
         : {};
 
     if (!code) {
-      return json({ ok: false, error: "code is required" }, 400);
+      return json(req, { ok: false, error: "code is required" }, 400);
     }
 
     if (!game || !ALLOWED_GAMES.has(game)) {
-      return json({ ok: false, error: "invalid game" }, 400);
+      return json(req, { ok: false, error: "invalid game" }, 400);
     }
 
     if (bet < 0 || payout < 0) {
-      return json({ ok: false, error: "bet and payout must be >= 0" }, 400);
+      return json(req, { ok: false, error: "bet and payout must be >= 0" }, 400);
     }
 
     const { data: participant, error: participantError } = await sb
@@ -98,11 +80,11 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (participantError) {
-      return json({ ok: false, error: participantError.message }, 500);
+      return json(req, { ok: false, error: participantError.message }, 500);
     }
 
     if (!participant) {
-      return json({ ok: false, error: "participant not found" }, 404);
+      return json(req, { ok: false, error: "participant not found" }, 404);
     }
 
     const payload: Record<string, unknown> = {
@@ -127,7 +109,7 @@ Deno.serve(async (req) => {
         });
 
       if (upsertError) {
-        return json({ ok: false, error: upsertError.message }, 500);
+        return json(req, { ok: false, error: upsertError.message }, 500);
       }
     } else {
       const { error: insertError } = await sb
@@ -135,13 +117,14 @@ Deno.serve(async (req) => {
         .insert(payload);
 
       if (insertError) {
-        return json({ ok: false, error: insertError.message }, 500);
+        return json(req, { ok: false, error: insertError.message }, 500);
       }
     }
 
-    return json({ ok: true });
+    return json(req, { ok: true });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "Unknown error" },
       500,
     );

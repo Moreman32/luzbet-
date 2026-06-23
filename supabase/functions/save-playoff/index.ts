@@ -1,25 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 24576 });
+  if (blocked) return blocked;
 
   try {
     const body = await req.json();
     const rawCode = String(body.code || "").trim();
 
     if (!rawCode) {
-      return Response.json(
-        { ok: false, error: "Не передан code" },
-        { headers: corsHeaders, status: 400 }
-      );
+      return json(req, { ok: false, error: "Не передан code" }, 400);
     }
 
     const supabase = createClient(
@@ -35,10 +26,7 @@ Deno.serve(async (req) => {
 
     if (participantError) throw participantError;
     if (!participants || !participants.length) {
-      return Response.json(
-        { ok: false, error: "Код не найден" },
-        { headers: corsHeaders, status: 404 }
-      );
+      return json(req, { ok: false, error: "Код не найден" }, 404);
     }
 
     const participant = participants[0];
@@ -129,10 +117,7 @@ Deno.serve(async (req) => {
           incoming.awayScore !== existing.awayScore ||
           incoming.winner !== existing.winner
         ) {
-          return Response.json(
-            { ok: false, error: `Матч ${id} уже закрыт для изменения` },
-            { headers: corsHeaders, status: 400 },
-          );
+          return json(req, { ok: false, error: `Матч ${id} уже закрыт для изменения` }, 400);
         }
       }
     }
@@ -150,11 +135,12 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
-    return Response.json({ ok: true }, { headers: corsHeaders });
+    return json(req, { ok: true });
   } catch (e) {
-    return Response.json(
-      { ok: false, error: e.message || "save-playoff failed" },
-      { headers: corsHeaders, status: 500 }
+    return json(
+      req,
+      { ok: false, error: e instanceof Error ? e.message : "save-playoff failed" },
+      500,
     );
   }
 });

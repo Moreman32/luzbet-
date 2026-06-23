@@ -1,11 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json; charset=utf-8",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -27,10 +21,6 @@ const VIP_DAILY_BONUS_LEVELS = [
   { thresh: 2000, amount: 225 },
   { thresh: 0, amount: 200 },
 ];
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: corsHeaders });
-}
 
 function sameUtcDay(a: string | null | undefined, b: Date) {
   if (!a) return false;
@@ -73,20 +63,15 @@ async function restoreCasinoRow(
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  if (req.method !== "POST") {
-    return json({ ok: false, error: "Method not allowed" }, 405);
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 2048 });
+  if (blocked) return blocked;
 
   try {
     const body = await req.json().catch(() => ({}));
     const code = String(body?.code || "").trim();
 
     if (!code) {
-      return json({ ok: false, error: "code is required" }, 400);
+      return json(req, { ok: false, error: "code is required" }, 400);
     }
 
     const { data: participant, error: participantError } = await sb
@@ -95,8 +80,8 @@ Deno.serve(async (req) => {
       .eq("code", code)
       .maybeSingle();
 
-    if (participantError) return json({ ok: false, error: participantError.message }, 500);
-    if (!participant) return json({ ok: false, error: "participant not found" }, 404);
+    if (participantError) return json(req, { ok: false, error: participantError.message }, 500);
+    if (!participant) return json(req, { ok: false, error: "participant not found" }, 404);
 
     const { data: casinoRow, error: casinoError } = await sb
       .from("casino")
@@ -104,11 +89,11 @@ Deno.serve(async (req) => {
       .eq("code", code)
       .maybeSingle();
 
-    if (casinoError) return json({ ok: false, error: casinoError.message }, 500);
+    if (casinoError) return json(req, { ok: false, error: casinoError.message }, 500);
 
     const now = new Date();
     if (sameUtcDay(casinoRow?.last_daily, now)) {
-      return json({
+      return json(req, {
         ok: true,
         amount: 0,
         last_daily: casinoRow?.last_daily || now.toISOString(),
@@ -131,7 +116,7 @@ Deno.serve(async (req) => {
       last_cashback,
     }, { onConflict: "code" });
 
-    if (upsertError) return json({ ok: false, error: upsertError.message }, 500);
+    if (upsertError) return json(req, { ok: false, error: upsertError.message }, 500);
 
     const { error: logError } = await sb.from("casino_events").insert({
       code,
@@ -145,10 +130,10 @@ Deno.serve(async (req) => {
 
     if (logError) {
       await restoreCasinoRow(code, participant.name || "", casinoRow || null);
-      return json({ ok: false, error: logError.message }, 500);
+      return json(req, { ok: false, error: logError.message }, 500);
     }
 
-    return json({
+    return json(req, {
       ok: true,
       amount: dailyBonusAmount,
       last_daily,
@@ -156,6 +141,7 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "Unknown error" },
       500,
     );

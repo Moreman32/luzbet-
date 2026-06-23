@@ -4,7 +4,7 @@ import { clearGroupRewards } from "../_shared/match-rewards.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders(req) });
   }
 
   try {
@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
     const groupCode = String(body?.group_code || "").trim().toUpperCase();
 
     if (!groupCode) {
-      return json({ ok: false, error: "group_code is required" }, 400);
+      return json(req, { ok: false, error: "group_code is required" }, 400);
     }
 
     const supabase = createClient(
@@ -34,9 +34,10 @@ Deno.serve(async (req) => {
       ? { skipped: true, reason: "system result row" }
       : await clearGroupRewards(supabase, groupCode);
 
-    return json({ ok: true, settlement });
+    return json(req, { ok: true, settlement });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "admin-results-delete failed" },
       500,
     );

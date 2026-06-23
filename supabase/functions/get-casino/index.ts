@@ -1,12 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchCasinoEvents, summarizeEconomyRows } from "../_shared/casino-ledger.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json; charset=utf-8",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -15,28 +9,16 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: corsHeaders,
-  });
-}
-
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  if (req.method !== "POST") {
-    return json({ ok: false, error: "Method not allowed" }, 405);
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 2048 });
+  if (blocked) return blocked;
 
   try {
     const body = await req.json().catch(() => ({}));
     const code = String(body?.code || "").trim();
 
     if (!code) {
-      return json({ ok: false, error: "code is required" }, 400);
+      return json(req, { ok: false, error: "code is required" }, 400);
     }
 
     const { data: participant, error: participantError } = await sb
@@ -46,11 +28,11 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (participantError) {
-      return json({ ok: false, error: participantError.message }, 500);
+      return json(req, { ok: false, error: participantError.message }, 500);
     }
 
     if (!participant) {
-      return json({ ok: false, error: "participant not found" }, 404);
+      return json(req, { ok: false, error: "participant not found" }, 404);
     }
 
     const [{ data: row, error }, events] = await Promise.all([
@@ -63,7 +45,7 @@ Deno.serve(async (req) => {
     ]);
 
     if (error) {
-      return json({ ok: false, error: error.message }, 500);
+      return json(req, { ok: false, error: error.message }, 500);
     }
 
     const economy = summarizeEconomyRows(events);
@@ -73,7 +55,7 @@ Deno.serve(async (req) => {
     );
 
     if (!row) {
-      return json({
+      return json(req, {
         ok: true,
         code: participant.code,
         name: participant.name || "",
@@ -85,7 +67,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    return json({
+    return json(req, {
       ok: true,
       code: row.code,
       name: row.name || participant.name || "",
@@ -97,6 +79,7 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "Unknown error" },
       500,
     );

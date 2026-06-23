@@ -1,10 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 function mskDayKey(ts: string) {
   return new Intl.DateTimeFormat("sv-SE", {
@@ -43,9 +38,8 @@ function finalizeBucket<T extends Record<string, any>>(bucket: T): T {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 2048 });
+  if (blocked) return blocked;
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -53,9 +47,10 @@ Deno.serve(async (req) => {
     const days = Math.max(1, Math.min(30, parseInt(body.days ?? 1) || 1));
 
     if (!rawCode) {
-      return Response.json(
+      return json(
+        req,
         { ok: false, error: "Не передан code" },
-        { headers: corsHeaders, status: 400 }
+        400,
       );
     }
 
@@ -73,9 +68,10 @@ Deno.serve(async (req) => {
     if (participantError) throw participantError;
 
     if (!participants || !participants.length) {
-      return Response.json(
+      return json(
+        req,
         { ok: false, error: "Код не найден" },
-        { headers: corsHeaders, status: 404 }
+        404,
       );
     }
 
@@ -176,7 +172,8 @@ Deno.serve(async (req) => {
       daysOut.find((d) => d.day === todayKey) ||
       finalizeBucket(emptyBucket({ day: todayKey }));
 
-    return Response.json(
+    return json(
+      req,
       {
         ok: true,
         summary: todaySummary,
@@ -184,15 +181,15 @@ Deno.serve(async (req) => {
         days: daysOut,
         per_game: perGameOut,
       },
-      { headers: corsHeaders }
     );
   } catch (e) {
-    return Response.json(
+    return json(
+      req,
       {
         ok: false,
-        error: e.message || "get-my-casino-stats failed",
+        error: e instanceof Error ? e.message : "get-my-casino-stats failed",
       },
-      { headers: corsHeaders, status: 500 }
+      500,
     );
   }
 });

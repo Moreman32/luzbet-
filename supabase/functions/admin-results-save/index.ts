@@ -16,7 +16,7 @@ function sanitizePayload(value: unknown): unknown {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders(req) });
   }
 
   try {
@@ -28,11 +28,11 @@ Deno.serve(async (req) => {
     const data = body?.data && typeof body.data === "object" ? body.data : null;
 
     if (!groupCode) {
-      return json({ ok: false, error: "group_code is required" }, 400);
+      return json(req, { ok: false, error: "group_code is required" }, 400);
     }
 
     if (!data) {
-      return json({ ok: false, error: "data is required" }, 400);
+      return json(req, { ok: false, error: "data is required" }, 400);
     }
 
     const payload = sanitizePayload(data);
@@ -61,13 +61,14 @@ Deno.serve(async (req) => {
       ? { skipped: true, reason: "system result row" }
       : await settleGroupRewards(supabase, groupCode);
 
-    return json({
+    return json(req, {
       ok: true,
       row: saved,
       settlement,
     });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "admin-results-save failed" },
       500,
     );

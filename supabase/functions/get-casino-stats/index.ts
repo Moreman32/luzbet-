@@ -1,16 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchCasinoEvents, summarizeCasinoEvents } from "../_shared/casino-ledger.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 2048 });
+  if (blocked) return blocked;
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -35,20 +29,21 @@ Deno.serve(async (req) => {
       timeZone: "Europe/Moscow",
     });
 
-    return Response.json(
+    return json(
+      req,
       {
         ok: true,
         ...stats,
       },
-      { headers: corsHeaders }
     );
   } catch (e) {
-    return Response.json(
+    return json(
+      req,
       {
         ok: false,
         error: e instanceof Error ? e.message : "get-casino-stats failed",
       },
-      { headers: corsHeaders, status: 500 }
+      500,
     );
   }
 });

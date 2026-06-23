@@ -1,25 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 2048 });
+  if (blocked) return blocked;
 
   try {
     const { code } = await req.json();
     const rawCode = String(code || "").trim();
 
     if (!rawCode) {
-      return Response.json(
-        { ok: false, error: "Не передан code" },
-        { headers: corsHeaders, status: 400 }
-      );
+      return json(req, { ok: false, error: "Не передан code" }, 400);
     }
 
     const supabase = createClient(
@@ -38,15 +29,13 @@ Deno.serve(async (req) => {
     if (error) throw error;
 
     if (!data || !data.length) {
-      return Response.json(
-        { ok: true, prediction: null },
-        { headers: corsHeaders }
-      );
+      return json(req, { ok: true, prediction: null });
     }
 
     const row = data[0];
 
-    return Response.json(
+    return json(
+      req,
       {
         ok: true,
         prediction: {
@@ -54,13 +43,13 @@ Deno.serve(async (req) => {
           name: row.name,
           ...(row.data || {}),
         },
-      },
-      { headers: corsHeaders }
+      }
     );
   } catch (e) {
-    return Response.json(
-      { ok: false, error: e.message || "get-playoff failed" },
-      { headers: corsHeaders, status: 500 }
+    return json(
+      req,
+      { ok: false, error: e instanceof Error ? e.message : "get-playoff failed" },
+      500,
     );
   }
 });

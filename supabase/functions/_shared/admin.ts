@@ -1,14 +1,14 @@
-export const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-admin-pass",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json; charset=utf-8",
-};
+import { getCorsHeaders, json as baseJson, requireTrustedProxy } from "./http-security.ts";
 
-export function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: corsHeaders,
+export function corsHeaders(req: Request) {
+  return getCorsHeaders(req, {
+    allowHeaders: ["x-admin-pass"],
+  });
+}
+
+export function json(req: Request, body: unknown, status = 200) {
+  return baseJson(req, body, status, {
+    allowHeaders: ["x-admin-pass"],
   });
 }
 
@@ -17,11 +17,17 @@ export function getAdminSecret() {
 }
 
 export function requireAdmin(req: Request) {
+  const proxyError = requireTrustedProxy(req, {
+    allowHeaders: ["x-admin-pass"],
+  });
+  if (proxyError) return proxyError;
+
   const provided = req.headers.get("x-admin-pass") || "";
   const expected = getAdminSecret();
 
   if (!expected) {
     return json(
+      req,
       { ok: false, error: "Admin password secret is not configured" },
       500,
     );
@@ -29,6 +35,7 @@ export function requireAdmin(req: Request) {
 
   if (provided !== expected) {
     return json(
+      req,
       { ok: false, error: "Неверный пароль" },
       403,
     );

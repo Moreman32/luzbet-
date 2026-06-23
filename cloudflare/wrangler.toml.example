@@ -1,0 +1,11 @@
+name = "luzbet-api-proxy"
+main = "worker.js"
+compatibility_date = "2026-06-23"
+
+[vars]
+ALLOWED_ORIGINS = "https://luzbet.lol,https://www.luzbet.lol"
+SUPABASE_FUNCTIONS_BASE_URL = "https://YOUR_PROJECT_REF.supabase.co/functions/v1"
+
+# Set these as secrets with:
+# wrangler secret put SUPABASE_PUBLISHABLE_KEY
+# wrangler secret put LUZBET_PROXY_SHARED_SECRET

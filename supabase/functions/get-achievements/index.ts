@@ -1,22 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 2048 });
+  if (blocked) return blocked;
 
   try {
     const { code } = await req.json();
     const rawCode = String(code || "").trim();
 
     if (!rawCode) {
-      return Response.json({ ok: false, error: "Не передан code" }, { headers: corsHeaders, status: 400 });
+      return json(req, { ok: false, error: "Не передан code" }, 400);
     }
 
     const supabase = createClient(
@@ -31,17 +25,18 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
-    return Response.json(
+    return json(
+      req,
       {
         ok: true,
         achievements: (data || []).map((x) => x.achievement),
       },
-      { headers: corsHeaders }
     );
   } catch (e) {
-    return Response.json(
-      { ok: false, error: e.message || "get-achievements failed" },
-      { headers: corsHeaders, status: 500 }
+    return json(
+      req,
+      { ok: false, error: e instanceof Error ? e.message : "get-achievements failed" },
+      500,
     );
   }
 });

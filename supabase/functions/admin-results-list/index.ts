@@ -3,7 +3,7 @@ import { corsHeaders, json, requireAdmin } from "../_shared/admin.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders(req) });
   }
 
   try {
@@ -22,12 +22,13 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
-    return json({
+    return json(req, {
       ok: true,
       rows: data || [],
     });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "admin-results-list failed" },
       500,
     );

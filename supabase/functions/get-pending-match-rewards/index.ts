@@ -1,17 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, json } from "../_shared/admin.ts";
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 2048 });
+  if (blocked) return blocked;
 
   try {
     const body = await req.json().catch(() => ({}));
     const code = String(body?.code || "").trim();
 
     if (!code) {
-      return json({ ok: false, error: "code is required" }, 400);
+      return json(req, { ok: false, error: "code is required" }, 400);
     }
 
     const supabase = createClient(
@@ -29,12 +28,13 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
-    return json({
+    return json(req, {
       ok: true,
       rewards: data || [],
     });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "get-pending-match-rewards failed" },
       500,
     );

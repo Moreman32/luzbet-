@@ -1,20 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 const AUTOCLICKER_CODES = new Set<string>();
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json; charset=utf-8",
-};
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: corsHeaders,
-  });
-}
 
 function normalizeResultRow(row: any) {
   const d = row?.data || {};
@@ -527,9 +514,8 @@ function mapSnapshotAutoclickers(snapshot: any) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 1024 });
+  if (blocked) return blocked;
 
   try {
     const supabase = createClient(
@@ -653,7 +639,7 @@ Deno.serve(async (req) => {
     const snapshotAchRows = mapSnapshotAchievementRows(snapshotData, participantRows);
     const snapshotAutoclickers: any[] = [];
 
-    return json({
+    return json(req, {
       ok: true,
       leaderboard,
       results,
@@ -664,6 +650,7 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "public-site-data failed" },
       500,
     );

@@ -1,22 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { guardRequest, json } from "../_shared/http-security.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const blocked = guardRequest(req, { requireProxy: true, maxBodyBytes: 8192 });
+  if (blocked) return blocked;
 
   try {
     const body = await req.json();
     const rawCode = String(body.code || "").trim();
 
     if (!rawCode) {
-      return Response.json({ ok: false, error: "Не передан code" }, { headers: corsHeaders, status: 400 });
+      return json(req, { ok: false, error: "Не передан code" }, 400);
     }
 
     const ids = Array.isArray(body.ids)
@@ -42,7 +36,7 @@ Deno.serve(async (req) => {
 
     if (participantError) throw participantError;
     if (!participants || !participants.length) {
-      return Response.json({ ok: false, error: "Код не найден" }, { headers: corsHeaders, status: 404 });
+      return json(req, { ok: false, error: "Код не найден" }, 404);
     }
 
     const canonicalCode = participants[0].code;
@@ -67,11 +61,12 @@ Deno.serve(async (req) => {
       if (insertError) throw insertError;
     }
 
-    return Response.json({ ok: true }, { headers: corsHeaders });
+    return json(req, { ok: true });
   } catch (e) {
-    return Response.json(
-      { ok: false, error: e.message || "sync-achievements failed" },
-      { headers: corsHeaders, status: 500 }
+    return json(
+      req,
+      { ok: false, error: e instanceof Error ? e.message : "sync-achievements failed" },
+      500,
     );
   }
 });

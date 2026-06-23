@@ -3,7 +3,7 @@ import { corsHeaders, json, requireAdmin } from "../_shared/admin.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders(req) });
   }
 
   try {
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     if (casinoRes.error) throw casinoRes.error;
     if (achievementsRes.error) throw achievementsRes.error;
 
-    return json({
+    return json(req, {
       ok: true,
       predictions: predictionsRes.data || [],
       results: resultsRes.data || [],
@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     return json(
+      req,
       { ok: false, error: e instanceof Error ? e.message : "admin-dashboard-data failed" },
       500,
     );
