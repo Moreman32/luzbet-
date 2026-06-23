@@ -5,3 +5,5 @@
 *.key
 
 node_modules/
+
+cloudflare/wrangler.toml
