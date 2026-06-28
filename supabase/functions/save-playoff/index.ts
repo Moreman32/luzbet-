@@ -102,6 +102,35 @@ Deno.serve(async (req) => {
     const existingMatches = normalizePredictionMatches(currentPrediction);
     const globallyLocked = String(actualPlayoff?.locked || "").trim() === "1" || actualPlayoff?.locked === true;
 
+    for (const [id, match] of incomingMatches.entries()) {
+      if (match.homeScore !== null && (match.homeScore < 0 || match.homeScore > 20)) {
+        return json(req, { ok: false, error: `Матч ${id}: счёт хозяев должен быть от 0 до 20` }, 400);
+      }
+      if (match.awayScore !== null && (match.awayScore < 0 || match.awayScore > 20)) {
+        return json(req, { ok: false, error: `Матч ${id}: счёт гостей должен быть от 0 до 20` }, 400);
+      }
+
+      const hasHome = match.homeScore !== null;
+      const hasAway = match.awayScore !== null;
+      if (!hasHome || !hasAway) continue;
+
+      const derivedWinner =
+        match.homeScore! > match.awayScore!
+          ? "home"
+          : match.awayScore! > match.homeScore!
+            ? "away"
+            : "";
+
+      if (derivedWinner) {
+        match.winner = derivedWinner;
+        continue;
+      }
+
+      if (!match.winner) {
+        return json(req, { ok: false, error: `Матч ${id}: при ничьей нужно выбрать, кто проходит дальше` }, 400);
+      }
+    }
+
     for (const round of actualRounds) {
       for (const match of Array.isArray(round?.matches) ? round.matches as Array<Record<string, unknown>> : []) {
         const id = String(match?.id || "").trim().toUpperCase();

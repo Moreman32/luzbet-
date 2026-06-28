@@ -7707,7 +7707,7 @@ async function playKeno(){
   setTimeout(async ()=>{
     const hits=picks.filter(n=>drawn.includes(n)).length;
     const mult=KENO_PAYOUTS[hits]||0;
-    const payout=hits ? bet*mult : 0;
+    const payout=hits ? Math.round(bet*mult) : 0;
     if(payout>bet){
       document.getElementById('keno-result').textContent=`🔢 Совпадений: ${hits}. Выплата ${payout} ЛК`;
       toast(`🔢 Кено: ${hits} совп. и выплата ${payout} ЛК`,'win');
@@ -8261,8 +8261,13 @@ let hlDeck=[],hlCurrent=null,hlBet=0,hlStreakCount=0,hlPot=0,hlRoundId='';
 let hlResolving=false;
 const HL_VALS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const HL_NUM={2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,J:11,Q:12,K:13,A:14};
+const HL_PAYOUT_STEP_MULT = 1.33;
+const HL_MAX_PAYOUT_MULT = 30;
 function hlMakeDeck(){const suits=['♠','♥','♦','♣'];const d=[];suits.forEach(s=>HL_VALS.forEach(v=>d.push({v,s,n:HL_NUM[v]})));return d.sort(()=>Math.random()-.5);}
 function hlCardLabel(c){const red=['♥','♦'].includes(c.s);return `<span style="color:${red?'var(--red)':'#111'}">${c.v}${c.s}</span>`;}
+function getHlMaxPayout(bet){
+  return Math.round(Math.max(0, bet) * HL_MAX_PAYOUT_MULT);
+}
 function drawHlNextCard(current){
   if(!current) return null;
   if(!hlDeck.length) return null;
@@ -8318,9 +8323,14 @@ function hlGuess(dir){
   hlResolving=true;
   const correct=(dir==='higher'&&next.n>hlCurrent.n)||(dir==='lower'&&next.n<hlCurrent.n);
   if(correct){
-    hlStreakCount++;hlPot=Math.floor(hlPot*1.33);
+    hlStreakCount++;
+    const maxPayout=getHlMaxPayout(hlBet || getCasinoBet('higher_lower'));
+    hlPot=Math.min(Math.floor(hlPot*HL_PAYOUT_STEP_MULT), maxPayout);
     document.getElementById('hl-streak').textContent=hlStreakCount;
-    document.getElementById('hl-result').textContent=`✅ Верно! Горшок: ${hlPot} ЛК`;
+    const reachedCap=hlPot>=maxPayout;
+    document.getElementById('hl-result').textContent=reachedCap
+      ? `✅ Верно! Горшок: ${hlPot} ЛК. Это максимум для этой ставки.`
+      : `✅ Верно! Горшок: ${hlPot} ЛК`;
     document.getElementById('hl-deal').textContent='Забрать ('+hlPot+' ЛК)';
     if(hlStreakCount>=5)unlockAch('hl_streak5');
     setTimeout(()=>{
@@ -8330,6 +8340,11 @@ function hlGuess(dir){
       document.getElementById('hl-next').textContent='?';
       hlResolving=false;
       if(!hlDeck.length)hlCollect();
+      else if(reachedCap){
+        document.getElementById('hl-higher').disabled=true;
+        document.getElementById('hl-lower').disabled=true;
+        toast(`🎴 Достигнут максимум ${hlPot} ЛК для этой ставки. Забирай банк.`,'info');
+      }
       else{
         document.getElementById('hl-higher').disabled=false;
         document.getElementById('hl-lower').disabled=false;
@@ -9310,6 +9325,13 @@ function parsePlayoffInt(v){
   return Number.isFinite(n) ? n : null;
 }
 
+function normalizePlayoffScoreInput(v){
+  if(v === null || v === undefined || v === '') return '';
+  const n = parseInt(v, 10);
+  if(!Number.isFinite(n)) return '';
+  return String(Math.max(0, Math.min(20, n)));
+}
+
 function isPlayoffPlaceholderTeam(name){
   const v = String(name || '').trim();
   if(!v) return true;
@@ -9834,7 +9856,7 @@ function setPlayoffPredictionScore(matchId, side, value){
   const actualMatch = buildBracketMatchMap(poBracket)[String(matchId || '').toUpperCase()];
   if(actualMatch && isPlayoffMatchLocked(actualMatch)) return;
   const state = getPredictionMatchState(matchId);
-  state[side] = String(value || '').trim();
+  state[side] = normalizePlayoffScoreInput(value);
   updatePredictionWinnerFromScores(matchId);
   refreshAllPlayoffPredictionLabels();
   updatePlayoffMatchCardUi(matchId);
