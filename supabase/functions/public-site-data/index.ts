@@ -523,9 +523,10 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const [snapshotRes, predictionsRes, resultsRes, casinoRes, achRes, participantsRes] = await Promise.all([
+    const [snapshotRes, predictionsRes, playoffRes, resultsRes, casinoRes, achRes, participantsRes] = await Promise.all([
       supabase.from("rating_snapshots").select("key,data,updated_at").eq("key", "public_ratings").maybeSingle(),
       supabase.from("predictions").select("id,code,name,data,updated_at").order("updated_at", { ascending: true }).order("id", { ascending: true }),
+      supabase.from("playoff").select("id,code,name,data,updated_at").order("updated_at", { ascending: true }).order("id", { ascending: true }),
       supabase.from("results").select("group_code,data").order("group_code", { ascending: true }),
       supabase.from("casino").select("code,name,coins,spent").order("code", { ascending: true }),
       supabase.from("achievements").select("code,achievement").order("id", { ascending: true }),
@@ -534,6 +535,7 @@ Deno.serve(async (req) => {
 
     if (snapshotRes.error) throw snapshotRes.error;
     if (predictionsRes.error) throw predictionsRes.error;
+    if (playoffRes.error) throw playoffRes.error;
     if (resultsRes.error) throw resultsRes.error;
     if (casinoRes.error) throw casinoRes.error;
     if (achRes.error) throw achRes.error;
@@ -549,6 +551,13 @@ Deno.serve(async (req) => {
       const key = String(row.code || "").trim().toLowerCase();
       if (!key) continue;
       latestPredictions.set(key, row);
+    }
+
+    const latestPlayoff = new Map<string, any>();
+    for (const row of playoffRes.data || []) {
+      const key = String(row.code || "").trim().toLowerCase();
+      if (!key) continue;
+      latestPlayoff.set(key, row);
     }
 
     const casinoMap = new Map<string, any>();
@@ -569,7 +578,18 @@ Deno.serve(async (req) => {
     }
 
     const leaderboard = [...latestPredictions.values()].map((row) => {
-      const base = scorePrediction(row, results);
+      const key = String(row.code || "").trim().toLowerCase();
+      const playoffRow = latestPlayoff.get(key);
+      const mergedRow = playoffRow
+        ? {
+            ...row,
+            data: {
+              ...(row.data && typeof row.data === "object" ? row.data : {}),
+              ...(playoffRow.data && typeof playoffRow.data === "object" ? playoffRow.data : {}),
+            },
+          }
+        : row;
+      const base = scorePrediction(mergedRow, results);
       const casino = casinoMap.get(String(row.code || "").toLowerCase());
       const achList = achMap.get(String(row.code || "").toLowerCase()) || [];
       return {
