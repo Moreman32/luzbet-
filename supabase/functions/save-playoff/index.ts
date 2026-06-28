@@ -42,6 +42,18 @@ Deno.serve(async (req) => {
       return token === "home" || token === "away" ? token : "";
     };
 
+    const getKickoffTime = (match: Record<string, unknown>) => {
+      const raw = String(match?.kickoff || "").trim();
+      if (!raw) return Number.NaN;
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) {
+        const [datePart, timePart] = raw.split("T");
+        const [y, m, d] = datePart.split("-").map(Number);
+        const [hh, mm] = timePart.split(":").map(Number);
+        return Date.UTC(y || 0, (m || 1) - 1, d || 1, (hh || 0) - 3, mm || 0);
+      }
+      return new Date(raw).getTime();
+    };
+
     const normalizePredictionMatches = (value: unknown) => {
       const map = new Map<string, { homeScore: number | null; awayScore: number | null; winner: string }>();
       if (!value || typeof value !== "object") return map;
@@ -135,8 +147,7 @@ Deno.serve(async (req) => {
       for (const match of Array.isArray(round?.matches) ? round.matches as Array<Record<string, unknown>> : []) {
         const id = String(match?.id || "").trim().toUpperCase();
         if (!id) continue;
-        const kickoffRaw = String(match?.kickoff || "").trim();
-        const kickoffTime = kickoffRaw ? new Date(kickoffRaw).getTime() : NaN;
+        const kickoffTime = getKickoffTime(match);
         const isLocked = globallyLocked || (!Number.isNaN(kickoffTime) && Date.now() >= kickoffTime);
         if (!isLocked) continue;
         const incoming = incomingMatches.get(id) || { homeScore: null, awayScore: null, winner: "" };

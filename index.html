@@ -994,8 +994,10 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .playoff-team-row:first-of-type{border-top:none;padding-top:0}
 .playoff-team-row:last-of-type{padding-bottom:0}
 .playoff-team-main{display:flex;align-items:center;gap:5px;min-width:0}
+.playoff-team-main-text{display:flex;flex-direction:column;min-width:0}
 .playoff-team-name{font-size:11px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .playoff-team-name.placeholder{color:var(--muted2);font-style:italic}
+.playoff-team-slot{font-size:9px;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .playoff-team-score{min-width:20px;text-align:right;font-family:var(--os);font-size:13px;color:var(--white)}
 .playoff-team-row.winner .playoff-team-name,.playoff-team-row.winner .playoff-team-score{color:var(--yellow)}
 .playoff-team-row.pending .playoff-team-score{color:var(--muted)}
@@ -9264,48 +9266,48 @@ const PLAYOFF_DEFAULT_BRACKET = {
   locked:false,
   rounds:[
     { key:'round_of_32', label:'1/16 финала', matches:[
-      { id:'m73', home:'2A', away:'2B', kickoff:'2026-06-28T12:00', note:'UTC−7 • SoFi Stadium, Inglewood' },
-      { id:'m76', home:'1C', away:'2F', kickoff:'2026-06-29T12:00', note:'UTC−5 • NRG Stadium, Houston' },
-      { id:'m74', home:'1E', away:'3ABCDF', kickoff:'2026-06-29T16:30', note:'UTC−4 • Gillette Stadium, Foxborough' },
-      { id:'m75', home:'1F', away:'2C', kickoff:'2026-06-29T19:00', note:'UTC−6 • Estadio BBVA, Guadalupe' },
-      { id:'m78', home:'2E', away:'2I', kickoff:'2026-06-30T12:00', note:'UTC−5 • AT&T Stadium, Arlington' },
-      { id:'m77', home:'1I', away:'3CDFGH', kickoff:'2026-06-30T17:00', note:'UTC−4 • MetLife Stadium, East Rutherford' },
-      { id:'m79', home:'Mexico', away:'3CEFHI', kickoff:'2026-06-30T19:00', note:'UTC−6 • Estadio Azteca, Mexico City' },
-      { id:'m80', home:'1L', away:'3EHIJK', kickoff:'2026-07-01T12:00', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' },
-      { id:'m82', home:'1G', away:'3AEHIJ', kickoff:'2026-07-01T13:00', note:'UTC−7 • Lumen Field, Seattle' },
-      { id:'m81', home:'United States', away:'3BEFIJ', kickoff:'2026-07-01T17:00', note:'UTC−7 • Levi\'s Stadium, Santa Clara' },
-      { id:'m84', home:'1H', away:'2J', kickoff:'2026-07-02T12:00', note:'UTC−7 • SoFi Stadium, Inglewood' },
-      { id:'m83', home:'2K', away:'2L', kickoff:'2026-07-02T19:00', note:'UTC−4 • BMO Field, Toronto' },
-      { id:'m85', home:'1B', away:'3EFGIJ', kickoff:'2026-07-02T20:00', note:'UTC−7 • BC Place, Vancouver' },
-      { id:'m88', home:'2D', away:'2G', kickoff:'2026-07-03T13:00', note:'UTC−5 • AT&T Stadium, Arlington' },
-      { id:'m86', home:'1J', away:'2H', kickoff:'2026-07-03T18:00', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' },
-      { id:'m87', home:'1K', away:'3DEIJL', kickoff:'2026-07-03T20:30', note:'UTC−5 • Arrowhead Stadium, Kansas City' }
+      { id:'m73', home:'2A', away:'2B', kickoff:'2026-06-28T22:00', note:'UTC−7 • SoFi Stadium, Inglewood' },
+      { id:'m76', home:'1C', away:'2F', kickoff:'2026-06-29T20:00', note:'UTC−5 • NRG Stadium, Houston' },
+      { id:'m74', home:'1E', away:'3ABCDF', kickoff:'2026-06-29T23:30', note:'UTC−4 • Gillette Stadium, Foxborough' },
+      { id:'m75', home:'1F', away:'2C', kickoff:'2026-06-30T04:00', note:'UTC−6 • Estadio BBVA, Guadalupe' },
+      { id:'m78', home:'2E', away:'2I', kickoff:'2026-06-30T20:00', note:'UTC−5 • AT&T Stadium, Arlington' },
+      { id:'m77', home:'1I', away:'3CDFGH', kickoff:'2026-07-01T00:00', note:'UTC−4 • MetLife Stadium, East Rutherford' },
+      { id:'m79', home:'1A', away:'3CEFHI', kickoff:'2026-07-01T04:00', note:'UTC−6 • Estadio Azteca, Mexico City' },
+      { id:'m80', home:'1L', away:'3EHIJK', kickoff:'2026-07-01T19:00', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' },
+      { id:'m82', home:'1G', away:'3AEHIJ', kickoff:'2026-07-01T23:00', note:'UTC−7 • Lumen Field, Seattle' },
+      { id:'m81', home:'1D', away:'3BEFIJ', kickoff:'2026-07-02T03:00', note:'UTC−7 • Levi\'s Stadium, Santa Clara' },
+      { id:'m84', home:'1H', away:'2J', kickoff:'2026-07-02T22:00', note:'UTC−7 • SoFi Stadium, Inglewood' },
+      { id:'m83', home:'2K', away:'2L', kickoff:'2026-07-03T02:00', note:'UTC−4 • BMO Field, Toronto' },
+      { id:'m85', home:'1B', away:'3EFGIJ', kickoff:'2026-07-03T06:00', note:'UTC−7 • BC Place, Vancouver' },
+      { id:'m88', home:'2D', away:'2G', kickoff:'2026-07-03T21:00', note:'UTC−5 • AT&T Stadium, Arlington' },
+      { id:'m86', home:'1J', away:'2H', kickoff:'2026-07-04T01:00', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' },
+      { id:'m87', home:'1K', away:'3DEIJL', kickoff:'2026-07-04T04:30', note:'UTC−5 • Arrowhead Stadium, Kansas City' }
     ]},
     { key:'round_of_16', label:'1/8 финала', matches:[
-      { id:'m90', home:'W73', away:'W75', kickoff:'2026-07-04T12:00', note:'UTC−5 • NRG Stadium, Houston' },
-      { id:'m89', home:'W74', away:'W77', kickoff:'2026-07-04T17:00', note:'UTC−4 • Lincoln Financial Field, Philadelphia' },
-      { id:'m91', home:'W76', away:'W78', kickoff:'2026-07-05T16:00', note:'UTC−4 • MetLife Stadium, East Rutherford' },
-      { id:'m92', home:'W79', away:'W80', kickoff:'2026-07-05T18:00', note:'UTC−6 • Estadio Azteca, Mexico City' },
-      { id:'m93', home:'W83', away:'W84', kickoff:'2026-07-06T14:00', note:'UTC−5 • AT&T Stadium, Arlington' },
-      { id:'m94', home:'W81', away:'W82', kickoff:'2026-07-06T17:00', note:'UTC−7 • Lumen Field, Seattle' },
-      { id:'m95', home:'W86', away:'W88', kickoff:'2026-07-07T12:00', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' },
-      { id:'m96', home:'W85', away:'W87', kickoff:'2026-07-07T13:00', note:'UTC−7 • BC Place, Vancouver' }
+      { id:'m90', home:'W73', away:'W75', kickoff:'2026-07-04T20:00', note:'UTC−5 • NRG Stadium, Houston' },
+      { id:'m89', home:'W74', away:'W77', kickoff:'2026-07-05T00:00', note:'UTC−4 • Lincoln Financial Field, Philadelphia' },
+      { id:'m91', home:'W76', away:'W78', kickoff:'2026-07-05T23:00', note:'UTC−4 • MetLife Stadium, East Rutherford' },
+      { id:'m92', home:'W79', away:'W80', kickoff:'2026-07-06T03:00', note:'UTC−6 • Estadio Azteca, Mexico City' },
+      { id:'m93', home:'W83', away:'W84', kickoff:'2026-07-06T22:00', note:'UTC−5 • AT&T Stadium, Arlington' },
+      { id:'m94', home:'W81', away:'W82', kickoff:'2026-07-07T03:00', note:'UTC−7 • Lumen Field, Seattle' },
+      { id:'m95', home:'W86', away:'W88', kickoff:'2026-07-07T19:00', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' },
+      { id:'m96', home:'W85', away:'W87', kickoff:'2026-07-07T23:00', note:'UTC−7 • BC Place, Vancouver' }
     ]},
     { key:'quarterfinal', label:'Четвертьфиналы', matches:[
-      { id:'m97', home:'W89', away:'W90', kickoff:'2026-07-09T16:00', note:'UTC−4 • Gillette Stadium, Foxborough' },
-      { id:'m98', home:'W93', away:'W94', kickoff:'2026-07-10T12:00', note:'UTC−7 • SoFi Stadium, Inglewood' },
-      { id:'m99', home:'W91', away:'W92', kickoff:'2026-07-11T17:00', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' },
-      { id:'m100', home:'W95', away:'W96', kickoff:'2026-07-11T20:00', note:'UTC−5 • Arrowhead Stadium, Kansas City' }
+      { id:'m97', home:'W89', away:'W90', kickoff:'2026-07-09T23:00', note:'UTC−4 • Gillette Stadium, Foxborough' },
+      { id:'m98', home:'W93', away:'W94', kickoff:'2026-07-10T22:00', note:'UTC−7 • SoFi Stadium, Inglewood' },
+      { id:'m99', home:'W91', away:'W92', kickoff:'2026-07-12T00:00', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' },
+      { id:'m100', home:'W95', away:'W96', kickoff:'2026-07-12T04:00', note:'UTC−5 • Arrowhead Stadium, Kansas City' }
     ]},
     { key:'semifinal', label:'Полуфиналы', matches:[
-      { id:'m101', home:'W97', away:'W98', kickoff:'2026-07-14T14:00', note:'UTC−5 • AT&T Stadium, Arlington' },
-      { id:'m102', home:'W99', away:'W100', kickoff:'2026-07-15T15:00', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' }
+      { id:'m101', home:'W97', away:'W98', kickoff:'2026-07-14T22:00', note:'UTC−5 • AT&T Stadium, Arlington' },
+      { id:'m102', home:'W99', away:'W100', kickoff:'2026-07-15T22:00', note:'UTC−4 • Mercedes-Benz Stadium, Atlanta' }
     ]},
     { key:'third_place', label:'Матч за 3-е место', matches:[
-      { id:'m103', home:'L101', away:'L102', kickoff:'2026-07-18T17:00', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' }
+      { id:'m103', home:'L101', away:'L102', kickoff:'2026-07-19T00:00', note:'UTC−4 • Hard Rock Stadium, Miami Gardens' }
     ]},
     { key:'final', label:'Финал', matches:[
-      { id:'m104', home:'W101', away:'W102', kickoff:'2026-07-19T15:00', note:'UTC−4 • MetLife Stadium, East Rutherford' }
+      { id:'m104', home:'W101', away:'W102', kickoff:'2026-07-19T22:00', note:'UTC−4 • MetLife Stadium, East Rutherford' }
     ]}
   ]
 };
@@ -9424,54 +9426,73 @@ function collectPlayoffTeams(results, bracket){
   return teams;
 }
 
-function formatPlayoffKickoff(value){
-  const raw = String(value || '').trim();
-  if(!raw) return '';
-  if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)){
-    const [datePart,timePart] = raw.split('T');
-    const [y,m,d] = datePart.split('-').map(Number);
-    const [hh,mm] = timePart.split(':');
-    const dt = new Date(y, (m||1)-1, d||1);
-    return dt.toLocaleDateString('ru-RU', { day:'2-digit', month:'short' }) + `, ${hh}:${mm}`;
-  }
-  const d = new Date(raw);
-  if(Number.isNaN(d.getTime())) return raw;
-  return d.toLocaleString('ru-RU', {
-    day:'2-digit',
-    month:'short',
-    hour:'2-digit',
-    minute:'2-digit'
-  });
-}
-
-function getPlayoffKickoffTime(value){
-  const raw = String(value || '').trim();
+function getPlayoffKickoffTime(matchOrValue){
+  const raw = typeof matchOrValue === 'object' && matchOrValue
+    ? String(matchOrValue.kickoff || '').trim()
+    : String(matchOrValue || '').trim();
   if(!raw) return Number.MAX_SAFE_INTEGER;
   if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)){
     const [datePart,timePart] = raw.split('T');
     const [y,m,d] = datePart.split('-').map(Number);
     const [hh,mm] = timePart.split(':').map(Number);
-    const dt = new Date(y || 0, ((m||1)-1), d || 1, hh || 0, mm || 0);
-    return Number.isNaN(dt.getTime()) ? Number.MAX_SAFE_INTEGER : dt.getTime();
+    const utcMs = Date.UTC(y || 0, ((m||1)-1), d || 1, (hh || 0) - 3, mm || 0);
+    return Number.isNaN(utcMs) ? Number.MAX_SAFE_INTEGER : utcMs;
   }
   const time = new Date(raw).getTime();
   return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
 }
 
+function formatMoscowDateTime(timestamp){
+  const d = new Date(timestamp);
+  if(Number.isNaN(d.getTime())) return '';
+  const parts = new Intl.DateTimeFormat('ru-RU', {
+    timeZone:'Europe/Moscow',
+    day:'2-digit',
+    month:'short',
+    hour:'2-digit',
+    minute:'2-digit'
+  }).formatToParts(d);
+  const pick = (type)=>parts.find(p=>p.type===type)?.value || '';
+  return `${pick('day')} ${pick('month')}, ${pick('hour')}:${pick('minute')} МСК`;
+}
+
+function formatPlayoffKickoff(matchOrValue){
+  const raw = typeof matchOrValue === 'object' && matchOrValue
+    ? String(matchOrValue.kickoff || '').trim()
+    : String(matchOrValue || '').trim();
+  if(!raw) return '';
+  const parsed = getPlayoffKickoffTime(matchOrValue);
+  if(Number.isFinite(parsed) && parsed !== Number.MAX_SAFE_INTEGER){
+    return formatMoscowDateTime(parsed);
+  }
+  if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)){
+    const [datePart,timePart] = raw.split('T');
+    const [y,m,d] = datePart.split('-').map(Number);
+    const [hh,mm] = timePart.split(':').map(Number);
+    const utcMs = Date.UTC(y || 0, ((m||1)-1), d || 1, (hh || 0) - 3, mm || 0);
+    return formatMoscowDateTime(utcMs);
+  }
+  return raw;
+}
+
 function sortPlayoffMatchesByKickoff(matches){
   return [...(Array.isArray(matches) ? matches : [])].sort((a,b)=>{
-    const timeDiff = getPlayoffKickoffTime(a && a.kickoff) - getPlayoffKickoffTime(b && b.kickoff);
+    const timeDiff = getPlayoffKickoffTime(a) - getPlayoffKickoffTime(b);
     if(timeDiff !== 0) return timeDiff;
     return String(a && a.id || '').localeCompare(String(b && b.id || ''));
   });
 }
 
-function renderPlayoffOverview(bracket){
+function renderPlayoffOverview(bracket, predictionMatches=null){
   if(!bracket || !Array.isArray(bracket.rounds) || !bracket.rounds.some(round => round.matches && round.matches.length)) {
     if(!poTeams.length) return '';
     return `<div class="playoff-section"><div class="playoff-section-title">Уже в плей-офф</div><div class="playoff-section-sub">Сетка ещё не опубликована, но прошедшие команды уже здесь.</div><div class="playoff-teams-strip">${poTeams.map(team=>`<span class="playoff-team-chip">${escapeHtml(team.flag)} ${escapeHtml(team.name)}</span>`).join('')}</div></div>`;
   }
 
+  const predictionMap = predictionMatches && typeof predictionMatches === 'object'
+    ? predictionMatches
+    : (poPrediction && poPrediction.matches ? poPrediction.matches : {});
+  const bracketMap = buildBracketMatchMap(bracket);
   const thirdPlaceRound = bracket.rounds.find(round => round.key === 'third_place');
   const overviewRounds = bracket.rounds
     .filter(round => round.key !== 'third_place')
@@ -9504,13 +9525,19 @@ function renderPlayoffOverview(bracket){
     } else {
       items.forEach((match) => {
         const winner = getPlayoffWinnerSide(match);
-        const kickoff = formatPlayoffKickoff(match.kickoff);
+        const kickoff = formatPlayoffKickoff(match);
         const homeScore = match.homeScore === null ? '—' : String(match.homeScore);
         const awayScore = match.awayScore === null ? '—' : String(match.awayScore);
-        const homeName = formatPlayoffTeamLabel(match.home);
-        const awayName = formatPlayoffTeamLabel(match.away);
-        const homePlaceholder = isPlayoffPlaceholderTeam(match.home);
-        const awayPlaceholder = isPlayoffPlaceholderTeam(match.away);
+        const homeResolved = resolvePlayoffSlotLabel(match.home, bracketMap, predictionMap, 'prediction');
+        const awayResolved = resolvePlayoffSlotLabel(match.away, bracketMap, predictionMap, 'prediction');
+        const homeName = formatPlayoffTeamLabel(homeResolved);
+        const awayName = formatPlayoffTeamLabel(awayResolved);
+        const homePlaceholder = isPlayoffPlaceholderTeam(homeResolved);
+        const awayPlaceholder = isPlayoffPlaceholderTeam(awayResolved);
+        const homeFlag = resolvePlayoffSlotFlag(match.home, bracketMap, predictionMap, 'prediction');
+        const awayFlag = resolvePlayoffSlotFlag(match.away, bracketMap, predictionMap, 'prediction');
+        const homeSlotCaption = getPlayoffSlotCaption(match.home);
+        const awaySlotCaption = getPlayoffSlotCaption(match.away);
         html += `<div class="playoff-slot"><div class="playoff-slot-inner">${match._stageLabel ? `<div class="playoff-round-sublabel">${escapeHtml(match._stageLabel)}</div>` : ''}<div class="playoff-match-card">
           <div class="playoff-match-meta">
             <span class="playoff-match-code">${escapeHtml(String(match.id || '').toUpperCase())}</span>
@@ -9520,11 +9547,11 @@ function renderPlayoffOverview(bracket){
             ${match.note ? `<span class="playoff-match-note">${escapeHtml(match.note)}</span>` : ''}
           </div>
           <div class="playoff-team-row ${winner==='home' ? 'winner' : ''} ${match.homeScore===null ? 'pending' : ''}">
-            <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(match.home))}</span><span class="playoff-team-name${homePlaceholder ? ' placeholder' : ''}">${escapeHtml(homeName)}</span></div>
+            <div class="playoff-team-main"><span>${escapeHtml(homeFlag)}</span><span class="playoff-team-main-text"><span class="playoff-team-name${homePlaceholder ? ' placeholder' : ''}">${escapeHtml(homeName)}</span>${homeSlotCaption ? `<span class="playoff-team-slot">${escapeHtml(homeSlotCaption)}</span>` : ''}</span></div>
             <span class="playoff-team-score">${homeScore}</span>
           </div>
           <div class="playoff-team-row ${winner==='away' ? 'winner' : ''} ${match.awayScore===null ? 'pending' : ''}">
-            <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(match.away))}</span><span class="playoff-team-name${awayPlaceholder ? ' placeholder' : ''}">${escapeHtml(awayName)}</span></div>
+            <div class="playoff-team-main"><span>${escapeHtml(awayFlag)}</span><span class="playoff-team-main-text"><span class="playoff-team-name${awayPlaceholder ? ' placeholder' : ''}">${escapeHtml(awayName)}</span>${awaySlotCaption ? `<span class="playoff-team-slot">${escapeHtml(awaySlotCaption)}</span>` : ''}</span></div>
             <span class="playoff-team-score">${awayScore}</span>
           </div>
           ${(homePlaceholder || awayPlaceholder) ? `<div class="playoff-match-foot">Слоты-заглушки заменятся на реальные команды, как только админ обновит сетку.</div>` : ''}
@@ -9572,6 +9599,12 @@ function formatPlayoffTeamLabel(name){
   if(map[clean]) return map[clean];
   if(/^3[A-L]+$/i.test(clean)) return `Лучшая 3-я: ${clean.slice(1).split('').join('/')}`;
   return clean;
+}
+
+function getPlayoffSlotCaption(token){
+  const clean = String(token || '').trim();
+  if(!clean || !isPlayoffPlaceholderTeam(clean)) return '';
+  return formatPlayoffTeamLabel(clean);
 }
 
 function buildBracketMatchMap(bracket){
@@ -9652,11 +9685,9 @@ function getPredictionWinnerSide(matchState){
 
 function isPlayoffMatchLocked(match){
   if(poBracket && poBracket.locked) return true;
-  const kickoff = String(match && match.kickoff || '').trim();
-  if(!kickoff) return false;
-  const time = new Date(kickoff);
-  if(Number.isNaN(time.getTime())) return false;
-  return Date.now() >= time.getTime();
+  const time = getPlayoffKickoffTime(match);
+  if(!Number.isFinite(time) || time === Number.MAX_SAFE_INTEGER) return false;
+  return Date.now() >= time;
 }
 
 function hasPlayoffPredictionValue(state){
@@ -9727,6 +9758,12 @@ function updatePlayoffSaveUi(){
   updatePlayoffProgressUi();
 }
 
+function updatePlayoffOverviewUi(){
+  const wrap = document.getElementById('playoff-overview-after');
+  if(!wrap) return;
+  wrap.innerHTML = renderPlayoffOverview(poBracket, poPrediction.matches);
+}
+
 function updatePlayoffMatchCardUi(matchId){
   const id = String(matchId || '').toUpperCase();
   const match = buildBracketMatchMap(poBracket)[id];
@@ -9757,6 +9794,7 @@ function updatePlayoffMatchCardUi(matchId){
       status.textContent = 'Сначала впиши счёт и выбери победителя';
     }
   }
+  updatePlayoffOverviewUi();
   updatePlayoffSaveUi();
 }
 
@@ -9810,7 +9848,7 @@ function fillLuckyPlayoff(){
     toast('⛔ Нет доступных матчей для случайного заполнения', 'err');
     return;
   }
-  renderPlayoffForm(renderPlayoffOverview(poBracket), getPlayoffDeadline(poBracket));
+  renderPlayoffForm(renderPlayoffOverview(poBracket, poPrediction.matches), getPlayoffDeadline(poBracket));
   toast(`🎲 Случайно заполнено матчей: ${changed}`, 'ok', 2500);
 }
 
@@ -9946,13 +9984,12 @@ async function loadPlayoffPage() {
     const groupRows = Object.entries(lb.results || {}).filter(([key]) => !String(key).startsWith('_'));
     const groupsComplete = groupRows.filter(([,v]) => v.teams && v.teams.length === 2).length;
     const totalGroups = 12;
-    const bracketHtml = renderPlayoffOverview(poBracket);
-
     const poCheck = await api({ action: 'getPlayoff', code: S.code });
     if (poCheck.ok && poCheck.prediction) {
       poSavedPrediction = createPlayoffPredictionState(poBracket, poCheck.prediction);
       poPrediction = createPlayoffPredictionState(poBracket, poCheck.prediction);
     }
+    const bracketHtml = renderPlayoffOverview(poBracket, poPrediction.matches);
 
     if (groupsComplete < totalGroups && !publicRounds) {
       const remaining = totalGroups - groupsComplete;
@@ -9998,7 +10035,8 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
   const canSave = hasEditablePlayoffMatches(poBracket) && isPlayoffPredictionDirty(poBracket);
   const progress = getPlayoffPredictionProgress(poBracket);
   let html = `<div class="alert alert-warn show" style="margin-bottom:20px">
-    ⚠️ Можно сохранять частями и обновлять прогноз до старта каждого конкретного матча. После стартового свистка матч блокируется. Первый дедлайн: ${escapeHtml(formatPlayoffKickoff(String(poBracket && poBracket.deadline || deadline.toISOString())))}.
+    ⚠️ Можно сохранять частями и обновлять прогноз до старта каждого конкретного матча. После стартового свистка матч блокируется. Все времена ниже показаны по Москве. Первый дедлайн: ${escapeHtml(formatPlayoffKickoff(String(poBracket && poBracket.deadline || deadline.toISOString())))}.
+    <br/><span style="font-size:11px;color:var(--muted2)">Матчи следующих раундов считаются по месту в сетке и счёту, а не по названию команды. Если в слоте стоит «Победитель M73», то оценивается именно победитель этого слота.</span>
   </div>`;
 
   html += `<div class="playoff-section">
@@ -10041,6 +10079,8 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
       const awayFlag = resolvePlayoffSlotFlag(match.away, bracketMap, poPrediction.matches, 'prediction');
       const homePlaceholder = isPlayoffPlaceholderTeam(match.home);
       const awayPlaceholder = isPlayoffPlaceholderTeam(match.away);
+      const homeSlotCaption = getPlayoffSlotCaption(match.home);
+      const awaySlotCaption = getPlayoffSlotCaption(match.away);
       const hasScores = state.homeScore !== '' && state.awayScore !== '';
       const statusCls = matchLocked ? '' : winner ? 'ready' : hasScores ? 'warn' : '';
       const statusText = matchLocked
@@ -10053,18 +10093,18 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
       html += `<div class="playoff-editor-card">
         <div class="playoff-match-meta">
           <span class="playoff-match-code">${escapeHtml(String(match.id || '').toUpperCase())}</span>
-          <span class="playoff-match-kickoff">${escapeHtml(formatPlayoffKickoff(match.kickoff) || 'Дата уточняется')}${matchLocked?' · 🔒':''}</span>
+          <span class="playoff-match-kickoff">${escapeHtml(formatPlayoffKickoff(match) || 'Дата уточняется')}${matchLocked?' · 🔒':''}</span>
         </div>
         <div class="playoff-match-meta">
           ${match.note ? `<span class="playoff-match-note">${escapeHtml(match.note)}</span>` : '<span></span>'}
           <span id="po-status-${escapeHtml(String(match.id || '').toUpperCase())}" class="playoff-editor-status ${statusCls}">${escapeHtml(statusText)}</span>
         </div>
         <button id="po-row-${escapeHtml(String(match.id || '').toUpperCase())}-home" type="button" class="playoff-team-row ${winner==='home' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','home')" style="width:100%;background:transparent;border:none;cursor:${matchLocked?'not-allowed':'pointer'};opacity:${matchLocked?'.68':'1'}" ${matchLocked?'disabled':''}>
-          <div class="playoff-team-main"><span id="po-flag-${escapeHtml(String(match.id || '').toUpperCase())}-home">${escapeHtml(homeFlag)}</span><span id="po-name-${escapeHtml(String(match.id || '').toUpperCase())}-home" class="playoff-team-name${homePlaceholder ? ' placeholder' : ''}">${escapeHtml(homeLabel)}</span></div>
+          <div class="playoff-team-main"><span id="po-flag-${escapeHtml(String(match.id || '').toUpperCase())}-home">${escapeHtml(homeFlag)}</span><span class="playoff-team-main-text"><span id="po-name-${escapeHtml(String(match.id || '').toUpperCase())}-home" class="playoff-team-name${homePlaceholder ? ' placeholder' : ''}">${escapeHtml(homeLabel)}</span>${homeSlotCaption ? `<span class="playoff-team-slot">${escapeHtml(homeSlotCaption)}</span>` : ''}</span></div>
           <span id="po-tick-${escapeHtml(String(match.id || '').toUpperCase())}-home" class="playoff-team-score">${winner==='home' ? '✓' : ''}</span>
         </button>
         <button id="po-row-${escapeHtml(String(match.id || '').toUpperCase())}-away" type="button" class="playoff-team-row ${winner==='away' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','away')" style="width:100%;background:transparent;border:none;cursor:${matchLocked?'not-allowed':'pointer'};opacity:${matchLocked?'.68':'1'}" ${matchLocked?'disabled':''}>
-          <div class="playoff-team-main"><span id="po-flag-${escapeHtml(String(match.id || '').toUpperCase())}-away">${escapeHtml(awayFlag)}</span><span id="po-name-${escapeHtml(String(match.id || '').toUpperCase())}-away" class="playoff-team-name${awayPlaceholder ? ' placeholder' : ''}">${escapeHtml(awayLabel)}</span></div>
+          <div class="playoff-team-main"><span id="po-flag-${escapeHtml(String(match.id || '').toUpperCase())}-away">${escapeHtml(awayFlag)}</span><span class="playoff-team-main-text"><span id="po-name-${escapeHtml(String(match.id || '').toUpperCase())}-away" class="playoff-team-name${awayPlaceholder ? ' placeholder' : ''}">${escapeHtml(awayLabel)}</span>${awaySlotCaption ? `<span class="playoff-team-slot">${escapeHtml(awaySlotCaption)}</span>` : ''}</span></div>
           <span id="po-tick-${escapeHtml(String(match.id || '').toUpperCase())}-away" class="playoff-team-score">${winner==='away' ? '✓' : ''}</span>
         </button>
         <div class="score-row" style="max-width:none;margin-top:10px">
@@ -10090,7 +10130,7 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
   </div>`;
 
   if(bracketHtml){
-    html += `<div class="playoff-overview-after">${bracketHtml}</div>`;
+    html += `<div id="playoff-overview-after" class="playoff-overview-after">${bracketHtml}</div>`;
   }
 
   content.innerHTML = html;
@@ -10124,7 +10164,7 @@ async function savePlayoff() {
       unlockAch('playoff_saved');
       poSavedPrediction = createPlayoffPredictionState(poBracket, params);
       toast('💾 Прогноз по плей-офф сохранён', 'ok', 3500);
-      renderPlayoffForm(renderPlayoffOverview(poBracket), getPlayoffDeadline(poBracket));
+      renderPlayoffForm(renderPlayoffOverview(poBracket, poPrediction.matches), getPlayoffDeadline(poBracket));
     } else {
       toast('❌ ' + (r.error || 'Ошибка'), 'err');
       btn.disabled = false;
@@ -10239,7 +10279,7 @@ function renderPlayoffBracketVoted(pred, results, bracketHtml=''){
       html += `<div class="playoff-match-card" style="margin-bottom:12px">
         <div class="playoff-match-meta">
           <span class="playoff-match-code">${escapeHtml(String(match.id || '').toUpperCase())}</span>
-          <span class="playoff-match-kickoff">${escapeHtml(formatPlayoffKickoff(match.kickoff) || 'Дата уточняется')}</span>
+          <span class="playoff-match-kickoff">${escapeHtml(formatPlayoffKickoff(match) || 'Дата уточняется')}</span>
         </div>
         <div class="playoff-team-row ${actualWinner==='home' ? 'winner' : ''}">
           <div class="playoff-team-main"><span>${escapeHtml(findTeamFlag(homeLabel))}</span><span class="playoff-team-name">${escapeHtml(homeLabel)}</span></div>
