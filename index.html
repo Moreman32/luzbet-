@@ -1029,6 +1029,20 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .playoff-score-show.is-win-home .playoff-score-show-team.home .playoff-score-show-team-name,.playoff-score-show.is-win-away .playoff-score-show-team.away .playoff-score-show-team-name{color:var(--yellow)}
 @keyframes playoffGoalPop{0%{transform:scale(.55);opacity:.35}60%{transform:scale(1.35);opacity:1}100%{transform:scale(1.15);opacity:1}}
 @keyframes playoffWinPulse{0%{transform:scale(1);filter:none}35%{transform:scale(1.025);filter:drop-shadow(0 0 10px rgba(255,230,0,.28))}100%{transform:scale(1);filter:none}}
+.playoff-settled-box{margin-top:9px;padding:9px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+.playoff-settled-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.playoff-settled-title{font-size:10px;color:var(--muted2);letter-spacing:.5px;text-transform:uppercase}
+.playoff-settled-points{font-family:var(--os);font-size:12px;color:var(--yellow)}
+.playoff-settled-points.zero{color:var(--muted2)}
+.playoff-settled-scoreline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.playoff-settled-score-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);font-size:10px;color:var(--white)}
+.playoff-settled-score-pill.actual{border-color:rgba(79,195,247,.24);background:rgba(79,195,247,.10)}
+.playoff-settled-score-pill.pred{border-color:rgba(255,230,0,.2);background:rgba(255,230,0,.08)}
+.playoff-settled-outcome{font-size:10px;font-weight:600}
+.playoff-settled-outcome.exact{color:#9cf2b9}
+.playoff-settled-outcome.diff{color:#bfe7ff}
+.playoff-settled-outcome.winner{color:#ffe774}
+.playoff-settled-outcome.miss{color:#ff9ca9}
 .playoff-editor-rounds{display:flex;flex-direction:column;gap:14px}
 .playoff-editor-round{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px}
 .playoff-editor-round-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
@@ -9339,7 +9353,7 @@ const PLAYOFF_DEFAULT_BRACKET = {
   ]
 };
 
-const PLAYOFF_MATCH_POINTS = { exact:3, diff:2, winner:1 };
+const PLAYOFF_MATCH_POINTS = { exact:5, diff:3, winner:2 };
 
 // playoff state
 let poPrediction = { format:'bracket_v2', matches:{} };
@@ -9566,10 +9580,6 @@ function renderPlayoffOverview(bracket, predictionMatches=null){
         const awayFlag = resolvePlayoffSlotFlag(match.away, bracketMap, predictionMap, 'prediction');
         const homeSlotCaption = getPlayoffSlotCaption(match.home);
         const awaySlotCaption = getPlayoffSlotCaption(match.away);
-        const settled = match.homeScore !== null && match.awayScore !== null;
-        const homeGoals = Math.max(0, Math.min(20, Number(match.homeScore || 0)));
-        const awayGoals = Math.max(0, Math.min(20, Number(match.awayScore || 0)));
-        const winnerLabel = winner === 'home' ? homeName : winner === 'away' ? awayName : '';
         html += `<div class="playoff-slot"><div class="playoff-slot-inner">${match._stageLabel ? `<div class="playoff-round-sublabel">${escapeHtml(match._stageLabel)}</div>` : ''}<div class="playoff-match-card">
           <div class="playoff-match-meta">
             <span class="playoff-match-code">${escapeHtml(String(match.id || '').toUpperCase())}</span>
@@ -9586,7 +9596,7 @@ function renderPlayoffOverview(bracket, predictionMatches=null){
             <div class="playoff-team-main"><span>${escapeHtml(awayFlag)}</span><span class="playoff-team-main-text"><span class="playoff-team-name${awayPlaceholder ? ' placeholder' : ''}">${escapeHtml(awayName)}</span>${awaySlotCaption ? `<span class="playoff-team-slot">${escapeHtml(awaySlotCaption)}</span>` : ''}</span></div>
             <span class="playoff-team-score">${awayScore}</span>
           </div>
-          ${settled ? `<div class="playoff-score-show" data-playoff-show data-match-id="${escapeHtml(String(match.id || '').toUpperCase())}" data-home-goals="${homeGoals}" data-away-goals="${awayGoals}" data-winner="${escapeHtml(winner)}" data-home-name="${escapeHtml(homeName)}" data-away-name="${escapeHtml(awayName)}" data-winner-label="${escapeHtml(winnerLabel)}"><div class="playoff-score-show-head"><span class="playoff-score-show-crowd">Трибуны ждут первый гол…</span><span class="playoff-score-show-badge">Мини-реплей</span></div><div class="playoff-score-show-lanes"><div class="playoff-score-show-lane home"><div class="playoff-score-show-team home"><span>${escapeHtml(homeFlag)}</span><span class="playoff-score-show-team-name">${escapeHtml(homeName)}</span></div><div class="playoff-score-show-goals">${Array.from({length:homeGoals},()=>'<span class="playoff-score-dot" data-goal-dot="home"></span>').join('')}</div></div><div class="playoff-score-show-lane away"><div class="playoff-score-show-team away"><span>${escapeHtml(awayFlag)}</span><span class="playoff-score-show-team-name">${escapeHtml(awayName)}</span></div><div class="playoff-score-show-goals">${Array.from({length:awayGoals},()=>'<span class="playoff-score-dot" data-goal-dot="away"></span>').join('')}</div></div></div></div>` : ''}
+          ${renderPlayoffScoreShow(match, homeName, awayName, homeFlag, awayFlag, winner)}
           ${(homePlaceholder || awayPlaceholder) ? `<div class="playoff-match-foot">Слоты-заглушки заменятся на реальные команды, как только админ обновит сетку.</div>` : ''}
         </div></div></div>`;
       });
@@ -9710,6 +9720,15 @@ function schedulePlayoffScoreShows(delay=1100){
     runPlayoffScoreShows();
     playoffScoreShowTimer = setTimeout(replay, 60000);
   }, delay);
+}
+
+function renderPlayoffScoreShow(match, homeName, awayName, homeFlag, awayFlag, winner){
+  const settled = match && match.homeScore !== null && match.homeScore !== undefined && match.awayScore !== null && match.awayScore !== undefined;
+  if(!settled) return '';
+  const homeGoals = Math.max(0, Math.min(20, Number(match.homeScore || 0)));
+  const awayGoals = Math.max(0, Math.min(20, Number(match.awayScore || 0)));
+  const winnerLabel = winner === 'home' ? homeName : winner === 'away' ? awayName : '';
+  return `<div class="playoff-score-show" data-playoff-show data-match-id="${escapeHtml(String(match.id || '').toUpperCase())}" data-home-goals="${homeGoals}" data-away-goals="${awayGoals}" data-winner="${escapeHtml(winner)}" data-home-name="${escapeHtml(homeName)}" data-away-name="${escapeHtml(awayName)}" data-winner-label="${escapeHtml(winnerLabel)}"><div class="playoff-score-show-head"><span class="playoff-score-show-crowd">Трибуны ждут первый гол…</span><span class="playoff-score-show-badge">Мини-реплей</span></div><div class="playoff-score-show-lanes"><div class="playoff-score-show-lane home"><div class="playoff-score-show-team home"><span>${escapeHtml(homeFlag)}</span><span class="playoff-score-show-team-name">${escapeHtml(homeName)}</span></div><div class="playoff-score-show-goals">${Array.from({length:homeGoals},()=>'<span class="playoff-score-dot" data-goal-dot="home"></span>').join('')}</div></div><div class="playoff-score-show-lane away"><div class="playoff-score-show-team away"><span>${escapeHtml(awayFlag)}</span><span class="playoff-score-show-team-name">${escapeHtml(awayName)}</span></div><div class="playoff-score-show-goals">${Array.from({length:awayGoals},()=>'<span class="playoff-score-dot" data-goal-dot="away"></span>').join('')}</div></div></div></div>`;
 }
 
 function findTeamFlag(name){
@@ -10192,7 +10211,7 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
 
   html += `<div class="playoff-section">
     <div class="playoff-section-title">🎯 Твой Купон Плей-офф</div>
-    <div class="playoff-section-sub">Заполняй матчи по раундам ниже. Очки считаются по каждому матчу: +3 за точный счёт и проход, +2 за разницу и проход, +1 только за проход дальше.</div>
+    <div class="playoff-section-sub">Заполняй матчи по раундам ниже. Очки считаются по каждому матчу: +5 за точный счёт и проход, +3 за разницу и проход, +2 только за проход дальше.</div>
     <button class="lucky-btn" onclick="fillLuckyPlayoff()" style="margin-bottom:14px">🎲 НА УДАЧУ — заполнить плей-офф случайно</button>
     <div class="playoff-editor-summary">
       <div class="playoff-editor-summary-card">
@@ -10233,6 +10252,16 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
       const homeSlotCaption = getPlayoffSlotCaption(match.home);
       const awaySlotCaption = getPlayoffSlotCaption(match.away);
       const hasScores = state.homeScore !== '' && state.awayScore !== '';
+      const scoring = scoreSinglePlayoffMatch(state, match);
+      const actualScore = scoring.settled ? `${match.homeScore}:${match.awayScore}` : '';
+      const predictedScore = hasScores ? `${state.homeScore}:${state.awayScore}` : '—';
+      const scoringText = scoring.mode === 'exact'
+        ? 'Точный счёт + проход'
+        : scoring.mode === 'diff'
+          ? 'Разница + проход'
+          : scoring.mode === 'winner'
+            ? 'Проход команды'
+            : 'Прогноз не зашёл';
       const statusCls = matchLocked ? '' : winner ? 'ready' : hasScores ? 'warn' : '';
       const statusText = matchLocked
         ? 'Матч уже закрыт для редактирования'
@@ -10250,6 +10279,7 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
           ${match.note ? `<span class="playoff-match-note">${escapeHtml(match.note)}</span>` : '<span></span>'}
           <span id="po-status-${escapeHtml(String(match.id || '').toUpperCase())}" class="playoff-editor-status ${statusCls}">${escapeHtml(statusText)}</span>
         </div>
+        ${scoring.settled ? `<div class="playoff-settled-box"><div class="playoff-settled-top"><span class="playoff-settled-title">Матч рассчитан</span><span class="playoff-settled-points ${scoring.points>0?'':'zero'}">${scoring.points>0?`+${scoring.points} очк.`:'0 очк.'}</span></div><div class="playoff-settled-scoreline"><span class="playoff-settled-score-pill pred">Твой счёт: ${escapeHtml(predictedScore)}</span><span class="playoff-settled-score-pill actual">Факт: ${escapeHtml(actualScore)}</span></div><div class="playoff-settled-outcome ${escapeHtml(scoring.mode)}">${escapeHtml(scoringText)}</div>${renderPlayoffScoreShow(match, homeLabel, awayLabel, homeFlag, awayFlag, getPlayoffWinnerSide(match))}</div>` : ''}
         <button id="po-row-${escapeHtml(String(match.id || '').toUpperCase())}-home" type="button" class="playoff-team-row ${winner==='home' ? 'winner' : ''}" onclick="setPlayoffPredictionWinner('${escapeHtml(String(match.id || '').toUpperCase())}','home')" style="width:100%;background:transparent;border:none;cursor:${matchLocked?'not-allowed':'pointer'};opacity:${matchLocked?'.68':'1'}" ${matchLocked?'disabled':''}>
           <div class="playoff-team-main"><span id="po-flag-${escapeHtml(String(match.id || '').toUpperCase())}-home">${escapeHtml(homeFlag)}</span><span class="playoff-team-main-text"><span id="po-name-${escapeHtml(String(match.id || '').toUpperCase())}-home" class="playoff-team-name${homePlaceholder ? ' placeholder' : ''}">${escapeHtml(homeLabel)}</span>${homeSlotCaption ? `<span class="playoff-team-slot">${escapeHtml(homeSlotCaption)}</span>` : ''}</span></div>
           <span id="po-tick-${escapeHtml(String(match.id || '').toUpperCase())}-home" class="playoff-team-score">${winner==='home' ? '✓' : ''}</span>
@@ -10424,7 +10454,7 @@ function renderPlayoffBracketVoted(pred, results, bracketHtml=''){
         : scoring.mode === 'diff'
           ? 'Разница + проход'
           : scoring.mode === 'winner'
-            ? 'Только проход'
+            ? 'Проход команды'
             : scoring.settled
               ? 'Мимо'
               : 'Ждём матч';
@@ -10716,7 +10746,7 @@ function getPredictionLbViewConfig(view){
       teamKey:'overallTeamPts',
       exactLabel:'Точный счёт',
       scoreLabel:'Счёт + проход',
-      teamLabel:'Только проход',
+      teamLabel:'Проход команды',
     },
     groups: {
       id:'groups',
@@ -10742,7 +10772,7 @@ function getPredictionLbViewConfig(view){
       teamKey:'playoffTeamPts',
       exactLabel:'Точный + проход',
       scoreLabel:'Счёт + проход',
-      teamLabel:'Только проход',
+      teamLabel:'Проход команды',
     }
   };
   return map[view] || map.overall;
@@ -10779,9 +10809,9 @@ function renderPredictionLbModeSwitcher(){
 
 function getPlayoffLbBadge(pts, settled){
   if(!settled) return { cls:'', text:'Ждём матч' };
-  if(pts === 3) return { cls:'hit', text:'Точный + проход' };
-  if(pts === 2) return { cls:'mid', text:'Счёт + проход' };
-  if(pts === 1) return { cls:'low', text:'Только проход' };
+  if(pts === PLAYOFF_MATCH_POINTS.exact) return { cls:'hit', text:'Точный + проход' };
+  if(pts === PLAYOFF_MATCH_POINTS.diff) return { cls:'mid', text:'Счёт + проход' };
+  if(pts === PLAYOFF_MATCH_POINTS.winner) return { cls:'low', text:'Проход команды' };
   return { cls:'miss', text:'Мимо' };
 }
 

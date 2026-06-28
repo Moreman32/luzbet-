@@ -164,6 +164,7 @@ function normalizePlayoffPredictionMatches(pred: any) {
 }
 
 function scorePlayoffPredictionV2(pred: any, playoff: any) {
+  const PLAYOFF_MATCH_POINTS = { exact: 5, diff: 3, winner: 2 };
   const predictedMatches = normalizePlayoffPredictionMatches(pred);
   const actualRounds = Array.isArray(playoff?.rounds) ? playoff.rounds : [];
   let playoffPts = 0;
@@ -194,14 +195,14 @@ function scorePlayoffPredictionV2(pred: any, playoff: any) {
       if (predicted.homeScore !== null && predicted.awayScore !== null && predictedWinner === actualWinner) {
         advancePts += 1;
         if (predicted.homeScore === actualHome && predicted.awayScore === actualAway) {
-          pts = 3;
-          exactPts += 3;
+          pts = PLAYOFF_MATCH_POINTS.exact;
+          exactPts += PLAYOFF_MATCH_POINTS.exact;
         } else if ((predicted.homeScore - predicted.awayScore) === (actualHome - actualAway)) {
-          pts = 2;
-          scorePassPts += 2;
+          pts = PLAYOFF_MATCH_POINTS.diff;
+          scorePassPts += PLAYOFF_MATCH_POINTS.diff;
         } else {
-          pts = 1;
-          teamOnlyPts += 1;
+          pts = PLAYOFF_MATCH_POINTS.winner;
+          teamOnlyPts += PLAYOFF_MATCH_POINTS.winner;
         }
       }
       playoffPts += pts;
