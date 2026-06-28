@@ -1018,17 +1018,35 @@ canvas#wheel{border-radius:50%;border:3px solid var(--border);display:block}
 .playoff-score-show-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:9px;color:var(--muted2);margin-bottom:6px}
 .playoff-score-show-badge{padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);white-space:nowrap}
 .playoff-score-show-crowd{font-size:9px;color:var(--yellow);min-height:12px}
+.playoff-score-show-pitch{position:relative;height:26px;border-radius:999px;margin-bottom:7px;background:
+linear-gradient(90deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 2%,transparent 2%,transparent 98%,rgba(255,255,255,.05) 98%,rgba(255,255,255,.05) 100%),
+linear-gradient(180deg,rgba(66,122,66,.28),rgba(40,84,40,.18));
+border:1px solid rgba(255,255,255,.05);overflow:hidden}
+.playoff-score-show-pitch::before{content:'';position:absolute;inset:4px auto 4px 50%;width:1px;background:rgba(255,255,255,.10);transform:translateX(-50%)}
+.playoff-score-show-ball{position:absolute;left:50%;top:50%;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.4);transform:translate(-50%,-50%);transition:left .55s cubic-bezier(.2,.8,.2,1), top .55s cubic-bezier(.2,.8,.2,1), transform .35s ease, opacity .25s ease}
+.playoff-score-show-ball.goal-home{left:12%;top:50%;transform:translate(-50%,-50%) scale(1.25)}
+.playoff-score-show-ball.goal-away{left:88%;top:50%;transform:translate(-50%,-50%) scale(1.25)}
+.playoff-score-show-ball.burst{animation:playoffBallBurst .45s ease}
+.playoff-score-show-goalflash{position:absolute;top:50%;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,rgba(255,230,0,.45),rgba(255,230,0,0));transform:translate(-50%,-50%) scale(.3);opacity:0;pointer-events:none}
+.playoff-score-show-goalflash.show{opacity:1;animation:playoffGoalFlash .5s ease}
+.playoff-score-show-goalflash.home{left:12%}
+.playoff-score-show-goalflash.away{left:88%}
 .playoff-score-show-lanes{display:flex;flex-direction:column;gap:5px}
-.playoff-score-show-lane{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.playoff-score-show-lane{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}
 .playoff-score-show-team{display:flex;align-items:center;gap:6px;min-width:0}
 .playoff-score-show-team-name{font-size:10px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.playoff-score-show-actual{min-width:18px;text-align:center;font-family:var(--os);font-size:13px;color:var(--white)}
 .playoff-score-show-goals{display:flex;gap:4px;justify-content:flex-end;min-height:12px}
 .playoff-score-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.08);box-shadow:none;transform:scale(.8);opacity:.45}
 .playoff-score-dot.on{background:var(--yellow);border-color:rgba(255,230,0,.45);box-shadow:0 0 10px rgba(255,230,0,.5);transform:scale(1.15);opacity:1;animation:playoffGoalPop .45s ease}
 .playoff-score-show.is-win-home .playoff-score-show-lane.home,.playoff-score-show.is-win-away .playoff-score-show-lane.away{animation:playoffWinPulse .8s ease}
-.playoff-score-show.is-win-home .playoff-score-show-team.home .playoff-score-show-team-name,.playoff-score-show.is-win-away .playoff-score-show-team.away .playoff-score-show-team-name{color:var(--yellow)}
+.playoff-score-show.is-win-home .playoff-score-show-team.home .playoff-score-show-team-name,.playoff-score-show.is-win-away .playoff-score-show-team.away .playoff-score-show-team-name,.playoff-score-show.is-win-home .playoff-score-show-lane.home .playoff-score-show-actual,.playoff-score-show.is-win-away .playoff-score-show-lane.away .playoff-score-show-actual{color:var(--yellow)}
+.playoff-score-show-victory{margin-top:6px;padding:5px 8px;border-radius:999px;border:1px solid rgba(255,230,0,.22);background:rgba(255,230,0,.08);font-size:10px;color:var(--yellow);text-align:center;opacity:0;transform:translateY(4px);transition:opacity .25s ease, transform .25s ease}
+.playoff-score-show.is-win-home .playoff-score-show-victory,.playoff-score-show.is-win-away .playoff-score-show-victory{opacity:1;transform:translateY(0)}
 @keyframes playoffGoalPop{0%{transform:scale(.55);opacity:.35}60%{transform:scale(1.35);opacity:1}100%{transform:scale(1.15);opacity:1}}
 @keyframes playoffWinPulse{0%{transform:scale(1);filter:none}35%{transform:scale(1.025);filter:drop-shadow(0 0 10px rgba(255,230,0,.28))}100%{transform:scale(1);filter:none}}
+@keyframes playoffBallBurst{0%{transform:translate(-50%,-50%) scale(1)}45%{transform:translate(-50%,-50%) scale(1.45)}100%{transform:translate(-50%,-50%) scale(1.15)}}
+@keyframes playoffGoalFlash{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}35%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1.45);opacity:0}}
 .playoff-settled-box{margin-top:9px;padding:9px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
 .playoff-settled-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .playoff-settled-title{font-size:10px;color:var(--muted2);letter-spacing:.5px;text-transform:uppercase}
@@ -9666,9 +9684,19 @@ function playPlayoffScoreShow(el, stagger=0){
   el._playoffReplayJobs = [];
   el.classList.remove('is-win-home','is-win-away');
   const crowd = el.querySelector('.playoff-score-show-crowd');
+  const ball = el.querySelector('[data-playoff-ball]');
+  const homeFlash = el.querySelector('[data-goalflash="home"]');
+  const awayFlash = el.querySelector('[data-goalflash="away"]');
   const homeDots = [...el.querySelectorAll('[data-goal-dot="home"]')];
   const awayDots = [...el.querySelectorAll('[data-goal-dot="away"]')];
   [...homeDots, ...awayDots].forEach(dot => dot.classList.remove('on'));
+  if(ball){
+    ball.classList.remove('goal-home','goal-away','burst');
+    ball.style.left = '50%';
+    ball.style.top = '50%';
+  }
+  if(homeFlash) homeFlash.classList.remove('show');
+  if(awayFlash) awayFlash.classList.remove('show');
   const homeGoals = parseInt(el.dataset.homeGoals || '0', 10) || 0;
   const awayGoals = parseInt(el.dataset.awayGoals || '0', 10) || 0;
   const winner = String(el.dataset.winner || '').trim();
@@ -9686,10 +9714,30 @@ function playPlayoffScoreShow(el, stagger=0){
       if(side === 'home'){
         const dot = homeDots[homeIndex++];
         if(dot) dot.classList.add('on');
+        if(ball){
+          ball.classList.remove('goal-away','burst');
+          void ball.offsetWidth;
+          ball.classList.add('goal-home','burst');
+        }
+        if(homeFlash){
+          homeFlash.classList.remove('show');
+          void homeFlash.offsetWidth;
+          homeFlash.classList.add('show');
+        }
         if(crowd) crowd.textContent = `Гол! ${homeName} забивает.`;
       }else{
         const dot = awayDots[awayIndex++];
         if(dot) dot.classList.add('on');
+        if(ball){
+          ball.classList.remove('goal-home','burst');
+          void ball.offsetWidth;
+          ball.classList.add('goal-away','burst');
+        }
+        if(awayFlash){
+          awayFlash.classList.remove('show');
+          void awayFlash.offsetWidth;
+          awayFlash.classList.add('show');
+        }
         if(crowd) crowd.textContent = `Гол! ${awayName} отвечает.`;
       }
     }, stagger + 450 + index * pace));
@@ -9698,9 +9746,17 @@ function playPlayoffScoreShow(el, stagger=0){
   el._playoffReplayJobs.push(setTimeout(()=>{
     if(winner === 'home'){
       el.classList.add('is-win-home');
+      if(ball){
+        ball.classList.remove('goal-away');
+        ball.classList.add('goal-home');
+      }
       if(crowd) crowd.textContent = winnerLabel ? `Победа: ${winnerLabel}` : `${homeName} празднует победу.`;
     }else if(winner === 'away'){
       el.classList.add('is-win-away');
+      if(ball){
+        ball.classList.remove('goal-home');
+        ball.classList.add('goal-away');
+      }
       if(crowd) crowd.textContent = winnerLabel ? `Победа: ${winnerLabel}` : `${awayName} празднует победу.`;
     }else if(crowd){
       crowd.textContent = 'Финальный свисток.';
@@ -9728,7 +9784,7 @@ function renderPlayoffScoreShow(match, homeName, awayName, homeFlag, awayFlag, w
   const homeGoals = Math.max(0, Math.min(20, Number(match.homeScore || 0)));
   const awayGoals = Math.max(0, Math.min(20, Number(match.awayScore || 0)));
   const winnerLabel = winner === 'home' ? homeName : winner === 'away' ? awayName : '';
-  return `<div class="playoff-score-show" data-playoff-show data-match-id="${escapeHtml(String(match.id || '').toUpperCase())}" data-home-goals="${homeGoals}" data-away-goals="${awayGoals}" data-winner="${escapeHtml(winner)}" data-home-name="${escapeHtml(homeName)}" data-away-name="${escapeHtml(awayName)}" data-winner-label="${escapeHtml(winnerLabel)}"><div class="playoff-score-show-head"><span class="playoff-score-show-crowd">Трибуны ждут первый гол…</span><span class="playoff-score-show-badge">Мини-реплей</span></div><div class="playoff-score-show-lanes"><div class="playoff-score-show-lane home"><div class="playoff-score-show-team home"><span>${escapeHtml(homeFlag)}</span><span class="playoff-score-show-team-name">${escapeHtml(homeName)}</span></div><div class="playoff-score-show-goals">${Array.from({length:homeGoals},()=>'<span class="playoff-score-dot" data-goal-dot="home"></span>').join('')}</div></div><div class="playoff-score-show-lane away"><div class="playoff-score-show-team away"><span>${escapeHtml(awayFlag)}</span><span class="playoff-score-show-team-name">${escapeHtml(awayName)}</span></div><div class="playoff-score-show-goals">${Array.from({length:awayGoals},()=>'<span class="playoff-score-dot" data-goal-dot="away"></span>').join('')}</div></div></div></div>`;
+  return `<div class="playoff-score-show" data-playoff-show data-match-id="${escapeHtml(String(match.id || '').toUpperCase())}" data-home-goals="${homeGoals}" data-away-goals="${awayGoals}" data-winner="${escapeHtml(winner)}" data-home-name="${escapeHtml(homeName)}" data-away-name="${escapeHtml(awayName)}" data-winner-label="${escapeHtml(winnerLabel)}"><div class="playoff-score-show-head"><span class="playoff-score-show-crowd">Трибуны ждут первый гол…</span><span class="playoff-score-show-badge">Мини-реплей</span></div><div class="playoff-score-show-pitch"><span class="playoff-score-show-goalflash home" data-goalflash="home"></span><span class="playoff-score-show-goalflash away" data-goalflash="away"></span><span class="playoff-score-show-ball" data-playoff-ball></span></div><div class="playoff-score-show-lanes"><div class="playoff-score-show-lane home"><div class="playoff-score-show-team home"><span>${escapeHtml(homeFlag)}</span><span class="playoff-score-show-team-name">${escapeHtml(homeName)}</span></div><span class="playoff-score-show-actual">${homeGoals}</span><div class="playoff-score-show-goals">${Array.from({length:homeGoals},()=>'<span class="playoff-score-dot" data-goal-dot="home"></span>').join('')}</div></div><div class="playoff-score-show-lane away"><div class="playoff-score-show-team away"><span>${escapeHtml(awayFlag)}</span><span class="playoff-score-show-team-name">${escapeHtml(awayName)}</span></div><span class="playoff-score-show-actual">${awayGoals}</span><div class="playoff-score-show-goals">${Array.from({length:awayGoals},()=>'<span class="playoff-score-dot" data-goal-dot="away"></span>').join('')}</div></div></div><div class="playoff-score-show-victory">${escapeHtml(winnerLabel ? `Победа: ${winnerLabel}` : 'Финальный свисток')}</div></div>`;
 }
 
 function findTeamFlag(name){
