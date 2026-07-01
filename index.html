@@ -10081,23 +10081,36 @@ function fillLuckyPlayoff(){
 function resolvePlayoffSlotLabel(token, bracketMap, predictionMatches, mode='prediction'){
   const clean = String(token || '').trim();
   if(!clean) return '';
+
   if(/^W\d+$/i.test(clean) || /^L\d+$/i.test(clean)){
     const matchId = 'M' + clean.slice(1);
     const match = bracketMap[matchId];
     if(!match) return formatPlayoffTeamLabel(clean);
-    const sourceState = mode === 'prediction'
-      ? (predictionMatches[String(matchId).toUpperCase()] || { homeScore:'', awayScore:'', winner:'' })
-      : match;
+
+    const predictionState =
+      predictionMatches[String(matchId).toUpperCase()] ||
+      { homeScore:'', awayScore:'', winner:'' };
+
+    const actualWinner = getPlayoffWinnerSide(match);
+    const predictionWinner = getPredictionWinnerSide(predictionState);
+
+    const useActual = !!actualWinner;
+    const win = useActual ? actualWinner : predictionWinner;
+
     const side = /^W/i.test(clean)
-      ? (mode === 'prediction' ? getPredictionWinnerSide(sourceState) : getPlayoffWinnerSide(sourceState))
-      : (function(){
-          const win = mode === 'prediction' ? getPredictionWinnerSide(sourceState) : getPlayoffWinnerSide(sourceState);
-          return win === 'home' ? 'away' : win === 'away' ? 'home' : '';
-        })();
+      ? win
+      : win === 'home'
+        ? 'away'
+        : win === 'away'
+          ? 'home'
+          : '';
+
     if(side === 'home') return resolvePlayoffSlotLabel(match.home, bracketMap, predictionMatches, mode);
     if(side === 'away') return resolvePlayoffSlotLabel(match.away, bracketMap, predictionMatches, mode);
+
     return formatPlayoffTeamLabel(clean);
   }
+
   return formatPlayoffTeamLabel(clean);
 }
 
