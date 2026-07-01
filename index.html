@@ -10372,13 +10372,15 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
       const scoring = scoreSinglePlayoffMatch(state, match);
       const actualScore = scoring.settled ? `${match.homeScore}:${match.awayScore}` : '';
       const predictedScore = hasScores ? `${state.homeScore}:${state.awayScore}` : '—';
-      const scoringText = scoring.mode === 'exact'
-        ? 'Точный счёт + проход'
-        : scoring.mode === 'diff'
-          ? 'Разница + проход'
-          : scoring.mode === 'winner'
-            ? 'Проход команды'
-            : 'Прогноз не зашёл';
+const scoringText = scoring.mode === 'exact'
+  ? 'Точный счёт + проход'
+  : scoring.mode === 'exact_score'
+    ? 'Точный счёт'
+    : scoring.mode === 'diff'
+      ? 'Разница + проход'
+      : scoring.mode === 'winner'
+        ? 'Проход команды'
+        : 'Прогноз не зашёл';
       const statusCls = matchLocked ? '' : winner ? 'ready' : hasScores ? 'warn' : '';
       const statusText = matchLocked
         ? 'Матч уже закрыт для редактирования'
