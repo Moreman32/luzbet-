@@ -9371,7 +9371,12 @@ const PLAYOFF_DEFAULT_BRACKET = {
   ]
 };
 
-const PLAYOFF_MATCH_POINTS = { exact:5, diff:3, winner:2 };
+const PLAYOFF_MATCH_POINTS = {
+  exact: 5,        // точный счёт + прошла команда
+  exactScore: 3,   // точный счёт, но команда не прошла
+  diff: 2,         // разница голов + прошла команда
+  winner: 1        // только прошла команда
+};
 
 // playoff state
 let poPrediction = { format:'bracket_v2', matches:{} };
@@ -10166,14 +10171,70 @@ function scoreSinglePlayoffMatch(predState, actualMatch){
   const actualAway = parsePlayoffInt(actualMatch && actualMatch.awayScore);
   const predictedHome = parsePlayoffInt(predState && predState.homeScore);
   const predictedAway = parsePlayoffInt(predState && predState.awayScore);
+
   const actualWinner = getPlayoffWinnerSide(actualMatch);
   const predictedWinner = getPredictionWinnerSide(predState);
-  if(actualHome === null || actualAway === null || !actualWinner) return { settled:false, points:0, mode:'pending' };
-  if(predictedHome === null || predictedAway === null || !predictedWinner) return { settled:true, points:0, mode:'miss' };
-  if(predictedWinner !== actualWinner) return { settled:true, points:0, mode:'miss' };
-  if(predictedHome === actualHome && predictedAway === actualAway) return { settled:true, points:PLAYOFF_MATCH_POINTS.exact, mode:'exact' };
-  if((predictedHome - predictedAway) === (actualHome - actualAway)) return { settled:true, points:PLAYOFF_MATCH_POINTS.diff, mode:'diff' };
-  return { settled:true, points:PLAYOFF_MATCH_POINTS.winner, mode:'winner' };
+
+  if (actualHome === null || actualAway === null || !actualWinner) {
+    return { settled:false, points:0, mode:'pending' };
+  }
+
+  if (predictedHome === null || predictedAway === null) {
+    return { settled:true, points:0, mode:'miss' };
+  }
+
+  // 5 очков — точный счёт + правильный проход
+  if (
+    predictedHome === actualHome &&
+    predictedAway === actualAway &&
+    predictedWinner === actualWinner
+  ) {
+    return {
+      settled:true,
+      points:PLAYOFF_MATCH_POINTS.exact,
+      mode:'exact'
+    };
+  }
+
+  // 3 очка — точный счёт, но проход неверный
+  if (
+    predictedHome === actualHome &&
+    predictedAway === actualAway
+  ) {
+    return {
+      settled:true,
+      points:PLAYOFF_MATCH_POINTS.exactScore,
+      mode:'exact_score'
+    };
+  }
+
+  // дальше считаем только если проход угадан
+  if (!predictedWinner || predictedWinner !== actualWinner) {
+    return {
+      settled:true,
+      points:0,
+      mode:'miss'
+    };
+  }
+
+  // 2 очка — разница голов + проход
+  if (
+    (predictedHome - predictedAway) ===
+    (actualHome - actualAway)
+  ) {
+    return {
+      settled:true,
+      points:PLAYOFF_MATCH_POINTS.diff,
+      mode:'diff'
+    };
+  }
+
+  // 1 очко — только проход
+  return {
+    settled:true,
+    points:PLAYOFF_MATCH_POINTS.winner,
+    mode:'winner'
+  };
 }
 
 // ══════════════════════════════════════════════
@@ -10267,7 +10328,7 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
 
   html += `<div class="playoff-section">
     <div class="playoff-section-title">🎯 Твой Купон Плей-офф</div>
-    <div class="playoff-section-sub">Заполняй матчи по раундам ниже. Очки считаются по каждому матчу: +5 за точный счёт и проход, +3 за разницу и проход, +2 только за проход дальше.</div>
+    <div class="playoff-section-sub">Заполняй матчи по раундам ниже. Очки считаются по каждому матчу: +5 за точный счёт и проход, +3 за точный счёт без прохода, +2 за разницу и проход, +1 только за проход дальше..</div>
     <button class="lucky-btn" onclick="fillLuckyPlayoff()" style="margin-bottom:14px">🎲 НА УДАЧУ — заполнить плей-офф случайно</button>
     <div class="playoff-editor-summary">
       <div class="playoff-editor-summary-card">
@@ -10865,9 +10926,23 @@ function renderPredictionLbModeSwitcher(){
 
 function getPlayoffLbBadge(pts, settled){
   if(!settled) return { cls:'', text:'Ждём матч' };
-  if(pts === PLAYOFF_MATCH_POINTS.exact) return { cls:'hit', text:'Точный + проход' };
-  if(pts === PLAYOFF_MATCH_POINTS.diff) return { cls:'mid', text:'Счёт + проход' };
-  if(pts === PLAYOFF_MATCH_POINTS.winner) return { cls:'low', text:'Проход команды' };
+
+  if(pts === PLAYOFF_MATCH_POINTS.exact){
+    return { cls:'hit', text:'Точный + проход' };
+  }
+
+  if(pts === PLAYOFF_MATCH_POINTS.exactScore){
+    return { cls:'mid', text:'Точный счёт' };
+  }
+
+  if(pts === PLAYOFF_MATCH_POINTS.diff){
+    return { cls:'mid', text:'Разница + проход' };
+  }
+
+  if(pts === PLAYOFF_MATCH_POINTS.winner){
+    return { cls:'low', text:'Проход команды' };
+  }
+
   return { cls:'miss', text:'Мимо' };
 }
 
