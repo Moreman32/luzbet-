@@ -164,7 +164,7 @@ function normalizePlayoffPredictionMatches(pred: any) {
 }
 
 function scorePlayoffPredictionV2(pred: any, playoff: any) {
-  const PLAYOFF_MATCH_POINTS = { exact: 5, diff: 3, winner: 2 };
+  const PLAYOFF_MATCH_POINTS = { exact: 5, exactScore: 3, diff: 3, winner: 2 };
   const predictedMatches = normalizePlayoffPredictionMatches(pred);
   const actualRounds = Array.isArray(playoff?.rounds) ? playoff.rounds : [];
   let playoffPts = 0;
@@ -183,7 +183,7 @@ function scorePlayoffPredictionV2(pred: any, playoff: any) {
       const actualAway = parseScore(match?.awayScore);
       const actualWinner = resolveMatchWinner(match);
       if (actualHome === null || actualAway === null || !actualWinner) {
-        rows.push({ id, pts: 0, settled: false, predicted, actual: match });
+        rows.push({ id, pts: 0, settled: false, mode: "pending", predicted, actual: match });
         continue;
       }
       const predictedWinner = predicted.winner || (
@@ -192,21 +192,34 @@ function scorePlayoffPredictionV2(pred: any, playoff: any) {
           : ""
       );
       let pts = 0;
-      if (predicted.homeScore !== null && predicted.awayScore !== null && predictedWinner === actualWinner) {
-        advancePts += 1;
+      let mode = "miss";
+      if (predicted.homeScore !== null && predicted.awayScore !== null) {
         if (predicted.homeScore === actualHome && predicted.awayScore === actualAway) {
-          pts = PLAYOFF_MATCH_POINTS.exact;
-          exactPts += PLAYOFF_MATCH_POINTS.exact;
-        } else if ((predicted.homeScore - predicted.awayScore) === (actualHome - actualAway)) {
-          pts = PLAYOFF_MATCH_POINTS.diff;
-          scorePassPts += PLAYOFF_MATCH_POINTS.diff;
-        } else {
-          pts = PLAYOFF_MATCH_POINTS.winner;
-          teamOnlyPts += PLAYOFF_MATCH_POINTS.winner;
+          if (predictedWinner === actualWinner) {
+            advancePts += 1;
+            pts = PLAYOFF_MATCH_POINTS.exact;
+            exactPts += PLAYOFF_MATCH_POINTS.exact;
+            mode = "exact";
+          } else {
+            pts = PLAYOFF_MATCH_POINTS.exactScore;
+            scorePassPts += PLAYOFF_MATCH_POINTS.exactScore;
+            mode = "exact_score";
+          }
+        } else if (predictedWinner === actualWinner) {
+          advancePts += 1;
+          if ((predicted.homeScore - predicted.awayScore) === (actualHome - actualAway)) {
+            pts = PLAYOFF_MATCH_POINTS.diff;
+            scorePassPts += PLAYOFF_MATCH_POINTS.diff;
+            mode = "diff";
+          } else {
+            pts = PLAYOFF_MATCH_POINTS.winner;
+            teamOnlyPts += PLAYOFF_MATCH_POINTS.winner;
+            mode = "winner";
+          }
         }
       }
       playoffPts += pts;
-      rows.push({ id, pts, settled: true, predicted: { ...predicted, winner: predictedWinner }, actual: match });
+      rows.push({ id, pts, settled: true, mode, predicted: { ...predicted, winner: predictedWinner }, actual: match });
     }
   }
 

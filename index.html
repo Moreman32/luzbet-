@@ -3509,6 +3509,7 @@ let winStreak=0,slotBet=10,bjState=null,wheelSpinning=false,wheelAngle=0,wheelRa
 let pvpBjState={waiting:[],mine:[],room:null,loading:false,refreshing:false,pollTimer:null};
 let pvpDiceState={waiting:[],mine:[],room:null,loading:false,refreshing:false,pollTimer:null};
 let pvpChickenState={waiting:[],mine:[],room:null,loading:false,refreshing:false,pollTimer:null};
+const PVP_FRONTEND_DISABLED = true;
 const CASINO_BET_DEFAULTS={
   durak:25,
   slots:10,
@@ -5476,11 +5477,7 @@ async function updateProfilePage(){
 function showPage(id){
   // Redirect login → profile if already logged in
   if(id==='login' && S.code){id='profile';}
-  if(id!=='pvp'){
-    stopPvpBlackjackPolling();
-    stopPvpDicePolling();
-    stopPvpChickenPolling();
-  }
+  if(id!=='pvp') stopAllPvpPolling();
   // Guard: закрытые разделы без логина
   const PROTECTED=['predict','casino','pvp','achievements','playoff','profile'];
   if(PROTECTED.includes(id) && !S.code){
@@ -5515,7 +5512,7 @@ function showPage(id){
     }
   }
   if(id==='casino'){saveCoins();renderCrashHistory();resetCrashScene();renderPlinkoBoard();renderMinesBoard(false);renderTower();refreshDurakGame();if(!casinoEverOpened){casinoEverOpened=true;unlockAch('casino_first');drawWheel();}};
-  if(id==='pvp'){saveCoins();refreshAllPvpRooms(true);}
+  if(id==='pvp'){saveCoins();stopAllPvpPolling();renderPvpDisabledState();}
   document.getElementById('save-bar').classList.toggle('up',id==='predict'&&!!S.code);
   if(new Date().getHours()>=0&&new Date().getHours()<5)unlockAch('night_owl');
 }
@@ -6787,8 +6784,39 @@ function stopPvpBlackjackPolling(){
   }
 }
 
+function stopAllPvpPolling(){
+  stopPvpBlackjackPolling();
+  stopPvpDicePolling();
+  stopPvpChickenPolling();
+}
+
+function renderPvpDisabledState(){
+  const page = document.getElementById('page-pvp');
+  if(!page) return;
+  page.innerHTML = `
+    <div style="max-width:760px;margin:0 auto">
+      <div class="pvp-hero">
+        <div class="pvp-hero-top">
+          <div>
+            <div class="pvp-hero-kicker">PVP ИГРЫ</div>
+            <div class="pvp-hero-title">Лобби дуэлей на паузе</div>
+          </div>
+          <div class="pvp-hero-badge">⏸️ Временно отключено</div>
+        </div>
+        <div class="pvp-hero-sub">Фронт PVP отключён, потому что связанные Supabase-функции убраны. Это специально, чтобы сайт больше не слал бесконечные запросы в несуществующие эндпоинты.</div>
+        <div class="playoff-locked" style="margin-top:18px">⚙️ PVP временно выключен. Когда вернёшь функции или решим новый формат, включим обратно уже без лишнего поллинга.</div>
+      </div>
+    </div>`;
+}
+
+function notifyPvpDisabled(){
+  renderPvpDisabledState();
+  toast('⏸️ PVP временно выключен, чтобы сайт не спамил запросами.', 'info', 2600);
+}
+
 function schedulePvpBlackjackPolling(delayMs){
   stopPvpBlackjackPolling();
+  if(PVP_FRONTEND_DISABLED) return;
   if(!S.code) return;
   const room=pvpBjState.room;
   const computedDelay=typeof delayMs==='number'
@@ -6868,6 +6896,7 @@ function pickPvpBlackjackRoom(nextRooms){
 }
 
 function openPvpBlackjackRoom(roomId){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   const next=(pvpBjState.mine||[]).find(item=>item && item.room_id===roomId) || null;
   if(!next) return;
   pvpBjState.room=next;
@@ -6930,6 +6959,11 @@ function renderPvpBlackjackState(){
 }
 
 async function refreshPvpBlackjackRooms(silent=true, force=false){
+  if(PVP_FRONTEND_DISABLED){
+    stopAllPvpPolling();
+    renderPvpDisabledState();
+    return;
+  }
   if(!S.code || (pvpBjState.refreshing && !force)) return;
   pvpBjState.refreshing=true;
   try{
@@ -6953,6 +6987,7 @@ async function refreshPvpBlackjackRooms(silent=true, force=false){
 }
 
 async function createPvpBlackjackRoom(){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || pvpBjState.loading) return;
   pvpBjState.loading=true;renderPvpBlackjackState();
   try{
@@ -6971,6 +7006,7 @@ async function createPvpBlackjackRoom(){
 }
 
 async function acceptPvpBlackjackRoom(roomId){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || pvpBjState.loading) return;
   pvpBjState.loading=true;renderPvpBlackjackState();
   try{
@@ -6990,6 +7026,7 @@ async function acceptPvpBlackjackRoom(roomId){
 }
 
 async function playPvpBlackjackTurn(action){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || !pvpBjState.room || pvpBjState.loading) return;
   pvpBjState.loading=true;renderPvpBlackjackState();
   try{
@@ -7013,6 +7050,7 @@ async function playPvpBlackjackTurn(action){
 }
 
 async function cancelPvpBlackjackRoom(roomId=''){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   const targetRoomId=roomId || (getPvpBlackjackCancelableRoom()?.room_id || '');
   if(!S.code || !targetRoomId || pvpBjState.loading) return;
   pvpBjState.loading=true;renderPvpBlackjackState();
@@ -7039,6 +7077,7 @@ function stopPvpDicePolling(){
 
 function schedulePvpDicePolling(delayMs){
   stopPvpDicePolling();
+  if(PVP_FRONTEND_DISABLED) return;
   if(!S.code) return;
   const room=pvpDiceState.room;
   const computedDelay=typeof delayMs==='number' ? delayMs : document.hidden ? 2500 : room && room.status==='active' ? 900 : room && room.status==='waiting' ? 1200 : 4000;
@@ -7083,6 +7122,7 @@ function pickPvpDiceRoom(nextRooms){
 }
 
 function openPvpDiceRoom(roomId){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   const next=(pvpDiceState.mine||[]).find(item=>item && item.room_id===roomId) || null;
   if(!next) return;
   pvpDiceState.room=next;
@@ -7130,6 +7170,11 @@ function renderPvpDiceState(){
 }
 
 async function refreshPvpDiceRooms(silent=true, force=false){
+  if(PVP_FRONTEND_DISABLED){
+    stopAllPvpPolling();
+    renderPvpDisabledState();
+    return;
+  }
   if(!S.code || (pvpDiceState.refreshing && !force)) return;
   pvpDiceState.refreshing=true;
   try{
@@ -7153,6 +7198,7 @@ async function refreshPvpDiceRooms(silent=true, force=false){
 }
 
 async function createPvpDiceRoom(){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || pvpDiceState.loading) return;
   pvpDiceState.loading=true;renderPvpDiceState();
   try{
@@ -7171,6 +7217,7 @@ async function createPvpDiceRoom(){
 }
 
 async function acceptPvpDiceRoom(roomId){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || pvpDiceState.loading) return;
   pvpDiceState.loading=true;renderPvpDiceState();
   try{
@@ -7190,6 +7237,7 @@ async function acceptPvpDiceRoom(roomId){
 }
 
 async function playPvpDiceTurn(action){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || !pvpDiceState.room || pvpDiceState.loading) return;
   pvpDiceState.loading=true;renderPvpDiceState();
   try{
@@ -7213,6 +7261,7 @@ async function playPvpDiceTurn(action){
 }
 
 async function cancelPvpDiceRoom(roomId=''){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   const targetRoomId=roomId || (getPvpDiceCancelableRoom()?.room_id || '');
   if(!S.code || !targetRoomId || pvpDiceState.loading) return;
   pvpDiceState.loading=true;renderPvpDiceState();
@@ -7239,6 +7288,7 @@ function stopPvpChickenPolling(){
 
 function schedulePvpChickenPolling(delayMs){
   stopPvpChickenPolling();
+  if(PVP_FRONTEND_DISABLED) return;
   if(!S.code) return;
   const room=pvpChickenState.room;
   const computedDelay=typeof delayMs==='number' ? delayMs : document.hidden ? 2500 : room && room.status==='active' ? 900 : room && room.status==='waiting' ? 1200 : 4000;
@@ -7295,6 +7345,7 @@ function pickPvpChickenRoom(nextRooms){
 }
 
 function openPvpChickenRoom(roomId){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   const next=(pvpChickenState.mine||[]).find(item=>item && item.room_id===roomId) || null;
   if(!next) return;
   pvpChickenState.room=next;
@@ -7345,6 +7396,11 @@ function renderPvpChickenState(){
 }
 
 async function refreshPvpChickenRooms(silent=true, force=false){
+  if(PVP_FRONTEND_DISABLED){
+    stopAllPvpPolling();
+    renderPvpDisabledState();
+    return;
+  }
   if(!S.code || (pvpChickenState.refreshing && !force)) return;
   pvpChickenState.refreshing=true;
   try{
@@ -7368,6 +7424,7 @@ async function refreshPvpChickenRooms(silent=true, force=false){
 }
 
 async function createPvpChickenRoom(){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || pvpChickenState.loading) return;
   pvpChickenState.loading=true;renderPvpChickenState();
   try{
@@ -7386,6 +7443,7 @@ async function createPvpChickenRoom(){
 }
 
 async function acceptPvpChickenRoom(roomId){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || pvpChickenState.loading) return;
   pvpChickenState.loading=true;renderPvpChickenState();
   try{
@@ -7405,6 +7463,7 @@ async function acceptPvpChickenRoom(roomId){
 }
 
 async function playPvpChickenTurn(action){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   if(!S.code || !pvpChickenState.room || pvpChickenState.loading) return;
   pvpChickenState.loading=true;renderPvpChickenState();
   try{
@@ -7428,6 +7487,7 @@ async function playPvpChickenTurn(action){
 }
 
 async function cancelPvpChickenRoom(roomId=''){
+  if(PVP_FRONTEND_DISABLED){ notifyPvpDisabled(); return; }
   const targetRoomId=roomId || (getPvpChickenCancelableRoom()?.room_id || '');
   if(!S.code || !targetRoomId || pvpChickenState.loading) return;
   pvpChickenState.loading=true;renderPvpChickenState();
@@ -7446,6 +7506,11 @@ async function cancelPvpChickenRoom(roomId=''){
 }
 
 async function refreshAllPvpRooms(silent=true){
+  if(PVP_FRONTEND_DISABLED){
+    stopAllPvpPolling();
+    renderPvpDisabledState();
+    return;
+  }
   await Promise.all([
     refreshPvpBlackjackRooms(silent, true),
     refreshPvpDiceRooms(silent, true),
@@ -9374,8 +9439,8 @@ const PLAYOFF_DEFAULT_BRACKET = {
 const PLAYOFF_MATCH_POINTS = {
   exact: 5,        // точный счёт + прошла команда
   exactScore: 3,   // точный счёт, но команда не прошла
-  diff: 2,         // разница голов + прошла команда
-  winner: 1        // только прошла команда
+  diff: 3,         // разница голов + прошла команда
+  winner: 2        // только прошла команда
 };
 
 // playoff state
@@ -10230,7 +10295,7 @@ function scoreSinglePlayoffMatch(predState, actualMatch){
     };
   }
 
-  // 2 очка — разница голов + проход
+  // 3 очка — разница голов + проход
   if (
     (predictedHome - predictedAway) ===
     (actualHome - actualAway)
@@ -10242,7 +10307,7 @@ function scoreSinglePlayoffMatch(predState, actualMatch){
     };
   }
 
-  // 1 очко — только проход
+  // 2 очка — только проход
   return {
     settled:true,
     points:PLAYOFF_MATCH_POINTS.winner,
@@ -10341,7 +10406,7 @@ function renderPlayoffForm(bracketHtml='', deadline=PLAYOFF_DEADLINE) {
 
   html += `<div class="playoff-section">
     <div class="playoff-section-title">🎯 Твой Купон Плей-офф</div>
-    <div class="playoff-section-sub">Заполняй матчи по раундам ниже. Очки считаются по каждому матчу: +5 за точный счёт и проход, +3 за точный счёт без прохода, +2 за разницу и проход, +1 только за проход дальше..</div>
+    <div class="playoff-section-sub">Заполняй матчи по раундам ниже. Очки считаются по каждому матчу: +5 за точный счёт и проход, +3 за точный счёт без прохода, +3 за разницу и проход, +2 только за проход дальше.</div>
     <button class="lucky-btn" onclick="fillLuckyPlayoff()" style="margin-bottom:14px">🎲 НА УДАЧУ — заполнить плей-офф случайно</button>
     <div class="playoff-editor-summary">
       <div class="playoff-editor-summary-card">
@@ -10939,22 +11004,22 @@ function renderPredictionLbModeSwitcher(){
   return `<div class="lb-pred-mode">${buttons.map(([id,label])=>`<button class="lb-pred-mode-btn ${_activePredictionLbMode===id?'active':''}" onclick="switchPredictionLbMode('${id}')">${label}</button>`).join('')}</div>`;
 }
 
-function getPlayoffLbBadge(pts, settled){
+function getPlayoffLbBadge(pts, settled, mode=''){
   if(!settled) return { cls:'', text:'Ждём матч' };
 
-  if(pts === PLAYOFF_MATCH_POINTS.exact){
+  if(mode === 'exact' || pts === PLAYOFF_MATCH_POINTS.exact){
     return { cls:'hit', text:'Точный + проход' };
   }
 
-  if(pts === PLAYOFF_MATCH_POINTS.exactScore){
+  if(mode === 'exact_score'){
     return { cls:'mid', text:'Точный счёт' };
   }
 
-  if(pts === PLAYOFF_MATCH_POINTS.diff){
+  if(mode === 'diff'){
     return { cls:'mid', text:'Разница + проход' };
   }
 
-  if(pts === PLAYOFF_MATCH_POINTS.winner){
+  if(mode === 'winner' || pts === PLAYOFF_MATCH_POINTS.winner){
     return { cls:'low', text:'Проход команды' };
   }
 
@@ -11008,9 +11073,10 @@ function buildPlayoffLeaderboardDetail(playoffDetail){
   const rows = Array.isArray(playoffDetail.rows) ? playoffDetail.rows : [];
   if(rows.length){
     const outcomeText = badge => {
-      if(badge.cls === 'hit') return 'Прогноз выиграл: точный счёт';
-      if(badge.cls === 'mid') return 'Прогноз выиграл: разница + проход';
-      if(badge.cls === 'low') return 'Прогноз выиграл: только проход';
+      if(badge.text === 'Точный + проход') return 'Прогноз выиграл: точный счёт + проход';
+      if(badge.text === 'Точный счёт') return 'Прогноз выиграл: точный счёт без прохода';
+      if(badge.text === 'Разница + проход') return 'Прогноз выиграл: разница + проход';
+      if(badge.text === 'Проход команды') return 'Прогноз выиграл: только проход';
       if(badge.cls === 'miss') return 'Прогноз проиграл';
       return 'Матч ещё не рассчитан';
     };
@@ -11018,7 +11084,7 @@ function buildPlayoffLeaderboardDetail(playoffDetail){
       const actual = row.actual || {};
       const homeLabel = resolvePlayoffSlotLabel(actual.home, buildBracketMatchMap(playoffDetail.actual || {}), {}, 'actual');
       const awayLabel = resolvePlayoffSlotLabel(actual.away, buildBracketMatchMap(playoffDetail.actual || {}), {}, 'actual');
-      const badge = getPlayoffLbBadge(row.pts, row.settled);
+      const badge = getPlayoffLbBadge(row.pts, row.settled, row.mode || '');
       const predictedScore = row.predicted && row.predicted.homeScore !== null && row.predicted.awayScore !== null
         ? `${row.predicted.homeScore}:${row.predicted.awayScore}`
         : '—';
