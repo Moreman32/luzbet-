@@ -227,6 +227,12 @@ const CATALOG = {
     "Вы остановились в плюсе. Аккаунт случайно не взломали?",
     "Невероятно. Cash-out использован по назначению."
   ],
+  "streak.loss3": ["Три подряд. Это уже не случайность, это рабочий процесс.","Третий минус подряд. Отдел кадров оформляет вас в штат спонсоров.","Хет-трик. Правда, не тот, которым хвастаются."],
+  "streak.loss5": ["Пять подряд. Даже казино уже немного неловко.","Пятый минус. Кнопки работают. Проверяли на других людях.","Пять поражений подряд. Возможно, проблема находится между креслом и экраном."],
+  "streak.win3": ["Три победы подряд. Самооценку пристегните.","Три из трёх. Сейчас начнётся самая опасная часть — уверенность.","Хет-трик. Финансовый отдел перестал улыбаться."],
+  "streak.win5": ["Пять побед подряд. Админ уже смотрит логи.","Пять подряд. Пожалуйста, не начинайте продавать курс.","Серия из пяти. Совет директоров требует установить, кто вас сюда пустил."],
+  "session.comeback": ["О, ожил. Бухгалтерия уже закрывала ваше личное дело.","Возвращение из финансового подвала зафиксировано.","Баланс подал признаки жизни. Врачи удивлены."],
+  "session.low": ["Баланс выглядит так, будто ему нужна реанимация.","Финансовая подушка теперь скорее финансовая салфетка.","Осторожнее. Ещё немного — и баланс можно будет показывать целиком без разделителей."],
   "error": ["Касса задумалась.", "Что-то пошло не так. Деньги на месте — проверено ledger-ом.", "Система упала раньше вашего баланса. Уже достижение."],
 };
 
@@ -251,3 +257,15 @@ export function outcomeContext({ bet, payout, extra }) {
   return net >= 5000 || payout >= bet * 10 ? "win.big" : "win.small";
 }
 export const catalogSize = () => Object.values(CATALOG).reduce((a, l) => a + l.length, 0);
+
+const SESSION_KEY="luzbet-meme-session-v1";
+function readSession(){try{return JSON.parse(sessionStorage.getItem(SESSION_KEY)||"{}")}catch{return {}}}
+function writeSession(s){try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(s))}catch{}}
+export function sessionMeme({won=false,lost=false,balance=null}={}){
+ const s=readSession(); s.wins=won?(s.wins||0)+1:0; s.losses=lost?(s.losses||0)+1:0;
+ let ctx="";
+ if(s.losses===5)ctx="streak.loss5"; else if(s.losses===3)ctx="streak.loss3";
+ else if(s.wins===5)ctx="streak.win5"; else if(s.wins===3)ctx="streak.win3";
+ if(balance!==null){const b=Number(balance); if(b<=100&&!s.low){s.low=true;ctx=ctx||"session.low"} else if(b>=500&&s.low){s.low=false;ctx=ctx||"session.comeback"}}
+ writeSession(s); return ctx?meme(ctx):"";
+}
