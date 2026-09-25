@@ -5,11 +5,11 @@ import { sfx } from "./sound.js";
 
 const VIEWS = {
   lobby: () => import("./views/lobby.js"),
-  roulette: () => import("./views/roulette.js"),
-  blackjack: () => import("./views/blackjack.js"),
-  dice: () => import("./views/dice.js"),
+  roulette: () => import("./views/roulette.js?v=2.0.7"),
+  blackjack: () => import("./views/blackjack.js?v=2.0.7"),
+  dice: () => import("./views/dice.js?v=2.0.7"),
   mines: () => import("./views/mines-preview.js"),
-  higher_lower: () => import("./views/higher-lower.js"),
+  higher_lower: () => import("./views/higher-lower.js?v=2.0.7"),
   rating: () => import("./views/rating.js"),
   showroom: () => import("./views/showroom.js"),
   history: () => import("./views/history.js"),
