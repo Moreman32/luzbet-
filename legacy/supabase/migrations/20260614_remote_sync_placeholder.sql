@@ -1,0 +1,2 @@
+-- Placeholder migration to align local history with remote Supabase project.
+-- The original SQL for version 20260614 was applied remotely before this clone.
