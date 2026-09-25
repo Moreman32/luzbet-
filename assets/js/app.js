@@ -7,13 +7,14 @@ const VIEWS = {
   lobby: () => import("./views/lobby.js"),
   roulette: () => import("./views/roulette.js"),
   blackjack: () => import("./views/blackjack.js"),
+  rating: () => import("./views/rating.js"),
   history: () => import("./views/history.js"),
   fairness: () => import("./views/fairness.js"),
   profile: () => import("./views/profile.js"),
   admin: () => import("./views/admin.js"),
 };
 const NAV = [["lobby", "Лобби", "home"], ["roulette", "Рулетка", "wheel"], ["blackjack", "Блэкджек", "cards"],
-  ["history", "История", "history"], ["fairness", "Честность", "shield"]];
+  ["rating", "Рейтинг", "trophy"], ["history", "История", "history"], ["fairness", "Честность", "shield"]];
 
 export const app = {
   me: null,
@@ -59,7 +60,7 @@ function shell(active) {
     h("div", { class: "spacer" }),
     bal,
     h("a", { class: "avatar-btn", href: "#/profile", title: "Профиль", "aria-label": "Профиль" }, initials)));
-  const tabs = [...NAV.slice(0, 4), ["profile", "Профиль", "user"]].map(([k, label, ic]) =>
+  const tabs = [["lobby","Лобби","home"],["roulette","Рулетка","wheel"],["blackjack","Блэкджек","cards"],["rating","Рейтинг","trophy"],["profile","Профиль","user"]].map(([k, label, ic]) =>
     h("a", { href: "#/" + k, class: active === k ? "active" : null }, icon(ic), label));
   const main = h("main", { class: "page", id: "main" });
   clear(app.root, header, main, h("nav", { class: "tabbar", "aria-label": "Меню" }, tabs));
