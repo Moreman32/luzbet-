@@ -8,6 +8,7 @@ const VIEWS = {
   roulette: () => import("./views/roulette.js"),
   blackjack: () => import("./views/blackjack.js"),
   rating: () => import("./views/rating.js"),
+  showroom: () => import("./views/showroom.js"),
   history: () => import("./views/history.js"),
   fairness: () => import("./views/fairness.js"),
   profile: () => import("./views/profile.js"),
