@@ -3,7 +3,7 @@ import { h, clear, fmt, signed, dt, drawer } from "../ui.js";
 import { meme } from "../memes.js";
 import { cardLabel } from "./shared.js";
 
-const GAME = { roulette: "Рулетка", blackjack: "Блэкджек" };
+const GAME = { roulette: "Рулетка", blackjack: "Блэкджек", dice: "Dice", higher_lower: "Больше / Меньше" };
 const PERIODS = [["today", "Сегодня"], ["7d", "7 дней"], ["30d", "30 дней"], ["all", "Всё время"]];
 
 export function roundSummary(r) {
@@ -56,9 +56,9 @@ export async function mount(root) {
     draw(cur); return el;
   };
   root.append(h("div", { class: "container stack" },
-    h("div", { class: "game-head" }, h("h1", {}, "История")),
+    h("div", { class: "game-head" }, h("div",{},h("div",{class:"eyebrow"},"Архив вещественных доказательств"),h("h1", {}, "История"),h("div",{class:"meme-sticker"},"УДАЛИТЬ ИСТОРИЮ ИЗ БУХГАЛТЕРИИ НЕЛЬЗЯ"))),
     h("div", { class: "row wrap" }, seg(PERIODS, period, (v) => { period = v; loadStats(); }), h("div", { class: "spacer" }),
-      seg([["all", "Все игры"], ["roulette", "Рулетка"], ["blackjack", "Блэкджек"]], game, (v) => { game = v; load(); })),
+      seg([["all", "Все игры"], ["roulette", "Рулетка"], ["blackjack", "Блэкджек"], ["dice","Dice"], ["higher_lower","Больше / Меньше"]], game, (v) => { game = v; load(); })),
     statsEl,
     h("p", { class: "muted", style: { fontSize: "13px" } }, "Наблюдаемый RTP — это история, а не прогноз. Следующий раунд о ней ничего не знает."),
     h("div", { class: "card", style: { padding: 0 } }, h("div", { class: "table-wrap" }, h("table", { class: "table" },
