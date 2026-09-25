@@ -7,6 +7,7 @@ const VIEWS = {
   lobby: () => import("./views/lobby.js"),
   roulette: () => import("./views/roulette.js"),
   blackjack: () => import("./views/blackjack.js"),
+  dice: () => import("./views/dice.js"),
   rating: () => import("./views/rating.js"),
   showroom: () => import("./views/showroom.js"),
   history: () => import("./views/history.js"),
@@ -14,7 +15,7 @@ const VIEWS = {
   profile: () => import("./views/profile.js"),
   admin: () => import("./views/admin.js"),
 };
-const NAV = [["lobby", "Лобби", "home"], ["roulette", "Рулетка", "wheel"], ["blackjack", "Блэкджек", "cards"],
+const NAV = [["lobby", "Лобби", "home"], ["roulette", "Рулетка", "wheel"], ["blackjack", "Блэкджек", "cards"], ["dice", "Dice", "dice"],
   ["rating", "Рейтинг", "trophy"], ["history", "История", "history"], ["fairness", "Честность", "shield"]];
 
 export const app = {
