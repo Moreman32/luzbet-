@@ -357,3 +357,28 @@ pre.code { background: var(--bg-2); border: 1px solid var(--line); border-radius
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* ---------- leaderboard ---------- */
+.rating-head { display:flex; align-items:end; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+.rating-head h1 { margin-top:4px; }
+.rating-head p { margin-top:8px; max-width:650px; }
+.rating-board { padding:8px; overflow:hidden; }
+.rating-row { display:grid; grid-template-columns:58px minmax(220px,1fr) 150px 130px 140px; gap:14px; align-items:center; padding:15px 14px; border-bottom:1px solid var(--line); }
+.rating-row:last-child { border-bottom:0; }
+.rating-row:nth-child(1) { background:linear-gradient(90deg,rgba(210,173,98,.10),transparent 70%); }
+.rating-rank { font:700 22px/1 var(--f-display); text-align:center; }
+.rating-person { display:grid; gap:3px; }
+.rating-person strong { font-size:15px; }
+.rating-person span { font-size:12px; }
+.rating-stat { display:grid; gap:2px; text-align:right; }
+.rating-stat strong { font-size:15px; }
+.rating-stat small { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
+.rating-note { text-align:center; font-style:italic; }
+.rating-disclaimer { text-align:center; font-size:13px; }
+@media(max-width:760px) {
+  .rating-row { grid-template-columns:44px minmax(0,1fr) 105px; gap:8px; padding:13px 8px; }
+  .rating-stat strong { font-size:13px; }
+  .hide-mobile { display:none; }
+  .rating-person span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:48vw; }
+}
