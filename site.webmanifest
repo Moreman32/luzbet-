@@ -1,0 +1,12 @@
+{
+  "name": "ЛузБет",
+  "short_name": "ЛузБет",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "start_url": "/",
+  "theme_color": "#0a0907",
+  "background_color": "#0a0907",
+  "display": "standalone"
+}

@@ -1,0 +1,10 @@
+ROULETTE  spins=2,000,000  time=6s
+  chi2(df=36)=34.1  (p99 crit 58.6)  -> OK
+  zero freq=0.02718 (theory 0.02703)
+  RTP red=97.247%  dozen1=97.482%  straight17=96.775%  theory=97.297%  (±2σ red 0.141%)
+BLACKJACK rounds=200,000  time=143s
+  basic-strategy RTP=99.398% (published expectation for these rules ≈ 99.3–99.6%; σ per round ≈1.15 bets -> ±0.51% at 2σ)
+ROULETTE  spins=10,000,000  time=29s
+  chi2(df=36)=31.0  (p99 crit 58.6)  -> OK
+  zero freq=0.02711 (theory 0.02703)
+  RTP red=97.278%  dozen1=97.285%  straight17=97.584%  theory=97.297%  (±2σ red 0.063%)
