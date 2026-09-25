@@ -3,6 +3,7 @@ import { h, clear, fmt, toast, actionButton } from "../ui.js";
 import { soundSettings, sfx } from "../sound.js";
 import { passwordChangeDialog } from "../app.js";
 import { mfaCard, mfaStatus } from "./mfa.js";
+import { sessionAwards } from "../memes.js";
 
 const ROLE = { player: "Игрок", moderator: "Модератор", admin: "Администратор", owner: "Владелец" };
 
@@ -11,6 +12,7 @@ export async function mount(root, { app }) {
   const me = app.me;
   const nameIn = h("input", { class: "input", value: me.displayName, maxlength: 32 });
   const snd = soundSettings.get();
+  const awards=sessionAwards();
   const mute = h("input", { type: "checkbox", checked: snd.muted, id: "mute" });
   const vol = h("input", { type: "range", min: 0, max: 1, step: 0.05, value: snd.volume, "aria-label": "Громкость", style: { width: "100%" } });
   mute.addEventListener("change", () => { soundSettings.setMuted(mute.checked); if (!mute.checked) sfx.ui(); });
@@ -49,5 +51,6 @@ export async function mount(root, { app }) {
         h("label", { class: "row", for: "mute" }, mute, "Без звука"),
         h("div", { class: "field" }, h("label", {}, "Громкость"), vol),
         h("p", { class: "muted", style: { fontSize: "12px" } }, "Исходы всегда показываются текстом — звук только для атмосферы.")),
-      mfaBox)));
+      mfaBox,
+      h("div",{class:"card stack meme-dossier"},h("div",{class:"eyebrow"},"Личное дело • достижения сомнительной ценности"),h("h2",{},"Компромат этой сессии"),awards.length?h("div",{class:"shame-grid"},awards.map(a=>h("div",{class:"shame-badge"},h("span",{class:"shame-icon"},a.meta[0]),h("div",{},h("b",{},a.meta[1]),h("small",{},a.meta[2]),a.count>1?h("em",{},"×"+a.count):null)))):h("p",{class:"muted"},"Пока чисто. Подозрительно. Поиграйте ещё — отдел внутреннего расследования ждёт материал."),h("small",{class:"muted"},"Хранится только в текущей браузерной сессии. Бухгалтерия БД в этом позоре не участвует."))));
 }
