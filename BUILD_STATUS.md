@@ -32,3 +32,12 @@
 3. Add server-side round start/finish API.
 4. Build new frontend/auth shell.
 5. Add integration/concurrency/security tests.
+
+
+## 2026-09-25 — Auth & Roulette iteration
+- Added username/password login facade backed by Supabase Auth.
+- Added server-side login throttling.
+- Added admin-only player creation Edge Function (requires authenticated admin/owner).
+- Added cryptographic roulette execution and atomic ledger payout.
+- Added missing foreign-key indexes reported by Supabase performance advisor.
+- Frontend v2 now logs in by username and plays the live Roulette v1 API.
