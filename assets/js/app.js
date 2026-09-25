@@ -5,16 +5,16 @@ import { sfx } from "./sound.js";
 
 const VIEWS = {
   lobby: () => import("./views/lobby.js"),
-  roulette: () => import("./views/roulette.js?v=2.0.7"),
-  blackjack: () => import("./views/blackjack.js?v=2.0.7"),
-  dice: () => import("./views/dice.js?v=2.0.7"),
+  roulette: () => import("./views/roulette.js?v=2.0.8"),
+  blackjack: () => import("./views/blackjack.js?v=2.0.8"),
+  dice: () => import("./views/dice.js?v=2.0.8"),
   mines: () => import("./views/mines-preview.js"),
-  higher_lower: () => import("./views/higher-lower.js?v=2.0.7"),
+  higher_lower: () => import("./views/higher-lower.js?v=2.0.8"),
   rating: () => import("./views/rating.js"),
   showroom: () => import("./views/showroom.js"),
   history: () => import("./views/history.js"),
   fairness: () => import("./views/fairness.js"),
-  profile: () => import("./views/profile.js"),
+  profile: () => import("./views/profile.js?v=2.0.8"),
   admin: () => import("./views/admin.js"),
 };
 const NAV = [["lobby", "Лобби", "home"], ["roulette", "Рулетка", "wheel"], ["blackjack", "Блэкджек", "cards"], ["dice", "Dice", "dice"],
