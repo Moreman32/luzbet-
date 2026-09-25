@@ -1,0 +1,11 @@
+-- LuzBet 2.0 foundation
+-- Applied to Supabase project kdsowktuirtkxnmtyoaz on 2026-09-25.
+-- Legacy public objects were first moved to schema legacy_20260925 with client privileges revoked.
+--
+-- Canonical design:
+-- auth.users -> profiles -> wallets -> wallet_transactions
+-- game_definitions -> game_rule_versions -> casino_rounds -> casino_actions
+-- hidden game state lives in private schema.
+--
+-- This file intentionally documents the applied foundation at a high level.
+-- Further schema evolution must use additive migrations and preserve ledger immutability.
