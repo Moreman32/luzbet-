@@ -74,7 +74,8 @@ export async function mount(root, { app }) {
         h("div", { class: "row wrap", style: { marginTop: "22px" } },
           h("a", { class: "btn primary lg", href: "#/roulette" }, "Играть"),
           h("a", { class: "btn ghost", href: "#/fairness" }, "Как это проверить"),
-          h("a", { class: "btn ghost", href: "#/rating" }, "Таблица финансовых последствий"))),
+          h("a", { class: "btn ghost", href: "#/rating" }, "Таблица финансовых последствий"),
+          h("a", { class: "btn ghost", href: "#/showroom" }, "Скоро в казино"))),
       h("div", { class: "card stack" },
         dailyBox,
         h("hr", { class: "divider" }),
@@ -88,6 +89,6 @@ export async function mount(root, { app }) {
         h("a", { class: "game-tile", href: "#/" + slug, "aria-label": name }, art(),
           h("h3", {}, name), h("p", { class: "muted" }, desc), h("div", { class: "meta" }, h("span", { class: "badge gold" }, tag)))))),
     soon.length ? h("section", { class: "stack", style: { marginTop: "28px" } },
-      h("div", { class: "eyebrow" }, "В разработке"), h("div", { class: "soon-list" }, soon),
-      h("p", { class: "muted", style: { fontSize: "13px" } }, "Появятся, когда пройдут те же проверки честности, что рулетка и блэкджек. Не раньше.")) : null));
+      h("div", { class: "eyebrow" }, "Департамент обещаний"), h("div", { class: "soon-list" }, soon),
+      h("p", { class: "muted", style: { fontSize: "13px" } }, "Скоро здесь будет больше способов принимать сомнительные решения с безупречной анимацией. Сначала математика и проверки — потом кнопка «Играть».")) : null));
 }
