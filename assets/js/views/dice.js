@@ -1,4 +1,4 @@
-import { rpc } from "../api.js"; import { h, fmt, toast, actionButton } from "../ui.js"; import { meme } from "../memes.js"; import { sfx } from "../sound.js";
+import { rpc } from "../api.js"; import { h, fmt, toast, actionButton } from "../ui.js"; import { meme, sessionMeme } from "../memes.js"; import { sfx } from "../sound.js";
 export async function mount(root,{app}){
  let chance=50,dir="under"; const bet=h("input",{class:"input",type:"number",min:1,max:7500,value:100});
  const pct=h("input",{class:"dice-range",type:"range",min:2,max:95,value:50}); const chanceEl=h("strong",{class:"dice-chance"},"50%");
@@ -13,7 +13,7 @@ export async function mount(root,{app}){
   const r=await rpc("rpc_dice_roll",{p_bet:amount,p_chance:chance,p_direction:dir,p_idempotency_key:crypto.randomUUID()});
   const x=r.round.state.roll/100,won=r.round.state.won; result.className="dice-result "+(won?"won":"lost");
   result.replaceChildren(h("span",{},x.toFixed(2)),h("small",{},won?"ПОСТАНОВЛЕНИЕ: ВЫПЛАТИТЬ":"ПОСТАНОВЛЕНИЕ: ОТКАЗАТЬ"));
-  app.setBalance(r.round.balance??app.me.balance); await app.refreshMe(); won?sfx.cash():sfx.error(); const mctx=won&&chance<=15?"dice.longshotWin":!won&&chance>=80?"dice.safeLoss":won?"dice.win":"dice.loss"; toast(meme(mctx),won?"ok":"error");
+  app.setBalance(r.round.balance??app.me.balance); await app.refreshMe(); won?sfx.cash():sfx.error(); const mctx=won&&chance<=15?"dice.longshotWin":!won&&chance>=80?"dice.safeLoss":won?"dice.win":"dice.loss"; toast(sessionMeme({won,lost:!won,balance:r.round.balance??app.me.balance})||meme(mctx),won?"ok":"error");
  },{class:"btn primary lg block"});
  root.append(h("div",{class:"container stack dice-page"},h("div",{class:"dice-title"},h("div",{},h("div",{class:"eyebrow"},"Комитет по случайным числам"),h("h1",{},"Dice"),h("p",{class:"muted"},"Вы задаёте вероятность. Мы предоставляем число. Ответственность за выводы остаётся на заявителе.")),h("div",{class:"badge gold"},"97% RTP")),
  h("section",{class:"dice-layout"},h("div",{class:"card gilded dice-stage"},h("div",{class:"dice-orb"},result),h("div",{class:"dice-scale"},h("span",{},"0"),h("span",{},"50"),h("span",{},"100"))),
