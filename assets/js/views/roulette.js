@@ -292,7 +292,7 @@ export async function mount(root, { app }) {
     if (st.number === 0 && r.payout < r.bet) ctx = "roulette.zero";
     else if (r.payout === 0 && st.lines?.length >= 8) ctx = "roulette.disaster";
     else if (r.payout > 0 && st.lines.some((l) => l.t === "straight" && l.win > 0)) ctx = st.number === 17 ? "roulette.17" : (ctx === "win.big" ? ctx : "roulette.straight");
-    memeEl.textContent = sessionMeme({won:net>0,lost:net<0,balance:r.balance}) || meme(ctx, { win: r.payout });
+    memeEl.textContent = sessionMeme({won:net>0,lost:net<0,balance:r.balance,award:ctx==="roulette.disaster"?"rouletteDisaster":null}) || meme(ctx, { win: r.payout });
     const cell = cells.get(st.number); if (cell) { cell.classList.remove("win-flash"); void cell.offsetWidth; cell.classList.add("win-flash"); }
     app.setBalance(r.balance);
     if (r.payout > r.bet) (ctx === "win.big" ? sfx.bigWin : sfx.win)(); else sfx.loss();
