@@ -290,6 +290,7 @@ export async function mount(root, { app }) {
         h("div", { class: "muted", style: { fontSize: "13px" } }, `Ставка ${fmt(r.bet)} · итог ${signed(net)}`))));
     let ctx = outcomeContext({ bet: r.bet, payout: r.payout });
     if (st.number === 0 && r.payout < r.bet) ctx = "roulette.zero";
+    else if (r.payout === 0 && st.lines?.length >= 8) ctx = "roulette.disaster";
     else if (r.payout > 0 && st.lines.some((l) => l.t === "straight" && l.win > 0)) ctx = st.number === 17 ? "roulette.17" : (ctx === "win.big" ? ctx : "roulette.straight");
     memeEl.textContent = meme(ctx, { win: r.payout });
     const cell = cells.get(st.number); if (cell) { cell.classList.remove("win-flash"); void cell.offsetWidth; cell.classList.add("win-flash"); }
