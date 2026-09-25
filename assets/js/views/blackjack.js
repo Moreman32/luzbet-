@@ -86,7 +86,7 @@ export async function mount(root, { app }) {
     const res = st.hands.map((x) => x.result);
     let ctx = outcomeContext({ bet: r.bet, payout: r.payout });
     if (res.includes("blackjack")) ctx = "bj.blackjack";
-    else if (res.every((x) => x === "bust")) ctx = "bj.bust";
+    else if (res.every((x) => x === "bust")) ctx = st.hands.some((x)=>x.total===22) ? "bj.bust22" : "bj.bust";
     else if (r.payout === r.bet && net === 0) ctx = "bj.push";
     else if (st.dealerTotal > 21 && net > 0 && ctx !== "win.big") ctx = "bj.dealerBust";
     else if (st.hands.some((x) => x.doubled)) ctx = net > 0 ? (ctx === "win.big" ? ctx : "bj.doubleWin") : "bj.doubleLoss";
