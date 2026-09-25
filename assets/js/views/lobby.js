@@ -61,6 +61,7 @@ export async function mount(root, { app }) {
   const tiles = [
     ["roulette", "Европейская рулетка", "Один ноль. 37 чисел. Никаких сюрпризов, кроме зеро.", wheelArt, "97,30% RTP"],
     ["blackjack", "Блэкджек", "6 колод, дилер стоит на 17, блэкджек платит 3:2.", cardsArt, "≈99,4% RTP при базовой стратегии"],
+    ["dice", "Dice", "Выберите шанс и наблюдайте, как математика оценивает вашу уверенность.", () => h("div",{class:"dice-art"},"⚄"), "97% RTP"],
   ];
   const soon = (games.data || []).filter((g) => g.status !== "enabled").map((g) => h("span", { class: "soon" }, g.name));
 
