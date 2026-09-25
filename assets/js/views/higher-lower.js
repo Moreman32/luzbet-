@@ -1,6 +1,6 @@
 import {rpc} from "../api.js";
 import {h,fmt,toast} from "../ui.js";
-import {sfx} from "../sound.js";
+import {sfx} from "../sound.js";import {meme} from "../memes.js";
 
 const rv=v=>v===14?"A":v===13?"K":v===12?"Q":v===11?"J":String(v);
 const sv=s=>({S:"♠",H:"♥",D:"♦",C:"♣"}[s]||s);
@@ -57,7 +57,7 @@ export async function mount(root,{app}){
   }
   async function start(){
     if(busy)return;const n=Math.floor(+bet.value);if(!n||n<1)return toast("Финансовый отдел не обнаружил ставку.","error");
-    try{lock(true);status.textContent="Секретарь тасует документы и колоду…";const r=await rpc("rpc_higher_lower_start",{p_bet:n,p_idempotency_key:crypto.randomUUID()});round=r.round;app.setBalance(round.balance);status.textContent="Дело открыто. Совпадение номиналов запрещено §13.4.";draw()}catch(e){toast(e.message,"error");status.textContent="Юротдел временно остановил производство."}finally{lock(false);draw()}
+    try{lock(true);status.textContent="Секретарь тасует документы и колоду…";const r=await rpc("rpc_higher_lower_start",{p_bet:n,p_idempotency_key:crypto.randomUUID()});round=r.round;app.setBalance(round.balance);status.textContent=meme("hl.start");draw()}catch(e){toast(e.message,"error");status.textContent="Юротдел временно остановил производство."}finally{lock(false);draw()}
   }
   async function guess(g){
     if(busy||!round)return;
