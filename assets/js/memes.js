@@ -264,7 +264,7 @@ function writeSession(s){try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(s
 export function sessionMeme({won=false,lost=false,balance=null,award=null}={}){
  const s=readSession(); s.wins=won?(s.wins||0)+1:0; s.losses=lost?(s.losses||0)+1:0; s.awards=s.awards||{}; if(award)s.awards[award]=(s.awards[award]||0)+1;
  let ctx="";
- if(s.losses===5){ctx="streak.loss5";s.awards.loss5=1} else if(s.losses===3){ctx="streak.loss3";s.awards.loss3=1};
+ if(s.losses===5){ctx="streak.loss5";s.awards.loss5=1} else if(s.losses===3){ctx="streak.loss3";s.awards.loss3=1}
  else if(s.wins===5){ctx="streak.win5";s.awards.win5=1} else if(s.wins===3){ctx="streak.win3";s.awards.win3=1};
  if(balance!==null){const b=Number(balance); if(b<=100&&!s.low){s.low=true;s.awards.low=1;ctx=ctx||"session.low"} else if(b>=500&&s.low){s.low=false;s.awards.comeback=1;ctx=ctx||"session.comeback"}}
  writeSession(s); return ctx?meme(ctx):"";
