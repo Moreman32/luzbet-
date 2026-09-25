@@ -90,7 +90,7 @@ export async function mount(root, { app }) {
     else if (r.payout === r.bet && net === 0) ctx = "bj.push";
     else if (st.dealerTotal > 21 && net > 0 && ctx !== "win.big") ctx = "bj.dealerBust";
     else if (st.hands.some((x) => x.doubled)) ctx = net > 0 ? (ctx === "win.big" ? ctx : "bj.doubleWin") : "bj.doubleLoss";
-    memeEl.textContent = sessionMeme({won:net>0,lost:net<0,balance:r.balance}) || meme(ctx, { win: r.payout });
+    memeEl.textContent = sessionMeme({won:net>0,lost:net<0,balance:r.balance,award:ctx==="bj.bust22"?"bust22":null}) || meme(ctx, { win: r.payout });
     app.setBalance(r.balance);
     if (net > 0) (ctx === "win.big" ? sfx.bigWin : sfx.win)(); else if (net < 0) sfx.loss();
     if (ctx === "win.big") bigWin(r.payout);
