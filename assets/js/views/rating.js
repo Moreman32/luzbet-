@@ -1,5 +1,5 @@
-import { rpc } from "../api.js";
-import { h, fmt, signed } from "../ui.js";
+import { rpc } from "../api.js?v=2.1.1";
+import { h, fmt, signed } from "../ui.js?v=2.1.1";
 
 const medals = ["🥇","🥈","🥉"];
 function playerRow(p, i) {

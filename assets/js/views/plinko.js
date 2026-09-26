@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, errorToast, footnote, currentRules } from "./game-kit.js";
-import { store, reducedMotion, sleep, signed } from "../ui.js";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
+import { store, reducedMotion, sleep, signed } from "../ui.js?v=2.1.1";
 
 const ROWS = 12;
 const RISK = { low: "Низкий", medium: "Средний", high: "Высокий" };

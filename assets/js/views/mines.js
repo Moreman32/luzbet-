@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js";
-import { store } from "../ui.js";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
+import { store } from "../ui.js?v=2.1.1";
 
 // Display-only multiplier table (the server computes the exact payout).
 const mult = (m, k) => { let x = 0.97; for (let i = 0; i < k; i++) x *= (25 - i) / (25 - m - i); return k ? x : 1; };

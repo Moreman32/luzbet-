@@ -1,4 +1,4 @@
-import { EXTRA } from "./memes-office.js";
+import { EXTRA } from "./memes-office.js?v=2.1.1";
 // Meme Engine: the single source of LuzBet copy that reacts to events.
 // Rules: dry corporate tone, one line at a time, shown AFTER the event, never on primary controls.
 const CATALOG = {

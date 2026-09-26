@@ -1,6 +1,6 @@
-import { h, clear, fmt, toast, sfx, meme, head, send, key, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js";
-import { store, reducedMotion, sleep, signed } from "../ui.js";
-import { HORSES } from "../memes-office.js";
+import { h, clear, fmt, toast, sfx, meme, head, send, key, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
+import { store, reducedMotion, sleep, signed } from "../ui.js?v=2.1.1";
+import { HORSES } from "../memes-office.js?v=2.1.1";
 
 const FALLBACK_W = [300, 200, 150, 120, 90, 70, 45, 25];
 

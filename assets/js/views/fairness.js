@@ -1,9 +1,9 @@
-import { sb, rpc } from "../api.js";
-import { h, clear, fmt, dt, toast, actionButton } from "../ui.js";
-import { meme } from "../memes.js";
+import { sb, rpc } from "../api.js?v=2.1.1";
+import { h, clear, fmt, dt, toast, actionButton } from "../ui.js?v=2.1.1";
+import { meme } from "../memes.js?v=2.1.1";
 import { sha256hex, rouletteNumber, shuffle, blackjackReplay, roulettePayout, colorOf,
-  diceReplay, minesPositions, minesPayout, crashPoint, plinkoReplay, horseReplay, slotsReplay, hlReplay } from "../fair.js";
-import { cardLabel } from "./shared.js";
+  diceReplay, minesPositions, minesPayout, crashPoint, plinkoReplay, horseReplay, slotsReplay, hlReplay } from "../fair.js?v=2.1.1";
+import { cardLabel } from "./shared.js?v=2.1.1";
 
 export async function mount(root, { app, sub, params }) {
   if (sub === "verify") return verifyPage(root, app, params.get("round"));

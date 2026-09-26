@@ -1,0 +1,10 @@
+# Cloudflare static assets: always revalidate HTML/JS/CSS so a deploy is picked up immediately
+# (unchanged files still come back as a cheap 304 via ETag).
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/assets/js/*
+  Cache-Control: no-cache
+/assets/css/*
+  Cache-Control: no-cache

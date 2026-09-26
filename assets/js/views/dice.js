@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js";
-import { store, reducedMotion, sleep } from "../ui.js";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
+import { store, reducedMotion, sleep } from "../ui.js?v=2.1.1";
 
 export async function mount(root, { app }) {
   const rules = await currentRules("dice", { minBet: 1, maxBet: 7500, minChance: 2, maxChance: 95 });

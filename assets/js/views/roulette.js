@@ -1,9 +1,9 @@
-import { rpc, sb, ApiError } from "../api.js";
-import { h, clear, fmt, signed, toast, store, newKey, reducedMotion, sleep } from "../ui.js";
-import { meme, outcomeContext, sessionMeme } from "../memes.js";
-import { sfx } from "../sound.js";
-import { colorOf } from "../fair.js";
-import { bigWin } from "./shared.js";
+import { rpc, sb, ApiError } from "../api.js?v=2.1.1";
+import { h, clear, fmt, signed, toast, store, newKey, reducedMotion, sleep } from "../ui.js?v=2.1.1";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.1.1";
+import { sfx } from "../sound.js?v=2.1.1";
+import { colorOf } from "../fair.js?v=2.1.1";
+import { bigWin } from "./shared.js?v=2.1.1";
 
 const ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 const CHIPS = [1, 5, 25, 100, 500, 1000];
