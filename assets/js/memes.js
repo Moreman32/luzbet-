@@ -1,3 +1,4 @@
+import { EXTRA } from "./memes-office.js";
 // Meme Engine: the single source of LuzBet copy that reacts to events.
 // Rules: dry corporate tone, one line at a time, shown AFTER the event, never on primary controls.
 const CATALOG = {
@@ -236,7 +237,12 @@ const CATALOG = {
   "error": ["Касса задумалась.", "Что-то пошло не так. Деньги на месте — проверено ledger-ом.", "Система упала раньше вашего баланса. Уже достижение."],
 };
 
+Object.assign(CATALOG, EXTRA);
+
 const recent = [];
+// Raw pick for structured entries (promo pairs etc.). Cosmetic randomness only.
+export function pick(ctx) { const l = CATALOG[ctx] || []; return l[Math.floor(Math.random() * l.length)]; }
+export const lines = (ctx) => [...(CATALOG[ctx] || [])];
 export function meme(ctx, vars = {}) {
   const list = CATALOG[ctx];
   if (!list || !list.length) return "";
@@ -281,6 +287,13 @@ export const SESSION_AWARDS={
  diceSafeLoss:["🫠","Почти невозможно","Проигрыш в Dice при шансе 80% или выше."],
  bust22:["🃏","Ну ещё одну","Перебор ровно на 22 в Blackjack."],
  rouletteDisaster:["🎡","Накрыл полстола","Много позиций в рулетке и ни одной выплаты."],
- hlCash:["🧠","Редкий приступ разума","Забрали прибыль в Больше / Меньше."]
+ hlCash:["🧠","Редкий приступ разума","Забрали прибыль в Больше / Меньше."],
+ minesCash:["🧯","Сапёр-пенсионер","Ушли с минного поля с прибылью."],
+ minesGreedy:["💥","Ну ещё одну","Подорвались после пяти и более чистых клеток."],
+ crashMoon:["🚀","Лунный трейдер","Забрали в Crash на ×10 или выше."],
+ crashInstant:["🪂","Рынок закрылся","Попали на мгновенный крах ×1.00."],
+ plinkoEdge:["🎯","Шарик-бунтарь","Шарик Plinko ушёл в крайнюю лунку."],
+ horseZhdun:["🐢","Дождались","Выиграли на Ждуне — самой медленной лошади."],
+ slotsFeature:["🧶","Клубок судьбы","Поймали фриспины у Бусинки."]
 };
 export function sessionAwards(){const s=readSession();return Object.entries(s.awards||{}).filter(([,v])=>v).map(([id,count])=>({id,count,meta:SESSION_AWARDS[id]})).filter(x=>x.meta)}

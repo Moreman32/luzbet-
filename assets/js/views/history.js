@@ -3,14 +3,32 @@ import { h, clear, fmt, signed, dt, drawer } from "../ui.js";
 import { meme } from "../memes.js";
 import { cardLabel } from "./shared.js";
 
-const GAME = { roulette: "Рулетка", blackjack: "Блэкджек", dice: "Dice", higher_lower: "Больше / Меньше" };
+const GAME = { roulette: "Рулетка", blackjack: "Блэкджек", dice: "Dice", higher_lower: "Больше / Меньше", mines: "Mines", crash: "Crash",
+  plinko: "Plinko", horse: "Скачки", businka_slots: "Бусинка" };
+const HL_R = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+const hlCard = (c) => c ? HL_R[(c.rank ?? 2) - 2] + ({ S: "♠", H: "♥", D: "♦", C: "♣" }[c.suit] || "") : "?";
+const HORSE = ["Кэф 1.01", "Конь Депозита", "Последняя Зарплата", "Бусинка", "Финансовый Советник", "Маржин Колл", "Ипотека", "Ждун"];
 const PERIODS = [["today", "Сегодня"], ["7d", "7 дней"], ["30d", "30 дней"], ["all", "Всё время"]];
 
 export function roundSummary(r) {
   const st = r.state || {};
   if (r.game_slug === "roulette" || r.game === "roulette") return st.number !== undefined ? `Выпало ${st.number}` : "—";
+  const g = r.game_slug || r.game;
+  if (g === "dice" && st.roll !== undefined) return `${(st.roll / 100).toFixed(2)} ${st.direction === "under" ? "<" : "≥"} ${st.direction === "under" ? st.chance : 100 - st.chance}`;
+  if (g === "mines") return `${st.mines ?? "?"} мин · ${(st.revealed || []).length} чистых` + (st.phase === "BOOM" ? " · 💥" : st.phase === "PLAYING" ? " · в игре" : "");
+  if (g === "crash") return st.phase === "RUNNING" ? "в полёте" : `крах ×${Number(st.crash).toFixed(2)}` + (st.cashout ? ` · вывод ×${Number(st.cashout).toFixed(2)}` : "");
+  if (g === "plinko") return `${({ low: "низкий", medium: "средний", high: "высокий" })[st.risk] || ""} риск · ×${st.multiplier}`;
+  if (g === "horse" && st.order) return `1-й: ${HORSE[st.winner] || "#" + (st.winner + 1)}`;
+  if (g === "businka_slots") return `×${Number(st.totalUnits || 0)}` + (st.freeSpins ? ` · фриспинов ${st.freeSpins}` : "");
+  if (g === "higher_lower" && st.history) return (st.history || []).slice(-6).map(hlCard).join(" ") + (st.phase === "PLAYING" ? " · в игре" : "");
   if (st.hands) return st.hands.map((x) => x.cards.map(cardLabel).join(" ") + ` (${x.total})`).join(" | ") + (st.phase === "FINISHED" ? ` vs ${st.dealerTotal}` : " · в игре");
   return "—";
+}
+
+function gamePick(cur, on) {
+  const sel = h("select", { class: "input sm", "aria-label": "Игра", onchange: (e) => on(e.target.value) },
+    [["all", "Все игры"], ...Object.entries(GAME)].map(([k, l]) => h("option", { value: k, selected: k === cur }, l)));
+  return sel;
 }
 
 export async function mount(root) {
@@ -58,7 +76,7 @@ export async function mount(root) {
   root.append(h("div", { class: "container stack" },
     h("div", { class: "game-head" }, h("div",{},h("div",{class:"eyebrow"},"Архив вещественных доказательств"),h("h1", {}, "История"),h("div",{class:"meme-sticker"},"УДАЛИТЬ ИСТОРИЮ ИЗ БУХГАЛТЕРИИ НЕЛЬЗЯ"))),
     h("div", { class: "row wrap" }, seg(PERIODS, period, (v) => { period = v; loadStats(); }), h("div", { class: "spacer" }),
-      seg([["all", "Все игры"], ["roulette", "Рулетка"], ["blackjack", "Блэкджек"], ["dice","Dice"], ["higher_lower","Больше / Меньше"]], game, (v) => { game = v; load(); })),
+      gamePick(game, (v) => { game = v; load(); })),
     statsEl,
     h("p", { class: "muted", style: { fontSize: "13px" } }, "Наблюдаемый RTP — это история, а не прогноз. Следующий раунд о ней ничего не знает."),
     h("div", { class: "card", style: { padding: 0 } }, h("div", { class: "table-wrap" }, h("table", { class: "table" },

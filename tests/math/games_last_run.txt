@@ -1,0 +1,34 @@
+MINES  m= 1 k=1  P(survive)=0.9600  mult=1.0104  RTP=97.00%
+MINES  m= 1 k=3  P(survive)=0.8800  mult=1.1023  RTP=97.00%
+MINES  m= 1 k=5  P(survive)=0.8000  mult=1.2125  RTP=97.00%
+MINES  m= 3 k=1  P(survive)=0.8800  mult=1.1023  RTP=97.00%
+MINES  m= 3 k=3  P(survive)=0.6696  mult=1.4487  RTP=97.00%
+MINES  m= 3 k=5  P(survive)=0.4957  mult=1.9570  RTP=97.00%
+MINES  m= 5 k=1  P(survive)=0.8000  mult=1.2125  RTP=97.00%
+MINES  m= 5 k=3  P(survive)=0.4957  mult=1.9570  RTP=97.00%
+MINES  m= 5 k=5  P(survive)=0.2918  mult=3.3241  RTP=97.00%
+MINES  m=10 k=1  P(survive)=0.6000  mult=1.6167  RTP=97.00%
+MINES  m=10 k=3  P(survive)=0.1978  mult=4.9033  RTP=97.00%
+MINES  m=10 k=5  P(survive)=0.0565  mult=17.1615  RTP=97.00%
+MINES  m=24 k=1  P(survive)=0.0400  mult=24.2500  RTP=97.00%
+CRASH  target   1.01x  P(win)=0.9603 (theory 0.9604)  RTP=96.99%
+CRASH  target   1.50x  P(win)=0.6448 (theory 0.6467)  RTP=96.72%
+CRASH  target   2.00x  P(win)=0.4848 (theory 0.4850)  RTP=96.96%
+CRASH  target   5.00x  P(win)=0.1934 (theory 0.1940)  RTP=96.70%
+CRASH  target  10.00x  P(win)=0.0969 (theory 0.0970)  RTP=96.90%
+CRASH  target 100.00x  P(win)=0.0095 (theory 0.0097)  RTP=95.35%
+PLINKO low    exact RTP=97.046%  max=10x
+PLINKO medium exact RTP=97.056%  max=33x
+PLINKO high   exact RTP=97.102%  max=170x
+HORSE  #1 p=0.300 odds=3.16  RTP=94.80%
+HORSE  #2 p=0.200 odds=4.75  RTP=95.00%
+HORSE  #3 p=0.150 odds=6.33  RTP=94.95%
+HORSE  #4 p=0.120 odds=7.91  RTP=94.92%
+HORSE  #5 p=0.090 odds=10.55  RTP=94.95%
+HORSE  #6 p=0.070 odds=13.57  RTP=94.99%
+HORSE  #7 p=0.045 odds=21.11  RTP=94.99%
+HORSE  #8 p=0.025 odds=38.00  RTP=95.00%
+HI/LO  cash after 1: RTP=97.03% (theory 97%)
+HI/LO  cash after 2: RTP=96.62% (theory 97%)
+HI/LO  cash after 3: RTP=97.16% (theory 97%)
+SLOTS  spins=300,000  RTP=96.40% (exact model 96.23%)  hit=47.4%  feature 1/130  max=216x

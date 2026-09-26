@@ -1,24 +1,32 @@
 import { sb, rpc, login, logout, ApiError } from "./api.js";
 import { h, clear, icon, fmt, toast, modal, actionButton } from "./ui.js";
-import { meme } from "./memes.js";
+import { meme, lines } from "./memes.js";
+import { supportButton } from "./support.js";
+import { switcher } from "./views/game-kit.js";
 import { sfx } from "./sound.js";
 
+const V = "?v=2.1.0";
 const VIEWS = {
-  lobby: () => import("./views/lobby.js"),
-  roulette: () => import("./views/roulette.js?v=2.0.8"),
-  blackjack: () => import("./views/blackjack.js?v=2.0.8"),
-  dice: () => import("./views/dice.js?v=2.0.8"),
-  mines: () => import("./views/mines-preview.js"),
-  higher_lower: () => import("./views/higher-lower.js?v=2.0.8"),
-  rating: () => import("./views/rating.js"),
-  showroom: () => import("./views/showroom.js"),
-  history: () => import("./views/history.js"),
-  fairness: () => import("./views/fairness.js"),
-  profile: () => import("./views/profile.js?v=2.0.8"),
-  admin: () => import("./views/admin.js"),
+  lobby: () => import("./views/lobby.js" + V),
+  roulette: () => import("./views/roulette.js" + V),
+  blackjack: () => import("./views/blackjack.js" + V),
+  slots: () => import("./views/slots.js" + V),
+  crash: () => import("./views/crash.js" + V),
+  dice: () => import("./views/dice.js" + V),
+  mines: () => import("./views/mines.js" + V),
+  higher_lower: () => import("./views/higher-lower.js" + V),
+  plinko: () => import("./views/plinko.js" + V),
+  horse: () => import("./views/horse.js" + V),
+  rating: () => import("./views/rating.js" + V),
+  office: () => import("./views/office.js" + V),
+  history: () => import("./views/history.js" + V),
+  fairness: () => import("./views/fairness.js" + V),
+  profile: () => import("./views/profile.js" + V),
+  admin: () => import("./views/admin.js" + V),
 };
-const NAV = [["lobby", "Лобби", "home"], ["roulette", "Рулетка", "wheel"], ["blackjack", "Блэкджек", "cards"], ["dice", "Dice", "dice"],
-  ["rating", "Рейтинг", "trophy"], ["history", "История", "history"], ["fairness", "Честность", "shield"]];
+const ALIAS = { showroom: "office", games: "lobby", hilo: "higher_lower", businka: "slots", businka_slots: "slots" };
+const GAME_ROUTES = new Set(["roulette", "blackjack", "slots", "crash", "dice", "mines", "higher_lower", "plinko", "horse"]);
+const NAV = [["lobby", "Игры"], ["rating", "Рейтинг"], ["history", "История"], ["fairness", "Честность"], ["office", "Контора"]];
 
 export const app = {
   me: null,
@@ -55,7 +63,8 @@ function parseHash() {
 function shell(active) {
   const bal = h("div", { class: "balance-pill", title: "Баланс" }, h("span", { class: "v num" }, fmt(app.me.balance)), h("span", { class: "c" }, "ЛК"));
   app.balanceEl = bal;
-  const nav = NAV.map(([k, label]) => h("a", { href: "#/" + k, class: active === k ? "active" : null }, label));
+  const cur = GAME_ROUTES.has(active) ? "lobby" : active;
+  const nav = NAV.map(([k, label]) => h("a", { href: "#/" + k, class: cur === k ? "active" : null }, label));
   if (["admin", "owner"].includes(app.me.role)) nav.push(h("a", { href: "#/admin", class: active === "admin" ? "active" : null }, "Бэк-офис"));
   const initials = (app.me.displayName || app.me.username || "?").trim().slice(0, 1).toUpperCase();
   const header = h("header", { class: "hdr" }, h("div", { class: "container" },
@@ -64,17 +73,20 @@ function shell(active) {
     h("div", { class: "spacer" }),
     bal,
     h("a", { class: "avatar-btn", href: "#/profile", title: "Профиль", "aria-label": "Профиль" }, initials)));
-  const tabs = [["lobby","Лобби","home"],["roulette","Рулетка","wheel"],["blackjack","Блэкджек","cards"],["rating","Рейтинг","trophy"],["profile","Профиль","user"]].map(([k, label, ic]) =>
-    h("a", { href: "#/" + k, class: active === k ? "active" : null }, icon(ic), label));
+  const tabs = [["lobby","Игры","grid"],["rating","Рейтинг","trophy"],["office","Контора","office"],["history","История","history"],["profile","Профиль","user"]].map(([k, label, ic]) =>
+    h("a", { href: "#/" + k, class: cur === k ? "active" : null }, icon(ic), label));
   const main = h("main", { class: "page", id: "main" });
-  clear(app.root, header, main, h("nav", { class: "tabbar", "aria-label": "Меню" }, tabs));
+  const tick = lines("office.ticker").sort(() => Math.random() - 0.5).slice(0, 12);   // cosmetic order only
+  const ticker = h("div", { class: "ticker", "aria-hidden": "true" }, h("div", { class: "ticker-track" }, [...tick, ...tick].map((t) => h("span", {}, t))));
+  clear(app.root, header, ticker, main, h("nav", { class: "tabbar", "aria-label": "Меню" }, tabs), supportButton(app));
   return main;
 }
 
 let routeSeq = 0;
 async function route() {
   if (!app.me) return renderLogin();
-  const { view, sub, params } = parseHash();
+  const { view: rawView, sub, params } = parseHash();
+  const view = ALIAS[rawView] || rawView;
   const key = VIEWS[view] ? view : "lobby";
   if (key === "admin" && !["admin", "owner"].includes(app.me.role)) return app.go("lobby");
   const seq = ++routeSeq;
@@ -86,6 +98,7 @@ async function route() {
     if (seq !== routeSeq) return;
     clear(main);
     app.cleanup = (await mod.mount(main, { app, sub, params })) || null;
+    if (GAME_ROUTES.has(key) && !main.querySelector(".game-switch") && main.firstElementChild) main.firstElementChild.prepend(switcher(key));
     window.scrollTo(0, 0);
   } catch (e) {
     console.error(e);

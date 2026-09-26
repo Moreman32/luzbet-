@@ -69,7 +69,7 @@ async def main():
         # ---- daily bonus
         b0 = bal("vasya")
         await page.click("button:has-text('Получить')")
-        await page.wait_for_selector("text=Выдано сегодня")
+        await page.wait_for_selector("text=Выдано. Завтра снова")
         check("daily bonus credited once (+500)", bal("vasya") == b0 + 500 and await ui_balance(page) == b0 + 500, (b0, bal("vasya")))
 
         # ---- roulette: place several bet types, spin
