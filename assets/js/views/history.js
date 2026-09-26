@@ -1,7 +1,7 @@
-import { sb, rpc } from "../api.js?v=2.1.1";
-import { h, clear, fmt, signed, dt, drawer } from "../ui.js?v=2.1.1";
-import { meme } from "../memes.js?v=2.1.1";
-import { cardLabel } from "./shared.js?v=2.1.1";
+import { sb, rpc } from "../api.js?v=2.2.0";
+import { h, clear, fmt, signed, dt, drawer } from "../ui.js?v=2.2.0";
+import { meme } from "../memes.js?v=2.2.0";
+import { cardLabel } from "./shared.js?v=2.2.0";
 
 const GAME = { roulette: "Рулетка", blackjack: "Блэкджек", dice: "Dice", higher_lower: "Больше / Меньше", mines: "Mines", crash: "Crash",
   plinko: "Plinko", horse: "Скачки", businka_slots: "Бусинка" };

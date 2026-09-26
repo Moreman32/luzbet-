@@ -1,17 +1,17 @@
 // «Контора» — bookmaker parody. Nothing on these pages moves money or pretends to: every joke says what is real.
-import { h, clear, fmt, toast, store } from "../ui.js?v=2.1.1";
-import { meme, lines, pick } from "../memes.js?v=2.1.1";
-import { JOKE_LINE } from "../memes-office.js?v=2.1.1";
-import { GAMES, switcher } from "./game-kit.js?v=2.1.1";
-import { openSupport } from "../support.js?v=2.1.1";
-import { sfx } from "../sound.js?v=2.1.1";
+import { h, clear, fmt, toast, store } from "../ui.js?v=2.2.0";
+import { meme, lines, pick } from "../memes.js?v=2.2.0";
+import { JOKE_LINE } from "../memes-office.js?v=2.2.0";
+import { GAMES, switcher } from "./game-kit.js?v=2.2.0";
+import { openSupport } from "../support.js?v=2.2.0";
+import { sfx } from "../sound.js?v=2.2.0";
 
 const SECTIONS = [
   ["withdraw", "💸", "Вывод средств", "Подайте заявку и наблюдайте за работой службы безопасности. Вечно."],
   ["rules", "📜", "Правила конторы", "Мелкий шрифт, крупные проценты и честный RTP каждой игры."],
   ["kyc", "🪪", "Верификация (KYC)", "Подтвердите личность, не присылая ни одного документа."],
   ["promo", "🎁", "Акции и бонусы*", "Звёздочка обязательна. Две акции даже настоящие."],
-  ["line", "📊", "Линия дня", "Коэффициенты на события вашей жизни. Ставки не принимаются."],
+  ["line", "📊", "Линия", "Настоящие ставки ЛК на события: тотализатор, комиссия только с проигравших."],
   ["support", "🎧", "Поддержка 24/7*", "*24 секунды из 7 дней. Отвечает бот, который этого не скрывает."],
 ];
 
@@ -28,7 +28,7 @@ export async function mount(root, { app, sub }) {
       h("p", { class: "muted" }, "Здесь мы пародируем всё, за что не любят букмекеров: вечный вывод, мелкий шрифт, бонусы со звёздочкой и поддержку, которая не поддерживает. Разница одна: у нас это шутка, а исходы игр — честные и проверяемые."),
       h("div", { class: "office-stamp", "aria-hidden": "true" }, "ОДОБРЕНО", h("br"), "ОТДЕЛОМ САТИРЫ")),
     h("div", { class: "office-grid" }, SECTIONS.map(([k, e, t, d]) => h("a", {
-      class: "office-tile card", href: k === "support" ? "#/office" : "#/office/" + k,
+      class: "office-tile card", href: k === "support" ? "#/office" : k === "line" ? "#/line" : "#/office/" + k,
       onclick: k === "support" ? (ev) => { ev.preventDefault(); openSupport(app); } : null,
     }, h("span", { class: "office-e", "aria-hidden": "true" }, e), h("h3", {}, t), h("p", { class: "muted" }, d)))));
 }
@@ -145,8 +145,8 @@ function promo(wrap, app) {
 // ------------------------------------------------------------------ Joke line of the day
 function line(wrap) {
   wrap.append(
-    h("div", { class: "game-head" }, h("div", {}, h("div", { class: "eyebrow" }, "Трейдинговый отдел"), h("h1", {}, "Линия дня"))),
-    h("div", { class: "card tight office-truth" }, h("b", {}, "Честно: "), "это шутка. Ставки на эти события не принимаются, кнопки ничего не делают, кроме звука."),
+    h("div", { class: "game-head" }, h("div", {}, h("div", { class: "eyebrow" }, "Трейдинговый отдел"), h("h1", {}, "Шуточная линия"))),
+    h("div", { class: "card tight office-truth" }, h("b", {}, "Честно: "), "это шутка, ставки здесь не принимаются. Настоящие ставки — в разделе ", h("a", { href: "#/line" }, "«Линия»"), "."),
     jokeLine());
 }
 

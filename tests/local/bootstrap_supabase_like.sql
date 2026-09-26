@@ -32,6 +32,7 @@ grant execute on all functions in schema auth to anon, authenticated, service_ro
 create schema cron;
 create table cron.job (jobid bigserial primary key, schedule text, command text, active boolean default true);
 create function cron.unschedule(bigint) returns boolean language sql as $$ delete from cron.job where jobid = $1; select true $$;
+create function cron.schedule(text, text, text) returns bigint language sql as $$ insert into cron.job(schedule, command) values ($2, $3) returning jobid $$;
 insert into cron.job(schedule, command) values ('*/5 * * * *', 'select public.refresh_rating_snapshots();');
 
 -- Supabase default privileges in public (the dangerous defaults the migration must neutralise)

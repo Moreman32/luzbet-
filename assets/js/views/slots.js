@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
-import { reducedMotion, sleep } from "../ui.js?v=2.1.1";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
+import { reducedMotion, sleep } from "../ui.js?v=2.2.0";
 
 const SYM = [
   { e: "🐾", n: "Лапа (WILD)" }, { e: "🧶", n: "Клубок (SCATTER)" }, { e: "🐈", n: "Бусинка" }, { e: "👑", n: "Корона" },
@@ -48,8 +48,10 @@ export async function mount(root, { app }) {
   }
 
   function highlight(spinData) {
-    for (const [li, , n] of spinData.lines || []) for (let r = 0; r < n; r++) cell(r, lines[li][r]).classList.add("hit");
-    if (spinData.scatters >= 3) spinData.window.forEach((s, i) => { if (s === 1) cells[i].classList.add("hit"); });
+    const any = (spinData.lines || []).length || spinData.scatters >= 3;
+    cells.forEach((c) => c.classList.toggle("dim", !!any));
+    for (const [li, , n] of spinData.lines || []) for (let r = 0; r < n; r++) { cell(r, lines[li][r]).classList.add("hit"); cell(r, lines[li][r]).classList.remove("dim"); }
+    if (spinData.scatters >= 3) spinData.window.forEach((s, i) => { if (s === 1) { cells[i].classList.add("hit"); cells[i].classList.remove("dim"); } });
   }
 
   async function spin() {
@@ -79,7 +81,14 @@ export async function mount(root, { app }) {
     const ctx = spins.length > 1 ? (r.payout > r.bet * 10 ? "slots.big" : "slots.feature") : r.payout === 0 ? "slots.nothing" : r.payout > r.bet * 10 ? "slots.big" : "slots.small";
     settle(app, r, { ctx, memeEl, award: spins.length > 1 ? "slotsFeature" : null });
     info.textContent = r.payout > 0 ? `Итог: ×${units} ставки` + (spins.length > 1 ? ` за ${spins.length - 1} фриспинов` : "") : info.textContent;
-    clear(resultBox, resultTag(r));
+    const hits = spins.reduce((a, s) => a + (s.lines || []).length, 0), feats = spins.length - 1;
+    const last = spins[spins.length - 1] || {};
+    const lineTxt = (last.lines || []).slice(0, 3).map(([li, sym, n, p]) => `линия ${li + 1}: ${SYM[sym].e}×${n} = ×${p / 10}`).join(", ");
+    const why = r.payout === 0 ? "Ни одной линии из 3+ одинаковых символов слева направо."
+      : feats ? `Бонус: ${feats} фриспинов с множителем ×2, выигрышных линий за раунд — ${hits}.`
+      : `Выигрышных линий: ${hits}${lineTxt ? " (" + lineTxt + ")" : ""}` + (last.scatters >= 3 ? `, клубков: ${last.scatters}` : "") + ".";
+    clear(resultBox, resultTag(r, why));
+    flash(root.querySelector(".gk-stage"), r);
     busy = false; spinBtn.disabled = false; bet.disable(false);
   }
 

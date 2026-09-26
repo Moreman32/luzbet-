@@ -660,3 +660,101 @@ select.input { appearance: auto; }
 
 .gk-foot .mono { word-break: normal; }
 .cr-hist:not(:has(.cr-chip)) { display: none; }
+
+/* =========================================================================
+   LuzBet 2.2 — clearer outcomes, «Как играть», «Линия»
+   ========================================================================= */
+/* how-to */
+.gk-howto { padding: 0; border-color: rgba(210,173,98,.28); }
+.gk-howto summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-weight: 700; }
+.gk-howto summary::-webkit-details-marker { display: none; }
+.gk-howto summary::after { content: "▾"; margin-left: auto; color: var(--muted); transition: transform .2s; }
+.gk-howto[open] summary::after { transform: rotate(180deg); }
+.gk-howto-q { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--gold-grad); color: #1a1208; font-weight: 800; font-size: 14px; flex: none; }
+.gk-howto-body { padding: 0 18px 16px; display: grid; gap: 8px; font-size: 14.5px; line-height: 1.5; }
+.gk-howto-body ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.gk-howto-pays { color: var(--text-2); }
+.gk-howto-joke { color: var(--champagne); font-style: italic; }
+
+/* verdict banner */
+.gk-result { gap: 4px; padding: 14px 20px; min-width: min(420px, 100%); text-align: center; }
+.gk-verdict { font: 800 12px/1 var(--f-ui); letter-spacing: .26em; padding: 6px 10px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); display: inline-block; }
+.gk-result.win .gk-verdict, .gk-verdict.win { background: rgba(127,210,154,.18); color: var(--win); }
+.gk-result.loss .gk-verdict, .gk-verdict.loss { background: rgba(208,122,122,.16); color: var(--loss); }
+.gk-result.push .gk-verdict, .gk-verdict.push { background: rgba(210,173,98,.15); color: var(--gold-2); }
+.gk-result.loss { border-color: rgba(208,122,122,.4); }
+.gk-why { font-size: 14px; color: var(--text); line-height: 1.4; max-width: 520px; }
+.gk-flash-win { animation: flashWin 1.4s var(--ease); }
+.gk-flash-loss { animation: flashLoss 1.4s var(--ease); }
+@keyframes flashWin { 0%, 40% { box-shadow: 0 0 0 3px rgba(127,210,154,.8), 0 0 60px rgba(127,210,154,.35); } }
+@keyframes flashLoss { 0%, 40% { box-shadow: 0 0 0 3px rgba(208,122,122,.8), 0 0 60px rgba(208,122,122,.3); } }
+
+/* roulette spin report */
+.rl-report:empty { display: none; }
+.rl-report { display: grid; gap: 6px; }
+.rep-line { display: flex; justify-content: space-between; gap: 10px; padding: 6px 10px; border-radius: 8px; font-size: 14px; }
+.rep-line.win { background: rgba(127,210,154,.12); color: var(--win); font-weight: 600; }
+.rep-line.lose { background: rgba(208,122,122,.08); color: var(--loss); }
+.rep-line.lose span:first-child { text-decoration: line-through; text-decoration-color: rgba(208,122,122,.5); }
+.rcell.cover-win { box-shadow: inset 0 0 0 3px var(--win); }
+
+/* blackjack */
+.bj-hand.res-win { box-shadow: 0 0 0 2px rgba(127,210,154,.7); border-radius: 14px; }
+.bj-hand.res-lose { opacity: .75; box-shadow: 0 0 0 2px rgba(208,122,122,.5); border-radius: 14px; }
+.bj-hand.res-push { box-shadow: 0 0 0 2px rgba(210,173,98,.5); border-radius: 14px; }
+.bj-explain { margin: 8px 0 0; padding-left: 18px; text-align: left; font-size: 14px; color: var(--text-2); }
+
+/* higher / lower */
+.hl-live-card.big.hl-ok { box-shadow: 0 0 0 4px rgba(127,210,154,.85), 0 35px 75px rgba(0,0,0,.62); }
+.hl-live-card.big.hl-bad { box-shadow: 0 0 0 4px rgba(208,122,122,.9), 0 35px 75px rgba(0,0,0,.62); }
+.hl-verdict { position: absolute; top: 44px; left: 50%; transform: translateX(-50%); padding: 7px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; white-space: nowrap; z-index: 3; }
+.hl-verdict.ok { background: rgba(127,210,154,.2); color: var(--win); }
+.hl-verdict.bad { background: rgba(208,122,122,.2); color: var(--loss); }
+@media (max-width: 560px) { .hl-verdict { white-space: normal; width: 90%; text-align: center; } }
+
+/* horse */
+.hr-lane.mine { background: rgba(210,173,98,.07); }
+.hr-mine { color: var(--gold-2); font-style: normal; font-weight: 700; margin-left: 4px; }
+.hr-lane.won { background: rgba(127,210,154,.14); }
+.hr-result li.first { font-weight: 700; }
+.hr-result li.mine.win { color: var(--win); }
+.hr-result li.mine.lose { color: var(--loss); }
+
+/* slots, plinko */
+.sl-cell.dim { opacity: .35; filter: grayscale(.6); }
+.pl-last { margin-top: 10px; font-weight: 600; font-size: 14px; color: var(--text-2); text-align: center; }
+.pl-last.win { color: var(--win); } .pl-last.loss { color: var(--loss); }
+
+/* «Линия» */
+.ln-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--s-3); align-items: start; }
+.ln-teaser { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s-3); }
+.ln-card { display: grid; gap: 10px; }
+.ln-card.done { opacity: .95; }
+.ln-card h3 { font-size: 22px; }
+.ln-card.compact h3 { font-size: 18px; }
+.ln-top { display: flex; align-items: center; gap: 8px; }
+.ln-when { font-size: 12.5px; }
+.ln-desc { font-size: 13.5px; color: var(--text-2); line-height: 1.45; }
+.ln-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.ln-opt { display: grid; gap: 4px; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--surface-3); color: var(--text); cursor: pointer; transition: border-color .12s, transform .12s; }
+.ln-opt:not(:disabled):hover { border-color: var(--gold-3); transform: translateY(-1px); }
+.ln-opt:disabled { cursor: default; }
+.ln-opt.on { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(210,173,98,.35); background: rgba(210,173,98,.08); }
+.ln-opt.has-mine { border-style: dashed; border-color: var(--gold-3); }
+.ln-opt.winner { border-color: var(--win); background: rgba(127,210,154,.12); }
+.ln-opt.loser { opacity: .55; }
+.ln-opt-label { font-weight: 700; font-size: 14px; }
+.ln-kef { font-size: 22px; color: var(--gold-2); }
+.ln-opt.winner .ln-kef { color: var(--win); }
+.ln-bar { height: 5px; border-radius: 999px; background: rgba(255,255,255,.06); overflow: hidden; }
+.ln-bar i { display: block; height: 100%; background: var(--gold-grad); }
+.ln-bet { display: grid; gap: 8px; }
+.ln-bet-row { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: center; }
+.ln-bet-row .gk-quick { margin: 0; }
+.ln-preview { font-size: 12.5px; min-height: 1em; }
+.ln-note { font-weight: 600; font-size: 14px; }
+.ln-note.win { color: var(--win); }
+.ln-mine { margin: 0; padding-left: 18px; font-size: 13.5px; display: grid; gap: 3px; }
+@media (max-width: 560px) { .ln-grid { grid-template-columns: 1fr; } .ln-bet-row { grid-template-columns: 1fr; } }
+.hl-live-stage { position: relative; }
+.ln-top .badge { white-space: nowrap; }

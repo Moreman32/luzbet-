@@ -1,7 +1,7 @@
-import { rpc, admin } from "../api.js?v=2.1.1";
-import { h, clear, fmt, signed, dt, toast, modal, drawer, actionButton, newKey } from "../ui.js?v=2.1.1";
-import { mfaCard } from "./mfa.js?v=2.1.1";
-import { roundSummary } from "./history.js?v=2.1.1";
+import { rpc, admin } from "../api.js?v=2.2.0";
+import { h, clear, fmt, signed, dt, toast, modal, drawer, actionButton, newKey } from "../ui.js?v=2.2.0";
+import { mfaCard } from "./mfa.js?v=2.2.0";
+import { roundSummary } from "./history.js?v=2.2.0";
 
 const ROLE = { player: "Игрок", moderator: "Модератор", admin: "Админ", owner: "Владелец" };
 const TX = { opening: "Стартовый баланс", bet: "Ставка", payout: "Выплата", refund: "Возврат", bonus: "Бонус", cashback: "Кэшбэк", jackpot: "Джекпот", achievement: "Достижение", admin_adjustment: "Корректировка" };
@@ -23,7 +23,7 @@ export async function mount(root, { app }) {
   let tab = "overview";
   const body = h("div", { class: "stack" });
   const tabs = h("div", { class: "seg" });
-  const TABS = [["overview", "Обзор"], ["players", "Игроки"], ["audit", "Аудит"], ["security", "Безопасность"]];
+  const TABS = [["overview", "Обзор"], ["players", "Игроки"], ["line", "Линия"], ["audit", "Аудит"], ["security", "Безопасность"]];
   const drawTabs = () => clear(tabs, TABS.map(([k, l]) => h("button", { class: k === tab ? "on" : "", type: "button", onclick: () => { tab = k; drawTabs(); show(); } }, l)));
   drawTabs();
   wrap.append(h("div", { class: "game-head" }, h("div", {}, h("div", { class: "eyebrow" }, "Internal · " + ROLE[app.me.role]), h("h1", {}, "Бэк-офис")),
@@ -35,9 +35,53 @@ export async function mount(root, { app }) {
     try {
       if (tab === "overview") await overview();
       if (tab === "players") await players();
+      if (tab === "line") await lineAdmin();
       if (tab === "audit") await audit();
       if (tab === "security") await security();
     } catch (e) { clear(body, h("div", { class: "card" }, h("p", { class: "loss" }, e.message))); }
+  }
+
+  async function lineAdmin() {
+    const r = await rpc("rpc_admin_line_list");
+    const title = h("input", { class: "input", maxlength: 140, placeholder: "Например: Придёт ли Вася на пятничную игру вовремя?" });
+    const desc = h("textarea", { class: "input", rows: 2, maxlength: 600, placeholder: "Условия: что считается исходом, когда и как проверяем" });
+    const opts = h("input", { class: "input", placeholder: "Исходы через точку с запятой: Да; Нет" , value: "Да; Нет" });
+    const d = new Date(Date.now() + 24 * 3600e3); d.setMinutes(0, 0, 0);
+    const pad = (n) => String(n).padStart(2, "0");
+    const closes = h("input", { class: "input", type: "datetime-local", value: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:00` });
+    const reason = h("input", { class: "input", placeholder: "Причина для аудита (например: пятничная игра)" });
+    const create = actionButton("Создать событие", async () => {
+      const options = opts.value.split(";").map((x) => x.trim()).filter(Boolean);
+      try {
+        await rpc("rpc_admin_line_create", { p_title: title.value, p_description: desc.value || null, p_options: options,
+          p_closes_at: new Date(closes.value).toISOString(), p_reason: reason.value });
+        toast("Событие создано и появилось в линии.", "ok"); show();
+      } catch (e) { toast(e.message, "error"); }
+    }, { class: "btn primary" });
+    const settleBox = (e) => {
+      if (e.status !== "open") return h("p", { class: "muted small" }, (e.status === "void" ? "Возврат: " : "Итог: ") + (e.resultNote || "") + (e.settledBy ? " · " + e.settledBy : ""));
+      const note = h("input", { class: "input sm", placeholder: "Комментарий к итогу (виден всем)", style: { width: "100%" } });
+      const closed = Date.parse(e.closesAt) <= Date.now();
+      return h("div", { class: "stack" }, note, h("div", { class: "row wrap" },
+        closed ? e.options.map((o) => actionButton("Победил: " + o.label, async () => {
+          if (!confirm(`Рассчитать «${e.title}» с исходом «${o.label}»? Это необратимо: деньги сразу уйдут выигравшим.`)) return;
+          try { await rpc("rpc_admin_line_settle", { p_event: e.id, p_result: o.idx, p_note: note.value }); toast("Рассчитано.", "ok"); show(); } catch (x) { toast(x.message, "error"); }
+        }, { class: "btn sm primary" })) : h("span", { class: "muted small" }, "Рассчитать можно после " + dt(e.closesAt)),
+        actionButton("Отменить с возвратом", async () => {
+          if (!confirm("Отменить событие и вернуть все ставки?")) return;
+          try { await rpc("rpc_admin_line_settle", { p_event: e.id, p_result: null, p_note: note.value }); toast("Ставки возвращены.", "ok"); show(); } catch (x) { toast(x.message, "error"); }
+        }, { class: "btn sm danger" })));
+    };
+    clear(body,
+      h("div", { class: "card stack" }, h("div", { class: "eyebrow" }, "Новое событие в линии"),
+        h("div", { class: "field" }, h("label", {}, "Вопрос"), title), h("div", { class: "field" }, h("label", {}, "Условия"), desc),
+        h("div", { class: "field" }, h("label", {}, "Исходы (2–8)"), opts), h("div", { class: "field" }, h("label", {}, "Приём ставок до"), closes),
+        h("div", { class: "field" }, h("label", {}, "Причина"), reason), create,
+        h("p", { class: "muted small" }, "Правила честности: вы не можете ставить на свои события; рассчитать может создатель или владелец; каждое действие попадает в аудит, а имя рассчитавшего видно всем игрокам.")),
+      (r.events || []).length ? r.events.map((e) => h("div", { class: "card stack" },
+        h("div", { class: "row" }, h("b", {}, e.title), h("div", { class: "spacer" }), h("span", { class: "badge" }, e.status === "open" ? (Date.parse(e.closesAt) > Date.now() ? "приём ставок" : "ждёт расчёта") : e.status)),
+        h("div", { class: "muted small" }, `Банк ${fmt(e.total)} ЛК · ` + e.options.map((o) => `${o.label}: ${fmt(o.pool)}`).join(" · ") + ` · закрытие ${dt(e.closesAt)}`),
+        settleBox(e))) : h("p", { class: "muted" }, "Своих событий пока нет. Автособытия по статистике сайта создаются и рассчитываются сами."));
   }
 
   async function overview() {

@@ -1,9 +1,9 @@
-import { rpc, sb, ApiError } from "../api.js?v=2.1.1";
-import { h, clear, fmt, signed, toast, store, newKey, reducedMotion, sleep } from "../ui.js?v=2.1.1";
-import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.1.1";
-import { sfx } from "../sound.js?v=2.1.1";
-import { colorOf } from "../fair.js?v=2.1.1";
-import { bigWin } from "./shared.js?v=2.1.1";
+import { rpc, sb, ApiError } from "../api.js?v=2.2.0";
+import { h, clear, fmt, signed, toast, store, newKey, reducedMotion, sleep } from "../ui.js?v=2.2.0";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.2.0";
+import { sfx } from "../sound.js?v=2.2.0";
+import { colorOf } from "../fair.js?v=2.2.0";
+import { bigWin } from "./shared.js?v=2.2.0";
 
 const ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 const CHIPS = [1, 5, 25, 100, 500, 1000];
@@ -61,6 +61,7 @@ export async function mount(root, { app }) {
   const totalEl = h("span", { class: "v num" }, "0");
   const maxWinEl = h("span", { class: "v num" }, "0");
   const linesEl = h("div", { class: "bet-lines" });
+  const reportEl = h("div", { class: "rl-report" });
   const seedEl = h("div", { class: "stack", style: { fontSize: "13px" } });
   const tableWrap = h("div", { class: "rtable-wrap" });
   const spinBtn = h("button", { class: "btn primary lg block", type: "button" }, "Крутить");
@@ -294,6 +295,27 @@ export async function mount(root, { app }) {
     else if (r.payout > 0 && st.lines.some((l) => l.t === "straight" && l.win > 0)) ctx = st.number === 17 ? "roulette.17" : (ctx === "win.big" ? ctx : "roulette.straight");
     memeEl.textContent = sessionMeme({won:net>0,lost:net<0,balance:r.balance,award:ctx==="roulette.disaster"?"rouletteDisaster":null}) || meme(ctx, { win: r.payout });
     const cell = cells.get(st.number); if (cell) { cell.classList.remove("win-flash"); void cell.offsetWidth; cell.classList.add("win-flash"); }
+    const lineName = (l) => {
+      const n = l.n || [], f = n[0];
+      if (l.t === "straight") return "Число " + f;
+      if (l.t === "color") return colorOf(f) === "red" ? "Красное" : "Чёрное";
+      if (l.t === "parity") return f % 2 ? "Нечёт" : "Чёт";
+      if (l.t === "half") return f <= 18 ? "1–18" : "19–36";
+      if (l.t === "dozen") return "Дюжина " + (Math.floor((f - 1) / 12) + 1) + ` (${(Math.floor((f - 1) / 12)) * 12 + 1}–${(Math.floor((f - 1) / 12) + 1) * 12})`;
+      if (l.t === "column") return "Колонка " + (f % 3 || 3);
+      return (LABEL[l.t] || l.t) + " " + n.join("·");
+    };
+    const won = (st.lines || []).filter((l) => l.win > 0);
+    clear(reportEl, h("div", { class: "eyebrow" }, `Разбор спина · выпало ${st.number} (${({ red: "красное", black: "чёрное", green: "зеро" })[st.color] || ""})`),
+      (st.lines || []).map((l) => h("div", { class: ["rep-line", l.win > 0 ? "win" : "lose"] },
+        h("span", {}, (l.win > 0 ? "✓ " : "✗ ") + lineName(l)),
+        h("span", { class: "num" }, l.win > 0 ? `${fmt(l.a)} → +${fmt(l.win)}` : `${fmt(l.a)} → 0`))),
+      h("p", { class: "muted small" }, won.length ? `Сыграло ставок: ${won.length} из ${(st.lines || []).length}. Выплата включает саму ставку.`
+        : `Ни одна из ${(st.lines || []).length} ставок не накрывала число ${st.number}.`));
+    table?.querySelectorAll(".rcell.cover-win").forEach((c) => c.classList.remove("cover-win"));
+    won.forEach((l) => (l.n || []).forEach((n) => cells.get(n)?.classList.add("cover-win")));
+    setTimeout(() => table?.querySelectorAll(".rcell.cover-win").forEach((c) => c.classList.remove("cover-win")), 6000);
+    outcome.classList.remove("gk-flash-win", "gk-flash-loss"); void outcome.offsetWidth; if (r.payout !== r.bet) outcome.classList.add(r.payout > r.bet ? "gk-flash-win" : "gk-flash-loss");
     app.setBalance(r.balance);
     if (r.payout > r.bet) (ctx === "win.big" ? sfx.bigWin : sfx.win)(); else sfx.loss();
     if (ctx === "win.big") bigWin(r.payout);
@@ -343,7 +365,7 @@ export async function mount(root, { app }) {
             h("div", {}, h("div", { class: "eyebrow" }, "Ставка"), totalEl),
             h("div", {}, h("div", { class: "eyebrow" }, "Макс. выплата"), maxWinEl)),
           spinBtn, retryBox),
-        h("div", { class: "card stack" }, h("div", { class: "eyebrow" }, "Ставки на столе"), linesEl),
+        h("div", { class: "card stack" }, reportEl, h("div", { class: "eyebrow" }, "Ставки на столе"), linesEl),
         h("div", { class: "card" }, seedEl)))));
   buildTable();
   ro.observe(tableWrap);

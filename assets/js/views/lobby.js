@@ -1,9 +1,9 @@
-import { rpc } from "../api.js?v=2.1.1";
-import { h, clear, fmt, signed, toast, actionButton, dt } from "../ui.js?v=2.1.1";
-import { meme, pick } from "../memes.js?v=2.1.1";
-import { sfx } from "../sound.js?v=2.1.1";
-import { GAMES } from "./game-kit.js?v=2.1.1";
-import { jokeLine } from "./office.js?v=2.1.1";
+import { rpc } from "../api.js?v=2.2.0";
+import { h, clear, fmt, signed, toast, actionButton, dt } from "../ui.js?v=2.2.0";
+import { meme, pick } from "../memes.js?v=2.2.0";
+import { sfx } from "../sound.js?v=2.2.0";
+import { GAMES } from "./game-kit.js?v=2.2.0";
+import { eventCard } from "./line.js?v=2.2.0";
 
 const ART = {
   roulette: "🎡", blackjack: "🂡", businka_slots: "🐈", crash: "📈", dice: "🎲", mines: "💣", higher_lower: "⇅", plinko: "🔻", horse: "🐎",
@@ -50,6 +50,11 @@ export async function mount(root, { app }) {
   const [hello, tail] = greeting(me.displayName || me.username);
   const [promoT, promoF] = pick("office.promo") || ["", ""];
   const net = stats ? stats.net : 0;
+  const lineBox = h("div", { class: "ln-teaser" }, h("p", { class: "muted" }, "Букмекер раскладывает события…"));
+  rpc("rpc_line_list", { p_scope: "open" }).then((r) => {
+    const evs = (r.events || []).slice().sort((a, b) => (b.total - a.total) || (Date.parse(a.closesAt) - Date.parse(b.closesAt))).slice(0, 3);
+    clear(lineBox, evs.length ? evs.map((e) => eventCard(e, { app, compact: true })) : h("p", { class: "muted" }, "Приём ставок сейчас закрыт — загляните к следующему периоду."));
+  }).catch(() => clear(lineBox, h("p", { class: "muted" }, "Линия временно недоступна.")));
 
   root.append(h("div", { class: "container stack lobby" },
     h("section", { class: "lb-hero" },
@@ -74,7 +79,7 @@ export async function mount(root, { app }) {
         h("h3", {}, g.name), h("p", { class: "muted" }, g.desc),
         h("div", { class: "meta" }, h("span", { class: "badge gold" }, "RTP " + g.tag)))))),
     h("section", { class: "lb-bottom" },
-      h("div", { class: "stack" }, h("div", { class: "row" }, h("div", { class: "eyebrow" }, "Линия дня · ставки не принимаются"), h("div", { class: "spacer" }), h("a", { class: "small", href: "#/office/line" }, "вся линия →")), jokeLine(4)),
+      h("div", { class: "stack" }, h("div", { class: "row" }, h("div", { class: "eyebrow" }, "Линия · настоящие ставки, тотализатор"), h("div", { class: "spacer" }), h("a", { class: "small", href: "#/line" }, "вся линия →")), lineBox),
       h("div", { class: "card stack lb-memo" }, h("div", { class: "eyebrow" }, "Служебная записка № 67"),
         h("h3", {}, "Почему мы смеёмся, но не обманываем"),
         h("p", { class: "muted" }, "Настоящие конторы шутят в рекламе и серьёзны в выплатах. Мы наоборот: шутим везде, кроме математики. Сид, хеш, nonce и пересчёт в браузере — в разделе «Честность»."),

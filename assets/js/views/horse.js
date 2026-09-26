@@ -1,6 +1,6 @@
-import { h, clear, fmt, toast, sfx, meme, head, send, key, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
-import { store, reducedMotion, sleep, signed } from "../ui.js?v=2.1.1";
-import { HORSES } from "../memes-office.js?v=2.1.1";
+import { h, clear, fmt, toast, sfx, meme, head, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
+import { store, reducedMotion, sleep, signed } from "../ui.js?v=2.2.0";
+import { HORSES } from "../memes-office.js?v=2.2.0";
 
 const FALLBACK_W = [300, 200, 150, 120, 90, 70, 45, 25];
 
@@ -19,7 +19,7 @@ export async function mount(root, { app }) {
   HORSES.forEach((hs, i) => {
     const runner = h("div", { class: "hr-runner", style: { left: "0%" } }, h("span", { class: "hr-horse", "aria-hidden": "true" }, i === 3 ? "🐈" : "🐎"), h("b", { class: "hr-no", style: { background: hs.color } }, String(i + 1)));
     runners.push(runner);
-    lanes.appendChild(h("div", { class: "hr-lane" }, h("span", { class: "hr-lane-name" }, names[i] || hs.name), runner, h("span", { class: "hr-finish" })));
+    lanes.appendChild(h("div", { class: "hr-lane", dataset: { h: i } }, h("span", { class: "hr-lane-name" }, names[i] || hs.name, h("em", { class: "hr-mine" })), runner, h("span", { class: "hr-finish" })));
   });
   const board = h("div", { class: "hr-board" });
   const totalEl = h("b", { class: "num" });
@@ -46,6 +46,7 @@ export async function mount(root, { app }) {
     const t = total();
     totalEl.textContent = fmt(t) + " ЛК";
     raceBtn.disabled = racing || t < 1 || t > rules.maxBet;
+    lanes.querySelectorAll(".hr-lane").forEach((ln) => { const a = stakes[ln.dataset.h]; ln.classList.toggle("mine", !!a); ln.querySelector(".hr-mine").textContent = a ? ` ★ ваша ставка ${fmt(a)}` : ""; });
     board.querySelectorAll(".hr-card").forEach((c, i) => c.classList.toggle("on", !!stakes[i]));
   }
 
@@ -84,9 +85,14 @@ export async function mount(root, { app }) {
     const winner = r.state.winner;
     const ctx = r.payout > 0 ? (winner >= 6 ? "horse.underdog" : "horse.win") : winner === 0 ? "horse.fav" : winner >= 6 ? "horse.underdog" : "horse.loss";
     settle(app, r, { ctx, memeEl, award: r.payout > 0 && winner === 7 ? "horseZhdun" : null });
-    clear(resultBox, resultTag(r), h("ol", { class: "hr-result" }, r.state.order.map((hIdx) => {
+    const wl = (r.state.lines || []).find((l) => l.h === winner);
+    const why = wl ? `Первой пришла «${names[winner] || HORSES[winner].name}» — ваша ставка ${fmt(wl.a)} × ${Number(wl.odds).toFixed(2)} = ${fmt(wl.win)} ЛК.`
+      : `Первой пришла «${names[winner] || HORSES[winner].name}», а на неё вы не ставили.`;
+    lanes.querySelectorAll(".hr-lane").forEach((ln) => ln.classList.toggle("won", Number(ln.dataset.h) === winner));
+    flash(root.querySelector(".hr-stage"), r);
+    clear(resultBox, resultTag(r, why), h("ol", { class: "hr-result" }, r.state.order.map((hIdx) => {
       const line = (r.state.lines || []).find((l) => l.h === hIdx);
-      return h("li", {}, h("b", { class: "hr-no", style: { background: HORSES[hIdx].color } }, String(hIdx + 1)), " ", names[hIdx] || HORSES[hIdx].name,
+      return h("li", { class: [hIdx === winner ? "first" : "", line ? (line.win > 0 ? "mine win" : "mine lose") : ""] }, h("b", { class: "hr-no", style: { background: HORSES[hIdx].color } }, String(hIdx + 1)), " ", names[hIdx] || HORSES[hIdx].name,
         line ? h("span", { class: ["num", line.win > 0 ? "win" : "loss"] }, ` · ставка ${fmt(line.a)} → ${line.win > 0 ? "+" + fmt(line.win) : signed(-line.a)}`) : null);
     })));
   }

@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
-import { store, reducedMotion, sleep, signed } from "../ui.js?v=2.1.1";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
+import { store, reducedMotion, sleep, signed } from "../ui.js?v=2.2.0";
 
 const ROWS = 12;
 const RISK = { low: "Низкий", medium: "Средний", high: "Высокий" };
@@ -26,6 +26,7 @@ export async function mount(root, { app }) {
   const buckets = h("div", { class: "pl-buckets" });
   const memeEl = h("p", { class: "meme-line" });
   const log = h("div", { class: "pl-log" });
+  const lastEl = h("div", { class: "pl-last" }, "Бросьте шарик — здесь появится итог броска.");
   const bet = betInput({ app, min: rules.minBet, max: rules.maxBet, key: "plinko", value: 20 });
   const riskSeg = h("div", { class: "seg" });
   const riskNote = h("p", { class: "muted small" });
@@ -69,6 +70,9 @@ export async function mount(root, { app }) {
     const ctx = idx === 0 || idx === 12 ? "plinko.edge" : r.payout > r.bet ? "plinko.win" : idx >= 5 && idx <= 7 ? "plinko.center" : "plinko.loss";
     settle(app, r, { ctx, vars: { mult: m }, memeEl, award: idx === 0 || idx === 12 ? "plinkoEdge" : null });
     const net = r.payout - r.bet;
+    lastEl.className = "pl-last " + (net > 0 ? "win" : net < 0 ? "loss" : "");
+    lastEl.textContent = `Лунка ×${m}: ставка ${fmt(r.bet)} → вернулось ${fmt(r.payout)} (${signed(net)} ЛК)`;
+    flash(root.querySelector(".gk-stage"), r);
     log.prepend(h("span", { class: ["pl-entry", net > 0 ? "win" : net < 0 ? "loss" : ""] }, "×" + m, " ", h("small", {}, signed(net))));
     while (log.children.length > 12) log.lastChild.remove();
   }
@@ -77,7 +81,7 @@ export async function mount(root, { app }) {
   root.append(h("div", { class: "container stack" },
     ...head({ route: "plinko", eyebrow: "Кредитный отдел", title: "Plinko: Кредитная воронка", sub: "Шарик падает через 12 рядов гвоздей. Каждый гвоздь — это одно честное «налево или направо» из вашего сида.", badge: "RTP ≈97%" }),
     h("section", { class: "gk-layout" },
-      h("div", { class: "card gilded gk-stage pl-stage" }, svg, buckets, memeEl, log),
+      h("div", { class: "card gilded gk-stage pl-stage" }, svg, buckets, lastEl, memeEl, log),
       h("aside", { class: "card gk-panel stack" }, bet.el, h("div", { class: "field" }, h("label", {}, "Риск-профиль"), riskSeg), riskNote, dropBtn,
         h("p", { class: "muted small" }, "Можно бросать несколько шариков подряд. Каждый — отдельный раунд со своим nonce."))),
     footnote(rules, "Путь = 12 × fairInt(2), лунка = число «вправо». Выплата = ⌊ставка × коэффициент лунки⌋.")));

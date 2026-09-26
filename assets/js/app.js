@@ -1,31 +1,32 @@
-import { sb, rpc, login, logout, ApiError } from "./api.js?v=2.1.1";
-import { h, clear, icon, fmt, toast, modal, actionButton } from "./ui.js?v=2.1.1";
-import { meme, lines } from "./memes.js?v=2.1.1";
-import { supportButton } from "./support.js?v=2.1.1";
-import { switcher } from "./views/game-kit.js?v=2.1.1";
-import { sfx } from "./sound.js?v=2.1.1";
+import { sb, rpc, login, logout, ApiError } from "./api.js?v=2.2.0";
+import { h, clear, icon, fmt, toast, modal, actionButton } from "./ui.js?v=2.2.0";
+import { meme, lines } from "./memes.js?v=2.2.0";
+import { supportButton } from "./support.js?v=2.2.0";
+import { switcher, howTo, GAMES } from "./views/game-kit.js?v=2.2.0";
+import { sfx } from "./sound.js?v=2.2.0";
 
 const VIEWS = {
-  lobby: () => import("./views/lobby.js?v=2.1.1"),
-  roulette: () => import("./views/roulette.js?v=2.1.1"),
-  blackjack: () => import("./views/blackjack.js?v=2.1.1"),
-  slots: () => import("./views/slots.js?v=2.1.1"),
-  crash: () => import("./views/crash.js?v=2.1.1"),
-  dice: () => import("./views/dice.js?v=2.1.1"),
-  mines: () => import("./views/mines.js?v=2.1.1"),
-  higher_lower: () => import("./views/higher-lower.js?v=2.1.1"),
-  plinko: () => import("./views/plinko.js?v=2.1.1"),
-  horse: () => import("./views/horse.js?v=2.1.1"),
-  rating: () => import("./views/rating.js?v=2.1.1"),
-  office: () => import("./views/office.js?v=2.1.1"),
-  history: () => import("./views/history.js?v=2.1.1"),
-  fairness: () => import("./views/fairness.js?v=2.1.1"),
-  profile: () => import("./views/profile.js?v=2.1.1"),
-  admin: () => import("./views/admin.js?v=2.1.1"),
+  lobby: () => import("./views/lobby.js?v=2.2.0"),
+  roulette: () => import("./views/roulette.js?v=2.2.0"),
+  blackjack: () => import("./views/blackjack.js?v=2.2.0"),
+  slots: () => import("./views/slots.js?v=2.2.0"),
+  crash: () => import("./views/crash.js?v=2.2.0"),
+  dice: () => import("./views/dice.js?v=2.2.0"),
+  mines: () => import("./views/mines.js?v=2.2.0"),
+  higher_lower: () => import("./views/higher-lower.js?v=2.2.0"),
+  plinko: () => import("./views/plinko.js?v=2.2.0"),
+  horse: () => import("./views/horse.js?v=2.2.0"),
+  rating: () => import("./views/rating.js?v=2.2.0"),
+  line: () => import("./views/line.js?v=2.2.0"),
+  office: () => import("./views/office.js?v=2.2.0"),
+  history: () => import("./views/history.js?v=2.2.0"),
+  fairness: () => import("./views/fairness.js?v=2.2.0"),
+  profile: () => import("./views/profile.js?v=2.2.0"),
+  admin: () => import("./views/admin.js?v=2.2.0"),
 };
 const ALIAS = { showroom: "office", games: "lobby", hilo: "higher_lower", businka: "slots", businka_slots: "slots" };
 const GAME_ROUTES = new Set(["roulette", "blackjack", "slots", "crash", "dice", "mines", "higher_lower", "plinko", "horse"]);
-const NAV = [["lobby", "Игры"], ["rating", "Рейтинг"], ["history", "История"], ["fairness", "Честность"], ["office", "Контора"]];
+const NAV = [["lobby", "Игры"], ["line", "Линия"], ["rating", "Рейтинг"], ["history", "История"], ["fairness", "Честность"], ["office", "Контора"]];
 
 export const app = {
   me: null,
@@ -72,7 +73,7 @@ function shell(active) {
     h("div", { class: "spacer" }),
     bal,
     h("a", { class: "avatar-btn", href: "#/profile", title: "Профиль", "aria-label": "Профиль" }, initials)));
-  const tabs = [["lobby","Игры","grid"],["rating","Рейтинг","trophy"],["office","Контора","office"],["history","История","history"],["profile","Профиль","user"]].map(([k, label, ic]) =>
+  const tabs = [["lobby","Игры","grid"],["line","Линия","trophy"],["rating","Рейтинг","history"],["office","Контора","office"],["profile","Профиль","user"]].map(([k, label, ic]) =>
     h("a", { href: "#/" + k, class: cur === k ? "active" : null }, icon(ic), label));
   const main = h("main", { class: "page", id: "main" });
   const tick = lines("office.ticker").sort(() => Math.random() - 0.5).slice(0, 12);   // cosmetic order only
@@ -97,7 +98,11 @@ async function route() {
     if (seq !== routeSeq) return;
     clear(main);
     app.cleanup = (await mod.mount(main, { app, sub, params })) || null;
-    if (GAME_ROUTES.has(key) && !main.querySelector(".game-switch") && main.firstElementChild) main.firstElementChild.prepend(switcher(key));
+    if (GAME_ROUTES.has(key) && !main.querySelector(".game-switch") && main.firstElementChild) {
+      const g = GAMES.find((x) => x.route === key), how = g ? howTo(g.slug) : null;
+      main.firstElementChild.prepend(switcher(key));
+      if (how) main.firstElementChild.querySelector(".game-head")?.after(how);
+    }
     window.scrollTo(0, 0);
   } catch (e) {
     console.error(e);

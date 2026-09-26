@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
-import { store } from "../ui.js?v=2.1.1";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
+import { store } from "../ui.js?v=2.2.0";
 
 // Display-only multiplier table (the server computes the exact payout).
 const mult = (m, k) => { let x = 0.97; for (let i = 0; i < k; i++) x *= (25 - i) / (25 - m - i); return k ? x : 1; };
@@ -108,7 +108,13 @@ export async function mount(root, { app }) {
     const ctx = st.phase === "BOOM" ? "mines.boom" : st.phase === "CLEARED" ? "mines.cleared" : "mines.cash";
     if (st.phase === "BOOM") { grid.classList.remove("shake"); void grid.offsetWidth; grid.classList.add("shake"); }
     settle(app, round, { ctx, memeEl, award: st.phase === "CASHED" ? "minesCash" : st.phase === "BOOM" && (st.revealed || []).length >= 5 ? "minesGreedy" : null });
-    clear(resultBox, resultTag(round));
+    const k = (st.revealed || []).length;
+    const why = st.phase === "BOOM"
+      ? `Мина в клетке №${Number(st.hit) + 1}. До неё вы открыли ${k} чист${k === 1 ? "ую" : "ых"}` + (k ? ` — можно было забрать ${fmt(st.cashoutValue)} ЛК.` : " — не повезло с первого клика.")
+      : st.phase === "CLEARED" ? `Все ${k} чистых клеток открыты — максимальный множитель ×${Number(st.multiplier).toFixed(2)}.`
+      : `Забрали после ${k} чист${k === 1 ? "ой клетки" : "ых клеток"} по множителю ×${Number(st.multiplier).toFixed(2)}.`;
+    clear(resultBox, resultTag(round, why));
+    flash(root.querySelector(".gk-stage"), round);
   }
   const resultBox = h("div");
 

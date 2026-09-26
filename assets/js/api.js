@@ -1,5 +1,5 @@
 // API layer. The browser is untrusted: it only sends intents; every number that matters comes back from the DB.
-import { SUPABASE_URL, SUPABASE_KEY } from "./config.js?v=2.1.1";
+import { SUPABASE_URL, SUPABASE_KEY } from "./config.js?v=2.2.0";
 
 export const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "luzbet2-auth" },
@@ -39,6 +39,13 @@ const MESSAGES = {
   cashout_unavailable: "Забирать пока нечего. Сначала хотя бы один успешный шаг.",
   too_early: "Слишком рано: множитель ещё ×1.00. Даже жадность должна подождать.",
   not_eligible: "Фонд помощи сейчас недоступен: баланс не так плох, кулдаун не прошёл или есть незавершённая игра.",
+  event_not_found: "Событие не найдено.",
+  betting_closed: "Приём ставок на это событие закрыт.",
+  creator_cannot_bet: "На собственное событие ставить нельзя — вы же его и рассчитываете.",
+  betting_still_open: "Приём ставок ещё идёт — рассчитать можно только после закрытия.",
+  invalid_title: "Название: 3–140 символов, описание — до 600.",
+  invalid_options: "Исходов должно быть от 2 до 8, каждый — 1–60 символов.",
+  invalid_close_time: "Закрытие ставок — не раньше чем через 5 минут и не позже чем через 60 дней.",
   rate_limited: "Слишком часто. Бухгалтерия не успевает записывать ваши решения.",
 };
 

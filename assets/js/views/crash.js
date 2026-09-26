@@ -1,6 +1,6 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
-import { rpc, sb } from "../api.js?v=2.1.1";
-import { store, reducedMotion } from "../ui.js?v=2.1.1";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
+import { rpc, sb } from "../api.js?v=2.2.0";
+import { store, reducedMotion } from "../ui.js?v=2.2.0";
 
 const K = 0.00006;                                  // same curve as the server: floor(100·e^(K·ms))/100
 const multAt = (ms) => Math.floor(100 * Math.exp(K * Math.max(0, ms))) / 100;
@@ -64,6 +64,14 @@ export async function mount(root, { app }) {
     drawCurve(Math.max(ms, 1), st.phase === "CRASHED" ? "CRASHED" : "CASHED");
     big.textContent = "×" + crashAt.toFixed(2);
     big.className = "cr-mult num " + (st.phase === "CASHED" ? "cashed" : "crashed");
+    if (st.phase === "CASHED") {           // mark where the player got out
+      const W = canvas.width, H = canvas.height, tMax = Math.max(8000, ms * 1.15), mMax = Math.max(2, multAt(tMax) * 1.05);
+      const co = Number(st.cashout), x = 50 + (Math.log(co) / K / tMax) * (W - 70), y = H - 40 - ((co - 1) / (mMax - 1)) * (H - 70);
+      ctx2d.setLineDash([8, 8]); ctx2d.strokeStyle = "#7fd29a"; ctx2d.lineWidth = 3;
+      ctx2d.beginPath(); ctx2d.moveTo(50, y); ctx2d.lineTo(W - 20, y); ctx2d.stroke(); ctx2d.setLineDash([]);
+      ctx2d.fillStyle = "#7fd29a"; ctx2d.beginPath(); ctx2d.arc(x, y, 9, 0, Math.PI * 2); ctx2d.fill();
+      ctx2d.font = "bold 22px Inter, sans-serif"; ctx2d.fillText("вы вышли ×" + co.toFixed(2), Math.min(x + 14, W - 230), y - 12);
+    }
     sub.textContent = st.phase === "CASHED" ? `Вы забрали на ×${Number(st.cashout).toFixed(2)} · крах был на ×${crashAt.toFixed(2)}` : `Крах на ×${crashAt.toFixed(2)}`;
   }
 
@@ -120,7 +128,13 @@ export async function mount(root, { app }) {
       ctx = m >= 10 ? "crash.moon" : m < 1.2 ? "crash.paper" : "crash.cash";
     } else if (crashAt <= 1) ctx = "crash.instant";
     settle(app, round, { ctx, vars, memeEl, award: st.phase === "CASHED" && Number(st.cashout) >= 10 ? "crashMoon" : st.phase === "CRASHED" && crashAt <= 1 ? "crashInstant" : null });
-    clear(resultBox, resultTag(round));
+    const why = st.phase === "CASHED"
+      ? `Вышли на ×${Number(st.cashout).toFixed(2)}, а курс рухнул только на ×${crashAt.toFixed(2)} — успели.`
+      : crashAt <= 1 ? "Мгновенный крах на ×1.00 — так бывает в 3% раундов, нажать ничего нельзя было."
+      : st.auto ? `Автовывод стоял на ×${Number(st.auto).toFixed(2)}, а крах случился раньше — на ×${crashAt.toFixed(2)}.`
+      : `Крах на ×${crashAt.toFixed(2)}, а кнопку «Забрать» не нажали до этого момента.`;
+    clear(resultBox, resultTag(round, why));
+    flash(root.querySelector(".gk-stage"), round);
     history();
   }
 

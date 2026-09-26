@@ -1,8 +1,8 @@
-import { rpc, sb, ApiError } from "../api.js?v=2.1.1";
-import { h, clear, fmt, signed, toast, store, newKey } from "../ui.js?v=2.1.1";
-import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.1.1";
-import { sfx } from "../sound.js?v=2.1.1";
-import { cardEl, bigWin } from "./shared.js?v=2.1.1";
+import { rpc, sb, ApiError } from "../api.js?v=2.2.0";
+import { h, clear, fmt, signed, toast, store, newKey } from "../ui.js?v=2.2.0";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.2.0";
+import { sfx } from "../sound.js?v=2.2.0";
+import { cardEl, bigWin } from "./shared.js?v=2.2.0";
 
 const CHIPS = [1, 5, 25, 100, 500, 1000];
 const RESULT = { win: "Выигрыш", lose: "Проигрыш", push: "Ничья", bust: "Перебор", blackjack: "Блэкджек" };
@@ -70,7 +70,8 @@ export async function mount(root, { app }) {
     if (st.holeHidden) dealer.push(cardEl(null, 0));
     clear(dealerCards, dealer);
     dealerTotal.textContent = st.holeHidden ? String(st.dealerTotal) + " + ?" : String(st.dealerTotal);
-    clear(handsEl, st.hands.map((hd, i) => h("div", { class: ["bj-hand", st.phase === "PLAYER_TURN" && i === st.active ? "active" : ""] },
+    clear(handsEl, st.hands.map((hd, i) => h("div", { class: ["bj-hand", st.phase === "PLAYER_TURN" && i === st.active ? "active" : "",
+        hd.result ? "res-" + ({ win: "win", blackjack: "win", push: "push", lose: "lose", bust: "lose" })[hd.result] : ""] },
       h("div", { class: "cards" }, hd.cards.map(mk)),
       h("div", { class: "row" },
         h("span", { class: "total-tag" }, (hd.soft && hd.total <= 21 ? "мягкие " : "") + hd.total),
@@ -81,8 +82,20 @@ export async function mount(root, { app }) {
   function finish() {
     const r = round, st = r.state;
     const net = r.payout - r.bet;
-    clear(outcome, h("div", {}, h("div", { class: ["big", net > 0 ? "win" : net < 0 ? "loss" : ""] }, (net > 0 ? "+" : "") + (net === 0 ? "0" : signed(net)) + " ЛК"),
-      h("div", { class: "muted", style: { fontSize: "13px" } }, `Ставка ${fmt(r.bet)} · выплата ${fmt(r.payout)}`)));
+    const dt = st.dealerTotal, dBust = dt > 21;
+    const explain = st.hands.map((x, i) => {
+      const who = st.hands.length > 1 ? `Рука ${i + 1}: ` : "";
+      if (x.result === "blackjack") return who + "блэкджек с раздачи — платим 3:2";
+      if (x.result === "bust") return who + `перебор (${x.total}) — рука сгорает сразу`;
+      if (x.result === "push") return who + `${x.total} против ${dt} — ничья, ставка вернулась`;
+      if (x.result === "win") return who + (dBust ? `дилер перебрал (${dt}) — вы выиграли` : `${x.total} против ${dt} у дилера — вы ближе к 21`);
+      return who + (x.total < dt ? `${x.total} против ${dt} у дилера — у дилера больше` : `${x.total} против ${dt}`);
+    });
+    clear(outcome, h("div", {}, h("div", { class: "gk-verdict " + (net > 0 ? "win" : net < 0 ? "loss" : "push") }, net > 0 ? "ВЫИГРЫШ" : net < 0 ? "ПРОИГРЫШ" : "ПРИ СВОИХ"),
+      h("div", { class: ["big", net > 0 ? "win" : net < 0 ? "loss" : ""] }, (net === 0 ? "0" : signed(net)) + " ЛК"),
+      h("div", { class: "muted", style: { fontSize: "13px" } }, `Ставка ${fmt(r.bet)} · выплата ${fmt(r.payout)}`),
+      h("ul", { class: "bj-explain" }, explain.map((t) => h("li", {}, t)))));
+    outcome.classList.remove("gk-flash-win", "gk-flash-loss"); void outcome.offsetWidth; if (net) outcome.classList.add(net > 0 ? "gk-flash-win" : "gk-flash-loss");
     const res = st.hands.map((x) => x.result);
     let ctx = outcomeContext({ bet: r.bet, payout: r.payout });
     if (res.includes("blackjack")) ctx = "bj.blackjack";

@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
-import { store, reducedMotion, sleep } from "../ui.js?v=2.1.1";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
+import { store, reducedMotion, sleep } from "../ui.js?v=2.2.0";
 
 export async function mount(root, { app }) {
   const rules = await currentRules("dice", { minBet: 1, maxBet: 7500, minChance: 2, maxChance: 95 });
@@ -28,7 +28,7 @@ export async function mount(root, { app }) {
   function setDir(v) { dir = v; store.set("dice-dir", v); under.className = "btn " + (v === "under" ? "primary" : ""); over.className = "btn " + (v === "over" ? "primary" : ""); sync(); }
   pct.addEventListener("input", sync);
 
-  const play = h("button", { class: "btn primary lg block", type: "button", onclick: () => roll() }, "ПЕРЕДАТЬ ДЕЛО В ОТДЕЛ ВЕРОЯТНОСТЕЙ");
+  const play = h("button", { class: "btn primary lg block", type: "button", onclick: () => roll() }, "Бросить кости");
   async function roll() {
     if (busy) return;
     const amount = bet.get();
@@ -45,7 +45,9 @@ export async function mount(root, { app }) {
     result.replaceChildren(h("span", {}, x.toFixed(2)), h("small", {}, won ? "ПОСТАНОВЛЕНИЕ: ВЫПЛАТИТЬ" : "ПОСТАНОВЛЕНИЕ: ОТКАЗАТЬ"));
     const ctx = won && chance <= 15 ? "dice.longshotWin" : !won && chance >= 80 ? "dice.safeLoss" : won ? "dice.win" : "dice.loss";
     settle(app, r, { ctx, memeEl, award: won && chance <= 15 ? "diceLong" : !won && chance >= 80 ? "diceSafeLoss" : null });
-    clear(resultBox, resultTag(r));
+    const need = dir === "under" ? `меньше ${chance.toFixed(2)}` : `не меньше ${(100 - chance).toFixed(2)}`;
+    clear(resultBox, resultTag(r, `Выпало ${x.toFixed(2)}, для выигрыша нужно было ${need} — ${won ? "попали в зелёную зону" : "мимо зелёной зоны"}.`));
+    flash(root.querySelector(".dice-stage"), r);
     busy = false; play.disabled = false;
   }
 

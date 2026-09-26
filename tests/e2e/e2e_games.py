@@ -117,7 +117,7 @@ async def main():
         await page.locator(".hr-card").nth(0).locator("button").first.click()
         await page.locator(".hr-card").nth(7).locator("button").first.click()
         b0 = bal()
-        await page.click("text=Принять ставку")
+        await page.click("button:has-text('Принять ставку')")
         await page.wait_for_selector(".hr-result", timeout=15000)
         r = last_round("horse")
         check("horse: 20 ЛК coupon on two horses settled", r[2] == 20 and bal() == b0 - 20 + r[3], (r[2], r[3], b0, bal()))
@@ -162,7 +162,7 @@ async def main():
         # ---------------- dice
         await page.goto(BASE + "/#/dice"); await page.wait_for_selector(".dice-range")
         await page.fill(".gk-bet-input", "10"); await page.press(".gk-bet-input", "Tab")
-        await page.click("text=ПЕРЕДАТЬ ДЕЛО"); await page.wait_for_selector(".dice-result.won, .dice-result.lost")
+        await page.click("text=Бросить кости"); await page.wait_for_selector(".dice-result.won, .dice-result.lost")
         r = last_round("dice")
         check("dice: roll shown equals server roll", (await page.locator(".dice-result span").inner_text()) == f"{r[4]['roll'] / 100:.2f}")
         await page.screenshot(path=f"{SHOTS}/g_dice.png", full_page=True)
@@ -183,6 +183,7 @@ async def main():
         await page.wait_for_selector(".sp-msg.bot:not(.typing) >> nth=1", timeout=5000)
         txt = await page.locator(".sp-msg.bot:not(.typing)").nth(1).inner_text()
         check("support bot answers fairness question honestly", "сид" in txt.lower() or "хеш" in txt.lower(), txt)
+        await page.click(".sp-panel header .icon-btn")
 
         # ---------------- reveal seed + verify every game in the browser
         await page.goto(BASE + "/#/fairness"); await page.click("text=Раскрыть сид и начать новый")
@@ -200,10 +201,36 @@ async def main():
         txt = await page.locator("tbody").inner_text()
         check("history lists new games with summaries", all(x in txt for x in ["Mines", "Crash", "Plinko", "Скачки", "Бусинка"]), txt[:200])
 
+        # ---------------- «Линия»: real tote bet through the UI + staff event from the back office
+        await page.goto(BASE + "/#/line"); await page.wait_for_selector(".ln-card")
+        b0 = bal()
+        card = page.locator(".ln-card").first
+        await card.locator(".ln-opt").first.click()
+        await card.locator(".ln-bet-row input").fill("50")
+        await card.locator("button:has-text('Поставить 50')").click()
+        await page.wait_for_selector(".toast.ok:has-text('Ставка принята')", timeout=8000)
+        nb = q("select count(*) from public.line_bets b join public.profiles p on p.id=b.user_id where p.username=%s", USER)[0][0]
+        check("line: bet placed through UI, balance -50, UI == DB", nb >= 1 and bal() == b0 - 50 and await ui_balance(page) == bal(), (nb, b0, bal()))
+        await page.goto(BASE + "/#/admin"); await page.click(".seg button:has-text('Линия')")
+        await page.wait_for_selector("text=Новое событие в линии")
+        await page.fill("input[placeholder^='Например']", "Придёт ли Вася вовремя (тест)")
+        await page.fill("input[placeholder^='Причина']", "e2e тест")
+        await page.click("button:has-text('Создать событие')")
+        await page.wait_for_selector(".toast.ok:has-text('Событие создано')", timeout=8000)
+        await page.goto(BASE + "/#/line"); await page.wait_for_selector("text=События от администрации")
+        check("line: staff event visible to players, creator cannot bet", await page.locator("text=Вы создали это событие").count() >= 1)
+        await page.screenshot(path=f"{SHOTS}/g_line.png", full_page=True)
+        await page.goto(BASE + "/#/lobby"); await page.wait_for_selector(".ln-teaser .ln-card")
+        check("lobby: line teaser shows real events", await page.locator(".ln-teaser .ln-card").count() >= 1)
+        # outcome explanations are shown after a round
+        await page.goto(BASE + "/#/dice"); await page.wait_for_selector(".dice-range")
+        await page.click("text=Бросить кости"); await page.wait_for_selector(".gk-result .gk-why")
+        check("dice: verdict explains the outcome", "нужно было" in (await page.locator(".gk-why").inner_text()))
+
         # ---------------- mobile pass: no horizontal scroll anywhere
         m = await browser.new_context(viewport={"width": 390, "height": 844}, storage_state=await ctx.storage_state())
         mp = await m.new_page()
-        for v in ["lobby", "mines", "crash", "plinko", "horse", "slots", "higher_lower", "dice", "office", "office/withdraw", "office/rules", "rating", "history", "profile", "fairness", "roulette", "blackjack"]:
+        for v in ["line", "lobby", "mines", "crash", "plinko", "horse", "slots", "higher_lower", "dice", "office", "office/withdraw", "office/rules", "rating", "history", "profile", "fairness", "roulette", "blackjack"]:
             await mp.goto(f"{BASE}/#/{v}"); await mp.wait_for_timeout(900)
             sw = await mp.evaluate("document.documentElement.scrollWidth")
             check(f"mobile 390px no horizontal scroll: {v}", sw <= 392, sw)

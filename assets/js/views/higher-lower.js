@@ -1,4 +1,4 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, errorToast, footnote, currentRules } from "./game-kit.js?v=2.1.1";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
 
 const rv = (v) => v === 14 ? "A" : v === 13 ? "K" : v === 12 ? "Q" : v === 11 ? "J" : String(v);
 const sv = (s) => ({ S: "♠", H: "♥", D: "♦", C: "♣" }[s] || s);
@@ -39,7 +39,12 @@ export async function mount(root, { app }) {
     }
     const s = round.state, o = s.options || {}, total = +o.total || 0, hi = +o.higher || 0, lo = +o.lower || 0, m = +s.multiplier || 1;
     caseNo.textContent = "ДЕЛО " + String(round.id || "").slice(0, 8).toUpperCase();
-    stage.append(h("div", { class: "hl-table-mark" }, "LUZBET • CARD DIVISION"), h("div", { class: "hl-card-shadow" }), card(s.current, true));
+    const big = card(s.current, true);
+    if (s.lastGuess) big.classList.add(s.won === false ? "hl-bad" : "hl-ok");
+    const prev = (s.history || []).length > 1 ? s.history[s.history.length - 2] : null;
+    stage.append(h("div", { class: "hl-table-mark" }, "LUZBET • CARD DIVISION"), h("div", { class: "hl-card-shadow" }), big,
+      s.lastGuess && prev ? h("div", { class: ["hl-verdict", s.won === false ? "bad" : "ok"] },
+        `${rv(prev.rank)}${sv(prev.suit)} → ${rv(s.current.rank)}${sv(s.current.suit)}: вы сказали «${s.lastGuess === "higher" ? "больше" : "меньше"}» — ${s.won === false ? "не угадали" : "угадали"}`) : "");
     if (!playing) {
       controls.append(resultBox,
         h("button", { class: "btn primary lg block", type: "button", onclick: () => { round = null; clear(resultBox); caseNo.textContent = "ДЕЛО ЗАКРЫТО"; draw(); } }, "Новое дело"));
@@ -87,7 +92,9 @@ export async function mount(root, { app }) {
       round = r.round; sfx.card();
       if (round.status === "finished") {
         status.textContent = "Прогноз отклонён. Карточный департамент выражает формальное сочувствие.";
-        settle(app, round, { ctx: "hl.loss", memeEl }); clear(resultBox, resultTag(round)); caseNo.textContent = "ДЕЛО ЗАКРЫТО";
+        settle(app, round, { ctx: "hl.loss", memeEl });
+        clear(resultBox, resultTag(round, `Серия оборвалась после ${round.state.wins} угадываний. Карта ${rv(round.state.current.rank)}${sv(round.state.current.suit)} решила иначе.`));
+        flash(root.querySelector(".hl-table"), round); caseNo.textContent = "ДЕЛО ЗАКРЫТО";
       } else {
         status.textContent = "Комиссия вынуждена признать: на этот раз вы были правы."; memeEl.textContent = meme("hl.win");
       }
@@ -101,7 +108,9 @@ export async function mount(root, { app }) {
     try {
       const r = await send("rpc_higher_lower_cashout", { p_round_id: round.id, p_idempotency_key: key("hc") });
       round = r.round;
-      settle(app, round, { ctx: "hl.cash", memeEl, award: "hlCash" }); clear(resultBox, resultTag(round));
+      settle(app, round, { ctx: "hl.cash", memeEl, award: "hlCash" });
+      clear(resultBox, resultTag(round, `Забрали после ${round.state.wins} угадываний подряд по множителю ×${Number(round.state.multiplier).toFixed(2)}.`));
+      flash(root.querySelector(".hl-table"), round);
       caseNo.textContent = "ДЕЛО ЗАКРЫТО С ПРИБЫЛЬЮ"; status.textContent = "Производство прекращено в связи с внезапным проявлением здравого смысла.";
     } catch (e) { errorToast(e); if (e.extra?.round) round = e.extra.round; }
     finally { busy = false; draw(); }
