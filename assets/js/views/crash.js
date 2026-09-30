@@ -1,6 +1,6 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.0";
-import { rpc, sb } from "../api.js?v=2.3.0";
-import { store, reducedMotion } from "../ui.js?v=2.3.0";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.1";
+import { rpc, sb } from "../api.js?v=2.3.1";
+import { store, reducedMotion } from "../ui.js?v=2.3.1";
 
 const K = 0.00006;                                  // same curve as the server: floor(100·e^(K·ms))/100
 const multAt = (ms) => Math.floor(100 * Math.exp(K * Math.max(0, ms))) / 100;
@@ -36,7 +36,7 @@ export async function mount(root, { app }) {
     if (ms <= 0) return;
     const crashed = state === "CRASHED";
     const grad = ctx2d.createLinearGradient(0, H, W, 0);
-    grad.addColorStop(0, crashed ? "#7a1c26" : "#8a6c2c"); grad.addColorStop(1, crashed ? "#d07a7a" : "#c9a44f");
+    grad.addColorStop(0, crashed ? "#7a1a2e" : "#9c6428"); grad.addColorStop(1, crashed ? "#c17d78" : "#dc9d54");
     ctx2d.beginPath(); ctx2d.moveTo(X(0), Y(1));
     const n = 120; for (let i = 1; i <= n; i++) { const t = (ms * i) / n; ctx2d.lineTo(X(t), Y(Math.exp(K * t))); }
     ctx2d.lineWidth = 6; ctx2d.strokeStyle = grad; ctx2d.lineCap = "round"; ctx2d.stroke();
