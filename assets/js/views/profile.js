@@ -1,9 +1,9 @@
-import { rpc, logout } from "../api.js?v=2.3.6";
-import { h, clear, fmt, toast, actionButton } from "../ui.js?v=2.3.6";
-import { soundSettings, sfx } from "../sound.js?v=2.3.6";
-import { passwordChangeDialog } from "../app.js?v=2.3.6";
-import { mfaCard, mfaStatus } from "./mfa.js?v=2.3.6";
-import { sessionAwards } from "../memes.js?v=2.3.6";
+import { rpc, logout } from "../api.js?v=2.3.7";
+import { h, clear, fmt, toast, actionButton } from "../ui.js?v=2.3.7";
+import { soundSettings, sfx } from "../sound.js?v=2.3.7";
+import { passwordChangeDialog } from "../app.js?v=2.3.7";
+import { mfaCard, mfaStatus } from "./mfa.js?v=2.3.7";
+import { sessionAwards } from "../memes.js?v=2.3.7";
 
 const ROLE = { player: "Игрок", moderator: "Модератор", admin: "Администратор", owner: "Владелец" };
 
