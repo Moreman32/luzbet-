@@ -1,7 +1,28 @@
-import { h, fmt } from "../ui.js?v=2.3.4";
-import { meme } from "../memes.js?v=2.3.4";
+import { h, fmt } from "../ui.js?v=2.3.5";
+import { meme } from "../memes.js?v=2.3.5";
 
 const BIG_WIN_IMAGES = ["assets/img/big-win.png", "assets/img/big-win1.png", "assets/img/big-win2.png"];
+const GAME_EMOJI = { roulette: "🎡", bj: "🃏", dice: "🎲", mines: "💣", crash: "🚀", slots: "🎰", plinko: "🔵", horse: "🐎", hl: "🔮" };
+
+// Rare (≈4% per round), purely cosmetic flourish shown after the real result is already credited —
+// same idea as bigWin() but tiny, quick, and can fire on a loss too. Silently does nothing if the
+// game has no "<game>.rareWin"/"<game>.rareLoss" lines in the meme catalog, so it's safe to call
+// from any game unconditionally.
+export function maybeFunnyEvent(game, net) {
+  if (!net || Math.random() >= 0.04) return;
+  const kind = net > 0 ? "rareWin" : "rareLoss";
+  const line = meme(`${game}.${kind}`);
+  if (!line) return;
+  const emoji = GAME_EMOJI[game] || "🎪";
+  const el = h("div", { class: ["funnyEvent", net > 0 ? "up" : "down"], role: "status" },
+    h("div", { class: "inner" },
+      h("div", { class: "emoji" }, emoji),
+      h("div", { class: "eyebrow" }, net > 0 ? "Особое мнение комиссии" : "Служебная записка"),
+      h("p", {}, line)));
+  el.addEventListener("click", () => el.remove());
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
 
 // Rare, dramatic, dismissible. Purely cosmetic: shown after the authoritative result is already credited.
 export function bigWin(amount) {

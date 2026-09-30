@@ -344,6 +344,17 @@ textarea.input { height: auto; padding: 12px 14px; min-height: 80px; resize: ver
 .bigwin .inner { text-align: center; display: grid; gap: 14px; justify-items: center; padding: var(--s-6); border: 6px double var(--burgundy-2); border-radius: var(--r-lg); transform: rotate(-2deg); background: rgba(17,21,29,.6); }
 .bigwin .amount { font: 800 clamp(38px, 8vw, 84px)/1 var(--f-display); color: var(--gold-2); font-variant-numeric: tabular-nums; text-shadow: 2px 2px 0 rgba(0,0,0,.5); }
 .bigwin img { max-height: 38vh; animation: pop .4s var(--ease); filter: sepia(.25) contrast(1.05); }
+/* Rare cosmetic win/loss flourish — smaller and faster than .bigwin, no dark backdrop, can fire on a loss. */
+.funnyEvent { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 96; cursor: pointer; max-width: min(340px, calc(100vw - 24px)); animation: fev-in .35s var(--ease); }
+.funnyEvent .inner { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: center; padding: 12px 16px; border-radius: var(--r-md); background: var(--surface-2); border: 2px solid var(--gold-3); box-shadow: var(--shadow-2); }
+.funnyEvent.down .inner { border-color: var(--burgundy-2); }
+.funnyEvent .emoji { grid-row: span 2; font-size: 30px; animation: fev-wobble 1.6s ease-in-out infinite; }
+.funnyEvent .eyebrow { font: 700 9.5px var(--f-mono); letter-spacing: .12em; color: var(--gold-3); text-transform: uppercase; }
+.funnyEvent.down .eyebrow { color: var(--loss); }
+.funnyEvent p { margin: 0; font-size: 13px; color: var(--text-2); }
+@keyframes fev-in { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes fev-wobble { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+@media (prefers-reduced-motion: reduce) { .funnyEvent, .funnyEvent .emoji { animation: none; } }
 @keyframes pop { from { transform: scale(.85) rotate(-6deg); opacity: 0; } }
 
 /* ---------- fairness ---------- */
@@ -366,11 +377,16 @@ pre.code { background: var(--bg-2); border: 1px solid var(--line-2); border-radi
 .gloss { border-bottom: 1px dotted var(--gold-3); cursor: help; position: relative; color: inherit; text-decoration: none; }
 .gloss:hover, .gloss:focus-visible { color: var(--gold-2); }
 .gloss[data-tip]:hover::after, .gloss[data-tip]:focus-visible::after {
-  content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
-  width: max-content; max-width: 240px; background: var(--bg-2); color: var(--text); border: 1px solid var(--gold-3);
+  content: attr(data-tip); position: absolute; left: 0; bottom: calc(100% + 8px);
+  width: max-content; max-width: min(240px, calc(100vw - 32px)); background: var(--bg-2); color: var(--text); border: 1px solid var(--gold-3);
   border-radius: var(--r-sm); padding: 8px 10px; font: 400 12.5px/1.4 var(--f-ui); text-transform: none; letter-spacing: 0;
-  box-shadow: var(--shadow-2); z-index: 50; white-space: normal; text-align: left;
+  box-shadow: var(--shadow-2); z-index: 50; white-space: normal; text-align: left; word-break: break-word;
 }
+/* terms sitting in the right half of a line would otherwise push the left-anchored tip off-screen right;
+   flip it to hang from the right edge of the term instead. Terms near the top of the viewport get the
+   tip flipped below instead of above. Both are toggled by JS in ui.js after measuring actual position. */
+.gloss[data-tip].gloss-r:hover::after, .gloss[data-tip].gloss-r:focus-visible::after { left: auto; right: 0; }
+.gloss[data-tip].gloss-top:hover::after, .gloss[data-tip].gloss-top:focus-visible::after { bottom: auto; top: calc(100% + 8px); }
 
 /* ---------- степпер верификатора ---------- */
 .fstep-list { display: grid; gap: 0; counter-reset: fstep; }
@@ -581,9 +597,13 @@ select.input { appearance: auto; }
 .hr-horse { font-size: 24px; transform: scaleX(-1); display: inline-block; transition: transform .18s ease; }
 .hr-runner.win .hr-horse { filter: drop-shadow(0 0 8px var(--gold)); }
 @keyframes hr-gallop { 0%, 100% { transform: scaleX(-1) translateY(0); } 50% { transform: scaleX(-1) translateY(-3px); } }
-.hr-track.racing .hr-runner:not(.spooked) .hr-horse { animation: hr-gallop .34s ease-in-out infinite; }
+.hr-track.racing .hr-runner:not(.spooked):not(.grazing):not(.turbo) .hr-horse { animation: hr-gallop .34s ease-in-out infinite; }
 .hr-runner.spooked .hr-horse { transform: scaleX(1) rotate(-8deg); filter: drop-shadow(0 0 6px rgba(161,42,60,.55)); }
-@media (prefers-reduced-motion: reduce) { .hr-track.racing .hr-runner .hr-horse { animation: none; } }
+@keyframes hr-nibble { 0%, 100% { transform: scaleX(-1) rotate(0) translateY(0); } 50% { transform: scaleX(-1) rotate(14deg) translateY(2px); } }
+.hr-runner.grazing .hr-horse { animation: hr-nibble .3s ease-in-out infinite; }
+@keyframes hr-turbo { 0%, 100% { transform: scaleX(-1) translateY(0); } 50% { transform: scaleX(-1) translateY(-5px); } }
+.hr-runner.turbo .hr-horse { animation: hr-turbo .14s ease-in-out infinite; filter: drop-shadow(0 0 8px var(--gold-2)); }
+@media (prefers-reduced-motion: reduce) { .hr-runner .hr-horse { animation: none !important; } }
 .hr-finish { position: absolute; right: 7%; top: -4px; bottom: -4px; width: 4px; background: repeating-linear-gradient(180deg, #fff 0 4px, #111 4px 8px); opacity: .6; }
 .hr-no { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 2px; color: #111; font: 800 12px/1 var(--f-ui); flex: none; }
 .hr-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-top: 10px; }

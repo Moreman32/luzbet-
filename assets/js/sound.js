@@ -1,5 +1,5 @@
 // Tiny synthesized sound manager (no audio files, no autoplay before user interaction).
-import { store } from "./ui.js?v=2.3.4";
+import { store } from "./ui.js?v=2.3.5";
 
 let ctx = null;
 const state = { muted: store.get("muted", false), volume: store.get("volume", 0.5) };

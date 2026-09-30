@@ -1,6 +1,6 @@
-import { h, clear, fmt, toast, sfx, meme, head, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.4";
-import { store, reducedMotion, signed } from "../ui.js?v=2.3.4";
-import { HORSES } from "../memes-office.js?v=2.3.4";
+import { h, clear, fmt, toast, sfx, meme, head, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.5";
+import { store, reducedMotion, signed } from "../ui.js?v=2.3.5";
+import { HORSES } from "../memes-office.js?v=2.3.5";
 
 const FALLBACK_W = [300, 200, 150, 120, 90, 70, 45, 25];
 
@@ -50,19 +50,25 @@ export async function mount(root, { app }) {
     board.querySelectorAll(".hr-card").forEach((c, i) => c.classList.toggle("on", !!stakes[i]));
   }
 
+  const QUIRK_CLASS = { spook: "spooked", graze: "grazing", turbo: "turbo" };
   async function animate(order) {
-    runners.forEach((r) => { r.style.transition = "none"; r.style.left = "0%"; r.classList.remove("win", "spooked"); delete r.dataset.spookShown; });
+    runners.forEach((r) => { r.style.transition = "none"; r.style.left = "0%"; r.classList.remove("win", "spooked", "grazing", "turbo"); delete r.dataset.quirkShown; });
     void lanes.offsetWidth;
     if (reducedMotion()) { order.forEach((hIdx, place) => { runners[hIdx].style.left = (88 - place * 5) + "%"; }); return; }
     // cosmetic race only: final positions always follow the server's finishing order (`order`).
-    // Everything below — pacing, wobble, the rare "spooked" horse bolting off-track — is visual flavor
-    // driven by requestAnimationFrame for smooth motion; it never changes who actually won.
+    // Everything below — pacing, wobble, and the rare per-horse "quirk" (spooks backward off-track,
+    // stops to graze, or bursts forward) — is visual flavor driven by requestAnimationFrame for
+    // smooth motion; it never changes who actually won.
     const place = new Map(order.map((hIdx, p) => [hIdx, p]));
     const DURATION = 4300;
     const phase = runners.map(() => Math.random() * Math.PI * 2);
-    const spook = runners.map(() => Math.random() < 0.05); // 5% chance per horse, cosmetic only
-    const spookAt = runners.map(() => 0.22 + Math.random() * 0.4);
-    const spookLen = runners.map(() => 0.1 + Math.random() * 0.08);
+    const quirk = runners.map(() => { // ~3% chance each, mutually exclusive, cosmetic only
+      const roll = Math.random();
+      return roll < 0.03 ? "spook" : roll < 0.06 ? "graze" : roll < 0.09 ? "turbo" : null;
+    });
+    const qAt = runners.map(() => 0.2 + Math.random() * 0.42);
+    const qLen = runners.map(() => 0.1 + Math.random() * 0.08);
+    const grazeFrozen = new Array(runners.length).fill(null);
     lanes.classList.add("racing");
     await new Promise((resolve) => {
       const t0 = performance.now();
@@ -73,19 +79,27 @@ export async function mount(root, { app }) {
         runners.forEach((r, i) => {
           const target = 88 - place.get(i) * 5;
           let x = ease * target + Math.sin(tt * 11 + phase[i]) * (3.5 * (1 - tt));
-          if (spook[i] && tt >= spookAt[i] && tt < spookAt[i] + spookLen[i]) {
-            const bolt = Math.sin(((tt - spookAt[i]) / spookLen[i]) * Math.PI);
-            x -= bolt * 34;
-            if (!r.classList.contains("spooked")) {
-              r.classList.add("spooked");
-              if (!r.dataset.spookShown) {
-                r.dataset.spookShown = "1";
-                memeEl.textContent = `«${names[i] || HORSES[i].name}» ${meme("horse.spook")}`;
-                sfx.error();
+          const q = quirk[i], active = q && tt >= qAt[i] && tt < qAt[i] + qLen[i];
+          if (active) {
+            const lt = (tt - qAt[i]) / qLen[i];
+            if (q === "spook") { x -= Math.sin(lt * Math.PI) * 34; }
+            else if (q === "turbo") { x = Math.min(92, x + Math.sin(lt * Math.PI) * 14); }
+            else if (q === "graze") {
+              if (grazeFrozen[i] === null) grazeFrozen[i] = x;
+              x = grazeFrozen[i] + (x - grazeFrozen[i]) * (lt * lt); // eases from frozen back onto the curve — no teleport
+            }
+            const cls = QUIRK_CLASS[q];
+            if (!r.classList.contains(cls)) {
+              r.classList.add(cls);
+              if (!r.dataset.quirkShown) {
+                r.dataset.quirkShown = "1";
+                memeEl.textContent = `«${names[i] || HORSES[i].name}» ${meme("horse." + q)}`;
+                if (q === "spook") sfx.error(); else sfx.tick();
               }
             }
-          } else if (r.classList.contains("spooked")) {
-            r.classList.remove("spooked");
+          } else {
+            const cls = q && QUIRK_CLASS[q];
+            if (cls && r.classList.contains(cls)) r.classList.remove(cls);
           }
           r.style.left = Math.max(-18, x) + "%";
         });
@@ -95,7 +109,7 @@ export async function mount(root, { app }) {
       requestAnimationFrame(frame);
     });
     lanes.classList.remove("racing");
-    runners.forEach((r, i) => { r.classList.remove("spooked"); r.style.left = (88 - place.get(i) * 5) + "%"; });
+    runners.forEach((r, i) => { r.classList.remove("spooked", "grazing", "turbo"); r.style.left = (88 - place.get(i) * 5) + "%"; });
     runners[order[0]].classList.add("win");
   }
 

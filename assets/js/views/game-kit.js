@@ -1,9 +1,9 @@
 // Shared building blocks for game views. Cosmetic + transport only: every number that matters comes from the server.
-import { rpc, sb, ApiError } from "../api.js?v=2.3.4";
-import { h, clear, fmt, signed, toast, store, newKey, sleep } from "../ui.js?v=2.3.4";
-import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.4";
-import { sfx } from "../sound.js?v=2.3.4";
-import { bigWin } from "./shared.js?v=2.3.4";
+import { rpc, sb, ApiError } from "../api.js?v=2.3.5";
+import { h, clear, fmt, signed, toast, store, newKey, sleep } from "../ui.js?v=2.3.5";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.5";
+import { sfx } from "../sound.js?v=2.3.5";
+import { bigWin, maybeFunnyEvent } from "./shared.js?v=2.3.5";
 
 export const GAMES = [
   { slug: "roulette", route: "roulette", name: "Рулетка", short: "Рулетка", emoji: "🎡", tag: "97,3%", desc: "Один ноль, 37 чисел и бесконечная вера в красное." },
@@ -92,6 +92,7 @@ export function settle(app, round, { ctx, vars = {}, award = null, memeEl = null
   if (toastIt) toast(line, net > 0 ? "ok" : "");
   if (net > 0) (base === "win.big" ? sfx.bigWin : sfx.win)(); else if (net < 0) sfx.loss();
   if (base === "win.big") bigWin(round.payout);
+  else maybeFunnyEvent(useCtx.split(".")[0], net);
   if (round.balance === 67) toast(meme("balance67"));
   return { net, line, ctx: useCtx };
 }

@@ -1,8 +1,8 @@
-import { rpc, sb, ApiError } from "../api.js?v=2.3.4";
-import { h, clear, fmt, signed, toast, store, newKey } from "../ui.js?v=2.3.4";
-import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.4";
-import { sfx } from "../sound.js?v=2.3.4";
-import { cardEl, bigWin } from "./shared.js?v=2.3.4";
+import { rpc, sb, ApiError } from "../api.js?v=2.3.5";
+import { h, clear, fmt, signed, toast, store, newKey } from "../ui.js?v=2.3.5";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.5";
+import { sfx } from "../sound.js?v=2.3.5";
+import { cardEl, bigWin, maybeFunnyEvent } from "./shared.js?v=2.3.5";
 
 const CHIPS = [1, 5, 25, 100, 500, 1000];
 const RESULT = { win: "Выигрыш", lose: "Проигрыш", push: "Ничья", bust: "Перебор", blackjack: "Блэкджек" };
@@ -106,7 +106,7 @@ export async function mount(root, { app }) {
     memeEl.textContent = sessionMeme({won:net>0,lost:net<0,balance:r.balance,award:ctx==="bj.bust22"?"bust22":null}) || meme(ctx, { win: r.payout });
     app.setBalance(r.balance);
     if (net > 0) (ctx === "win.big" ? sfx.bigWin : sfx.win)(); else if (net < 0) sfx.loss();
-    if (ctx === "win.big") bigWin(r.payout);
+    if (ctx === "win.big") bigWin(r.payout); else maybeFunnyEvent("bj", net);
   }
 
   function apply(r) {

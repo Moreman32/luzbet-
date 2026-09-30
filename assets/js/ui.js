@@ -102,6 +102,21 @@ export const store = {
 
 export const reducedMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Glossary tooltips (.gloss[data-tip]) are positioned in CSS, but a term near the edge of a narrow
+// card would otherwise push a centered/left-anchored tip off-screen and clip its text. On hover/focus
+// we measure the term's real position and flip it right- or bottom-anchored via a class when needed.
+function positionGloss(e) {
+  const el = e.target.closest && e.target.closest(".gloss[data-tip]");
+  if (!el) return;
+  requestAnimationFrame(() => {
+    const r = el.getBoundingClientRect();
+    el.classList.toggle("gloss-r", r.left + 240 > window.innerWidth - 8);
+    el.classList.toggle("gloss-top", r.top < 140);
+  });
+}
+document.addEventListener("mouseover", positionGloss, true);
+document.addEventListener("focusin", positionGloss, true);
 export function newKey(prefix) {
   const b = new Uint8Array(12); crypto.getRandomValues(b);
   return prefix + "-" + [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
