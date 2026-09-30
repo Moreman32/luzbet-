@@ -1,28 +1,28 @@
-import { sb, rpc, login, logout, ApiError } from "./api.js?v=2.3.1";
-import { h, clear, icon, fmt, toast, modal, actionButton } from "./ui.js?v=2.3.1";
-import { meme, lines } from "./memes.js?v=2.3.1";
-import { supportButton } from "./support.js?v=2.3.1";
-import { switcher, howTo, GAMES } from "./views/game-kit.js?v=2.3.1";
-import { sfx } from "./sound.js?v=2.3.1";
+import { sb, rpc, login, logout, ApiError } from "./api.js?v=2.3.2";
+import { h, clear, icon, fmt, toast, modal, actionButton } from "./ui.js?v=2.3.2";
+import { meme, lines } from "./memes.js?v=2.3.2";
+import { supportButton } from "./support.js?v=2.3.2";
+import { switcher, howTo, GAMES } from "./views/game-kit.js?v=2.3.2";
+import { sfx } from "./sound.js?v=2.3.2";
 
 const VIEWS = {
-  lobby: () => import("./views/lobby.js?v=2.3.1"),
-  roulette: () => import("./views/roulette.js?v=2.3.1"),
-  blackjack: () => import("./views/blackjack.js?v=2.3.1"),
-  slots: () => import("./views/slots.js?v=2.3.1"),
-  crash: () => import("./views/crash.js?v=2.3.1"),
-  dice: () => import("./views/dice.js?v=2.3.1"),
-  mines: () => import("./views/mines.js?v=2.3.1"),
-  higher_lower: () => import("./views/higher-lower.js?v=2.3.1"),
-  plinko: () => import("./views/plinko.js?v=2.3.1"),
-  horse: () => import("./views/horse.js?v=2.3.1"),
-  rating: () => import("./views/rating.js?v=2.3.1"),
-  line: () => import("./views/line.js?v=2.3.1"),
-  office: () => import("./views/office.js?v=2.3.1"),
-  history: () => import("./views/history.js?v=2.3.1"),
-  fairness: () => import("./views/fairness.js?v=2.3.1"),
-  profile: () => import("./views/profile.js?v=2.3.1"),
-  admin: () => import("./views/admin.js?v=2.3.1"),
+  lobby: () => import("./views/lobby.js?v=2.3.2"),
+  roulette: () => import("./views/roulette.js?v=2.3.2"),
+  blackjack: () => import("./views/blackjack.js?v=2.3.2"),
+  slots: () => import("./views/slots.js?v=2.3.2"),
+  crash: () => import("./views/crash.js?v=2.3.2"),
+  dice: () => import("./views/dice.js?v=2.3.2"),
+  mines: () => import("./views/mines.js?v=2.3.2"),
+  higher_lower: () => import("./views/higher-lower.js?v=2.3.2"),
+  plinko: () => import("./views/plinko.js?v=2.3.2"),
+  horse: () => import("./views/horse.js?v=2.3.2"),
+  rating: () => import("./views/rating.js?v=2.3.2"),
+  line: () => import("./views/line.js?v=2.3.2"),
+  office: () => import("./views/office.js?v=2.3.2"),
+  history: () => import("./views/history.js?v=2.3.2"),
+  fairness: () => import("./views/fairness.js?v=2.3.2"),
+  profile: () => import("./views/profile.js?v=2.3.2"),
+  admin: () => import("./views/admin.js?v=2.3.2"),
 };
 const ALIAS = { showroom: "office", games: "lobby", hilo: "higher_lower", businka: "slots", businka_slots: "slots" };
 const GAME_ROUTES = new Set(["roulette", "blackjack", "slots", "crash", "dice", "mines", "higher_lower", "plinko", "horse"]);
@@ -68,7 +68,7 @@ function shell(active) {
   if (["admin", "owner"].includes(app.me.role)) nav.push(h("a", { href: "#/admin", class: active === "admin" ? "active" : null }, "Бэк-офис"));
   const initials = (app.me.displayName || app.me.username || "?").trim().slice(0, 1).toUpperCase();
   const header = h("header", { class: "hdr" }, h("div", { class: "container" },
-    h("a", { class: "logo", href: "#/lobby", "aria-label": "LuzBet" }, "ЛУЗ", h("b", {}, "БЕТ"), h("small", {}, "2.0")),
+    h("a", { class: "logo", href: "#/lobby", "aria-label": "LuzBet" }, "ЛУЗ", h("b", {}, "БЕТ"), h("small", {}, "КОНТОРА")),
     h("nav", { class: "nav", "aria-label": "Главное меню" }, nav),
     h("div", { class: "spacer" }),
     bal,

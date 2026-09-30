@@ -1,9 +1,9 @@
-import { rpc } from "../api.js?v=2.3.1";
-import { h, clear, fmt, signed, toast, actionButton, dt } from "../ui.js?v=2.3.1";
-import { meme, pick } from "../memes.js?v=2.3.1";
-import { sfx } from "../sound.js?v=2.3.1";
-import { GAMES } from "./game-kit.js?v=2.3.1";
-import { eventCard } from "./line.js?v=2.3.1";
+import { rpc } from "../api.js?v=2.3.2";
+import { h, clear, fmt, signed, toast, actionButton, dt } from "../ui.js?v=2.3.2";
+import { meme, pick } from "../memes.js?v=2.3.2";
+import { sfx } from "../sound.js?v=2.3.2";
+import { GAMES } from "./game-kit.js?v=2.3.2";
+import { eventCard } from "./line.js?v=2.3.2";
 
 const ART = {
   roulette: "🎡", blackjack: "🂡", businka_slots: "🐈", crash: "📈", dice: "🎲", mines: "💣", higher_lower: "⇅", plinko: "🔻", horse: "🐎",

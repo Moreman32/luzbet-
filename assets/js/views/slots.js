@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.1";
-import { reducedMotion, sleep } from "../ui.js?v=2.3.1";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.2";
+import { reducedMotion, sleep } from "../ui.js?v=2.3.2";
 
 const SYM = [
   { e: "🐾", n: "Лапа (WILD)" }, { e: "🧶", n: "Клубок (SCATTER)" }, { e: "🐈", n: "Бусинка" }, { e: "👑", n: "Корона" },
