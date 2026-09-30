@@ -574,12 +574,16 @@ select.input { appearance: auto; }
 /* ---------- Horse racing ---------- */
 .hr-stage { padding: var(--s-4); }
 .hr-track { display: grid; gap: 4px; background: repeating-linear-gradient(90deg, transparent 0 48px, rgba(255,255,255,.025) 48px 50px), linear-gradient(180deg, #132523, #0e1c1a);
-  border-radius: var(--r-md); padding: 10px; border: 1px solid #21413d; }
+  border-radius: var(--r-md); padding: 10px; border: 1px solid #21413d; overflow: hidden; }
 .hr-lane { position: relative; height: 34px; border-bottom: 1px dashed rgba(255,255,255,.08); }
 .hr-lane-name { position: absolute; left: 64px; top: 50%; transform: translateY(-50%); font-size: 11px; color: rgba(255,255,255,.28); white-space: nowrap; }
 .hr-runner { position: absolute; top: 2px; display: flex; align-items: center; gap: 2px; z-index: 1; }
-.hr-horse { font-size: 24px; transform: scaleX(-1); display: inline-block; }
+.hr-horse { font-size: 24px; transform: scaleX(-1); display: inline-block; transition: transform .18s ease; }
 .hr-runner.win .hr-horse { filter: drop-shadow(0 0 8px var(--gold)); }
+@keyframes hr-gallop { 0%, 100% { transform: scaleX(-1) translateY(0); } 50% { transform: scaleX(-1) translateY(-3px); } }
+.hr-track.racing .hr-runner:not(.spooked) .hr-horse { animation: hr-gallop .34s ease-in-out infinite; }
+.hr-runner.spooked .hr-horse { transform: scaleX(1) rotate(-8deg); filter: drop-shadow(0 0 6px rgba(161,42,60,.55)); }
+@media (prefers-reduced-motion: reduce) { .hr-track.racing .hr-runner .hr-horse { animation: none; } }
 .hr-finish { position: absolute; right: 7%; top: -4px; bottom: -4px; width: 4px; background: repeating-linear-gradient(180deg, #fff 0 4px, #111 4px 8px); opacity: .6; }
 .hr-no { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 2px; color: #111; font: 800 12px/1 var(--f-ui); flex: none; }
 .hr-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-top: 10px; }

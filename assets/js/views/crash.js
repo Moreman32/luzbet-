@@ -1,6 +1,6 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.3";
-import { rpc, sb } from "../api.js?v=2.3.3";
-import { store, reducedMotion } from "../ui.js?v=2.3.3";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.4";
+import { rpc, sb } from "../api.js?v=2.3.4";
+import { store, reducedMotion } from "../ui.js?v=2.3.4";
 
 const K = 0.00006;                                  // same curve as the server: floor(100·e^(K·ms))/100
 const multAt = (ms) => Math.floor(100 * Math.exp(K * Math.max(0, ms))) / 100;

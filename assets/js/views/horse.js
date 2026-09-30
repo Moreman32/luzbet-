@@ -1,6 +1,6 @@
-import { h, clear, fmt, toast, sfx, meme, head, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.3";
-import { store, reducedMotion, sleep, signed } from "../ui.js?v=2.3.3";
-import { HORSES } from "../memes-office.js?v=2.3.3";
+import { h, clear, fmt, toast, sfx, meme, head, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.4";
+import { store, reducedMotion, signed } from "../ui.js?v=2.3.4";
+import { HORSES } from "../memes-office.js?v=2.3.4";
 
 const FALLBACK_W = [300, 200, 150, 120, 90, 70, 45, 25];
 
@@ -51,21 +51,51 @@ export async function mount(root, { app }) {
   }
 
   async function animate(order) {
-    runners.forEach((r) => { r.style.transition = "none"; r.style.left = "0%"; r.classList.remove("win"); });
+    runners.forEach((r) => { r.style.transition = "none"; r.style.left = "0%"; r.classList.remove("win", "spooked"); delete r.dataset.spookShown; });
     void lanes.offsetWidth;
     if (reducedMotion()) { order.forEach((hIdx, place) => { runners[hIdx].style.left = (88 - place * 5) + "%"; }); return; }
-    // cosmetic race: positions follow the server's finishing order; jitter is visual only
+    // cosmetic race only: final positions always follow the server's finishing order (`order`).
+    // Everything below — pacing, wobble, the rare "spooked" horse bolting off-track — is visual flavor
+    // driven by requestAnimationFrame for smooth motion; it never changes who actually won.
     const place = new Map(order.map((hIdx, p) => [hIdx, p]));
-    const steps = 9;
-    for (let s = 1; s <= steps; s++) {
-      runners.forEach((r, i) => {
-        const p = place.get(i), base = (s / steps) * (88 - p * 5);
-        const wobble = s < steps ? (Math.sin(i * 7.3 + s * 1.7) * 4) : 0;
-        r.style.transition = "left 480ms cubic-bezier(.3,.6,.4,1)";
-        r.style.left = Math.max(0, base + wobble) + "%";
-      });
-      sfx.tick(); await sleep(480);
-    }
+    const DURATION = 4300;
+    const phase = runners.map(() => Math.random() * Math.PI * 2);
+    const spook = runners.map(() => Math.random() < 0.05); // 5% chance per horse, cosmetic only
+    const spookAt = runners.map(() => 0.22 + Math.random() * 0.4);
+    const spookLen = runners.map(() => 0.1 + Math.random() * 0.08);
+    lanes.classList.add("racing");
+    await new Promise((resolve) => {
+      const t0 = performance.now();
+      let lastTick = t0;
+      function frame(now) {
+        const tt = Math.min(1, (now - t0) / DURATION);
+        const ease = 1 - Math.pow(1 - tt, 3);
+        runners.forEach((r, i) => {
+          const target = 88 - place.get(i) * 5;
+          let x = ease * target + Math.sin(tt * 11 + phase[i]) * (3.5 * (1 - tt));
+          if (spook[i] && tt >= spookAt[i] && tt < spookAt[i] + spookLen[i]) {
+            const bolt = Math.sin(((tt - spookAt[i]) / spookLen[i]) * Math.PI);
+            x -= bolt * 34;
+            if (!r.classList.contains("spooked")) {
+              r.classList.add("spooked");
+              if (!r.dataset.spookShown) {
+                r.dataset.spookShown = "1";
+                memeEl.textContent = `«${names[i] || HORSES[i].name}» ${meme("horse.spook")}`;
+                sfx.error();
+              }
+            }
+          } else if (r.classList.contains("spooked")) {
+            r.classList.remove("spooked");
+          }
+          r.style.left = Math.max(-18, x) + "%";
+        });
+        if (now - lastTick > 460) { sfx.tick(); lastTick = now; }
+        if (tt < 1) requestAnimationFrame(frame); else resolve();
+      }
+      requestAnimationFrame(frame);
+    });
+    lanes.classList.remove("racing");
+    runners.forEach((r, i) => { r.classList.remove("spooked"); r.style.left = (88 - place.get(i) * 5) + "%"; });
     runners[order[0]].classList.add("win");
   }
 

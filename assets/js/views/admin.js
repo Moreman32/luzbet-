@@ -1,7 +1,7 @@
-import { rpc, admin } from "../api.js?v=2.3.3";
-import { h, clear, fmt, signed, dt, toast, modal, drawer, actionButton, newKey } from "../ui.js?v=2.3.3";
-import { mfaCard } from "./mfa.js?v=2.3.3";
-import { roundSummary } from "./history.js?v=2.3.3";
+import { rpc, admin } from "../api.js?v=2.3.4";
+import { h, clear, fmt, signed, dt, toast, modal, drawer, actionButton, newKey } from "../ui.js?v=2.3.4";
+import { mfaCard } from "./mfa.js?v=2.3.4";
+import { roundSummary } from "./history.js?v=2.3.4";
 
 const ROLE = { player: "Игрок", moderator: "Модератор", admin: "Админ", owner: "Владелец" };
 const TX = { opening: "Стартовый баланс", bet: "Ставка", payout: "Выплата", refund: "Возврат", bonus: "Бонус", cashback: "Кэшбэк", jackpot: "Джекпот", achievement: "Достижение", admin_adjustment: "Корректировка" };

@@ -1,9 +1,9 @@
-import { sb, rpc } from "../api.js?v=2.3.3";
-import { h, clear, fmt, dt, toast, actionButton, sleep, reducedMotion } from "../ui.js?v=2.3.3";
-import { meme } from "../memes.js?v=2.3.3";
+import { sb, rpc } from "../api.js?v=2.3.4";
+import { h, clear, fmt, dt, toast, actionButton, sleep, reducedMotion } from "../ui.js?v=2.3.4";
+import { meme } from "../memes.js?v=2.3.4";
 import { sha256hex, rouletteNumber, shuffle, blackjackReplay, roulettePayout, colorOf,
-  diceReplay, minesPositions, minesPayout, crashPoint, plinkoReplay, horseReplay, slotsReplay, hlReplay } from "../fair.js?v=2.3.3";
-import { cardLabel } from "./shared.js?v=2.3.3";
+  diceReplay, minesPositions, minesPayout, crashPoint, plinkoReplay, horseReplay, slotsReplay, hlReplay } from "../fair.js?v=2.3.4";
+import { cardLabel } from "./shared.js?v=2.3.4";
 
 // ---------- жаргон на человеческий: наводишь курсор/палец — получаешь перевод ----------
 const GLOSSARY = [
