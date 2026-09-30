@@ -1,7 +1,7 @@
 // «Поддержка 24/7*» — a canned-answer bot that openly admits being one. Purely client-side, sends nothing anywhere.
-import { h, fmt, icon } from "./ui.js?v=2.3.2";
-import { meme } from "./memes.js?v=2.3.2";
-import { sfx } from "./sound.js?v=2.3.2";
+import { h, fmt, icon } from "./ui.js?v=2.3.3";
+import { meme } from "./memes.js?v=2.3.3";
+import { sfx } from "./sound.js?v=2.3.3";
 
 let panel = null, ticket = 0;
 

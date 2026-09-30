@@ -1,5 +1,5 @@
-import { h, fmt } from "../ui.js?v=2.3.2";
-import { meme } from "../memes.js?v=2.3.2";
+import { h, fmt } from "../ui.js?v=2.3.3";
+import { meme } from "../memes.js?v=2.3.3";
 
 const BIG_WIN_IMAGES = ["assets/img/big-win.png", "assets/img/big-win1.png", "assets/img/big-win2.png"];
 

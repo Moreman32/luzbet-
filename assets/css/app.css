@@ -166,7 +166,7 @@ main.page { padding: var(--s-6) 0 var(--s-8); min-height: calc(100dvh - var(--he
 .btn.ghost:hover:not(:disabled) { background: var(--surface); border-color: var(--line); }
 .btn.lg { --h: 54px; font-size: 15px; padding: 0 28px; }
 .btn.sm { --h: 34px; padding: 0 12px; font-size: 12px; }
-.btn.block { width: 100%; }
+.btn.block { width: 100%; white-space: normal; text-align: center; line-height: 1.25; }
 .btn .spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: rot .7s linear infinite; }
 @keyframes rot { to { transform: rotate(360deg); } }
 
