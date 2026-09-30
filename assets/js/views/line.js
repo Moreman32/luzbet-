@@ -1,8 +1,9 @@
 // «Линия» — real pari-mutuel (tote) betting. The server holds the pools, closes betting and settles; this view only shows
 // the numbers it gets back and sends intents.
-import { rpc } from "../api.js?v=2.2.0";
-import { h, clear, fmt, signed, toast, store, newKey, dt } from "../ui.js?v=2.2.0";
-import { sfx } from "../sound.js?v=2.2.0";
+import { rpc } from "../api.js?v=2.3.0";
+import { h, clear, fmt, signed, toast, store, newKey, dt } from "../ui.js?v=2.3.0";
+import { sfx } from "../sound.js?v=2.3.0";
+import { meme } from "../memes.js?v=2.3.0";
 
 const TABS = [["open", "Приём ставок"], ["live", "Идёт подсчёт"], ["settled", "Результаты"], ["mine", "Мои ставки"]];
 let offset = 0;                                         // server clock − local clock
@@ -70,7 +71,7 @@ export function eventCard(e, { app, onChange, compact = false } = {}) {
     try {
       const r = await rpc("rpc_line_bet", { p_event: e.id, p_option: pick, p_amount: x, p_idempotency_key: newKey("ln") });
       app.setBalance(r.balance); sfx.cash();
-      toast(`Ставка принята: ${fmt(x)} ЛК на «${e.options[pick].label}». Букмекер уже прикидывает, как вам это объяснить.`, "ok");
+      toast(`Ставка принята: ${fmt(x)} ЛК на «${e.options[pick].label}». ${meme("line.bet")}`, "ok");
       onChange && onChange(r.event);
     } catch (err) { toast(err.message, "error"); sfx.error(); betBtn.disabled = false; }
   });
@@ -86,6 +87,8 @@ export function eventCard(e, { app, onChange, compact = false } = {}) {
     `${fmt(b.amount)} ЛК на «${e.options[b.option]?.label}» — `,
     b.status === "open" ? "ждём итог" : b.status === "won" ? h("b", { class: "win" }, `выигрыш ${fmt(b.payout)} (${signed(b.payout - b.amount)})`)
       : b.status === "refunded" ? h("span", {}, `возврат ${fmt(b.payout)}`) : h("span", { class: "loss" }, "не сыграла")));
+  const settledMine = (e.mine || []).find((b) => b.status !== "open");
+  const mineMeme = settledMine ? h("p", { class: "meme-line" }, meme(settledMine.status === "won" ? "line.win" : settledMine.status === "refunded" ? "line.refund" : "line.loss")) : null;
 
   card.append(...[
     h("div", { class: "ln-top" }, h("span", { class: ["badge", e.kind === "auto" ? "" : "gold"] }, e.kind === "auto" ? "АВТО" : "ОТ АДМИНИСТРАЦИИ"), h("div", { class: "spacer" }), status),
@@ -98,6 +101,7 @@ export function eventCard(e, { app, onChange, compact = false } = {}) {
     e.open && compact ? h("a", { class: "btn block", href: "#/line?e=" + e.id }, "Сделать ставку →") : null,
     e.isCreator && e.open ? h("p", { class: "muted small" }, "Вы создали это событие, поэтому ставить на него не можете.") : null,
     mine.length ? h("ul", { class: "ln-mine" }, mine) : null,
+    mineMeme,
     h("p", { class: "muted small" }, `Банк: ${fmt(e.total)} ЛК · комиссия конторы ${Math.round(e.commission * 100)}% только с проигравших ставок`)].filter(Boolean));
   return card;
 }

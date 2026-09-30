@@ -1,10 +1,10 @@
 // «Контора» — bookmaker parody. Nothing on these pages moves money or pretends to: every joke says what is real.
-import { h, clear, fmt, toast, store } from "../ui.js?v=2.2.0";
-import { meme, lines, pick } from "../memes.js?v=2.2.0";
-import { JOKE_LINE } from "../memes-office.js?v=2.2.0";
-import { GAMES, switcher } from "./game-kit.js?v=2.2.0";
-import { openSupport } from "../support.js?v=2.2.0";
-import { sfx } from "../sound.js?v=2.2.0";
+import { h, clear, fmt, toast, store } from "../ui.js?v=2.3.0";
+import { meme, lines, pick } from "../memes.js?v=2.3.0";
+import { JOKE_LINE } from "../memes-office.js?v=2.3.0";
+import { GAMES, switcher } from "./game-kit.js?v=2.3.0";
+import { openSupport } from "../support.js?v=2.3.0";
+import { sfx } from "../sound.js?v=2.3.0";
 
 const SECTIONS = [
   ["withdraw", "💸", "Вывод средств", "Подайте заявку и наблюдайте за работой службы безопасности. Вечно."],

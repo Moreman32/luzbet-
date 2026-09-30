@@ -1,9 +1,39 @@
-import { sb, rpc } from "../api.js?v=2.2.0";
-import { h, clear, fmt, dt, toast, actionButton } from "../ui.js?v=2.2.0";
-import { meme } from "../memes.js?v=2.2.0";
+import { sb, rpc } from "../api.js?v=2.3.0";
+import { h, clear, fmt, dt, toast, actionButton, sleep, reducedMotion } from "../ui.js?v=2.3.0";
+import { meme } from "../memes.js?v=2.3.0";
 import { sha256hex, rouletteNumber, shuffle, blackjackReplay, roulettePayout, colorOf,
-  diceReplay, minesPositions, minesPayout, crashPoint, plinkoReplay, horseReplay, slotsReplay, hlReplay } from "../fair.js?v=2.2.0";
-import { cardLabel } from "./shared.js?v=2.2.0";
+  diceReplay, minesPositions, minesPayout, crashPoint, plinkoReplay, horseReplay, slotsReplay, hlReplay } from "../fair.js?v=2.3.0";
+import { cardLabel } from "./shared.js?v=2.3.0";
+
+// ---------- жаргон на человеческий: наводишь курсор/палец — получаешь перевод ----------
+const GLOSSARY = [
+  ["server seed", "Секретное число казино. Известно только серверу до конца раунда — потом его раскрывают."],
+  ["client seed", "Ваше число. Можно поменять в любой момент между раундами — оно тоже влияет на результат."],
+  ["nonce", "Порядковый номер ставки на текущей паре сидов. Растёт на 1 каждый раз — как номер квитанции."],
+  ["SHA-256", "Функция-«печать»: из секрета получается короткий отпечаток (хеш). Секрет по отпечатку не восстановить, а один и тот же секрет всегда даёт один и тот же отпечаток."],
+  ["HMAC-SHA256", "Способ смешать секрет и ваши данные так, чтобы результат нельзя было ни предсказать заранее, ни подделать задним числом."],
+  ["хеш", "Отпечаток секрета, который вам показали ДО ставки. После раскрытия секрета отпечаток должен совпасть — иначе казино врёт."],
+  ["cursor", "Счётчик внутри одного раунда: если нужно много случайных чисел подряд (например, много карт), берём их одно за другим по этому счётчику."],
+  ["Фишера–Йетса", "Стандартный способ честно перетасовать колоду: любой порядок карт равновероятен, подглядеть заранее нельзя."],
+  ["смещения по модулю", "Технический приём, без которого некоторые числа выпадали бы чуть чаще других. С ним — все варианты равновероятны."],
+  ["commitment", "Обязательство: казино публикует отпечаток секрета до ставки и не может задним числом его подменить."],
+];
+function glossify(text) {
+  let rest = text, out = [];
+  while (rest) {
+    let best = null;
+    for (const [term, tip] of GLOSSARY) {
+      const i = rest.indexOf(term);
+      if (i !== -1 && (!best || i < best.i)) best = { i, term, tip };
+    }
+    if (!best) { out.push(rest); break; }
+    if (best.i > 0) out.push(rest.slice(0, best.i));
+    out.push(h("span", { class: "gloss", tabindex: "0", "data-tip": best.tip }, best.term));
+    rest = rest.slice(best.i + best.term.length);
+  }
+  return out;
+}
+const P = (...parts) => h("p", { class: "muted" }, ...parts.flatMap((p) => (typeof p === "string" ? glossify(p) : [p])));
 
 export async function mount(root, { app, sub, params }) {
   if (sub === "verify") return verifyPage(root, app, params.get("round"));
@@ -17,21 +47,30 @@ export async function mount(root, { app, sub, params }) {
     h("div", { class: "game-head" }, h("div", {}, h("div", { class: "eyebrow" }, "Provably fair"), h("h1", {}, "Честность"))),
     h("div", { class: "card gilded stack" },
       h("h3", {}, "Почему касса не может подкрутить исход"),
-      h("p", { class: "muted" }, "Перед вашей первой ставкой сервер генерирует секретный server seed и показывает вам только его SHA-256 хеш. Хеш нельзя «подогнать» задним числом: любой другой сид даст другой хеш."),
-      h("p", { class: "muted" }, "Каждый исход вычисляется детерминированно из server seed, вашего client seed и счётчика nonce. Client seed выбираете вы, nonce растёт на 1 с каждой ставкой. Когда вы меняете пару сидов, старый server seed раскрывается — и любой раунд можно пересчитать прямо в браузере."),
-      h("details", { class: "more" }, h("summary", {}, "Технические детали"),
+      h("div", { class: "fstep-list" },
+        h("div", { class: "fstep ok" }, h("div", {}), h("div", { class: "fstep-body" },
+          h("div", { class: "fstep-t" }, "Секрет публикуется ДО ставки"),
+          h("div", { class: "fstep-d" }, P("Сервер генерирует секретный ", "server seed", " и сразу показывает вам его ", "SHA-256", " ", "хеш", ". Подменить секрет позже нельзя — другой секрет даст другой отпечаток.")))),
+        h("div", { class: "fstep ok" }, h("div", {}), h("div", { class: "fstep-body" },
+          h("div", { class: "fstep-t" }, "Исход зависит и от вас тоже"),
+          h("div", { class: "fstep-d" }, P("Число складывается из секрета казино, вашего ", "client seed", " и счётчика ", "nonce", ". Свою часть казино поменять не может, вашу — вы контролируете сами.")))),
+        h("div", { class: "fstep ok" }, h("div", {}), h("div", { class: "fstep-body" },
+          h("div", { class: "fstep-t" }, "Всё можно пересчитать"),
+          h("div", { class: "fstep-d" }, P("При смене пары сидов старый секрет раскрывается — и любой сыгранный на нём раунд можно проверить прямо в браузере, без доверия к нам.")))),
+      ),
+      h("details", { class: "more" }, h("summary", {}, "Технические детали (занудно, но честно)"),
         h("div", { class: "stack muted", style: { fontSize: "14px" } },
-          h("p", {}, "Поток случайности: HMAC-SHA256(key = server seed, message = client seed : nonce : cursor), cursor = 0, 1, 2… Каждый блок даёт восемь 32-битных чисел (big-endian)."),
-          h("p", {}, "Равномерное целое в [0, m): принимаем u, если u < ⌊2³²/m⌋·m, иначе берём следующее. Результат u mod m. Так нет смещения по модулю."),
-          h("p", {}, "Рулетка: одно число mod 37. Блэкджек: тасовка Фишера–Йетса по 312 картам (6 колод), j = rand(i+1) для i = 311…1; карта c → ранг c mod 13, масть ⌊c/13⌋ mod 4. Порядок раздачи: игрок, дилер, игрок, дилер (закрытая), далее по шузу."),
-          h("p", {}, "Dice: число = rand(10000). Mines: тасовка 25 клеток, мины — первые m. Больше/Меньше: тасовка 52 карт, карты того же номинала сгорают. Crash: r = rand(2³¹−1), краш = ⌊97·N/(N−r)⌋/100. Plinko: 12 × rand(2). Скачки: последовательный взвешенный выбор по весам. Слот: остановки барабанов = rand(длина ленты)."),
-          h("p", {}, "Сид нельзя сменить, пока идёт незавершённая игра: иначе вы узнали бы будущие карты, мины или точку краха.")))),
+          P("Поток случайности: ", "HMAC-SHA256", "(key = ", "server seed", ", message = ", "client seed", " : ", "nonce", " : ", "cursor", "), cursor = 0, 1, 2… Каждый блок даёт восемь 32-битных чисел (big-endian)."),
+          P("Равномерное целое в [0, m): принимаем u, если u < ⌊2³²/m⌋·m, иначе берём следующее. Результат u mod m. Так нет ", "смещения по модулю", "."),
+          P("Рулетка: одно число mod 37. Блэкджек: тасовка ", "Фишера–Йетса", " по 312 картам (6 колод), j = rand(i+1) для i = 311…1; карта c → ранг c mod 13, масть ⌊c/13⌋ mod 4. Порядок раздачи: игрок, дилер, игрок, дилер (закрытая), далее по шузу."),
+          P("Dice: число = rand(10000). Mines: тасовка 25 клеток, мины — первые m. Больше/Меньше: тасовка 52 карт, карты того же номинала сгорают. Crash: r = rand(2³¹−1), краш = ⌊97·N/(N−r)⌋/100. Plinko: 12 × rand(2). Скачки: последовательный взвешенный выбор по весам. Слот: остановки барабанов = rand(длина ленты)."),
+          P("Сид нельзя сменить, пока идёт незавершённая игра: иначе вы узнали бы будущие карты, мины или точку краха.")))),
     h("div", { class: "card stack" },
       h("div", { class: "eyebrow" }, "Текущая пара сидов"),
       h("dl", { class: "kv" },
-        h("dt", {}, "Хеш server seed"), h("dd", { class: "mono" }, s.serverSeedHash),
-        h("dt", {}, "Client seed"), h("dd", { class: "mono" }, s.clientSeed),
-        h("dt", {}, "Следующий nonce"), h("dd", { class: "num" }, String(s.nextNonce))),
+        h("dt", {}, ...glossify("Хеш server seed")), h("dd", { class: "mono" }, s.serverSeedHash),
+        h("dt", {}, ...glossify("Client seed")), h("dd", { class: "mono" }, s.clientSeed),
+        h("dt", {}, ...glossify("Следующий nonce")), h("dd", { class: "num" }, String(s.nextNonce))),
       h("div", { class: "field" }, h("label", {}, "Новый client seed"), clientInput),
       actionButton("Раскрыть сид и начать новый", async () => {
         try {
@@ -65,10 +104,10 @@ async function verifyPage(root, app, roundId) {
     h("dt", {}, "Игра"), h("dd", {}, r.game_slug),
     h("dt", {}, "Раунд"), h("dd", { class: "mono" }, r.id),
     h("dt", {}, "Правила"), h("dd", { class: "mono" }, r.rule_version_id),
-    h("dt", {}, "Хеш server seed"), h("dd", { class: "mono" }, r.server_seed_hash),
-    h("dt", {}, "Server seed"), h("dd", { class: "mono" }, seed?.server_seed || "ещё не раскрыт"),
-    h("dt", {}, "Client seed"), h("dd", { class: "mono" }, r.client_seed),
-    h("dt", {}, "Nonce"), h("dd", { class: "mono" }, String(r.nonce)),
+    h("dt", {}, ...glossify("Хеш server seed")), h("dd", { class: "mono" }, r.server_seed_hash),
+    h("dt", {}, ...glossify("Server seed")), h("dd", { class: "mono" }, seed?.server_seed || "ещё не раскрыт"),
+    h("dt", {}, ...glossify("Client seed")), h("dd", { class: "mono" }, r.client_seed),
+    h("dt", {}, ...glossify("Nonce")), h("dd", { class: "mono" }, String(r.nonce)),
     h("dt", {}, "Исход на сервере"), h("dd", {}, r.game_slug === "roulette" ? `${r.state.number}, выплата ${fmt(r.payout)}` : `выплата ${fmt(r.payout)}`));
   const { data: rv } = await sb.from("game_rule_versions").select("rules").eq("id", r.rule_version_id).maybeSingle();
   const rules = rv?.rules || {};
@@ -84,6 +123,10 @@ async function verifyPage(root, app, roundId) {
     return;
   }
 
+  const STEP_LABELS = {
+    roulette: ["Сверяем отпечаток секрета", "Пересчитываем число из сидов", "Пересчитываем выплату по вашим ставкам"],
+    blackjack: ["Сверяем отпечаток секрета", "Пересчитываем ваши карты из шуза", "Сверяем карты дилера", "Пересчитываем выплату по правилам"],
+  };
   const button = actionButton("Проверить, что касса тебя не наебала", async () => {
     const checks = [];
     const hash = await sha256hex(seed.server_seed);
@@ -105,11 +148,41 @@ async function verifyPage(root, app, roundId) {
       checks.push(...await gameChecks(r, seed.server_seed, actions || [], rules));
     }
     const pass = checks.every((c) => c[1]);
+    const labels = STEP_LABELS[r.game_slug] || checks.map((_, i) => (i === 0 ? "Сверяем отпечаток секрета" : `Пересчитываем шаг ${i + 1} из сидов`));
+
+    // Наглядный степпер: шаги появляются по одному, прогресс-бар растёт — цифры и термины остаются занудными,
+    // но человек видит, что именно и в каком порядке проверяется, а не разом вываленный список.
+    const stepEls = checks.map((_, i) => h("div", { class: "fstep pending" }, h("div", {}),
+      h("div", { class: "fstep-body" }, h("div", { class: "fstep-t" }, labels[i] || `Шаг ${i + 1}`), h("div", { class: "fstep-d mono" }, ""))));
+    const bar = h("div", { class: "fbar" });
+    clear(verdictEl,
+      h("div", { class: "card stack" },
+        h("div", { class: "row", style: { justifyContent: "space-between" } }, h("b", {}, "Идёт проверка…"), h("span", { class: "muted num", id: "fpct" }, "0%")),
+        h("div", { class: "fbar-wrap" }, bar),
+        h("div", { class: "fstep-list" }, stepEls)));
+    const pct = verdictEl.querySelector("#fpct");
+    const step = reducedMotion() ? 0 : 260;
+    for (let i = 0; i < checks.length; i++) {
+      stepEls[i].className = "fstep active";
+      if (step) await sleep(step);
+      const [text, ok] = checks[i];
+      stepEls[i].className = "fstep " + (ok ? "ok" : "bad");
+      stepEls[i].querySelector(".fstep-d").className = "fstep-d mono";
+      stepEls[i].querySelector(".fstep-d").textContent = text;
+      const p = Math.round(((i + 1) / checks.length) * 100);
+      bar.style.width = p + "%"; bar.className = "fbar" + (ok ? "" : " bad");
+      pct.textContent = p + "%";
+      if (step) await sleep(90);
+    }
+    if (step) await sleep(250);
     clear(verdictEl, h("div", { class: ["verdict", pass ? "pass" : "fail"] },
       h("h2", {}, pass ? "✓ Результат подтверждён." : "✗ Проверка не прошла"),
       h("p", { class: "meme-line" }, meme(pass ? "fair.pass" : "fair.fail")),
-      h("ul", { style: { textAlign: "left", marginTop: "16px" } }, checks.map(([t, ok]) => h("li", { class: ok ? "win" : "loss" }, (ok ? "✓ " : "✗ ") + t)))));
+      h("div", { class: "fstep-list", style: { textAlign: "left", marginTop: "16px" } },
+        checks.map(([t, ok], i) => h("div", { class: "fstep " + (ok ? "ok" : "bad") }, h("div", {}),
+          h("div", { class: "fstep-body" }, h("div", { class: "fstep-t" }, labels[i] || `Шаг ${i + 1}`), h("div", { class: "fstep-d mono" }, t)))))));
   }, { class: "btn primary lg block" });
+  verdictEl.appendChild(h("p", { class: "muted small" }, "Кнопка ниже прогоняет проверку по шагам — каждый шаг подписан по-человечески, цифры внутри те же самые, что видит сервер."));
   verdictEl.appendChild(button);
 }
 

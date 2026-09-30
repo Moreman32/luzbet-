@@ -1,9 +1,9 @@
-import { rpc, sb, ApiError } from "../api.js?v=2.2.0";
-import { h, clear, fmt, signed, toast, store, newKey, reducedMotion, sleep } from "../ui.js?v=2.2.0";
-import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.2.0";
-import { sfx } from "../sound.js?v=2.2.0";
-import { colorOf } from "../fair.js?v=2.2.0";
-import { bigWin } from "./shared.js?v=2.2.0";
+import { rpc, sb, ApiError } from "../api.js?v=2.3.0";
+import { h, clear, fmt, signed, toast, store, newKey, reducedMotion, sleep } from "../ui.js?v=2.3.0";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.0";
+import { sfx } from "../sound.js?v=2.3.0";
+import { colorOf } from "../fair.js?v=2.3.0";
+import { bigWin } from "./shared.js?v=2.3.0";
 
 const ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 const CHIPS = [1, 5, 25, 100, 500, 1000];
@@ -19,7 +19,7 @@ function buildWheel() {
   const svg = h("svg:svg", { viewBox: "-160 -160 320 320", role: "img", "aria-label": "Колесо рулетки" });
   const defs = h("svg:defs", {},
     h("svg:radialGradient", { id: "rim" }, h("svg:stop", { offset: ".82", "stop-color": "#2a2116" }), h("svg:stop", { offset: "1", "stop-color": "#0c0a07" })),
-    h("svg:linearGradient", { id: "gold", x1: 0, y1: 0, x2: 1, y2: 1 }, h("svg:stop", { offset: 0, "stop-color": "#f0d898" }), h("svg:stop", { offset: ".5", "stop-color": "#c89d4f" }), h("svg:stop", { offset: 1, "stop-color": "#8a6428" })));
+    h("svg:linearGradient", { id: "gold", x1: 0, y1: 0, x2: 1, y2: 1 }, h("svg:stop", { offset: 0, "stop-color": "#c9a44f" }), h("svg:stop", { offset: ".5", "stop-color": "#b08c3e" }), h("svg:stop", { offset: 1, "stop-color": "#6e5220" })));
   svg.append(defs, h("svg:circle", { r: 158, fill: "url(#rim)", stroke: "url(#gold)", "stroke-width": 3 }));
   const rotor = h("svg:g", { class: "rotor" });
   ORDER.forEach((n, i) => {
@@ -30,7 +30,7 @@ function buildWheel() {
     rotor.appendChild(h("svg:path", { d, fill: c === "green" ? "#0f7a47" : c === "red" ? "#a3202b" : "#141311", stroke: "#b8913f", "stroke-width": ".6" }));
     const am = (i * step - 90) * Math.PI / 180, tr = 136;
     rotor.appendChild(h("svg:text", { x: tr * Math.cos(am), y: tr * Math.sin(am), fill: "#f3ecdc", "font-size": 10.5, "font-weight": 700,
-      "text-anchor": "middle", "dominant-baseline": "central", transform: `rotate(${i * step} ${tr * Math.cos(am)} ${tr * Math.sin(am)})`, "font-family": "Inter, sans-serif" }, String(n)));
+      "text-anchor": "middle", "dominant-baseline": "central", transform: `rotate(${i * step} ${tr * Math.cos(am)} ${tr * Math.sin(am)})`, "font-family": "PT Sans, sans-serif" }, String(n)));
   });
   rotor.append(h("svg:circle", { r: 150, fill: "none", stroke: "none" }), h("svg:circle", { r: 88, fill: "none", stroke: "url(#gold)", "stroke-width": 2 }),
     h("svg:circle", { r: 70, fill: "#1b1611", stroke: "#3b2f1d", "stroke-width": 1 }));

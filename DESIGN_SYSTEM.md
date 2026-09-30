@@ -1,32 +1,48 @@
-# LuzBet 2.0 Design System
+# LuzBet 2.3 Design System
 
 ## Direction
-Luxury dark casino with restrained absurd corporate humor.
+«Совковый бюрократический» кабинет: тёмная контора поздно вечером, крафт-бумага, штампы,
+печатная машинка, линованные бланки. Никакого glassmorphism, неоновых глоу-теней и
+градиентных «люкс-казино» акцентов — это была эстетика 2.0/2.2, специально заменена,
+чтобы сайт не читался как типовой AI-лендинг.
 
 ## Palette
-- deep black
-- charcoal
-- warm gold
-- champagne
-- restrained burgundy/red
+- почти чёрный оливково-коричневый фон (`--bg #121109`)
+- тёмный khaki-surface для карточек (`--surface #1c1a12`), без градиентов
+- приглушённая латунь вместо золота (`--gold #b08c3e`) — акцент, не главный цвет
+- штемпельный красный (`--burgundy #7c1c22`) — основной цвет кнопок/действий
+- институциональный зелёный для сукна и «одобрено» (`--felt`, `--win`)
 
 ## Rules
-- Gold is an accent, not the background.
-- Primary UI is serious.
-- Meme copy is secondary feedback.
-- One primary joke focal point per screen at most.
-- Avoid generic purple SaaS gradients, cheap neon and excessive glassmorphism.
+- Никаких линейных/радиальных градиентов на интерактивных элементах и тексте.
+- Никакого `backdrop-filter`/стекла — шапка и таббар плотные, с двойной линией снизу (как бланк).
+- Радиусы скруглений резко уменьшены (токены `--r-*` теперь 1–6px вместо 6–28px) —
+  острые углы официального документа.
+- Тени — жёсткие офсетные (`3px 3px 0 rgba(0,0,0,.45)`), без блюра — вместо мягкого свечения.
+- Кнопки/бейджи/eyebrow — заглавными буквами, моноширинный шрифт для цифр и служебных подписей.
+- Мем-копия — вторичная обратная связь, максимум один фокус-шутки на экран (правило не менялось).
 
-## Motion hierarchy
-microinteraction < game action < win < big win < jackpot
-
-## Accessibility
-Contrast, focus states, keyboard support where sensible, reduced motion, visual outcome feedback independent of sound.
+## Typography
+- Заголовки и цифры-«печати»: `PT Mono` (типографика печатной машинки).
+- Основной интерфейсный текст: `PT Sans` (шрифт, спроектированный для русской типографики).
+- Хеши/сиды/моноширинные данные: `PT Mono`.
+- Заголовки h1–h3 — верхний регистр (`text-transform: uppercase`).
 
 ## Implemented tokens (`assets/css/app.css`)
-- Colours: `--bg #0a0907`, `--surface #15130f`, `--line #2e281e`, `--text #f2ede3`, `--gold #d2ad62` (accent only), `--champagne`, `--burgundy #7a1c26`, felt `#0f3b2c`.
-- Type: Cormorant Garamond (display), Inter (UI, tabular numbers), JetBrains Mono (hashes/seeds).
-- Radius 6/10/14/20/28; spacing 4-8-12-16-24-32-48-64; two shadow levels; gold focus ring.
-- Components: header + mobile tab bar, cards, buttons (primary = gold gradient, one per screen), seg controls, tables, chips, toasts, modal, drawer.
-- Motion: chip placement < card deal < wheel spin (4.8 s ease-out) < big-win overlay (rare). `prefers-reduced-motion` disables all.
-- Humour: `assets/js/memes.js` — one line after an event, never on controls; recent-history dedup.
+- Токены см. `:root` — цвета, радиусы, тени, шрифты, `--gold-grad` теперь плоский цвет (не градиент).
+- Новые компоненты: `.gloss` (жаргон-тултип на пунктирном подчёркивании), `.fstep-list`/`.fstep`
+  (наглядный степпер верификатора с нумерованными шагами и соединительной линией),
+  `.fbar-wrap`/`.fbar` (прогресс-бар одним кликом).
+- `.verdict`/`.result-tag`/`.bigwin` — стилизованы под штамп: двойная рамка, лёгкий поворот,
+  без свечения.
+- `.card.gilded` получает мелкую подпись-штамп «ОФИЦИАЛЬНО» в правом верхнем углу.
+- Юмор: `assets/js/memes.js` + `assets/js/memes-office.js` — расширенный каталог (welcome, loss,
+  win.big/small, streak-, office.ticker и новая линейка `line.*` для тотализатора).
+
+## Верификатор честности (`assets/js/views/fairness.js`)
+- Жаргонные термины (`server seed`, `client seed`, `nonce`, `SHA-256`, `HMAC-SHA256`, `cursor`,
+  «Фишера–Йетса», «смещения по модулю») подчёркнуты пунктиром и раскрываются тултипом
+  (`data-tip`) по наведению/фокусу — простым языком, без изменения исходного занудного текста.
+- Блок «Почему касса не может подкрутить исход» превращён в 3-шаговый наглядный степпер.
+- Кнопка проверки раунда теперь показывает пошаговый прогресс (степпер + `%`-бар), а не разом
+  вываленный список — сами проверки и цифры не изменились, изменилась подача.

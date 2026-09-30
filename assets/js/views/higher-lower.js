@@ -1,4 +1,4 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.0";
 
 const rv = (v) => v === 14 ? "A" : v === 13 ? "K" : v === 12 ? "Q" : v === 11 ? "J" : String(v);
 const sv = (s) => ({ S: "♠", H: "♥", D: "♦", C: "♣" }[s] || s);

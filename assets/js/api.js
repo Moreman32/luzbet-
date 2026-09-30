@@ -1,5 +1,5 @@
 // API layer. The browser is untrusted: it only sends intents; every number that matters comes back from the DB.
-import { SUPABASE_URL, SUPABASE_KEY } from "./config.js?v=2.2.0";
+import { SUPABASE_URL, SUPABASE_KEY } from "./config.js?v=2.3.0";
 
 export const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "luzbet2-auth" },

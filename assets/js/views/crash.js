@@ -1,6 +1,6 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.2.0";
-import { rpc, sb } from "../api.js?v=2.2.0";
-import { store, reducedMotion } from "../ui.js?v=2.2.0";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, activeRound, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.0";
+import { rpc, sb } from "../api.js?v=2.3.0";
+import { store, reducedMotion } from "../ui.js?v=2.3.0";
 
 const K = 0.00006;                                  // same curve as the server: floor(100·e^(K·ms))/100
 const multAt = (ms) => Math.floor(100 * Math.exp(K * Math.max(0, ms))) / 100;
@@ -30,17 +30,17 @@ export async function mount(root, { app }) {
     ctx2d.clearRect(0, 0, W, H);
     const tMax = Math.max(8000, ms * 1.15), mMax = Math.max(2, multAt(tMax) * 1.05);
     const X = (t) => 50 + (t / tMax) * (W - 70), Y = (m) => H - 40 - ((m - 1) / (mMax - 1)) * (H - 70);
-    ctx2d.strokeStyle = "rgba(210,173,98,.12)"; ctx2d.lineWidth = 1; ctx2d.fillStyle = "rgba(201,192,174,.55)"; ctx2d.font = "20px Inter, sans-serif";
+    ctx2d.strokeStyle = "rgba(176,140,62,.12)"; ctx2d.lineWidth = 1; ctx2d.fillStyle = "rgba(201,192,174,.55)"; ctx2d.font = "20px PT Sans, sans-serif";
     const step = mMax > 20 ? Math.pow(10, Math.floor(Math.log10(mMax))) : mMax > 5 ? 2 : 0.5;
     for (let m = 1; m <= mMax; m += step) { ctx2d.beginPath(); ctx2d.moveTo(50, Y(m)); ctx2d.lineTo(W - 20, Y(m)); ctx2d.stroke(); ctx2d.fillText("×" + (Math.round(m * 100) / 100), 4, Y(m) + 6); }
     if (ms <= 0) return;
     const crashed = state === "CRASHED";
     const grad = ctx2d.createLinearGradient(0, H, W, 0);
-    grad.addColorStop(0, crashed ? "#7a1c26" : "#9c7733"); grad.addColorStop(1, crashed ? "#d07a7a" : "#f0d898");
+    grad.addColorStop(0, crashed ? "#7a1c26" : "#8a6c2c"); grad.addColorStop(1, crashed ? "#d07a7a" : "#c9a44f");
     ctx2d.beginPath(); ctx2d.moveTo(X(0), Y(1));
     const n = 120; for (let i = 1; i <= n; i++) { const t = (ms * i) / n; ctx2d.lineTo(X(t), Y(Math.exp(K * t))); }
     ctx2d.lineWidth = 6; ctx2d.strokeStyle = grad; ctx2d.lineCap = "round"; ctx2d.stroke();
-    ctx2d.lineTo(X(ms), Y(1)); ctx2d.closePath(); ctx2d.fillStyle = crashed ? "rgba(160,42,54,.12)" : "rgba(210,173,98,.10)"; ctx2d.fill();
+    ctx2d.lineTo(X(ms), Y(1)); ctx2d.closePath(); ctx2d.fillStyle = crashed ? "rgba(160,42,54,.12)" : "rgba(176,140,62,.10)"; ctx2d.fill();
     ctx2d.font = "34px serif"; ctx2d.fillText(crashed ? "💥" : "🚀", X(ms) - 14, Y(Math.exp(K * ms)) - 8);
   }
 
@@ -70,7 +70,7 @@ export async function mount(root, { app }) {
       ctx2d.setLineDash([8, 8]); ctx2d.strokeStyle = "#7fd29a"; ctx2d.lineWidth = 3;
       ctx2d.beginPath(); ctx2d.moveTo(50, y); ctx2d.lineTo(W - 20, y); ctx2d.stroke(); ctx2d.setLineDash([]);
       ctx2d.fillStyle = "#7fd29a"; ctx2d.beginPath(); ctx2d.arc(x, y, 9, 0, Math.PI * 2); ctx2d.fill();
-      ctx2d.font = "bold 22px Inter, sans-serif"; ctx2d.fillText("вы вышли ×" + co.toFixed(2), Math.min(x + 14, W - 230), y - 12);
+      ctx2d.font = "bold 22px PT Sans, sans-serif"; ctx2d.fillText("вы вышли ×" + co.toFixed(2), Math.min(x + 14, W - 230), y - 12);
     }
     sub.textContent = st.phase === "CASHED" ? `Вы забрали на ×${Number(st.cashout).toFixed(2)} · крах был на ×${crashAt.toFixed(2)}` : `Крах на ×${crashAt.toFixed(2)}`;
   }
