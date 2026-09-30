@@ -1,4 +1,4 @@
-import { EXTRA } from "./memes-office.js?v=2.3.5";
+import { EXTRA } from "./memes-office.js?v=2.3.6";
 // Meme Engine: the single source of LuzBet copy that reacts to events.
 // Rules: dry corporate tone, one line at a time, shown AFTER the event, never on primary controls.
 const CATALOG = {
@@ -117,6 +117,11 @@ const CATALOG = {
     "Прямое попадание. Крупье проверяет, настоящий ли шарик.",
     "35 к 1. Статистика в шоке, но держится.",
     "Одно число из тридцати семи. Вы только что потратили удачу на неделю вперёд.",
+  ],
+  "roulette.ballEscape": [
+    "Шарик спрыгнул с колеса и побежал изучать сайт. Скоро вернётся.",
+    "Побег шарика зафиксирован. Охрана заведения выехала.",
+    "Шарик решил, что колесо — не единственное место в конторе. Сейчас проверит остальные.",
   ],
   "roulette.rareWin": [
     "Шарик прокрутился три лишних круга, будто сомневался, и всё равно выбрал вас. Комиссия ведёт протокол.",

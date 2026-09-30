@@ -1,5 +1,5 @@
-import { h, fmt } from "../ui.js?v=2.3.5";
-import { meme } from "../memes.js?v=2.3.5";
+import { h, fmt, reducedMotion } from "../ui.js?v=2.3.6";
+import { meme } from "../memes.js?v=2.3.6";
 
 const BIG_WIN_IMAGES = ["assets/img/big-win.png", "assets/img/big-win1.png", "assets/img/big-win2.png"];
 const GAME_EMOJI = { roulette: "🎡", bj: "🃏", dice: "🎲", mines: "💣", crash: "🚀", slots: "🎰", plinko: "🔵", horse: "🐎", hl: "🔮" };
@@ -40,6 +40,31 @@ export function bigWin(amount) {
   document.body.appendChild(el);
   el.focus();
   setTimeout(close, 7000);
+}
+
+// Rare (≈4% per spin), purely cosmetic gag: a real fixed-position ball pops off the roulette wheel
+// and bounces around the WHOLE page — not just the game card — for a couple of seconds, then fades.
+// Fire-and-forget: it never blocks or delays the real spin animation, and it plays no part in the
+// actual result, which is already decided server-side by the time this is called.
+export function looseBall(originEl) {
+  if (reducedMotion() || !originEl) return;
+  const r = originEl.getBoundingClientRect();
+  const ball = document.createElement("div");
+  ball.className = "rl-loose-ball";
+  document.body.appendChild(ball);
+  let x = r.left + r.width / 2, y = r.top + r.height / 2;
+  let vx = (Math.random() * 2 - 1) * 10, vy = -(Math.random() * 5 + 9);
+  const gravity = 0.55, bounce = 0.68, t0 = performance.now(), duration = 2300;
+  function frame(now) {
+    vy += gravity; x += vx; y += vy;
+    const w = window.innerWidth, hgt = window.innerHeight, remaining = duration - (now - t0);
+    if (x < 7) { x = 7; vx = Math.abs(vx) * bounce; } else if (x > w - 7) { x = w - 7; vx = -Math.abs(vx) * bounce; }
+    if (y > hgt - 7) { y = hgt - 7; vy = -Math.abs(vy) * bounce; if (remaining > 250 && Math.abs(vy) < 3) vy = -(6 + Math.random() * 4); }
+    ball.style.transform = `translate(${x - 7}px, ${y - 7}px) rotate(${x * 3}deg)`;
+    if (remaining > 0) requestAnimationFrame(frame);
+    else { ball.classList.add("fade"); setTimeout(() => ball.remove(), 300); }
+  }
+  requestAnimationFrame(frame);
 }
 
 const SUITS = ["♠", "♥", "♦", "♣"];

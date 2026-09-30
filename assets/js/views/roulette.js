@@ -1,9 +1,9 @@
-import { rpc, sb, ApiError } from "../api.js?v=2.3.5";
-import { h, clear, fmt, signed, toast, store, newKey, reducedMotion, sleep } from "../ui.js?v=2.3.5";
-import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.5";
-import { sfx } from "../sound.js?v=2.3.5";
-import { colorOf } from "../fair.js?v=2.3.5";
-import { bigWin, maybeFunnyEvent } from "./shared.js?v=2.3.5";
+import { rpc, sb, ApiError } from "../api.js?v=2.3.6";
+import { h, clear, fmt, signed, toast, store, newKey, reducedMotion, sleep } from "../ui.js?v=2.3.6";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.6";
+import { sfx } from "../sound.js?v=2.3.6";
+import { colorOf } from "../fair.js?v=2.3.6";
+import { bigWin, maybeFunnyEvent, looseBall } from "./shared.js?v=2.3.6";
 
 const ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 const CHIPS = [1, 5, 25, 100, 500, 1000];
@@ -282,6 +282,7 @@ export async function mount(root, { app }) {
     }
     store.sset("rl-pending", null);
     const r = res.round, st = r.state;
+    if (Math.random() < 0.04) { toast(meme("roulette.ballEscape") || "Шарик сбежал с колеса.", "error"); looseBall(wheel.svg); } // ~4%, cosmetic only, doesn't affect st.number
     await animateTo(st.number);
     const net = r.payout - r.bet;
     const numBadge = h("span", { class: ["n-" + st.color], style: { width: "54px", height: "54px", borderRadius: "50%", display: "grid", placeItems: "center", font: "800 24px/1 var(--f-ui)" } }, String(st.number));

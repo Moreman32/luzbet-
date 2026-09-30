@@ -1,6 +1,6 @@
 // TOTP MFA helpers (Supabase Auth). Staff actions require an aal2 session; the DB enforces it.
-import { sb } from "../api.js?v=2.3.5";
-import { h, clear, toast, actionButton } from "../ui.js?v=2.3.5";
+import { sb } from "../api.js?v=2.3.6";
+import { h, clear, toast, actionButton } from "../ui.js?v=2.3.6";
 
 export async function mfaStatus() {
   const [{ data: aal }, { data: factors }] = await Promise.all([sb.auth.mfa.getAuthenticatorAssuranceLevel(), sb.auth.mfa.listFactors()]);

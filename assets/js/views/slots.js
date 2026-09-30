@@ -1,10 +1,13 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.5";
-import { reducedMotion, sleep } from "../ui.js?v=2.3.5";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.6";
+import { reducedMotion, sleep } from "../ui.js?v=2.3.6";
 
 const SYM = [
   { e: "🐾", n: "Лапа (WILD)" }, { e: "🧶", n: "Клубок (SCATTER)" }, { e: "🐈", n: "Бусинка" }, { e: "👑", n: "Корона" },
   { e: "7", n: "Семёрка" }, { e: "💰", n: "Мешок ЛК" }, { e: "🥣", n: "Миска" }, { e: "🐟", n: "Рыбка" },
 ];
+// Icons that never appear in the real symbol set (SYM) or any payline — used only for the rare
+// cosmetic "glitch" below, so there's no chance of a player mistaking one for a real result.
+const GLITCH = ["🐸", "👽", "🍕", "🎃", "🦄", "🛸", "🤡", "🦖", "🍩"];
 
 export async function mount(root, { app }) {
   const rules = await currentRules("businka_slots", { minBet: 10, maxBet: 5000 });
@@ -34,17 +37,27 @@ export async function mount(root, { app }) {
     cells.forEach((c) => c.classList.remove("hit"));
     if (reducedMotion() || fast) { paint(win); return; }
     const timers = [];
+    // ~4% chance one reel briefly "glitches" and shows off-catalog icons during the blur — purely
+    // cosmetic (this blur phase was already random filler, not the real result) and always snaps
+    // to the true win[] values below regardless.
+    const glitchReel = Math.random() < 0.04 ? Math.floor(Math.random() * 5) : -1;
     for (let r = 0; r < 5; r++) {
       let i = Math.floor(Math.random() * strips[r].length);            // cosmetic blur only; the result is already decided
-      timers.push(setInterval(() => { i = (i + 1) % strips[r].length; for (let row = 0; row < 3; row++) cell(r, row).textContent = SYM[strips[r][(i + row) % strips[r].length]].e; }, 55));
+      const isGlitch = r === glitchReel;
+      timers.push(setInterval(() => {
+        i = (i + 1) % strips[r].length;
+        for (let row = 0; row < 3; row++) cell(r, row).textContent = isGlitch ? GLITCH[Math.floor(Math.random() * GLITCH.length)] : SYM[strips[r][(i + row) % strips[r].length]].e;
+      }, 55));
       reels.children[r].classList.add("spin");
+      if (isGlitch) { reels.children[r].classList.add("sl-glitch"); sfx.error(); }
     }
     for (let r = 0; r < 5; r++) {
       await sleep(r === 0 ? 520 : 230);
-      clearInterval(timers[r]); reels.children[r].classList.remove("spin");
+      clearInterval(timers[r]); reels.children[r].classList.remove("spin", "sl-glitch");
       for (let row = 0; row < 3; row++) { const c = cell(r, row); c.textContent = SYM[win[r * 3 + row]].e; c.className = "sl-cell s" + win[r * 3 + row]; }
       sfx.tick();
     }
+    if (glitchReel >= 0) toast(meme("slots.glitch") || "Барабан на миг показал что-то не из этой игры.", "error");
   }
 
   function highlight(spinData) {
