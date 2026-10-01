@@ -1,8 +1,8 @@
-import { rpc, sb, ApiError } from "../api.js?v=2.3.7";
-import { h, clear, fmt, signed, toast, store, newKey } from "../ui.js?v=2.3.7";
-import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.7";
-import { sfx } from "../sound.js?v=2.3.7";
-import { cardEl, bigWin, maybeFunnyEvent } from "./shared.js?v=2.3.7";
+import { rpc, sb, ApiError } from "../api.js?v=2.3.8";
+import { h, clear, fmt, signed, toast, store, newKey } from "../ui.js?v=2.3.8";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.8";
+import { sfx } from "../sound.js?v=2.3.8";
+import { cardEl, bigWin, maybeFunnyEvent } from "./shared.js?v=2.3.8";
 
 const CHIPS = [1, 5, 25, 100, 500, 1000];
 const RESULT = { win: "Выигрыш", lose: "Проигрыш", push: "Ничья", bust: "Перебор", blackjack: "Блэкджек" };

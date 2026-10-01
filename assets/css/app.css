@@ -336,8 +336,12 @@ textarea.input { height: auto; padding: 12px 14px; min-height: 80px; resize: ver
 .result-tag.win, .result-tag.blackjack { background: rgba(147,168,106,.14); color: var(--win); }
 .result-tag.lose, .result-tag.bust { background: rgba(194,100,115,.14); color: var(--loss); }
 .result-tag.push { background: rgba(233,220,189,.1); color: var(--champagne); }
-.bj-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-@media (max-width: 480px) { .bj-actions .btn { padding: 0 6px; font-size: 13px; letter-spacing: .06em; } }
+.bj-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+/* .btn.lg's 28px side padding + nowrap only fits "Удвоить"/"Хватит" etc. in a wide row; the sidebar
+   this sits in is pinned to a 300px-ish column at desktop widths, so the 4-up grid needs its own
+   compact, wrappable sizing rather than inheriting .lg. */
+.bj-actions .btn { min-width: 0; padding: 4px 6px; font-size: 12.5px; white-space: normal; text-align: center; line-height: 1.15; }
+@media (max-width: 480px) { .bj-actions .btn { padding: 4px 5px; font-size: 12px; letter-spacing: .04em; } }
 
 /* ---------- big win overlay ---------- */
 .bigwin { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; background: rgba(6,7,10,.9); animation: fin .2s; cursor: pointer; }
@@ -537,6 +541,9 @@ select.input { appearance: auto; }
 .gk-bet label { display: flex; justify-content: space-between; align-items: baseline; }
 .gk-bet-input { font: 700 22px/1 var(--f-ui); text-align: center; }
 .gk-quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+/* Same class of bug as .bj-actions: a grid item's default min-width:auto respects its nowrap button
+   text ("Макс"), so a narrow aside can force this 4-up grid wider than its column — let it shrink. */
+.gk-quick .btn { min-width: 0; padding: 0 6px; }
 .gk-result { display: grid; justify-items: center; gap: 2px; padding: 10px 18px; border-radius: var(--r-md); border: 1px solid var(--line-2); background: rgba(0,0,0,.25); animation: pop .35s var(--ease); }
 .gk-result b { font: 800 26px/1.1 var(--f-ui); }
 .gk-result.win b { color: var(--win); } .gk-result.loss b { color: var(--loss); }

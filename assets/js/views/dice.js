@@ -1,5 +1,5 @@
-import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.7";
-import { store, reducedMotion, sleep } from "../ui.js?v=2.3.7";
+import { h, clear, fmt, toast, sfx, meme, head, betInput, send, key, settle, resultTag, flash, errorToast, footnote, currentRules } from "./game-kit.js?v=2.3.8";
+import { store, reducedMotion, sleep } from "../ui.js?v=2.3.8";
 
 export async function mount(root, { app }) {
   const rules = await currentRules("dice", { minBet: 1, maxBet: 7500, minChance: 2, maxChance: 95 });
@@ -57,7 +57,7 @@ export async function mount(root, { app }) {
       h("div", { class: "card gilded dice-stage" }, h("div", { class: "dice-orb" }, result), bar, h("div", { class: "dice-scale" }, h("span", {}, "0"), h("span", {}, "25"), h("span", {}, "50"), h("span", {}, "75"), h("span", {}, "100")), resultBox, memeEl),
       h("div", { class: "card stack" }, bet.el,
         h("div", { class: "dice-metrics" }, h("div", {}, h("small", { class: "muted" }, "Шанс"), chanceEl), h("div", {}, h("small", { class: "muted" }, "Множитель"), multEl), h("div", {}, h("small", { class: "muted" }, "Выплата"), payEl)),
-        pct, h("div", { class: "row" }, under, over), play,
+        pct, h("div", { class: "row wrap", style: { justifyContent: "center" } }, under, over), play,
         h("p", { class: "muted dice-legal" }, "House edge 3%. Отдел магии расформирован."))),
     h("div", { class: "card tight dice-memo" }, h("b", {}, "Служебная пометка:"), " вероятность выигрыша регулируется ползунком. Вероятность сделать после выигрыша неправильные выводы — нет."),
     footnote(rules, "Число = fairInt(10000)/100. «Ниже»: выигрыш, если число < шанса; «выше»: если ≥ 100 − шанс. Выплата = ⌊ставка × 97 / шанс⌋.")));

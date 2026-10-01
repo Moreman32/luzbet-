@@ -1,9 +1,9 @@
 // «Линия» — real pari-mutuel (tote) betting. The server holds the pools, closes betting and settles; this view only shows
 // the numbers it gets back and sends intents.
-import { rpc } from "../api.js?v=2.3.7";
-import { h, clear, fmt, signed, toast, store, newKey, dt } from "../ui.js?v=2.3.7";
-import { sfx } from "../sound.js?v=2.3.7";
-import { meme } from "../memes.js?v=2.3.7";
+import { rpc } from "../api.js?v=2.3.8";
+import { h, clear, fmt, signed, toast, store, newKey, dt } from "../ui.js?v=2.3.8";
+import { sfx } from "../sound.js?v=2.3.8";
+import { meme } from "../memes.js?v=2.3.8";
 
 const TABS = [["open", "Приём ставок"], ["live", "Идёт подсчёт"], ["settled", "Результаты"], ["mine", "Мои ставки"]];
 let offset = 0;                                         // server clock − local clock

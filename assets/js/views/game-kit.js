@@ -1,9 +1,9 @@
 // Shared building blocks for game views. Cosmetic + transport only: every number that matters comes from the server.
-import { rpc, sb, ApiError } from "../api.js?v=2.3.7";
-import { h, clear, fmt, signed, toast, store, newKey, sleep } from "../ui.js?v=2.3.7";
-import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.7";
-import { sfx } from "../sound.js?v=2.3.7";
-import { bigWin, maybeFunnyEvent } from "./shared.js?v=2.3.7";
+import { rpc, sb, ApiError } from "../api.js?v=2.3.8";
+import { h, clear, fmt, signed, toast, store, newKey, sleep } from "../ui.js?v=2.3.8";
+import { meme, outcomeContext, sessionMeme } from "../memes.js?v=2.3.8";
+import { sfx } from "../sound.js?v=2.3.8";
+import { bigWin, maybeFunnyEvent } from "./shared.js?v=2.3.8";
 
 export const GAMES = [
   { slug: "roulette", route: "roulette", name: "Рулетка", short: "Рулетка", emoji: "🎡", tag: "97,3%", desc: "Один ноль, 37 чисел и бесконечная вера в красное." },

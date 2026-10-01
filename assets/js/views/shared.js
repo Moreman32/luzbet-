@@ -1,5 +1,5 @@
-import { h, fmt, reducedMotion } from "../ui.js?v=2.3.7";
-import { meme } from "../memes.js?v=2.3.7";
+import { h, fmt, reducedMotion } from "../ui.js?v=2.3.8";
+import { meme } from "../memes.js?v=2.3.8";
 
 const BIG_WIN_IMAGES = ["assets/img/big-win.png", "assets/img/big-win1.png", "assets/img/big-win2.png"];
 const GAME_EMOJI = { roulette: "🎡", bj: "🃏", dice: "🎲", mines: "💣", crash: "🚀", slots: "🎰", plinko: "🔵", horse: "🐎", hl: "🔮" };
