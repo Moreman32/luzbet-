@@ -1,0 +1,9 @@
+import {createClient} from "npm:@supabase/supabase-js@2.116.0";
+const cors={"Access-Control-Allow-Origin":"https://luzbet.lol","Access-Control-Allow-Headers":"authorization,apikey,content-type,x-client-info","Access-Control-Allow-Methods":"POST,OPTIONS","Content-Type":"application/json"};
+const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status,headers:cors});
+Deno.serve(async(req)=>{if(req.method==="OPTIONS")return new Response(null,{headers:cors});if(req.method!=="POST")return json({ok:false},405);
+const svc=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,{auth:{persistSession:false,autoRefreshToken:false}});
+const secret=req.headers.get("x-advent-worker")||"";if(!secret)return json({ok:false},401);const {data:valid}=await svc.rpc("advent_worker_auth",{p_secret:secret});if(!valid)return json({ok:false},403);
+const token=Deno.env.get("ADVENT_TELEGRAM_BOT_TOKEN"),chat=Deno.env.get("ADVENT_TELEGRAM_CHAT_ID");if(!token||!chat)return json({ok:false,error:"missing_configuration"},503);
+await svc.rpc("advent_queue_summary");const {data:jobs,error}=await svc.rpc("advent_queue_claim");if(error)return json({ok:false},500);
+let sent=0,failed=0;for(const job of jobs||[]){let ok=false,reason="telegram_error";try{const r=await fetch("https://api.telegram.org/bot"+token+"/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:chat,text:job.message}),signal:AbortSignal.timeout(8000)});const j=await r.json();ok=r.ok&&j.ok===true;reason="telegram_http_"+r.status}catch{reason="network_or_timeout"}const {error:e}=await svc.rpc("advent_queue_finish",{p_id:job.id,p_ok:ok,p_error:ok?null:reason});if(ok&&!e)sent++;else failed++}return json({ok:true,sent,failed})});
