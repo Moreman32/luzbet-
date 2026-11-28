@@ -1,0 +1,13 @@
+#dashboard{position:absolute;inset:12% 4% 8%;z-index:2;background:linear-gradient(140deg,#101e34fa,#091321fc 65%,#321723f5);border:1px solid #d3b37766;box-shadow:0 20px 80px #0009;padding:2.1cqw;color:#f7f2e9;overflow:hidden}#dashboard[hidden]{display:none!important}
+.db-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #b39a6855;padding-bottom:1.1cqw;margin-bottom:1.4cqw}.db-head strong{font-size:2.4cqw;letter-spacing:.045em}.db-head small{font-size:1.25cqw;color:#d6c6a7}
+.db-grid{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:1.2cqw;margin-bottom:1.5cqw}
+.db-kpi{background:linear-gradient(130deg,#ffffff13,#ffffff06);border:1px solid #ffffff20;padding:1.3cqw;min-height:9.2cqw}
+.db-kpi:first-child{border-color:#c6a76c88;background:linear-gradient(140deg,#86622d33,#ffffff09)}
+.db-kpi span{display:block;color:#ccbda4;font-size:1.3cqw;letter-spacing:.07em;text-transform:uppercase}.db-kpi b{display:block;font-size:4cqw;line-height:1.4;font-variant-numeric:tabular-nums;color:#f6deaa}
+.db-bottom{display:grid;grid-template-columns:1.4fr 1fr;gap:1.4cqw;height:calc(100% - 19cqw)}
+.db-panel{background:#ffffff09;border:1px solid #ffffff19;padding:1.3cqw;min-height:0;overflow:hidden}.db-panel h3{font-size:1.75cqw;margin:0 0 1cqw;color:#efcf91}
+.db-bars{display:flex;height:74%;align-items:end;gap:.38cqw;border-bottom:1px solid #a8b8ca55;padding-bottom:.6cqw}
+.db-bar{flex:1;min-width:0;background:linear-gradient(#f6d896,#936d39);height:var(--bar-height);min-height:2px;position:relative;border-radius:.2cqw .2cqw 0 0}.db-bar:nth-child(2n){background:linear-gradient(#c4d6ee,#4e709e)}.db-bar em{position:absolute;bottom:-1.8cqw;left:50%;transform:translateX(-50%);font-style:normal;font-size:1cqw;color:#bdc8d8}
+.db-games{display:flex;flex-direction:column;gap:.95cqw}.db-game{display:grid;grid-template-columns:1fr auto;gap:.5cqw;font-size:1.35cqw}.db-game label{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.db-game b{color:#f3d593;font-variant-numeric:tabular-nums}.db-track{grid-column:1/-1;background:#ffffff17;height:.48cqw}.db-track i{display:block;background:linear-gradient(90deg,#84613c,#f3d593);height:100%;width:var(--bar-height)}
+.db-status{font-size:1.12cqw;color:#b9c5d1;position:absolute;right:2.2cqw;bottom:.6cqw}
+#dashboard .db-empty{font-size:1.5cqw;color:#b9c5d1}
