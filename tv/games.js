@@ -1,0 +1,4 @@
+// Historical mechanics intentionally retain their own identifiers.
+export const GAMES=Object.freeze({
+ var_challenge:['VAR-челлендж','⚑'],crash:['Крэш','↗'],higher_lower:['Выше / ниже','↕'],slots:['Слоты','▥'],businka_slots:['Слоты Бусинки','🐾'],blackjack:['Блэкджек','♠'],wheel:['Колесо','◉'],roulette:['Рулетка','◎'],dice:['Кости','⚄'],plinko:['Плинко','⋮'],horse:['Скачки','♞'],mines:['Мины','◇'],coinflip:['Монетка','◐'],keno:['Кено','▦'],tower:['Башня','▤'],rps:['Камень, ножницы, бумага','✌'],offside:['Офсайд','⚑'],scratch:['Скретч-карта','▧'],penalty:['Пенальти','⚽'],eleven_meters:['Одиннадцать метров','⚽'],durak:['Дурак','♣'],pvp_blackjack:['Дуэль в блэкджек','♠'],pvp_dice:['Дуэль на костях','⚄'],pvp_chicken:['Цыплёнок: дуэль','♞']});
+export const gameInfo=id=>{const archived=typeof id==='string'&&id.startsWith('legacy:');const [name,icon]=GAMES[archived?id.slice(7):id]||['Другая игра','◈'];return [name+(archived?' · архив':''),icon]};
