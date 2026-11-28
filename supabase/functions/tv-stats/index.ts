@@ -9,7 +9,7 @@ Deno.serve(async req=>{
  if(origin&&origins.has(origin))cors["Access-Control-Allow-Origin"]=origin;
  const respond=(data:string,status=200)=>new Response(data,{status,headers:cors});
  if(origin&&!origins.has(origin))return respond('{"ok":false,"error":"forbidden_origin"}',403);
- if(req.method==="OPTIONS")return respond("{}",204);
+ if(req.method==="OPTIONS")return respond("{}",200);
  if(req.method!=="GET")return respond('{"ok":false,"error":"method_not_allowed"}',405);
  const u=new URL(req.url);if(u.pathname.split("/").pop()!=="tv-stats")return respond('{"ok":false,"error":"not_found"}',404);
  const ip=(req.headers.get("cf-connecting-ip")||req.headers.get("x-forwarded-for")||"unknown").split(",")[0].trim().slice(0,64);
