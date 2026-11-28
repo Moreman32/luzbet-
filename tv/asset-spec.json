@@ -1,0 +1,297 @@
+{
+  "host": [
+    {
+      "name": "desk",
+      "purpose": "Main news anchor at a navy glass news desk, elegant navy suit, burgundy tie, papers."
+    },
+    {
+      "name": "newspaper",
+      "purpose": "Newsreader holding a large open newspaper below face with both hands, paper contains abstract column lines without readable text, luxurious newsroom."
+    },
+    {
+      "name": "analyst",
+      "purpose": "Financial analyst wearing elegant thin-frame glasses and dark suit, analytical charts on screens, neat folders at finance desk."
+    },
+    {
+      "name": "coffee",
+      "purpose": "Confident morning anchor holding a black coffee cup at chest level, warm sunrise light in navy and gold morning studio."
+    },
+    {
+      "name": "reporter",
+      "purpose": "Special field correspondent standing outside a fictional premium corporate headquarters at dusk, holding a professional microphone with blank navy mic flag."
+    },
+    {
+      "name": "shocked",
+      "purpose": "Shocked newsroom anchor with raised eyebrows and surprised wide-open eyes but mouth CLOSED, urgent papers on desk, dramatic cinematic lighting."
+    },
+    {
+      "name": "laughing",
+      "purpose": "News anchor visibly trying very hard to suppress laughter on live television, amused crinkled eyes and closed-lip smile, elegant newsroom."
+    },
+    {
+      "name": "weather",
+      "purpose": "Financial weather presenter standing beside a large studio screen with abstract storm clouds and falling gold chart lines, holding a slim pointer, navy suit."
+    },
+    {
+      "name": "awards",
+      "purpose": "Ceremony presenter wearing a black tuxedo with bow tie and holding one elegant gold trophy, luxurious burgundy and gold awards stage."
+    },
+    {
+      "name": "detective",
+      "purpose": "Investigative journalist in a dark blazer, evidence board behind him with abstract documents, photographs and red connecting threads, moody navy room."
+    },
+    {
+      "name": "conspiracy",
+      "purpose": "Extremely serious corporate analyst wearing a small handmade aluminium foil hat and formal dark suit, conspiracy research desk in navy and gold studio."
+    },
+    {
+      "name": "tired",
+      "purpose": "Tired late-night anchor with mildly weary eyes, slightly loosened burgundy tie, many papers and coffee cups, dark blue nighttime newsroom."
+    },
+    {
+      "name": "calculator",
+      "purpose": "Solemn corporate accountant holding an absurdly oversized realistic calculator with blank keys, navy and gold finance studio."
+    },
+    {
+      "name": "bankruptcy",
+      "purpose": "Corporate financial report presenter, dark suit, scattered documents and a visibly broken calculator on desk, chaotic accounting office, serious composure."
+    },
+    {
+      "name": "lawyer",
+      "purpose": "Corporate lawyer in charcoal suit holding a thick document folder, library and legal office, elegant burgundy and gold lighting."
+    },
+    {
+      "name": "scientist",
+      "purpose": "Serious researcher wearing a white laboratory coat over a burgundy tie, absurd research laboratory with glassware, probability balls and scientific instruments, navy/gold accents."
+    },
+    {
+      "name": "emergency",
+      "purpose": "Urgent breaking-news anchor at a desk in dark suit, intense red and burgundy studio accent lighting, calm tense expression."
+    },
+    {
+      "name": "interview",
+      "purpose": "Late evening talk-show host in elegant blazer holding a microphone, cozy premium navy velvet and warm gold studio lounge."
+    },
+    {
+      "name": "director",
+      "purpose": "Self-important corporate chief executive wearing an expensive dark suit, seated behind a large walnut desk in an opulent navy and gold executive office."
+    },
+    {
+      "name": "sports",
+      "purpose": "Sports commentator wearing a professional broadcast headset and smart dark jacket, premium sports studio with abstract stadium and scoreboard shapes, no lettering."
+    },
+    {
+      "name": "commercial",
+      "purpose": "Deadpan parody shopping presenter holding and demonstrating a useless premium clear cube with a single gold button, sleek TV product studio."
+    },
+    {
+      "name": "professor",
+      "purpose": "Professor of economics in a tweed blazer standing before a dark chalkboard with abstract nonsensical diagram lines, holding a piece of chalk, premium academic studio."
+    },
+    {
+      "name": "crisis",
+      "purpose": "Leader of an emergency corporate crisis meeting at a table with many documents and telephones, dramatic navy/burgundy war-room lighting."
+    },
+    {
+      "name": "disappointed",
+      "purpose": "News anchor staring directly into camera with absolute closed-mouth disappointment in his own newsroom's competence, navy suit, still hands on papers, elegant studio."
+    }
+  ],
+  "studios": [
+    {
+      "name": "news",
+      "purpose": "Основная новостная студия"
+    },
+    {
+      "name": "breaking",
+      "purpose": "Студия экстренных новостей"
+    },
+    {
+      "name": "finance",
+      "purpose": "Студия финансовой аналитики"
+    },
+    {
+      "name": "evening",
+      "purpose": "Студия вечернего шоу"
+    },
+    {
+      "name": "weather",
+      "purpose": "Студия финансовой погоды"
+    },
+    {
+      "name": "sports",
+      "purpose": "Студия спортивных обзоров"
+    },
+    {
+      "name": "awards",
+      "purpose": "Студия награждения"
+    },
+    {
+      "name": "director",
+      "purpose": "Кабинет генерального директора"
+    },
+    {
+      "name": "accounting",
+      "purpose": "Хаотичная бухгалтерия"
+    },
+    {
+      "name": "laboratory",
+      "purpose": "НИИ прикладной дисперсии"
+    },
+    {
+      "name": "investigation",
+      "purpose": "Кабинет расследований"
+    },
+    {
+      "name": "night",
+      "purpose": "Ночная телестудия"
+    },
+    {
+      "name": "newspaper",
+      "purpose": "Редакция LuzBet Times"
+    },
+    {
+      "name": "crisis",
+      "purpose": "Антикризисный штаб"
+    }
+  ],
+  "intros": [
+    {
+      "name": "luzbet-tv",
+      "purpose": "LuzBet TV",
+      "prompt": "A majestic gold orbital broadcast sphere built from betting chips, navy void, sweeping burgundy glass ribbons."
+    },
+    {
+      "name": "news",
+      "purpose": "LuzBet News",
+      "prompt": "Architectural navy and gold concentric newsroom rings around a tiny impossible probability curve, broadcast energy."
+    },
+    {
+      "name": "breaking-news",
+      "purpose": "Breaking News",
+      "prompt": "Angular crimson glass shards and urgent red light streaks around a gold warning beacon and a falling poker chip."
+    },
+    {
+      "name": "times",
+      "purpose": "LuzBet Times",
+      "prompt": "Elegant folded newsprint ribbons, ink-black and gold printing cylinders, abstract betting slip columns."
+    },
+    {
+      "name": "finance",
+      "purpose": "LuzBet Finance",
+      "prompt": "Gold candlestick-chart sculpture bends into an impossible triangle above black marble, burgundy reflections."
+    },
+    {
+      "name": "sport",
+      "purpose": "LuzBet Sport",
+      "prompt": "Gold football, abstract stadium floodlights, athletic navy ribbons and a racing stopwatch with no numerals."
+    },
+    {
+      "name": "weather",
+      "purpose": "LuzBet Weather",
+      "prompt": "A cinematic swirling storm cloud raining golden betting chips into a glossy dark-blue horizon, absurd financial weather."
+    },
+    {
+      "name": "investigation",
+      "purpose": "LuzBet Investigation",
+      "prompt": "Moody investigative lens, gold magnifying glass, red strings crossing abstract dark betting documents, noir suspense."
+    },
+    {
+      "name": "science",
+      "purpose": "LuzBet Science",
+      "prompt": "A precision gold atomic model with dice as electrons orbiting a single burgundy betting chip, dark laboratory atmosphere."
+    },
+    {
+      "name": "court",
+      "purpose": "LuzBet Court",
+      "prompt": "Gold justice scales balance a single dice against a towering stack of betting slips, burgundy velvet, black marble."
+    },
+    {
+      "name": "awards",
+      "purpose": "LuzBet Awards",
+      "prompt": "Elegant gold dice trophy and laurel, burgundy velvet drapery and cinematic gold particle lights, grand ceremony."
+    },
+    {
+      "name": "shopping",
+      "purpose": "LuzBet Shopping",
+      "prompt": "A useless clear crystal cube with a single gold button on a navy velvet pedestal, absurd luxury product commercial."
+    },
+    {
+      "name": "evening",
+      "purpose": "Вечерний LuzBet",
+      "prompt": "Warm gold art-deco stage arch, midnight navy velvet curtains, elegant microphone silhouette and burgundy lounge lighting."
+    },
+    {
+      "name": "technical-break",
+      "purpose": "Технический перерыв",
+      "prompt": "Elegant technical test-pattern geometry in navy/burgundy/gold, gold cable knot and a tiny empty maintenance tool tray."
+    },
+    {
+      "name": "night",
+      "purpose": "Ночной эфир",
+      "prompt": "Midnight-blue broadcast tower over a miniature sleeping bookmaker city, small gold crescent made from a betting chip, restrained stars."
+    }
+  ],
+  "reactions": [
+    {
+      "name": "sleeping",
+      "purpose": "Ведущий уснул за столом",
+      "prompt": "The anchor has fallen asleep with eyes closed and head resting sideways on his folded arms on a low desk, loosened tie."
+    },
+    {
+      "name": "facepalm",
+      "purpose": "Ведущий закрывает лицо рукой",
+      "prompt": "The anchor covers most of his face with one anatomically correct hand in despair, other arm relaxed."
+    },
+    {
+      "name": "reading",
+      "purpose": "Внимательно читает газету",
+      "prompt": "The anchor looks down intently at an open newspaper held in both hands, exact masthead «Лузбет»."
+    },
+    {
+      "name": "phone",
+      "purpose": "Разговор по телефону",
+      "prompt": "The anchor holds a black telephone handset to his ear and listens seriously, free hand resting down."
+    },
+    {
+      "name": "counting",
+      "purpose": "Подсчёт документов и фишек",
+      "prompt": "The anchor carefully counts a small stack of documents and burgundy/gold betting chips in his hands, serious concentration."
+    },
+    {
+      "name": "walking",
+      "purpose": "Идёт по коридору",
+      "prompt": "The anchor is walking naturally toward camera with a navy document folder, mid-thigh-up composition, no exaggerated stride."
+    },
+    {
+      "name": "thinking",
+      "purpose": "Задумался",
+      "prompt": "The anchor looks thoughtfully to one side, fingers of one hand lightly touching his chin."
+    },
+    {
+      "name": "celebration",
+      "purpose": "Годовщина телеканала",
+      "prompt": "The anchor celebrates a corporate TV anniversary with a restrained closed-lip smile, holding a small navy-and-gold party popper, a few gold confetti pieces."
+    },
+    {
+      "name": "confused",
+      "purpose": "Не понимает инструкцию",
+      "prompt": "The anchor studies an absurdly long folded instruction leaflet full of abstract diagrams, confused raised eyebrow."
+    },
+    {
+      "name": "office-chaos",
+      "purpose": "Хаос в редакции",
+      "prompt": "The anchor sits overwhelmed amid a low pile of crumpled betting slips, holding two contradictory documents, tie loosened, keep clutter low in foreground."
+    },
+    {
+      "name": "technical-break",
+      "purpose": "Ремонт телеоборудования",
+      "prompt": "The anchor solemnly attempts to repair a small broadcast camera held at waist height with a screwdriver, realistic fingers, sleeve slightly rolled."
+    },
+    {
+      "name": "cat-assistant",
+      "purpose": "Кошка — руководитель корпорации",
+      "prompt": "The anchor works beside a fluffy blue-eyed ragdoll cat sitting regally on a small navy chair, the cat appears to supervise the corporation. Both subjects must be unobstructed."
+    }
+  ]
+}

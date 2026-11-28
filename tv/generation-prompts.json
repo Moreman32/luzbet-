@@ -1,0 +1,537 @@
+{
+  "mode": "built-in image_gen",
+  "referenceImage": "Стас.png",
+  "identityPolicy": "The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features.",
+  "commonStyle": "ONE landscape 16:9 1920x1080 photorealistic premium satirical financial TV asset for fictional LuzBet TV. Navy, black, gold and burgundy palette; cinematic broadcast lighting; serious credible presentation of absurd corporate business. Chest/waist-up man with large legible face, upright level head, facing camera, mouth CLOSED, both eyes OPEN. Realistic hands and objects. Branding allowed: one crisp tasteful exact Cyrillic word «Лузбет» on a relevant prop or set plaque. No other text, headlines, watermarks, gibberish lettering or caricature. Each background must be distinct and feature absurd fictional bookmaker-corporation motifs, not generic finance decor: lottery-ball machinery, impossible probability charts, oversized chips, betting slip archives, gold dice sculptures, absurd odds research as suited to scene. Keep it premium and visually believable.",
+  "series": [
+    [
+      "desk",
+      "Main news anchor at a navy glass news desk, elegant navy suit, burgundy tie, papers."
+    ],
+    [
+      "newspaper",
+      "Newsreader holding a large open newspaper below face with both hands, paper contains abstract column lines without readable text, luxurious newsroom."
+    ],
+    [
+      "analyst",
+      "Financial analyst wearing elegant thin-frame glasses and dark suit, analytical charts on screens, neat folders at finance desk."
+    ],
+    [
+      "coffee",
+      "Confident morning anchor holding a black coffee cup at chest level, warm sunrise light in navy and gold morning studio."
+    ],
+    [
+      "reporter",
+      "Special field correspondent standing outside a fictional premium corporate headquarters at dusk, holding a professional microphone with blank navy mic flag."
+    ],
+    [
+      "shocked",
+      "Shocked newsroom anchor with raised eyebrows and surprised wide-open eyes but mouth CLOSED, urgent papers on desk, dramatic cinematic lighting."
+    ],
+    [
+      "laughing",
+      "News anchor visibly trying very hard to suppress laughter on live television, amused crinkled eyes and closed-lip smile, elegant newsroom."
+    ],
+    [
+      "weather",
+      "Financial weather presenter standing beside a large studio screen with abstract storm clouds and falling gold chart lines, holding a slim pointer, navy suit."
+    ],
+    [
+      "awards",
+      "Ceremony presenter wearing a black tuxedo with bow tie and holding one elegant gold trophy, luxurious burgundy and gold awards stage."
+    ],
+    [
+      "detective",
+      "Investigative journalist in a dark blazer, evidence board behind him with abstract documents, photographs and red connecting threads, moody navy room."
+    ],
+    [
+      "conspiracy",
+      "Extremely serious corporate analyst wearing a small handmade aluminium foil hat and formal dark suit, conspiracy research desk in navy and gold studio."
+    ],
+    [
+      "tired",
+      "Tired late-night anchor with mildly weary eyes, slightly loosened burgundy tie, many papers and coffee cups, dark blue nighttime newsroom."
+    ],
+    [
+      "calculator",
+      "Solemn corporate accountant holding an absurdly oversized realistic calculator with blank keys, navy and gold finance studio."
+    ],
+    [
+      "bankruptcy",
+      "Corporate financial report presenter, dark suit, scattered documents and a visibly broken calculator on desk, chaotic accounting office, serious composure."
+    ],
+    [
+      "lawyer",
+      "Corporate lawyer in charcoal suit holding a thick document folder, library and legal office, elegant burgundy and gold lighting."
+    ],
+    [
+      "scientist",
+      "Serious researcher wearing a white laboratory coat over a burgundy tie, absurd research laboratory with glassware, probability balls and scientific instruments, navy/gold accents."
+    ],
+    [
+      "emergency",
+      "Urgent breaking-news anchor at a desk in dark suit, intense red and burgundy studio accent lighting, calm tense expression."
+    ],
+    [
+      "interview",
+      "Late evening talk-show host in elegant blazer holding a microphone, cozy premium navy velvet and warm gold studio lounge."
+    ],
+    [
+      "director",
+      "Self-important corporate chief executive wearing an expensive dark suit, seated behind a large walnut desk in an opulent navy and gold executive office."
+    ],
+    [
+      "sports",
+      "Sports commentator wearing a professional broadcast headset and smart dark jacket, premium sports studio with abstract stadium and scoreboard shapes, no lettering."
+    ],
+    [
+      "commercial",
+      "Deadpan parody shopping presenter holding and demonstrating a useless premium clear cube with a single gold button, sleek TV product studio."
+    ],
+    [
+      "professor",
+      "Professor of economics in a tweed blazer standing before a dark chalkboard with abstract nonsensical diagram lines, holding a piece of chalk, premium academic studio."
+    ],
+    [
+      "crisis",
+      "Leader of an emergency corporate crisis meeting at a table with many documents and telephones, dramatic navy/burgundy war-room lighting."
+    ],
+    [
+      "disappointed",
+      "News anchor staring directly into camera with absolute closed-mouth disappointment in his own newsroom's competence, navy suit, still hands on papers, elegant studio."
+    ]
+  ],
+  "notes": [
+    "Idle created first; speech and blink edits use corresponding idle.",
+    "Final compositing preserves idle RGB outside mouth/eye ROIs.",
+    "Studios and intros generated separately without people."
+  ],
+  "frameEdits": [
+    {
+      "pose": "desk",
+      "prompts": {}
+    },
+    {
+      "pose": "newspaper",
+      "prompts": {
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "analyst",
+      "prompts": {
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "coffee",
+      "prompts": {
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "reporter",
+      "prompts": {
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "shocked",
+      "prompts": {
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "laughing",
+      "prompts": {
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "weather",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "awards",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "detective",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "conspiracy",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "tired",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "calculator",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "bankruptcy",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "lawyer",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "scientist",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "emergency",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "interview",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "director",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "sports",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "commercial",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "professor",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "crisis",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    },
+    {
+      "pose": "disappointed",
+      "prompts": {
+        "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+        "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+        "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+      }
+    }
+  ],
+  "studiosAndIntros": [
+    {
+      "category": "studios",
+      "name": "news",
+      "prompt": "Create ONE 16:9 landscape 1920x1080 PHOTOREALISTIC empty television set background for a layered TV engine. ABSOLUTELY NO PEOPLE, silhouettes, faces or human photos. Premium navy/black/burgundy/gold, cinematic architectural broadcast lighting, serious presentation of an absurd fictional betting corporation. Main LuzBet newsroom: navy curved walls, gold trim, large impossible infinity-shaped odds chart on rear screen, small gold losing-ticket sculpture, clear tasteful «Лузбет» wall sign. Camera eye level facing empty central anchor position, a low navy glass desk only in bottom 8% of frame; middle area uncluttered for host overlay. Realistic construction, sharp detail, no watermark. Only allowed lettering exact «Лузбет», no news headlines or random writing. This is an independent background plate, do not put any host into it."
+    },
+    {
+      "category": "studios",
+      "name": "breaking",
+      "prompt": "Create ONE 16:9 landscape 1920x1080 PHOTOREALISTIC empty television set background for a layered TV engine. ABSOLUTELY NO PEOPLE, silhouettes, faces or human photos. Premium navy/black/burgundy/gold, cinematic architectural broadcast lighting, serious presentation of an absurd fictional betting corporation. LuzBet breaking news studio: angular burgundy and red illuminated walls, giant warning beacon under glass displaying a single golden poker chip, abstract crashing odds chart, one «Лузбет» sign. Empty center for overlay, camera eye level, low desk bottom 8%. Realistic construction, sharp detail, no watermark. Only allowed lettering exact «Лузбет», no news headlines or random writing. This is an independent background plate, do not put any host into it."
+    },
+    {
+      "category": "studios",
+      "name": "finance",
+      "prompt": "Create ONE 16:9 landscape 1920x1080 PHOTOREALISTIC empty television set background for a layered TV engine. ABSOLUTELY NO PEOPLE, silhouettes, faces or human photos. Premium navy/black/burgundy/gold, cinematic architectural broadcast lighting, serious presentation of an absurd fictional betting corporation. LuzBet finance studio: glass and navy walls, spectacular gold Penrose-triangle market diagram, shelves of neatly classified losing betting slips, gold abacus whose beads are footballs. No people, clear central presenter space, eye level composition, low desk bottom 8%. Realistic construction, sharp detail, no watermark. Only allowed lettering exact «Лузбет», no news headlines or random writing. This is an independent background plate, do not put any host into it."
+    },
+    {
+      "category": "studios",
+      "name": "evening",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: A cozy late-evening talk-show set with navy velvet sofa far to one side, warm gold art-deco arches and burgundy curtains; a tiny gold roulette wheel as the coffee-table sculpture. Open center space."
+    },
+    {
+      "category": "studios",
+      "name": "weather",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: Financial weather studio, large rear screen shows a dramatic hurricane shaped like a poker chip and gold chart lines falling like rain; elegant blue glass panels, no desk, open standing presenter zone on left."
+    },
+    {
+      "category": "studios",
+      "name": "sports",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: Sports review studio looking toward an empty floodlit stadium, rear screens show a football trapped inside a giant hourglass and a gold finish line that loops into itself, navy acoustic walls."
+    },
+    {
+      "category": "studios",
+      "name": "awards",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: Grand awards ceremony stage with burgundy velvet curtains, spotlights, a giant tasteful gold trophy shaped like a single dice surrounded by a laurel, black marble plinths at sides and a clear central presentation zone."
+    },
+    {
+      "category": "studios",
+      "name": "director",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: An opulent corporate CEO office: walnut and navy leather, panoramic city window, gold vault door set into side wall, an absurd tiny gold throne for the corporate cat on a shelf, low grand desk bottom edge, no chair blocking central host."
+    },
+    {
+      "category": "studios",
+      "name": "accounting",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: Chaotic bookmaker accounting department: burgundy filing cabinets with rivers of betting receipts spilling out, several broken calculators and a giant abacus with missing beads at sides, low paperwork below host hands, center clear."
+    },
+    {
+      "category": "studios",
+      "name": "laboratory",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: Research institute of applied variance: sophisticated navy laboratory with glass chambers containing suspended dice, a probability-particle collider and a small impossible odds apparatus, gold metal tubing, controlled scientific lighting. Empty presenter area."
+    },
+    {
+      "category": "studios",
+      "name": "investigation",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: Corporate investigative journalism office: large evidence board of abstract betting slips, photos of empty bookmaker buildings, red connecting strings tracing an impossible conspiracy, warm brass desk lamp to side, navy archive cabinets, dark noir light."
+    },
+    {
+      "category": "studios",
+      "name": "night",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: An almost dark midnight newsroom, deep navy windows with a quiet city skyline, one warm gold desk lamp off to a side, a golden crescent-shaped poker chip suspended in a display cabinet, gentle moonlight, minimal peaceful absurdity."
+    },
+    {
+      "category": "studios",
+      "name": "newspaper",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: The newsroom of a fictional financial newspaper: elegant navy editorial desks at sides, a vintage brass printing press feeding a comically endless roll of betting slips, newspapers arranged like corporate trophies, burgundy archive shelves, clear central presenter space."
+    },
+    {
+      "category": "studios",
+      "name": "crisis",
+      "prompt": "ONE landscape 16:9 1920x1080 PHOTOREALISTIC empty studio/background plate for fictional LuzBet satirical bookmaker television. Absolutely NO PEOPLE, no faces, portraits, mannequins or human silhouettes. Premium professional construction and cinematic broadcast lighting, navy/black/gold/burgundy materials. Eye-level frontal camera, a clear empty middle foreground for a separate waist-up host layer, no obstructions across face area. Keep any tabletop at bottom 8% of frame. Architectural environment should be appropriate to specified purpose and distinct from other studios. Only lettering allowed is exact tasteful brand «Лузбет». No headlines or random writing, no watermark. Serious realistic design with a few absurd betting-corporation details. Scene: An emergency corporate crisis headquarters, dramatic navy and burgundy lighting, curved rear screens showing impossible odds collapsing into a black hole, multiple red telephones at sides and stacks of urgent betting reports below the low tabletop edge; clear empty central presenter position."
+    },
+    {
+      "category": "intros",
+      "name": "luzbet-tv",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet TV. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy material palette, modern sophisticated motion-design still. A majestic gold orbital broadcast sphere built from betting chips, navy void, sweeping burgundy glass ribbons. Leave a spacious dark central title-safe area so the program name can be overlaid programmatically. Rich detail at edges, controlled highlights, coherent visual brand but distinctive concept. Absolutely NO TEXT, no letters, no numbers, no logos, no watermark, no people. One single frame, not collage."
+    },
+    {
+      "category": "intros",
+      "name": "news",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet News. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy material palette, modern sophisticated motion-design still. Architectural navy and gold concentric newsroom rings around a tiny impossible probability curve, broadcast energy. Leave a spacious dark central title-safe area so the program name can be overlaid programmatically. Rich detail at edges, controlled highlights, coherent visual brand but distinctive concept. Absolutely NO TEXT, no letters, no numbers, no logos, no watermark, no people. One single frame, not collage."
+    },
+    {
+      "category": "intros",
+      "name": "breaking-news",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: Breaking News. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy material palette, modern sophisticated motion-design still. Angular crimson glass shards and urgent red light streaks around a gold warning beacon and a falling poker chip. Leave a spacious dark central title-safe area so the program name can be overlaid programmatically. Rich detail at edges, controlled highlights, coherent visual brand but distinctive concept. Absolutely NO TEXT, no letters, no numbers, no logos, no watermark, no people. One single frame, not collage."
+    },
+    {
+      "category": "intros",
+      "name": "times",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Times. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy material palette, modern sophisticated motion-design still. Elegant folded newsprint ribbons, ink-black and gold printing cylinders, abstract betting slip columns. Leave a spacious dark central title-safe area so the program name can be overlaid programmatically. Rich detail at edges, controlled highlights, coherent visual brand but distinctive concept. Absolutely NO TEXT, no letters, no numbers, no logos, no watermark, no people. One single frame, not collage."
+    },
+    {
+      "category": "intros",
+      "name": "finance",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Finance. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. Gold candlestick-chart sculpture bends into an impossible triangle above black marble, burgundy reflections. Spacious dark central title-safe area for a programmatic title. Rich sculptural detail toward edges, controlled highlights, a distinctive concept within coherent branding. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One frame."
+    },
+    {
+      "category": "intros",
+      "name": "sport",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Sport. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. Gold football, abstract stadium floodlights, athletic navy ribbons and a racing stopwatch with no numerals. Spacious dark central title-safe area for a programmatic title. Rich sculptural detail toward edges, controlled highlights, a distinctive concept within coherent branding. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One frame."
+    },
+    {
+      "category": "intros",
+      "name": "weather",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Weather. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. A cinematic swirling storm cloud raining golden betting chips into a glossy dark-blue horizon, absurd financial weather. Spacious dark central title-safe area for a programmatic title. Rich sculptural detail toward edges, controlled highlights, a distinctive concept within coherent branding. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One frame."
+    },
+    {
+      "category": "intros",
+      "name": "investigation",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Investigation. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. Moody investigative lens, gold magnifying glass, red strings crossing abstract dark betting documents, noir suspense. Spacious dark central title-safe area for a programmatic title. Rich sculptural detail toward edges, controlled highlights, a distinctive concept within coherent branding. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One frame."
+    },
+    {
+      "category": "intros",
+      "name": "science",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Science. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. A precision gold atomic model with dice as electrons orbiting a single burgundy betting chip, dark laboratory atmosphere. Spacious dark central title-safe area for a programmatic title. Rich sculptural detail toward edges, controlled highlights, distinctive visual concept. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One single frame."
+    },
+    {
+      "category": "intros",
+      "name": "court",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Court. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. Gold justice scales balance a single dice against a towering stack of betting slips, burgundy velvet, black marble. Spacious dark central title-safe area for a programmatic title. Rich sculptural detail toward edges, controlled highlights, distinctive visual concept. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One single frame."
+    },
+    {
+      "category": "intros",
+      "name": "awards",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Awards. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. Elegant gold dice trophy and laurel, burgundy velvet drapery and cinematic gold particle lights, grand ceremony. Spacious dark central title-safe area for a programmatic title. Rich sculptural detail toward edges, controlled highlights, distinctive visual concept. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One single frame."
+    },
+    {
+      "category": "intros",
+      "name": "shopping",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: LuzBet Shopping. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. A useless clear crystal cube with a single gold button on a navy velvet pedestal, absurd luxury product commercial. Spacious dark central title-safe area for a programmatic title. Rich sculptural detail toward edges, controlled highlights, distinctive visual concept. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One single frame."
+    },
+    {
+      "category": "intros",
+      "name": "evening",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: Вечерний LuzBet. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. Warm gold art-deco stage arch, midnight navy velvet curtains, elegant microphone silhouette and burgundy lounge lighting. Spacious dark central title-safe area for a programmatic title. Rich detail toward edges, controlled highlights, distinctive concept. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One frame."
+    },
+    {
+      "category": "intros",
+      "name": "technical-break",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: Технический перерыв. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. Elegant technical test-pattern geometry in navy/burgundy/gold, gold cable knot and a tiny empty maintenance tool tray. Spacious dark central title-safe area for a programmatic title. Rich detail toward edges, controlled highlights, distinctive concept. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One frame."
+    },
+    {
+      "category": "intros",
+      "name": "night",
+      "prompt": "Create ONE premium television program title BACKPLATE for fictional LuzBet TV satire, program concept: Ночной эфир. 16:9 landscape 1920x1080, cinematic photorealistic 3D broadcast design, premium navy/black/gold/burgundy materials, modern sophisticated motion-design still. Midnight-blue broadcast tower over a miniature sleeping bookmaker city, small gold crescent made from a betting chip, restrained stars. Spacious dark central title-safe area for a programmatic title. Rich detail toward edges, controlled highlights, distinctive concept. Absolutely NO TEXT, letters, numbers, logos, watermark or people. One frame."
+    }
+  ],
+  "reactions": [
+    {
+      "name": "sleeping",
+      "purpose": "Ведущий уснул за столом",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor has fallen asleep with eyes closed and head resting sideways on his folded arms on a low desk, loosened tie. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "facepalm",
+      "purpose": "Ведущий закрывает лицо рукой",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor covers most of his face with one anatomically correct hand in despair, other arm relaxed. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "reading",
+      "purpose": "Внимательно читает газету",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor looks down intently at an open newspaper held in both hands, exact masthead «Лузбет». IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "phone",
+      "purpose": "Разговор по телефону",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor holds a black telephone handset to his ear and listens seriously, free hand resting down. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "counting",
+      "purpose": "Подсчёт документов и фишек",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor carefully counts a small stack of documents and burgundy/gold betting chips in his hands, serious concentration. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "walking",
+      "purpose": "Идёт по коридору",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor is walking naturally toward camera with a navy document folder, mid-thigh-up composition, no exaggerated stride. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "thinking",
+      "purpose": "Задумался",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor looks thoughtfully to one side, fingers of one hand lightly touching his chin. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "celebration",
+      "purpose": "Годовщина телеканала",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor celebrates a corporate TV anniversary with a restrained closed-lip smile, holding a small navy-and-gold party popper, a few gold confetti pieces. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "confused",
+      "purpose": "Не понимает инструкцию",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor studies an absurdly long folded instruction leaflet full of abstract diagrams, confused raised eyebrow. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "office-chaos",
+      "purpose": "Хаос в редакции",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor sits overwhelmed amid a low pile of crumpled betting slips, holding two contradictory documents, tie loosened, keep clutter low in foreground. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "technical-break",
+      "purpose": "Ремонт телеоборудования",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor solemnly attempts to repair a small broadcast camera held at waist height with a screwdriver, realistic fingers, sleeve slightly rolled. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    },
+    {
+      "name": "cat-assistant",
+      "purpose": "Кошка — руководитель корпорации",
+      "prompt": "Identity-preserve. Input 1 is the real man's identity; input 2 is approved anchor likeness and clothing. The same adult man from the identity reference, preserve age, broad facial proportions and body build, swept-back short dark brown hair, blue-grey eyes, eyebrows, nose, full reddish-brown beard, natural skin. No slimming, beautifying or new facial features. Create ONE 16:9 1920x1080 PHOTOREALISTIC reaction image for LuzBet TV. Navy suit, white shirt, burgundy tie unless scene requires loosened clothing. Natural detailed skin, cinematic neutral soft broadcast lighting. The anchor works beside a fluffy blue-eyed ragdoll cat sitting regally on a small navy chair, the cat appears to supervise the corporation. Both subjects must be unobstructed. IMPORTANT: a PLAIN uniform medium-gray background, no studio, buildings or scenery. This is a photographic foreground source for later transparent matting. Show ONLY the man and the necessary handheld props or small low foreground surface required by the pose. Large clearly legible head/upper body, safe framing, no clipped hands or props. Exact small branding «Лузбет» allowed on a relevant prop, no other lettering or headlines. Realistic hands and objects, no cartoon, no caricature, no watermark.",
+      "mattePrompt": "Background-extraction. Remove ONLY the uniform gray background. Keep exactly the photographic man and ALL intentionally shown props and animals, including the ragdoll cat and its small chair if present. Preserve exact original positions, scale, silhouette, clothing, face identity, hands and framing. Do NOT move, crop, redraw or resize. Natural hair/beard/fur alpha edges. TRUE transparent alpha outside subjects/props; no painted checkerboard, no solid background. One transparent frame with original 16:9 canvas unchanged."
+    }
+  ]
+}
