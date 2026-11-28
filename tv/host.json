@@ -1,1 +1,146 @@
-{}
+{
+  "desk": {
+    "idle": "assets/host/desk-idle.webp",
+    "talk": "assets/host/desk-talk.webp",
+    "talkWide": "assets/host/desk-talk-wide.webp",
+    "blink": "assets/host/desk-blink.webp"
+  },
+  "newspaper": {
+    "idle": "assets/host/newspaper-idle.webp",
+    "talk": "assets/host/newspaper-talk.webp",
+    "talkWide": "assets/host/newspaper-talk-wide.webp",
+    "blink": "assets/host/newspaper-blink.webp"
+  },
+  "analyst": {
+    "idle": "assets/host/analyst-idle.webp",
+    "talk": "assets/host/analyst-talk.webp",
+    "talkWide": "assets/host/analyst-talk-wide.webp",
+    "blink": "assets/host/analyst-blink.webp"
+  },
+  "coffee": {
+    "idle": "assets/host/coffee-idle.webp",
+    "talk": "assets/host/coffee-talk.webp",
+    "talkWide": "assets/host/coffee-talk-wide.webp",
+    "blink": "assets/host/coffee-blink.webp"
+  },
+  "reporter": {
+    "idle": "assets/host/reporter-idle.webp",
+    "talk": "assets/host/reporter-talk.webp",
+    "talkWide": "assets/host/reporter-talk-wide.webp",
+    "blink": "assets/host/reporter-blink.webp"
+  },
+  "shocked": {
+    "idle": "assets/host/shocked-idle.webp",
+    "talk": "assets/host/shocked-talk.webp",
+    "talkWide": "assets/host/shocked-talk-wide.webp",
+    "blink": "assets/host/shocked-blink.webp"
+  },
+  "laughing": {
+    "idle": "assets/host/laughing-idle.webp",
+    "talk": "assets/host/laughing-talk.webp",
+    "talkWide": "assets/host/laughing-talk-wide.webp",
+    "blink": "assets/host/laughing-blink.webp"
+  },
+  "weather": {
+    "idle": "assets/host/weather-idle.webp",
+    "talk": "assets/host/weather-talk.webp",
+    "talkWide": "assets/host/weather-talk-wide.webp",
+    "blink": "assets/host/weather-blink.webp"
+  },
+  "awards": {
+    "idle": "assets/host/awards-idle.webp",
+    "talk": "assets/host/awards-talk.webp",
+    "talkWide": "assets/host/awards-talk-wide.webp",
+    "blink": "assets/host/awards-blink.webp"
+  },
+  "detective": {
+    "idle": "assets/host/detective-idle.webp",
+    "talk": "assets/host/detective-talk.webp",
+    "talkWide": "assets/host/detective-talk-wide.webp",
+    "blink": "assets/host/detective-blink.webp"
+  },
+  "conspiracy": {
+    "idle": "assets/host/conspiracy-idle.webp",
+    "talk": "assets/host/conspiracy-talk.webp",
+    "talkWide": "assets/host/conspiracy-talk-wide.webp",
+    "blink": "assets/host/conspiracy-blink.webp"
+  },
+  "tired": {
+    "idle": "assets/host/tired-idle.webp",
+    "talk": "assets/host/tired-talk.webp",
+    "talkWide": "assets/host/tired-talk-wide.webp",
+    "blink": "assets/host/tired-blink.webp"
+  },
+  "calculator": {
+    "idle": "assets/host/calculator-idle.webp",
+    "talk": "assets/host/calculator-talk.webp",
+    "talkWide": "assets/host/calculator-talk-wide.webp",
+    "blink": "assets/host/calculator-blink.webp"
+  },
+  "bankruptcy": {
+    "idle": "assets/host/bankruptcy-idle.webp",
+    "talk": "assets/host/bankruptcy-talk.webp",
+    "talkWide": "assets/host/bankruptcy-talk-wide.webp",
+    "blink": "assets/host/bankruptcy-blink.webp"
+  },
+  "lawyer": {
+    "idle": "assets/host/lawyer-idle.webp",
+    "talk": "assets/host/lawyer-talk.webp",
+    "talkWide": "assets/host/lawyer-talk-wide.webp",
+    "blink": "assets/host/lawyer-blink.webp"
+  },
+  "scientist": {
+    "idle": "assets/host/scientist-idle.webp",
+    "talk": "assets/host/scientist-talk.webp",
+    "talkWide": "assets/host/scientist-talk-wide.webp",
+    "blink": "assets/host/scientist-blink.webp"
+  },
+  "emergency": {
+    "idle": "assets/host/emergency-idle.webp",
+    "talk": "assets/host/emergency-talk.webp",
+    "talkWide": "assets/host/emergency-talk-wide.webp",
+    "blink": "assets/host/emergency-blink.webp"
+  },
+  "interview": {
+    "idle": "assets/host/interview-idle.webp",
+    "talk": "assets/host/interview-talk.webp",
+    "talkWide": "assets/host/interview-talk-wide.webp",
+    "blink": "assets/host/interview-blink.webp"
+  },
+  "director": {
+    "idle": "assets/host/director-idle.webp",
+    "talk": "assets/host/director-talk.webp",
+    "talkWide": "assets/host/director-talk-wide.webp",
+    "blink": "assets/host/director-blink.webp"
+  },
+  "sports": {
+    "idle": "assets/host/sports-idle.webp",
+    "talk": "assets/host/sports-talk.webp",
+    "talkWide": "assets/host/sports-talk-wide.webp",
+    "blink": "assets/host/sports-blink.webp"
+  },
+  "commercial": {
+    "idle": "assets/host/commercial-idle.webp",
+    "talk": "assets/host/commercial-talk.webp",
+    "talkWide": "assets/host/commercial-talk-wide.webp",
+    "blink": "assets/host/commercial-blink.webp"
+  },
+  "professor": {
+    "idle": "assets/host/professor-idle.webp",
+    "talk": "assets/host/professor-talk.webp",
+    "talkWide": "assets/host/professor-talk-wide.webp",
+    "blink": "assets/host/professor-blink.webp"
+  },
+  "crisis": {
+    "idle": "assets/host/crisis-idle.webp",
+    "talk": "assets/host/crisis-talk.webp",
+    "talkWide": "assets/host/crisis-talk-wide.webp",
+    "blink": "assets/host/crisis-blink.webp"
+  },
+  "disappointed": {
+    "idle": "assets/host/disappointed-idle.webp",
+    "talk": "assets/host/disappointed-talk.webp",
+    "talkWide": "assets/host/disappointed-talk-wide.webp",
+    "blink": "assets/host/disappointed-blink.webp"
+  }
+}

@@ -1,0 +1,692 @@
+[
+  {
+    "name": "desk",
+    "scene": "Main news anchor at a navy glass news desk, elegant navy suit, burgundy tie, papers.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-ccfe66ae-768d-45ee-904b-fa3fd827fcd1.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-c6abc740-539f-4d0f-8399-8aece49c4c8c.png",
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-5d8c0b67-7a36-4f6d-ab15-eec59bbe7bce.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-b6217d33-2ee9-4bf3-b8ce-cb1fcaad4f07.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-693716eb-7769-497b-8612-6c5f0ab22c28.png"
+    },
+    "mouthROI": [
+      916,
+      347,
+      127,
+      77
+    ],
+    "eyesROI": [
+      893,
+      222,
+      188,
+      60
+    ]
+  },
+  {
+    "name": "newspaper",
+    "scene": "Newsreader holding a large open newspaper below face with both hands, paper contains abstract column lines without readable text, luxurious newsroom.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-181935de-7a9d-4cbe-92a7-38cf2a3252d0.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-9e7e41a1-d9ba-4687-9062-f7baef19d982.png",
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-63d9bcca-3868-4dd3-84ed-93be257efb1a.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-5b2152d9-43d4-4222-84de-4931fbc59d2a.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-89cdc27e-052f-47d4-8e93-5d62480123e0.png"
+    },
+    "prompts": {
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "mouthROI": [
+      913,
+      346,
+      130,
+      76
+    ],
+    "eyesROI": [
+      892,
+      222,
+      188,
+      60
+    ]
+  },
+  {
+    "name": "analyst",
+    "scene": "Financial analyst wearing elegant thin-frame glasses and dark suit, analytical charts on screens, neat folders at finance desk.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-027ae44a-62ce-4464-b981-66672e213796.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-10a1da8e-f6e7-41a8-aaa7-4ef4ac4e96b6.png",
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-c0671325-ee4d-4017-bbde-b7619c9e5d73.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-65c67fe0-e1a0-4a2b-a171-4c9b0c69d73a.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-9d9b74d3-b5ad-4d89-b22c-00617eb57660.png"
+    },
+    "prompts": {
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "mouthROI": [
+      914,
+      347,
+      129,
+      76
+    ],
+    "eyesROI": [
+      893,
+      226,
+      186,
+      59
+    ],
+    "refinedMatte": "/Users/moreman32/Documents/GitHub/luzbet-/tv/tools/masks/analyst.png"
+  },
+  {
+    "name": "coffee",
+    "scene": "Confident morning anchor holding a black coffee cup at chest level, warm sunrise light in navy and gold morning studio.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-48a8e82a-376f-45c7-9ba4-9d3d4679d678.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-e7599bdb-d8a8-44a5-861d-88f2829ff19a.png",
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-d8775242-ebe1-48b9-9209-1eb8156fea79.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-df9fd532-f336-45ec-ae55-9d249a4936c3.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-cbcaac6f-6b37-40c3-8455-c5633d72e9b3.png"
+    },
+    "prompts": {
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "mouthROI": [
+      920,
+      348,
+      123,
+      75
+    ],
+    "eyesROI": [
+      893,
+      223,
+      188,
+      59
+    ]
+  },
+  {
+    "name": "reporter",
+    "scene": "Special field correspondent standing outside a fictional premium corporate headquarters at dusk, holding a professional microphone with blank navy mic flag.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-acf36efa-6b72-4222-9425-47059f750c43.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-ae891cb1-8c2c-4c29-9ca8-2dd826b18ad2.png",
+    "mouthROI": [
+      917,
+      348,
+      128,
+      77
+    ],
+    "eyesROI": [
+      892,
+      224,
+      192,
+      61
+    ],
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-c78965d2-32c9-4341-81b4-1503e202f3b7.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-4fbc6dbf-32ca-414a-881f-9bbb49e5181a.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-93330225-c80e-42c9-99ed-aed1952510f0.png"
+    },
+    "prompts": {
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    }
+  },
+  {
+    "name": "shocked",
+    "scene": "Shocked newsroom anchor with raised eyebrows and surprised wide-open eyes but mouth CLOSED, urgent papers on desk, dramatic cinematic lighting.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-40feffc2-8165-47f2-9276-747fbdde53c2.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-5d537c50-ab72-4bd1-8be7-10d4bc419fb3.png",
+    "mouthROI": [
+      916,
+      347,
+      122,
+      75
+    ],
+    "eyesROI": [
+      892,
+      220,
+      187,
+      64
+    ],
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-ccfd6c43-ee1d-4a07-a58d-c042f1185292.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-1773f808-447f-48a8-925c-562ce5e3b292.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-0f1b6180-c6da-479f-af90-1b4cf53102ba.png"
+    },
+    "prompts": {
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "refinedMatte": "/Users/moreman32/Documents/GitHub/luzbet-/tv/tools/masks/shocked.png"
+  },
+  {
+    "name": "laughing",
+    "scene": "News anchor visibly trying very hard to suppress laughter on live television, amused crinkled eyes and closed-lip smile, elegant newsroom.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-de19865a-23de-40ae-ade5-dcea3de12683.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-a3dc8556-0f30-48ab-b809-f93fd4d8d3eb.png",
+    "mouthROI": [
+      904,
+      337,
+      142,
+      82
+    ],
+    "eyesROI": [
+      893,
+      230,
+      183,
+      60
+    ],
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-59273670-e065-4569-b87e-ebffd47f2f68.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-9084a564-d950-4873-8701-9d7efc7f6928.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-64131d5f-8900-465a-ae02-6ffb15b50540.png"
+    },
+    "prompts": {
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "refinedMatte": "/Users/moreman32/Documents/GitHub/luzbet-/tv/tools/masks/laughing.png"
+  },
+  {
+    "name": "weather",
+    "scene": "Financial weather presenter standing beside a large studio screen with abstract storm clouds and falling gold chart lines, holding a slim pointer, navy suit.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-1808e5b2-7bb9-432b-914b-7e7490dfc791.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-79ea18b2-76fb-498a-abbd-08a995745f16.png",
+    "mouthROI": [
+      661,
+      295,
+      110,
+      73
+    ],
+    "eyesROI": [
+      642,
+      198,
+      158,
+      55
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-74ea733b-5913-43c8-a974-1538eb544cf5.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-9e940e99-4baf-4d27-9905-f0f3259c18bc.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-4fc745be-ca38-4e9f-9d9a-58aac75613a9.png"
+    }
+  },
+  {
+    "name": "awards",
+    "scene": "Ceremony presenter wearing a black tuxedo with bow tie and holding one elegant gold trophy, luxurious burgundy and gold awards stage.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-61cd95e8-a436-4fed-82ce-49deccc17494.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-b6097b9e-c605-4b4d-83a3-51ae58ee0e1c.png",
+    "mouthROI": [
+      914,
+      349,
+      128,
+      77
+    ],
+    "eyesROI": [
+      891,
+      224,
+      188,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-361d4778-01e2-4cdb-a4e9-c07855f72ee2.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-d0deaf27-db2e-493b-8af4-d68c71e2babc.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-dd1b62f3-6579-43c3-8000-ad702ce0807f.png"
+    }
+  },
+  {
+    "name": "detective",
+    "scene": "Investigative journalist in a dark blazer, evidence board behind him with abstract documents, photographs and red connecting threads, moody navy room.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-ecfc1f0e-1248-4c6e-bdc8-747005b24d99.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-0ed31261-a93e-4b97-ab1b-b9e66533fd7e.png",
+    "mouthROI": [
+      914,
+      348,
+      128,
+      75
+    ],
+    "eyesROI": [
+      893,
+      223,
+      187,
+      59
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-290066ec-d469-4bdf-b977-ae83cfa21180.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-c8aaafa0-5c73-4d8a-8efd-17fd8723b94d.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-75ede911-b60d-4aae-a0d1-a816e9e5a0ed.png"
+    }
+  },
+  {
+    "name": "conspiracy",
+    "scene": "Extremely serious corporate analyst wearing a small handmade aluminium foil hat and formal dark suit, conspiracy research desk in navy and gold studio.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-4d306b4c-caa9-411a-b671-74a6a6cc7a4f.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-d0cec8db-9618-4ff9-894d-cf1a669c8dc7.png",
+    "mouthROI": [
+      932,
+      367,
+      117,
+      72
+    ],
+    "eyesROI": [
+      914,
+      256,
+      170,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-43bf0da9-cfae-4a59-9458-0de268f12502.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-08878d15-bff3-497c-a0ac-0146dfac65d3.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-d1bf7c6f-b02c-4159-bd0e-b6b63974d03f.png"
+    },
+    "refinedMatte": "/Users/moreman32/Documents/GitHub/luzbet-/tv/tools/masks/conspiracy.png"
+  },
+  {
+    "name": "tired",
+    "scene": "Tired late-night anchor with mildly weary eyes, slightly loosened burgundy tie, many papers and coffee cups, dark blue nighttime newsroom.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-b7b794c1-90d8-418f-83fa-f717d2d7f698.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-2c938e5a-e4c8-456b-9b9b-b79220e7dd83.png",
+    "mouthROI": [
+      916,
+      348,
+      127,
+      77
+    ],
+    "eyesROI": [
+      893,
+      224,
+      188,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-014d311e-3a45-4bd7-8c8d-826b04bd8648.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-3bc1a786-e62d-440a-bf40-0a4748d9072b.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-c0929d85-12ce-4246-93c9-bbb4076e9a8b.png"
+    },
+    "refinedMatte": "/Users/moreman32/Documents/GitHub/luzbet-/tv/tools/masks/tired.png"
+  },
+  {
+    "name": "calculator",
+    "scene": "Solemn corporate accountant holding an absurdly oversized realistic calculator with blank keys, navy and gold finance studio.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-6d14f2a1-7ad5-4ef8-8d29-84ecf2749e01.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-d188d891-c2b8-4b64-91a5-16a05290c568.png",
+    "mouthROI": [
+      946,
+      316,
+      118,
+      77
+    ],
+    "eyesROI": [
+      922,
+      201,
+      179,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-d7dd32b7-765f-48ca-acfa-88f43dd9ba48.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-096ccc57-c970-4fa4-9f78-7ab251211d0b.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-21501c2b-2c83-4bc3-ad37-a43ca8d7017a.png"
+    }
+  },
+  {
+    "name": "bankruptcy",
+    "scene": "Corporate financial report presenter, dark suit, scattered documents and a visibly broken calculator on desk, chaotic accounting office, serious composure.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-597a6db3-2cfd-4eb4-9a17-6a7d277ef640.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-c25cbf7c-e80c-4a2a-8639-8c4f4795dcdb.png",
+    "mouthROI": [
+      919,
+      335,
+      122,
+      75
+    ],
+    "eyesROI": [
+      895,
+      217,
+      182,
+      58
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-21be76e3-01b6-4237-8c75-b44639c28d69.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-a3fd8bdb-93fc-4f61-9678-5cc1a43d52a4.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-29a9e684-3791-4545-8e6c-5508d8dfc7be.png"
+    }
+  },
+  {
+    "name": "lawyer",
+    "scene": "Corporate lawyer in charcoal suit holding a thick document folder, library and legal office, elegant burgundy and gold lighting.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-fbe7d54a-0f4d-4566-a9f6-e8617c0fd985.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-4c2044c7-3b81-4750-917d-a8e405835e85.png",
+    "mouthROI": [
+      917,
+      346,
+      126,
+      75
+    ],
+    "eyesROI": [
+      894,
+      222,
+      186,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-e61dad7c-a391-4a4d-9952-86e99949ea41.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-abe6d88e-14ee-4c79-90c5-fb98050b80c0.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-c1fa4fd0-78af-4b9f-9065-010be9d34f18.png"
+    }
+  },
+  {
+    "name": "scientist",
+    "scene": "Serious researcher wearing a white laboratory coat over a burgundy tie, absurd research laboratory with glassware, probability balls and scientific instruments, navy/gold accents.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-dbc008be-2004-4f16-87bd-63e6518d7b13.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-07f19bae-8b14-440c-a6e6-a1d8d9dccc8a.png",
+    "mouthROI": [
+      914,
+      349,
+      129,
+      76
+    ],
+    "eyesROI": [
+      893,
+      223,
+      187,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-42b3427b-09e7-4547-8784-e38bc2e88072.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-de9875d5-c0c3-4c09-856c-40af98fb1a64.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-65f54a65-82e9-435e-8b9c-ea4ba5b3c35a.png"
+    }
+  },
+  {
+    "name": "emergency",
+    "scene": "Urgent breaking-news anchor at a desk in dark suit, intense red and burgundy studio accent lighting, calm tense expression.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-2d009390-e500-49cb-a51e-dfa8bc8d2ff8.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-60e91b7c-4c0c-40be-a062-522335b280be.png",
+    "mouthROI": [
+      914,
+      348,
+      128,
+      76
+    ],
+    "eyesROI": [
+      892,
+      222,
+      188,
+      61
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-d53b2fa9-00c6-412e-ab88-1d5e843bab8a.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-fd8119c7-6412-4abb-b2af-7dd4a9a7fbe1.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-8d4b4f0e-8fca-41af-a857-c344b60403c8.png"
+    }
+  },
+  {
+    "name": "interview",
+    "scene": "Late evening talk-show host in elegant blazer holding a microphone, cozy premium navy velvet and warm gold studio lounge.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-cd41c594-9ea1-422a-9a68-3cee8d210de0.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-93308e09-ba96-4182-986b-1e71bb431b5d.png",
+    "mouthROI": [
+      916,
+      348,
+      127,
+      76
+    ],
+    "eyesROI": [
+      893,
+      223,
+      188,
+      59
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-cc65a5f3-abc8-49d1-85e8-096b447b75b9.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-cb648325-e9ff-453c-9b89-d3938e42c1b5.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-f6b1cf7f-ac1d-455d-904f-8e3108935ff6.png"
+    }
+  },
+  {
+    "name": "director",
+    "scene": "Self-important corporate chief executive wearing an expensive dark suit, seated behind a large walnut desk in an opulent navy and gold executive office.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-b52097ae-7f83-4bbb-8eb1-38d7d1b0998a.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-f19ef725-cec4-44d0-a86f-dbb59d572103.png",
+    "mouthROI": [
+      914,
+      349,
+      128,
+      76
+    ],
+    "eyesROI": [
+      892,
+      224,
+      188,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-9dba71f9-4213-43f3-a9bf-b15793f42cb6.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-95bde50b-2ad0-433c-963a-09710179f9d0.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-f8c9684e-bf7e-45f6-be56-31161553b768.png"
+    },
+    "refinedMatte": "/Users/moreman32/Documents/GitHub/luzbet-/tv/tools/masks/director.png"
+  },
+  {
+    "name": "sports",
+    "scene": "Sports commentator wearing a professional broadcast headset and smart dark jacket, premium sports studio with abstract stadium and scoreboard shapes, no lettering.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-2042f9bd-b354-44a5-9a30-0709affc74a1.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-15de454b-19bc-400e-9202-9b68f613571b.png",
+    "mouthROI": [
+      914,
+      348,
+      129,
+      76
+    ],
+    "eyesROI": [
+      894,
+      222,
+      188,
+      61
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-c9e32a9b-b342-4581-86f4-3a8b7c3ace56.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-154ce12b-a6bb-414f-8201-075abe3dffff.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-27a6f564-63d8-47e1-aa8a-939087d1c3b6.png"
+    }
+  },
+  {
+    "name": "commercial",
+    "scene": "Deadpan parody shopping presenter holding and demonstrating a useless premium clear cube with a single gold button, sleek TV product studio.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-39a6216a-5fe8-4b22-a51d-e8ea47302efc.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-165bd7eb-1827-447e-84ae-b803f5640e66.png",
+    "mouthROI": [
+      913,
+      348,
+      128,
+      77
+    ],
+    "eyesROI": [
+      891,
+      224,
+      188,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-1775903c-1fda-4175-b7f3-e462e3a71b56.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-301b9696-825c-4754-bbed-376ce50f7004.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-27033ef9-4fe2-433d-bf85-c4169cd0a5dd.png"
+    }
+  },
+  {
+    "name": "professor",
+    "scene": "Professor of economics in a tweed blazer standing before a dark chalkboard with abstract nonsensical diagram lines, holding a piece of chalk, premium academic studio.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-06e301d7-1e6d-438a-9850-93835e8eac81.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-d61f3111-8b61-4f84-9e1c-fe790c2cedaf.png",
+    "mouthROI": [
+      915,
+      349,
+      128,
+      75
+    ],
+    "eyesROI": [
+      893,
+      223,
+      187,
+      61
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-da628054-8cf9-4118-a155-318883cceb3e.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-a5b509a9-a9de-4a0e-be1d-f3a6c8dbba11.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-fd60483e-b430-421e-8cc0-c90fa4b63fbe.png"
+    }
+  },
+  {
+    "name": "crisis",
+    "scene": "Leader of an emergency corporate crisis meeting at a table with many documents and telephones, dramatic navy/burgundy war-room lighting.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-a2ee5143-b4a8-4261-bf6a-0011fbfe1dbc.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-e9f7855e-37a9-4a68-866e-48b6938e23a5.png",
+    "mouthROI": [
+      916,
+      343,
+      125,
+      76
+    ],
+    "eyesROI": [
+      893,
+      222,
+      185,
+      59
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-e8450c7c-ca1c-413d-9b0a-ac2894369c78.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-5a319a48-b4a2-4592-b8f0-3c539fbbe11d.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-a62d0d5e-465d-4dd5-b718-b3cc60a04d9d.png"
+    }
+  },
+  {
+    "name": "disappointed",
+    "scene": "News anchor staring directly into camera with absolute closed-mouth disappointment in his own newsroom's competence, navy suit, still hands on papers, elegant studio.",
+    "source": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-eac4d092-f47a-4759-a7ab-445634fec1ef.png",
+    "matte": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-f43bd481-196b-45ef-a0b7-981ac86c7c78.png",
+    "mouthROI": [
+      915,
+      349,
+      129,
+      76
+    ],
+    "eyesROI": [
+      892,
+      223,
+      189,
+      60
+    ],
+    "prompts": {
+      "matte": "Background-extraction. Remove ONLY the entire background and ALL furniture, desks, chairs, scenery and all objects beside the man. Keep the exact man and ONLY handheld props and wearable accessories: microphone, newspaper, cup if held, trophy, calculator if held, pointer, glasses, foil hat, headset, folder or chalk if present. Preserve exact silhouette, head, hair, face, body pose, hands, clothing and pixel coordinates. Do NOT redraw, move, resize or crop anything. Original 16:9 canvas unchanged. Natural hair alpha edges. TRUE transparent alpha outside the man and handheld props; no painted checkerboard. ONE single image.",
+      "talk": "Precise-object-edit of supplied idle frame. Create one talk animation frame. Change ONLY the lips and mouth: part lips a little for natural speech, a small opening. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "talk-wide": "Precise-object-edit of supplied idle frame. Create one talk-wide animation frame. Change ONLY lips and mouth: moderate wider natural spoken vowel with realistic teeth, not shouting. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization.",
+      "blink": "Precise-object-edit of supplied idle frame. Create one blink animation frame. Change ONLY both eyelids: naturally close eyes for a blink, mouth stays closed. CRITICAL: head, facial identity, chin, beard, hair, nose, eyes except blink, body, hands, clothing, every object, background, lighting and camera must remain pixel-aligned and unchanged. No head movement, no recrop, no scale. Same original dimensions and aspect ratio. Photorealistic fine skin, no stylization."
+    },
+    "variants": {
+      "talk": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-8364058d-fee8-4cff-a0e8-32bf474315b7.png",
+      "talk-wide": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-5f2cb492-8493-49b9-a43e-1949f3e189c7.png",
+      "blink": "/Users/moreman32/.codex/generated_images/01a22177-d71a-70f3-9fbd-41449f07261c/exec-fbba84d9-c995-4f83-9fe6-bb44ce52c4fa.png"
+    }
+  }
+]

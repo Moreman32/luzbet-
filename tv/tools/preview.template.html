@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LuzBet TV — просмотр ресурсов</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070c16;color:#eee8dc;font:15px system-ui,sans-serif}main{max-width:1500px;margin:32px auto;padding:0 24px}header{display:flex;align-items:baseline;gap:20px;border-bottom:1px solid #544529;padding-bottom:18px}h1{font-size:25px;margin:0;color:#dcb574}header p{margin:0;color:#a9b0c0}form{display:flex;flex-wrap:wrap;gap:16px;align-items:end;margin:22px 0}label{display:grid;gap:6px;color:#aeb7c9}select,button{background:#131e31;border:1px solid #42516b;border-radius:6px;color:#fff;padding:10px;font:inherit}select{max-width:300px}button{cursor:pointer}label.check{display:flex;align-items:center;min-height:42px}#stage{position:relative;aspect-ratio:16/9;overflow:hidden;background:#10192b;border:1px solid #354055;border-radius:8px}#stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}#foreground{position:absolute;inset:0}#title{position:absolute;left:15%;right:15%;top:35%;height:30%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(22px,5vw,74px);font-weight:750;letter-spacing:.025em;text-shadow:0 3px 18px #000;color:#f4d699}#stage.checker{background-color:#182131;background-image:linear-gradient(45deg,#354055 25%,transparent 25%),linear-gradient(-45deg,#354055 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#354055 75%),linear-gradient(-45deg,transparent 75%,#354055 75%);background-size:32px 32px;background-position:0 0,0 16px,16px -16px,-16px 0}#status{min-height:22px;color:#aeb7c9}footer{display:flex;gap:20px;margin:18px 0;color:#aeb7c9}a{color:#dcb574}#stage:fullscreen{border:0;border-radius:0;width:100vw;height:100vh;background-color:#070c16}
+</style>
+<main>
+<header><h1>Лузбет TV</h1><p>Ведущий и студия — независимые слои</p></header>
+<form onsubmit="return false">
+<label>Ресурсы<select id="mode"><option value="host">Говорящий ведущий</option><option value="reactions">Реакции</option><option value="studios">Студии</option><option value="intros">Заставки</option></select></label>
+<label>Образ<select id="asset"></select></label>
+<label>Фон<select id="background"><option value="">Прозрачность</option></select></label>
+<label>Кадр<select id="state"><option value="idle">idle</option><option value="talk">talk</option><option value="talkWide">talk-wide</option><option value="blink">blink</option></select></label>
+<label class="check"><input id="animate" type="checkbox">Речь и моргание</label>
+<label class="check"><input id="showTitle" type="checkbox" checked>Название заставки</label>
+<button id="fullscreen" type="button">На весь экран</button>
+</form>
+<div id="stage"><img id="bg" alt="Отдельный фон студии"><div id="foreground"></div><div id="title"></div></div>
+<p id="status" aria-live="polite"></p>
+<footer><a href="assets/previews/contact-sheet.jpg">Контактный лист</a><a href="assets-manifest.json">Манифест</a><a href="host.json">host.json</a></footer>
+</main>
+<script id="manifest" type="application/json">__MANIFEST__</script>
+<script>
+const manifest=JSON.parse(document.getElementById('manifest').textContent);
+const $=id=>document.getElementById(id);
+const assets=manifest.assets, groups={};
+for(const a of assets){if(a.category==='host'){(groups[a.pose]??={})[a.state]=a;} }
+for(const a of assets.filter(a=>a.category==='studios')) $('background').add(new Option(a.purpose,a.relativePath));
+$('background').value='assets/studios/news.webp';
+let frames={},generation=0,displayed=null;
+function updateChoices(){
+ const mode=$('mode').value;
+ $('asset').replaceChildren();
+ if(mode==='host')for(const name of Object.keys(groups))$('asset').add(new Option(name,name));
+ else for(const a of assets.filter(a=>a.category===mode))$('asset').add(new Option(a.purpose,a.id));
+ $('state').disabled=mode!=='host';$('animate').disabled=mode!=='host';
+ $('background').disabled=mode==='studios'||mode==='intros';
+ loadSelection();
+}
+function loadImage(asset){return new Promise((resolve,reject)=>{const img=new Image();img.alt=asset.purpose;img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Не удалось загрузить '+asset.relativePath));img.src=asset.relativePath;});}
+async function loadSelection(){
+ const version=++generation, mode=$('mode').value, selected=$('asset').value;
+ $('status').textContent='Загрузка…';
+ const selection=mode==='host'?groups[selected]:{idle:assets.find(a=>a.id===selected&&a.category===mode)};
+ try{
+  const entries=await Promise.all(Object.entries(selection).map(async([state,a])=>[state,await loadImage(a)]));
+  if(version!==generation)return;
+  frames=Object.fromEntries(entries);displayed=null;
+  $('foreground').replaceChildren(...entries.map(([,img])=>{img.style.visibility='hidden';return img;}));
+  const title=mode==='intros'?selection.idle.overlayTitle:'';
+  $('title').textContent=title;$('title').style.visibility=$('showTitle').checked?'visible':'hidden';
+  updateBackground();showFrame(mode==='host'?$('state').value:'idle');
+  $('status').textContent=mode==='host'?selected+' · 1920 × 1080 · прозрачный WebP · четыре согласованных кадра':selection.idle.purpose+' · 1920 × 1080';
+ }catch(error){if(version===generation)$('status').textContent=error.message;}
+}
+function updateBackground(){const mode=$('mode').value;const path=(mode==='host'||mode==='reactions')?$('background').value:'';$('bg').style.display=path?'block':'none';if(path)$('bg').src=path;$('stage').classList.toggle('checker',!path&&(mode==='host'||mode==='reactions'));}
+function showFrame(key){if(!frames[key])key='idle';if(displayed===key)return;for(const [state,img]of Object.entries(frames))img.style.visibility=state===key?'visible':'hidden';displayed=key;}
+function tick(time){if($('mode').value==='host'){let key=$('state').value;if($('animate').checked){const cycle=time%4600;key=cycle>4300&&cycle<4430?'blink':['idle','talk','talkWide','talk','idle'][Math.floor(time/140)%5];}showFrame(key);}requestAnimationFrame(tick);}
+$('mode').addEventListener('change',updateChoices);$('asset').addEventListener('change',loadSelection);$('background').addEventListener('change',updateBackground);$('state').addEventListener('change',()=>showFrame($('state').value));$('showTitle').addEventListener('change',()=>{$('title').style.visibility=$('showTitle').checked?'visible':'hidden';});$('fullscreen').addEventListener('click',()=>{$('stage').requestFullscreen();});
+updateChoices();requestAnimationFrame(tick);
+</script>
+</html>

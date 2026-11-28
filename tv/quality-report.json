@@ -1,0 +1,874 @@
+{
+  "complete": true,
+  "assetCount": 137,
+  "animationComparisons": 72,
+  "checks": [
+    {
+      "pose": "desk",
+      "state": "talk",
+      "roi": [
+        916,
+        347,
+        127,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "desk",
+      "state": "talk-wide",
+      "roi": [
+        916,
+        347,
+        127,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "desk",
+      "state": "blink",
+      "roi": [
+        893,
+        222,
+        188,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "newspaper",
+      "state": "talk",
+      "roi": [
+        913,
+        346,
+        130,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "newspaper",
+      "state": "talk-wide",
+      "roi": [
+        913,
+        346,
+        130,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "newspaper",
+      "state": "blink",
+      "roi": [
+        892,
+        222,
+        188,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "analyst",
+      "state": "talk",
+      "roi": [
+        914,
+        347,
+        129,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "analyst",
+      "state": "talk-wide",
+      "roi": [
+        914,
+        347,
+        129,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "analyst",
+      "state": "blink",
+      "roi": [
+        893,
+        226,
+        186,
+        59
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "coffee",
+      "state": "talk",
+      "roi": [
+        920,
+        348,
+        123,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "coffee",
+      "state": "talk-wide",
+      "roi": [
+        920,
+        348,
+        123,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "coffee",
+      "state": "blink",
+      "roi": [
+        893,
+        223,
+        188,
+        59
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "reporter",
+      "state": "talk",
+      "roi": [
+        917,
+        348,
+        128,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "reporter",
+      "state": "talk-wide",
+      "roi": [
+        917,
+        348,
+        128,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "reporter",
+      "state": "blink",
+      "roi": [
+        892,
+        224,
+        192,
+        61
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "shocked",
+      "state": "talk",
+      "roi": [
+        916,
+        347,
+        122,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "shocked",
+      "state": "talk-wide",
+      "roi": [
+        916,
+        347,
+        122,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "shocked",
+      "state": "blink",
+      "roi": [
+        892,
+        220,
+        187,
+        64
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "laughing",
+      "state": "talk",
+      "roi": [
+        904,
+        337,
+        142,
+        82
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "laughing",
+      "state": "talk-wide",
+      "roi": [
+        904,
+        337,
+        142,
+        82
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "laughing",
+      "state": "blink",
+      "roi": [
+        893,
+        230,
+        183,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "weather",
+      "state": "talk",
+      "roi": [
+        661,
+        295,
+        110,
+        73
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "weather",
+      "state": "talk-wide",
+      "roi": [
+        661,
+        295,
+        110,
+        73
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "weather",
+      "state": "blink",
+      "roi": [
+        642,
+        198,
+        158,
+        55
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "awards",
+      "state": "talk",
+      "roi": [
+        914,
+        349,
+        128,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "awards",
+      "state": "talk-wide",
+      "roi": [
+        914,
+        349,
+        128,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "awards",
+      "state": "blink",
+      "roi": [
+        891,
+        224,
+        188,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "detective",
+      "state": "talk",
+      "roi": [
+        914,
+        348,
+        128,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "detective",
+      "state": "talk-wide",
+      "roi": [
+        914,
+        348,
+        128,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "detective",
+      "state": "blink",
+      "roi": [
+        893,
+        223,
+        187,
+        59
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "conspiracy",
+      "state": "talk",
+      "roi": [
+        932,
+        367,
+        117,
+        72
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "conspiracy",
+      "state": "talk-wide",
+      "roi": [
+        932,
+        367,
+        117,
+        72
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "conspiracy",
+      "state": "blink",
+      "roi": [
+        914,
+        256,
+        170,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "tired",
+      "state": "talk",
+      "roi": [
+        916,
+        348,
+        127,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "tired",
+      "state": "talk-wide",
+      "roi": [
+        916,
+        348,
+        127,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "tired",
+      "state": "blink",
+      "roi": [
+        893,
+        224,
+        188,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "calculator",
+      "state": "talk",
+      "roi": [
+        946,
+        316,
+        118,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "calculator",
+      "state": "talk-wide",
+      "roi": [
+        946,
+        316,
+        118,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "calculator",
+      "state": "blink",
+      "roi": [
+        922,
+        201,
+        179,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "bankruptcy",
+      "state": "talk",
+      "roi": [
+        919,
+        335,
+        122,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "bankruptcy",
+      "state": "talk-wide",
+      "roi": [
+        919,
+        335,
+        122,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "bankruptcy",
+      "state": "blink",
+      "roi": [
+        895,
+        217,
+        182,
+        58
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "lawyer",
+      "state": "talk",
+      "roi": [
+        917,
+        346,
+        126,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "lawyer",
+      "state": "talk-wide",
+      "roi": [
+        917,
+        346,
+        126,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "lawyer",
+      "state": "blink",
+      "roi": [
+        894,
+        222,
+        186,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "scientist",
+      "state": "talk",
+      "roi": [
+        914,
+        349,
+        129,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "scientist",
+      "state": "talk-wide",
+      "roi": [
+        914,
+        349,
+        129,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "scientist",
+      "state": "blink",
+      "roi": [
+        893,
+        223,
+        187,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "emergency",
+      "state": "talk",
+      "roi": [
+        914,
+        348,
+        128,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "emergency",
+      "state": "talk-wide",
+      "roi": [
+        914,
+        348,
+        128,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "emergency",
+      "state": "blink",
+      "roi": [
+        892,
+        222,
+        188,
+        61
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "interview",
+      "state": "talk",
+      "roi": [
+        916,
+        348,
+        127,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "interview",
+      "state": "talk-wide",
+      "roi": [
+        916,
+        348,
+        127,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "interview",
+      "state": "blink",
+      "roi": [
+        893,
+        223,
+        188,
+        59
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "director",
+      "state": "talk",
+      "roi": [
+        914,
+        349,
+        128,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "director",
+      "state": "talk-wide",
+      "roi": [
+        914,
+        349,
+        128,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "director",
+      "state": "blink",
+      "roi": [
+        892,
+        224,
+        188,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "sports",
+      "state": "talk",
+      "roi": [
+        914,
+        348,
+        129,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "sports",
+      "state": "talk-wide",
+      "roi": [
+        914,
+        348,
+        129,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "sports",
+      "state": "blink",
+      "roi": [
+        894,
+        222,
+        188,
+        61
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "commercial",
+      "state": "talk",
+      "roi": [
+        913,
+        348,
+        128,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "commercial",
+      "state": "talk-wide",
+      "roi": [
+        913,
+        348,
+        128,
+        77
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "commercial",
+      "state": "blink",
+      "roi": [
+        891,
+        224,
+        188,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "professor",
+      "state": "talk",
+      "roi": [
+        915,
+        349,
+        128,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "professor",
+      "state": "talk-wide",
+      "roi": [
+        915,
+        349,
+        128,
+        75
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "professor",
+      "state": "blink",
+      "roi": [
+        893,
+        223,
+        187,
+        61
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "crisis",
+      "state": "talk",
+      "roi": [
+        916,
+        343,
+        125,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "crisis",
+      "state": "talk-wide",
+      "roi": [
+        916,
+        343,
+        125,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "crisis",
+      "state": "blink",
+      "roi": [
+        893,
+        222,
+        185,
+        59
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "disappointed",
+      "state": "talk",
+      "roi": [
+        915,
+        349,
+        129,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "disappointed",
+      "state": "talk-wide",
+      "roi": [
+        915,
+        349,
+        129,
+        76
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    },
+    {
+      "pose": "disappointed",
+      "state": "blink",
+      "roi": [
+        892,
+        223,
+        189,
+        60
+      ],
+      "changedVisiblePixelsOutsideROI": 0,
+      "identicalAlpha": true
+    }
+  ],
+  "limitations": [
+    "Semantic likeness, hands and aesthetic quality require visual review."
+  ]
+}
